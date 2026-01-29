@@ -1,0 +1,570 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Generalization in Deep Learning - Dive into Deep Learning</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../static/d2l.css">
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('light')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../index.html">Deep Learning</a></li><li class="chapter-item expanded "><a href="../chapter_preface/index.html"><strong aria-hidden="true">1.</strong> Preface</a></li><li class="chapter-item expanded "><a href="../chapter_installation/index.html"><strong aria-hidden="true">2.</strong> Installation</a></li><li class="chapter-item expanded "><a href="../chapter_notation/index.html"><strong aria-hidden="true">3.</strong> Notation</a></li><li class="chapter-item expanded "><a href="../chapter_introduction/index.html"><strong aria-hidden="true">4.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="../chapter_preliminaries/index.html"><strong aria-hidden="true">5.</strong> Preliminaries</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_preliminaries/ndarray.html"><strong aria-hidden="true">5.1.</strong> Data Manipulation</a></li><li class="chapter-item "><a href="../chapter_preliminaries/pandas.html"><strong aria-hidden="true">5.2.</strong> Data Preprocessing</a></li><li class="chapter-item "><a href="../chapter_preliminaries/linear-algebra.html"><strong aria-hidden="true">5.3.</strong> Linear Algebra</a></li><li class="chapter-item "><a href="../chapter_preliminaries/calculus.html"><strong aria-hidden="true">5.4.</strong> Calculus</a></li><li class="chapter-item "><a href="../chapter_preliminaries/autograd.html"><strong aria-hidden="true">5.5.</strong> Automatic Differentiation</a></li><li class="chapter-item "><a href="../chapter_preliminaries/probability.html"><strong aria-hidden="true">5.6.</strong> Probability and Statistics</a></li><li class="chapter-item "><a href="../chapter_preliminaries/lookup-api.html"><strong aria-hidden="true">5.7.</strong> Documentation</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_linear-regression/index.html"><strong aria-hidden="true">6.</strong> Linear Neural Networks for Regression</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_linear-regression/linear-regression.html"><strong aria-hidden="true">6.1.</strong> Linear Regression</a></li><li class="chapter-item "><a href="../chapter_linear-regression/oo-design.html"><strong aria-hidden="true">6.2.</strong> Object-Oriented Design for Implementation</a></li><li class="chapter-item "><a href="../chapter_linear-regression/synthetic-regression-data.html"><strong aria-hidden="true">6.3.</strong> Synthetic Regression Data</a></li><li class="chapter-item "><a href="../chapter_linear-regression/linear-regression-scratch.html"><strong aria-hidden="true">6.4.</strong> Linear Regression Implementation from Scratch</a></li><li class="chapter-item "><a href="../chapter_linear-regression/linear-regression-concise.html"><strong aria-hidden="true">6.5.</strong> Concise Implementation of Linear Regression</a></li><li class="chapter-item "><a href="../chapter_linear-regression/generalization.html"><strong aria-hidden="true">6.6.</strong> Generalization</a></li><li class="chapter-item "><a href="../chapter_linear-regression/weight-decay.html"><strong aria-hidden="true">6.7.</strong> Weight Decay</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_linear-classification/index.html"><strong aria-hidden="true">7.</strong> Linear Neural Networks for Classification</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_linear-classification/softmax-regression.html"><strong aria-hidden="true">7.1.</strong> Softmax Regression</a></li><li class="chapter-item "><a href="../chapter_linear-classification/image-classification-dataset.html"><strong aria-hidden="true">7.2.</strong> The Image Classification Dataset</a></li><li class="chapter-item "><a href="../chapter_linear-classification/classification.html"><strong aria-hidden="true">7.3.</strong> The Base Classification Model</a></li><li class="chapter-item "><a href="../chapter_linear-classification/softmax-regression-scratch.html"><strong aria-hidden="true">7.4.</strong> Softmax Regression Implementation from Scratch</a></li><li class="chapter-item "><a href="../chapter_linear-classification/softmax-regression-concise.html"><strong aria-hidden="true">7.5.</strong> Concise Implementation of Softmax Regression</a></li><li class="chapter-item "><a href="../chapter_linear-classification/generalization-classification.html"><strong aria-hidden="true">7.6.</strong> Generalization in Classification</a></li><li class="chapter-item "><a href="../chapter_linear-classification/environment-and-distribution-shift.html"><strong aria-hidden="true">7.7.</strong> Environment and Distribution Shift</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_multilayer-perceptrons/index.html"><strong aria-hidden="true">8.</strong> Multilayer Perceptrons</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/mlp.html"><strong aria-hidden="true">8.1.</strong> Multilayer Perceptrons</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/mlp-implementation.html"><strong aria-hidden="true">8.2.</strong> Implementation of Multilayer Perceptrons</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/backprop.html"><strong aria-hidden="true">8.3.</strong> Forward Propagation, Backward Propagation, and Computational Graphs</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/numerical-stability-and-init.html"><strong aria-hidden="true">8.4.</strong> Numerical Stability and Initialization</a></li><li class="chapter-item expanded "><a href="../chapter_multilayer-perceptrons/generalization-deep.html" class="active"><strong aria-hidden="true">8.5.</strong> Generalization in Deep Learning</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/dropout.html"><strong aria-hidden="true">8.6.</strong> Dropout</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/kaggle-house-price.html"><strong aria-hidden="true">8.7.</strong> Predicting House Prices on Kaggle</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_builders-guide/index.html"><strong aria-hidden="true">9.</strong> Builders' Guide</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_builders-guide/model-construction.html"><strong aria-hidden="true">9.1.</strong> Layers and Modules</a></li><li class="chapter-item "><a href="../chapter_builders-guide/parameters.html"><strong aria-hidden="true">9.2.</strong> Parameter Management</a></li><li class="chapter-item "><a href="../chapter_builders-guide/init-param.html"><strong aria-hidden="true">9.3.</strong> Parameter Initialization</a></li><li class="chapter-item "><a href="../chapter_builders-guide/lazy-init.html"><strong aria-hidden="true">9.4.</strong> Lazy Initialization</a></li><li class="chapter-item "><a href="../chapter_builders-guide/custom-layer.html"><strong aria-hidden="true">9.5.</strong> Custom Layers</a></li><li class="chapter-item "><a href="../chapter_builders-guide/read-write.html"><strong aria-hidden="true">9.6.</strong> File I/O</a></li><li class="chapter-item "><a href="../chapter_builders-guide/use-gpu.html"><strong aria-hidden="true">9.7.</strong> GPUs</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_convolutional-neural-networks/index.html"><strong aria-hidden="true">10.</strong> Convolutional Neural Networks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/why-conv.html"><strong aria-hidden="true">10.1.</strong> From Fully Connected Layers to Convolutions</a></li><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/conv-layer.html"><strong aria-hidden="true">10.2.</strong> Convolutions for Images</a></li><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/padding-and-strides.html"><strong aria-hidden="true">10.3.</strong> Padding and Stride</a></li><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/channels.html"><strong aria-hidden="true">10.4.</strong> Multiple Input and Multiple Output Channels</a></li><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/pooling.html"><strong aria-hidden="true">10.5.</strong> Pooling</a></li><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/lenet.html"><strong aria-hidden="true">10.6.</strong> Convolutional Neural Networks (LeNet)</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_convolutional-modern/index.html"><strong aria-hidden="true">11.</strong> Modern Convolutional Neural Networks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_convolutional-modern/alexnet.html"><strong aria-hidden="true">11.1.</strong> Deep Convolutional Neural Networks (AlexNet)</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/vgg.html"><strong aria-hidden="true">11.2.</strong> Networks Using Blocks (VGG)</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/nin.html"><strong aria-hidden="true">11.3.</strong> Network in Network (NiN)</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/googlenet.html"><strong aria-hidden="true">11.4.</strong> Multi-Branch Networks  (GoogLeNet)</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/batch-norm.html"><strong aria-hidden="true">11.5.</strong> Batch Normalization</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/resnet.html"><strong aria-hidden="true">11.6.</strong> Residual Networks (ResNet) and ResNeXt</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/densenet.html"><strong aria-hidden="true">11.7.</strong> Densely Connected Networks (DenseNet)</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/cnn-design.html"><strong aria-hidden="true">11.8.</strong> Designing Convolution Network Architectures</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_recurrent-neural-networks/index.html"><strong aria-hidden="true">12.</strong> Recurrent Neural Networks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/sequence.html"><strong aria-hidden="true">12.1.</strong> Working with Sequences</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/text-sequence.html"><strong aria-hidden="true">12.2.</strong> Converting Raw Text into Sequence Data</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/language-model.html"><strong aria-hidden="true">12.3.</strong> Language Models</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/rnn.html"><strong aria-hidden="true">12.4.</strong> Recurrent Neural Networks</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/rnn-scratch.html"><strong aria-hidden="true">12.5.</strong> Recurrent Neural Network Implementation from Scratch</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/rnn-concise.html"><strong aria-hidden="true">12.6.</strong> Concise Implementation of Recurrent Neural Networks</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/bptt.html"><strong aria-hidden="true">12.7.</strong> Backpropagation Through Time</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_recurrent-modern/index.html"><strong aria-hidden="true">13.</strong> Modern Recurrent Neural Networks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_recurrent-modern/lstm.html"><strong aria-hidden="true">13.1.</strong> Long Short-Term Memory (LSTM)</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/gru.html"><strong aria-hidden="true">13.2.</strong> Gated Recurrent Units (GRU)</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/deep-rnn.html"><strong aria-hidden="true">13.3.</strong> Deep Recurrent Neural Networks</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/bi-rnn.html"><strong aria-hidden="true">13.4.</strong> Bidirectional Recurrent Neural Networks</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/machine-translation-and-dataset.html"><strong aria-hidden="true">13.5.</strong> Machine Translation and the Dataset</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/encoder-decoder.html"><strong aria-hidden="true">13.6.</strong> The Encoder--Decoder Architecture</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/seq2seq.html"><strong aria-hidden="true">13.7.</strong> Sequence-to-Sequence Learning for Machine Translation</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/beam-search.html"><strong aria-hidden="true">13.8.</strong> Beam Search</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_attention-mechanisms-and-transformers/index.html"><strong aria-hidden="true">14.</strong> Attention Mechanisms and Transformers</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/queries-keys-values.html"><strong aria-hidden="true">14.1.</strong> Queries, Keys, and Values</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/attention-pooling.html"><strong aria-hidden="true">14.2.</strong> Attention Pooling by Similarity</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/attention-scoring-functions.html"><strong aria-hidden="true">14.3.</strong> Attention Scoring Functions</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/bahdanau-attention.html"><strong aria-hidden="true">14.4.</strong> The Bahdanau Attention Mechanism</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/multihead-attention.html"><strong aria-hidden="true">14.5.</strong> Multi-Head Attention</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/self-attention-and-positional-encoding.html"><strong aria-hidden="true">14.6.</strong> Self-Attention and Positional Encoding</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/transformer.html"><strong aria-hidden="true">14.7.</strong> The Transformer Architecture</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/vision-transformer.html"><strong aria-hidden="true">14.8.</strong> Transformers for Vision</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/large-pretraining-transformers.html"><strong aria-hidden="true">14.9.</strong> Large-Scale Pretraining with Transformers</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_optimization/index.html"><strong aria-hidden="true">15.</strong> Optimization Algorithms</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_optimization/optimization-intro.html"><strong aria-hidden="true">15.1.</strong> Optimization and Deep Learning</a></li><li class="chapter-item "><a href="../chapter_optimization/convexity.html"><strong aria-hidden="true">15.2.</strong> Convexity</a></li><li class="chapter-item "><a href="../chapter_optimization/gd.html"><strong aria-hidden="true">15.3.</strong> Gradient Descent</a></li><li class="chapter-item "><a href="../chapter_optimization/sgd.html"><strong aria-hidden="true">15.4.</strong> Stochastic Gradient Descent</a></li><li class="chapter-item "><a href="../chapter_optimization/minibatch-sgd.html"><strong aria-hidden="true">15.5.</strong> Minibatch Stochastic Gradient Descent</a></li><li class="chapter-item "><a href="../chapter_optimization/momentum.html"><strong aria-hidden="true">15.6.</strong> Momentum</a></li><li class="chapter-item "><a href="../chapter_optimization/adagrad.html"><strong aria-hidden="true">15.7.</strong> Adagrad</a></li><li class="chapter-item "><a href="../chapter_optimization/rmsprop.html"><strong aria-hidden="true">15.8.</strong> RMSProp</a></li><li class="chapter-item "><a href="../chapter_optimization/adadelta.html"><strong aria-hidden="true">15.9.</strong> Adadelta</a></li><li class="chapter-item "><a href="../chapter_optimization/adam.html"><strong aria-hidden="true">15.10.</strong> Adam</a></li><li class="chapter-item "><a href="../chapter_optimization/lr-scheduler.html"><strong aria-hidden="true">15.11.</strong> Learning Rate Scheduling</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_computational-performance/index.html"><strong aria-hidden="true">16.</strong> Computational Performance</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_computational-performance/hybridize.html"><strong aria-hidden="true">16.1.</strong> Compilers and Interpreters</a></li><li class="chapter-item "><a href="../chapter_computational-performance/async-computation.html"><strong aria-hidden="true">16.2.</strong> Asynchronous Computation</a></li><li class="chapter-item "><a href="../chapter_computational-performance/auto-parallelism.html"><strong aria-hidden="true">16.3.</strong> Automatic Parallelism</a></li><li class="chapter-item "><a href="../chapter_computational-performance/hardware.html"><strong aria-hidden="true">16.4.</strong> Hardware</a></li><li class="chapter-item "><a href="../chapter_computational-performance/multiple-gpus.html"><strong aria-hidden="true">16.5.</strong> Training on Multiple GPUs</a></li><li class="chapter-item "><a href="../chapter_computational-performance/multiple-gpus-concise.html"><strong aria-hidden="true">16.6.</strong> Concise Implementation for Multiple GPUs</a></li><li class="chapter-item "><a href="../chapter_computational-performance/parameterserver.html"><strong aria-hidden="true">16.7.</strong> Parameter Servers</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_computer-vision/index.html"><strong aria-hidden="true">17.</strong> Computer Vision</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_computer-vision/image-augmentation.html"><strong aria-hidden="true">17.1.</strong> Image Augmentation</a></li><li class="chapter-item "><a href="../chapter_computer-vision/fine-tuning.html"><strong aria-hidden="true">17.2.</strong> Fine-Tuning</a></li><li class="chapter-item "><a href="../chapter_computer-vision/bounding-box.html"><strong aria-hidden="true">17.3.</strong> Object Detection and Bounding Boxes</a></li><li class="chapter-item "><a href="../chapter_computer-vision/anchor.html"><strong aria-hidden="true">17.4.</strong> Anchor Boxes</a></li><li class="chapter-item "><a href="../chapter_computer-vision/multiscale-object-detection.html"><strong aria-hidden="true">17.5.</strong> Multiscale Object Detection</a></li><li class="chapter-item "><a href="../chapter_computer-vision/object-detection-dataset.html"><strong aria-hidden="true">17.6.</strong> The Object Detection Dataset</a></li><li class="chapter-item "><a href="../chapter_computer-vision/ssd.html"><strong aria-hidden="true">17.7.</strong> Single Shot Multibox Detection</a></li><li class="chapter-item "><a href="../chapter_computer-vision/rcnn.html"><strong aria-hidden="true">17.8.</strong> Region-based CNNs (R-CNNs)</a></li><li class="chapter-item "><a href="../chapter_computer-vision/semantic-segmentation-and-dataset.html"><strong aria-hidden="true">17.9.</strong> Semantic Segmentation and the Dataset</a></li><li class="chapter-item "><a href="../chapter_computer-vision/transposed-conv.html"><strong aria-hidden="true">17.10.</strong> Transposed Convolution</a></li><li class="chapter-item "><a href="../chapter_computer-vision/fcn.html"><strong aria-hidden="true">17.11.</strong> Fully Convolutional Networks</a></li><li class="chapter-item "><a href="../chapter_computer-vision/neural-style.html"><strong aria-hidden="true">17.12.</strong> Neural Style Transfer</a></li><li class="chapter-item "><a href="../chapter_computer-vision/kaggle-cifar10.html"><strong aria-hidden="true">17.13.</strong> Image Classification (CIFAR-10) on Kaggle</a></li><li class="chapter-item "><a href="../chapter_computer-vision/kaggle-dog.html"><strong aria-hidden="true">17.14.</strong> Dog Breed Identification (ImageNet Dogs) on Kaggle</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_natural-language-processing-pretraining/index.html"><strong aria-hidden="true">18.</strong> Natural Language Processing: Pretraining</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/word2vec.html"><strong aria-hidden="true">18.1.</strong> Word Embedding (word2vec)</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/approx-training.html"><strong aria-hidden="true">18.2.</strong> Approximate Training</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/word-embedding-dataset.html"><strong aria-hidden="true">18.3.</strong> The Dataset for Pretraining Word Embeddings</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/word2vec-pretraining.html"><strong aria-hidden="true">18.4.</strong> Pretraining word2vec</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/glove.html"><strong aria-hidden="true">18.5.</strong> Word Embedding with Global Vectors (GloVe)</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/subword-embedding.html"><strong aria-hidden="true">18.6.</strong> Subword Embedding</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/similarity-analogy.html"><strong aria-hidden="true">18.7.</strong> Word Similarity and Analogy</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/bert.html"><strong aria-hidden="true">18.8.</strong> Bidirectional Encoder Representations from Transformers (BERT)</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/bert-dataset.html"><strong aria-hidden="true">18.9.</strong> The Dataset for Pretraining BERT</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/bert-pretraining.html"><strong aria-hidden="true">18.10.</strong> Pretraining BERT</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_natural-language-processing-applications/index.html"><strong aria-hidden="true">19.</strong> Natural Language Processing: Applications</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/sentiment-analysis-and-dataset.html"><strong aria-hidden="true">19.1.</strong> Sentiment Analysis and the Dataset</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/sentiment-analysis-rnn.html"><strong aria-hidden="true">19.2.</strong> Sentiment Analysis: Using Recurrent Neural Networks</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/sentiment-analysis-cnn.html"><strong aria-hidden="true">19.3.</strong> Sentiment Analysis: Using Convolutional Neural Networks</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/natural-language-inference-and-dataset.html"><strong aria-hidden="true">19.4.</strong> Natural Language Inference and the Dataset</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/natural-language-inference-attention.html"><strong aria-hidden="true">19.5.</strong> Natural Language Inference: Using Attention</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/finetuning-bert.html"><strong aria-hidden="true">19.6.</strong> Fine-Tuning BERT for Sequence-Level and Token-Level Applications</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/natural-language-inference-bert.html"><strong aria-hidden="true">19.7.</strong> Natural Language Inference: Fine-Tuning BERT</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_reinforcement-learning/index.html"><strong aria-hidden="true">20.</strong> Reinforcement Learning</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_reinforcement-learning/mdp.html"><strong aria-hidden="true">20.1.</strong> Markov Decision Process (MDP)</a></li><li class="chapter-item "><a href="../chapter_reinforcement-learning/value-iter.html"><strong aria-hidden="true">20.2.</strong> Value Iteration</a></li><li class="chapter-item "><a href="../chapter_reinforcement-learning/qlearning.html"><strong aria-hidden="true">20.3.</strong> Q-Learning</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_gaussian-processes/index.html"><strong aria-hidden="true">21.</strong> Gaussian Processes</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_gaussian-processes/gp-intro.html"><strong aria-hidden="true">21.1.</strong> Introduction to Gaussian Processes</a></li><li class="chapter-item "><a href="../chapter_gaussian-processes/gp-priors.html"><strong aria-hidden="true">21.2.</strong> Gaussian Process Priors</a></li><li class="chapter-item "><a href="../chapter_gaussian-processes/gp-inference.html"><strong aria-hidden="true">21.3.</strong> Gaussian Process Inference</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_hyperparameter-optimization/index.html"><strong aria-hidden="true">22.</strong> Hyperparameter Optimization</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_hyperparameter-optimization/hyperopt-intro.html"><strong aria-hidden="true">22.1.</strong> What Is Hyperparameter Optimization?</a></li><li class="chapter-item "><a href="../chapter_hyperparameter-optimization/hyperopt-api.html"><strong aria-hidden="true">22.2.</strong> Hyperparameter Optimization API</a></li><li class="chapter-item "><a href="../chapter_hyperparameter-optimization/rs-async.html"><strong aria-hidden="true">22.3.</strong> Asynchronous Random Search</a></li><li class="chapter-item "><a href="../chapter_hyperparameter-optimization/sh-intro.html"><strong aria-hidden="true">22.4.</strong> Multi-Fidelity Hyperparameter Optimization</a></li><li class="chapter-item "><a href="../chapter_hyperparameter-optimization/sh-async.html"><strong aria-hidden="true">22.5.</strong> Asynchronous Successive Halving</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_generative-adversarial-networks/index.html"><strong aria-hidden="true">23.</strong> Generative Adversarial Networks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_generative-adversarial-networks/gan.html"><strong aria-hidden="true">23.1.</strong> Generative Adversarial Networks</a></li><li class="chapter-item "><a href="../chapter_generative-adversarial-networks/dcgan.html"><strong aria-hidden="true">23.2.</strong> Deep Convolutional Generative Adversarial Networks</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_recommender-systems/index.html"><strong aria-hidden="true">24.</strong> Recommender Systems</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_recommender-systems/recsys-intro.html"><strong aria-hidden="true">24.1.</strong> Overview of Recommender Systems</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/movielens.html"><strong aria-hidden="true">24.2.</strong> The MovieLens Dataset</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/mf.html"><strong aria-hidden="true">24.3.</strong> Matrix Factorization</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/autorec.html"><strong aria-hidden="true">24.4.</strong> AutoRec: Rating Prediction with Autoencoders</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/ranking.html"><strong aria-hidden="true">24.5.</strong> Personalized Ranking for Recommender Systems</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/neumf.html"><strong aria-hidden="true">24.6.</strong> Neural Collaborative Filtering for Personalized Ranking</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/seqrec.html"><strong aria-hidden="true">24.7.</strong> Sequence-Aware Recommender Systems</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/ctr.html"><strong aria-hidden="true">24.8.</strong> Feature-Rich Recommender Systems</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/fm.html"><strong aria-hidden="true">24.9.</strong> Factorization Machines</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/deepfm.html"><strong aria-hidden="true">24.10.</strong> Deep Factorization Machines</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_appendix-mathematics-for-deep-learning/index.html"><strong aria-hidden="true">25.</strong> Appendix: Mathematics for Deep Learning</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/geometry-linear-algebraic-ops.html"><strong aria-hidden="true">25.1.</strong> Geometry and Linear Algebraic Operations</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/eigendecomposition.html"><strong aria-hidden="true">25.2.</strong> Eigendecompositions</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/single-variable-calculus.html"><strong aria-hidden="true">25.3.</strong> Single Variable Calculus</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/multivariable-calculus.html"><strong aria-hidden="true">25.4.</strong> Multivariable Calculus</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/integral-calculus.html"><strong aria-hidden="true">25.5.</strong> Integral Calculus</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/random-variables.html"><strong aria-hidden="true">25.6.</strong> Random Variables</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/maximum-likelihood.html"><strong aria-hidden="true">25.7.</strong> Maximum Likelihood</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/distributions.html"><strong aria-hidden="true">25.8.</strong> Distributions</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/naive-bayes.html"><strong aria-hidden="true">25.9.</strong> Naive Bayes</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/statistics.html"><strong aria-hidden="true">25.10.</strong> Statistics</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/information-theory.html"><strong aria-hidden="true">25.11.</strong> Information Theory</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_appendix-tools-for-deep-learning/index.html"><strong aria-hidden="true">26.</strong> Appendix: Tools for Deep Learning</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/jupyter.html"><strong aria-hidden="true">26.1.</strong> Using Jupyter Notebooks</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/sagemaker.html"><strong aria-hidden="true">26.2.</strong> Using Amazon SageMaker</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/aws.html"><strong aria-hidden="true">26.3.</strong> Using AWS EC2 Instances</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/colab.html"><strong aria-hidden="true">26.4.</strong> Using Google Colab</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/selecting-servers-gpus.html"><strong aria-hidden="true">26.5.</strong> Selecting Servers and GPUs</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/contributing.html"><strong aria-hidden="true">26.6.</strong> Contributing to This Book</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/utils.html"><strong aria-hidden="true">26.7.</strong> Utility Functions and Classes</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/d2l.html"><strong aria-hidden="true">26.8.</strong> The d2l API Document</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_references/zreferences.html"><strong aria-hidden="true">27.</strong> chapter_references/zreferences.md</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Dive into Deep Learning</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/d2l-ai/d2l-en" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="generalization-in-deep-learning"><a class="header" href="#generalization-in-deep-learning">Generalization in Deep Learning</a></h1>
+<p>In :numref:<code>chap_regression</code> and :numref:<code>chap_classification</code>,
+we tackled regression and classification problems
+by fitting linear models to training data.
+In both cases, we provided practical algorithms
+for finding the parameters that maximized
+the likelihood of the observed training labels.
+And then, towards the end of each chapter,
+we recalled that fitting the training data
+was only an intermediate goal.
+Our real quest all along was to discover <em>general patterns</em>
+on the basis of which we can make accurate predictions
+even on new examples drawn from the same underlying population.
+Machine learning researchers are <em>consumers</em> of optimization algorithms.
+Sometimes, we must even develop new optimization algorithms.
+But at the end of the day, optimization is merely a means to an end.
+At its core, machine learning is a statistical discipline
+and we wish to optimize training loss only insofar
+as some statistical principle (known or unknown)
+leads the resulting models to generalize beyond the training set.</p>
+<p>On the bright side, it turns out that deep neural networks
+trained by stochastic gradient descent generalize remarkably well
+across myriad prediction problems, spanning computer vision;
+natural language processing; time series data; recommender systems;
+electronic health records; protein folding;
+value function approximation in video games
+and board games; and numerous other domains.
+On the downside, if you were looking
+for a straightforward account
+of either the optimization story
+(why we can fit them to training data)
+or the generalization story
+(why the resulting models generalize to unseen examples),
+then you might want to pour yourself a drink.
+While our procedures for optimizing linear models
+and the statistical properties of the solutions
+are both described well by a comprehensive body of theory,
+our understanding of deep learning
+still resembles the wild west on both fronts.</p>
+<p>Both the theory and practice of deep learning
+are rapidly evolving,
+with theorists adopting new strategies
+to explain what's going on,
+even as practitioners continue
+to innovate at a blistering pace,
+building arsenals of heuristics for training deep networks
+and a body of intuitions and folk knowledge
+that provide guidance for deciding
+which techniques to apply in which situations.</p>
+<p>The summary of the present moment is that the theory of deep learning
+has produced promising lines of attack and scattered fascinating results,
+but still appears far from a comprehensive account
+of both (i) why we are able to optimize neural networks
+and (ii) how models learned by gradient descent
+manage to generalize so well, even on high-dimensional tasks.
+However, in practice, (i) is seldom a problem
+(we can always find parameters that will fit all of our training data)
+and thus understanding generalization is far the bigger problem.
+On the other hand, even absent the comfort of a coherent scientific theory,
+practitioners have developed a large collection of techniques
+that may help you to produce models that generalize well in practice.
+While no pithy summary can possibly do justice
+to the vast topic of generalization in deep learning,
+and while the overall state of research is far from resolved,
+we hope, in this section, to present a broad overview
+of the state of research and practice.</p>
+<h2 id="revisiting-overfitting-and-regularization"><a class="header" href="#revisiting-overfitting-and-regularization">Revisiting Overfitting and Regularization</a></h2>
+<p>According to the "no free lunch" theorem of :citet:<code>wolpert1995no</code>,
+any learning algorithm generalizes better on data with certain distributions, and worse with other distributions.
+Thus, given a finite training set,
+a model relies on certain assumptions:
+to achieve human-level performance
+it may be useful to identify <em>inductive biases</em>
+that reflect how humans think about the world.
+Such inductive biases show preferences
+for solutions with certain properties.
+For example,
+a deep MLP has an inductive bias
+towards building up a complicated function by the composition of simpler functions.</p>
+<p>With machine learning models encoding inductive biases,
+our approach to training them
+typically consists of two phases: (i) fit the training data;
+and (ii) estimate the <em>generalization error</em>
+(the true error on the underlying population)
+by evaluating the model on holdout data.
+The difference between our fit on the training data
+and our fit on the test data is called the <em>generalization gap</em> and when this is large,
+we say that our models <em>overfit</em> to the training data.
+In extreme cases of overfitting,
+we might exactly fit the training data,
+even when the test error remains significant.
+And in the classical view,
+the interpretation is that our models are too complex,
+requiring that we either shrink the number of features,
+the number of nonzero parameters learned,
+or the size of the parameters as quantified.
+Recall the plot of model complexity compared with loss
+(:numref:<code>fig_capacity_vs_error</code>)
+from :numref:<code>sec_generalization_basics</code>.</p>
+<p>However deep learning complicates this picture in counterintuitive ways.
+First, for classification problems,
+our models are typically expressive enough
+to perfectly fit every training example,
+even in datasets consisting of millions
+:cite:<code>zhang2021understanding</code>.
+In the classical picture, we might think
+that this setting lies on the far right extreme
+of the model complexity axis,
+and that any improvements in generalization error
+must come by way of regularization,
+either by reducing the complexity of the model class,
+or by applying a penalty, severely constraining
+the set of values that our parameters might take.
+But that is where things start to get weird.</p>
+<p>Strangely, for many deep learning tasks
+(e.g., image recognition and text classification)
+we are typically choosing among model architectures,
+all of which can achieve arbitrarily low training loss
+(and zero training error).
+Because all models under consideration achieve zero training error,
+<em>the only avenue for further gains is to reduce overfitting</em>.
+Even stranger, it is often the case that
+despite fitting the training data perfectly,
+we can actually <em>reduce the generalization error</em>
+further by making the model <em>even more expressive</em>,
+e.g., adding layers, nodes, or training
+for a larger number of epochs.
+Stranger yet, the pattern relating the generalization gap
+to the <em>complexity</em> of the model (as captured, for example, in the depth or width of the networks)
+can be non-monotonic,
+with greater complexity hurting at first
+but subsequently helping in a so-called "double-descent" pattern
+:cite:<code>nakkiran2021deep</code>.
+Thus the deep learning practitioner possesses a bag of tricks,
+some of which seemingly restrict the model in some fashion
+and others that seemingly make it even more expressive,
+and all of which, in some sense, are applied to mitigate overfitting.</p>
+<p>Complicating things even further,
+while the guarantees provided by classical learning theory
+can be conservative even for classical models,
+they appear powerless to explain why it is
+that deep neural networks generalize in the first place.
+Because deep neural networks are capable of fitting
+arbitrary labels even for large datasets,
+and despite the use of familiar methods such as $\ell_2$ regularization,
+traditional complexity-based generalization bounds,
+e.g., those based on the VC dimension
+or Rademacher complexity of a hypothesis class
+cannot explain why neural networks generalize.</p>
+<h2 id="inspiration-from-nonparametrics"><a class="header" href="#inspiration-from-nonparametrics">Inspiration from Nonparametrics</a></h2>
+<p>Approaching deep learning for the first time,
+it is tempting to think of them as parametric models.
+After all, the models <em>do</em> have millions of parameters.
+When we update the models, we update their parameters.
+When we save the models, we write their parameters to disk.
+However, mathematics and computer science are riddled
+with counterintuitive changes of perspective,
+and surprising isomorphisms between seemingly different problems.
+While neural networks clearly <em>have</em> parameters,
+in some ways it can be more fruitful
+to think of them as behaving like nonparametric models.
+So what precisely makes a model nonparametric?
+While the name covers a diverse set of approaches,
+one common theme is that nonparametric methods
+tend to have a level of complexity that grows
+as the amount of available data grows.</p>
+<p>Perhaps the simplest example of a nonparametric model
+is the $k$-nearest neighbor algorithm (we will cover more nonparametric models later, for example in :numref:<code>sec_attention-pooling</code>).
+Here, at training time,
+the learner simply memorizes the dataset.
+Then, at prediction time,
+when confronted with a new point $\mathbf{x}$,
+the learner looks up the $k$ nearest neighbors
+(the $k$ points $\mathbf{x}_i'$ that minimize
+some distance $d(\mathbf{x}, \mathbf{x}_i')$).
+When $k=1$, this algorithm is called $1$-nearest neighbors,
+and the algorithm will always achieve a training error of zero.
+That however, does not mean that the algorithm will not generalize.
+In fact, it turns out that under some mild conditions,
+the 1-nearest neighbor algorithm is consistent
+(eventually converging to the optimal predictor).</p>
+<p>Note that $1$-nearest neighbor requires that we specify
+some distance function $d$, or equivalently,
+that we specify some vector-valued basis function $\phi(\mathbf{x})$
+for featurizing our data.
+For any choice of the distance metric,
+we will achieve zero training error
+and eventually reach an optimal predictor,
+but different distance metrics $d$
+encode different inductive biases
+and with a finite amount of available data
+will yield different predictors.
+Different choices of the distance metric $d$
+represent different assumptions about the underlying patterns
+and the performance of the different predictors
+will depend on how compatible the assumptions
+are with the observed data.</p>
+<p>In a sense, because neural networks are over-parametrized,
+possessing many more parameters than are needed to fit the training data,
+they tend to <em>interpolate</em> the training data (fitting it perfectly)
+and thus behave, in some ways, more like nonparametric models.
+More recent theoretical research has established
+deep connection between large neural networks
+and nonparametric methods, notably kernel methods.
+In particular, :citet:<code>Jacot.Grabriel.Hongler.2018</code>
+demonstrated that in the limit, as multilayer perceptrons
+with randomly initialized weights grow infinitely wide,
+they become equivalent to (nonparametric) kernel methods
+for a specific choice of the kernel function
+(essentially, a distance function),
+which they call the neural tangent kernel.
+While current neural tangent kernel models may not fully explain
+the behavior of modern deep networks,
+their success as an analytical tool
+underscores the usefulness of nonparametric modeling
+for understanding the behavior of over-parametrized deep networks.</p>
+<h2 id="early-stopping"><a class="header" href="#early-stopping">Early Stopping</a></h2>
+<p>While deep neural networks are capable of fitting arbitrary labels,
+even when labels are assigned incorrectly or randomly
+:cite:<code>zhang2021understanding</code>,
+this capability only emerges over many iterations of training.
+A new line of work :cite:<code>Rolnick.Veit.Belongie.Shavit.2017</code>
+has revealed that in the setting of label noise,
+neural networks tend to fit cleanly labeled data first
+and only subsequently to interpolate the mislabeled data.
+Moreover, it has been established that this phenomenon
+translates directly into a guarantee on generalization:
+whenever a model has fitted the cleanly labeled data
+but not randomly labeled examples included in the training set,
+it has in fact generalized :cite:<code>Garg.Balakrishnan.Kolter.Lipton.2021</code>.</p>
+<p>Together these findings help to motivate <em>early stopping</em>,
+a classic technique for regularizing deep neural networks.
+Here, rather than directly constraining the values of the weights,
+one constrains the number of epochs of training.
+The most common way to determine the stopping criterion
+is to monitor validation error throughout training
+(typically by checking once after each epoch)
+and to cut off training when the validation error
+has not decreased by more than some small amount $\epsilon$
+for some number of epochs.
+This is sometimes called a <em>patience criterion</em>.
+As well as the potential to lead to better generalization
+in the setting of noisy labels,
+another benefit of early stopping is the time saved.
+Once the patience criterion is met, one can terminate training.
+For large models that might require days of training
+simultaneously across eight or more GPUs,
+well-tuned early stopping can save researchers days of time
+and can save their employers many thousands of dollars.</p>
+<p>Notably, when there is no label noise and datasets are <em>realizable</em>
+(the classes are truly separable, e.g., distinguishing cats from dogs),
+early stopping tends not to lead to significant improvements in generalization.
+On the other hand, when there is label noise,
+or intrinsic variability in the label
+(e.g., predicting mortality among patients),
+early stopping is crucial.
+Training models until they interpolate noisy data is typically a bad idea.</p>
+<h2 id="classical-regularization-methods-for-deep-networks"><a class="header" href="#classical-regularization-methods-for-deep-networks">Classical Regularization Methods for Deep Networks</a></h2>
+<p>In :numref:<code>chap_regression</code>, we described
+several  classical regularization techniques
+for constraining the complexity of our models.
+In particular, :numref:<code>sec_weight_decay</code>
+introduced a method called weight decay,
+which consists of adding a regularization term to the loss function
+in order to penalize large values of the weights.
+Depending on which weight norm is penalized
+this technique is known either as ridge regularization (for $\ell_2$ penalty)
+or lasso regularization (for an $\ell_1$ penalty).
+In the classical analysis of these regularizers,
+they are considered as sufficiently restrictive on the values
+that the weights can take to prevent the model from fitting arbitrary labels.</p>
+<p>In deep learning implementations,
+weight decay remains a popular tool.
+However, researchers have noted
+that typical strengths of $\ell_2$ regularization
+are insufficient to prevent the networks
+from interpolating the data :cite:<code>zhang2021understanding</code> and thus the benefits if interpreted
+as regularization might only make sense
+in combination with the early stopping criterion.
+Absent early stopping, it is possible
+that just like the number of layers
+or number of nodes (in deep learning)
+or the distance metric (in 1-nearest neighbor),
+these methods may lead to better generalization
+not because they meaningfully constrain
+the power of the neural network
+but rather because they somehow encode inductive biases
+that are better compatible with the patterns
+found in datasets of interests.
+Thus, classical regularizers remain popular
+in deep learning implementations,
+even if the theoretical rationale
+for their efficacy may be radically different.</p>
+<p>Notably, deep learning researchers have also built
+on techniques first popularized
+in classical regularization contexts,
+such as adding noise to model inputs.
+In the next section we will introduce
+the famous dropout technique
+(invented by :citet:<code>Srivastava.Hinton.Krizhevsky.ea.2014</code>),
+which has become a mainstay of deep learning,
+even as the theoretical basis for its efficacy
+remains similarly mysterious.</p>
+<h2 id="summary"><a class="header" href="#summary">Summary</a></h2>
+<p>Unlike classical linear models,
+which tend to have fewer parameters than examples,
+deep networks tend to be over-parametrized,
+and for most tasks are capable
+of perfectly fitting the training set.
+This <em>interpolation regime</em> challenges
+many hard fast-held intuitions.
+Functionally, neural networks look like parametric models.
+But thinking of them as nonparametric models
+can sometimes be a more reliable source of intuition.
+Because it is often the case that all deep networks under consideration
+are capable of fitting all of the training labels,
+nearly all gains must come by mitigating overfitting
+(closing the <em>generalization gap</em>).
+Paradoxically, the interventions
+that reduce the generalization gap
+sometimes appear to increase model complexity
+and at other times appear to decrease complexity.
+However, these methods seldom decrease complexity
+sufficiently for classical theory
+to explain the generalization of deep networks,
+and <em>why certain choices lead to improved generalization</em>
+remains for the most part a massive open question
+despite the concerted efforts of many brilliant researchers.</p>
+<h2 id="exercises"><a class="header" href="#exercises">Exercises</a></h2>
+<ol>
+<li>In what sense do traditional complexity-based measures fail to account for generalization of deep neural networks?</li>
+<li>Why might <em>early stopping</em> be considered a regularization technique?</li>
+<li>How do researchers typically determine the stopping criterion?</li>
+<li>What important factor seems to differentiate cases when early stopping leads to big improvements in generalization?</li>
+<li>Beyond generalization, describe another benefit of early stopping.</li>
+</ol>
+<p><a href="https://discuss.d2l.ai/t/7473">Discussions</a></p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../chapter_multilayer-perceptrons/numerical-stability-and-init.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../chapter_multilayer-perceptrons/dropout.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../chapter_multilayer-perceptrons/numerical-stability-and-init.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../chapter_multilayer-perceptrons/dropout.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

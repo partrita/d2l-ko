@@ -1,0 +1,354 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Gaussian Process Priors - Dive into Deep Learning</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../static/d2l.css">
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('light')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../index.html">Deep Learning</a></li><li class="chapter-item expanded "><a href="../chapter_preface/index.html"><strong aria-hidden="true">1.</strong> Preface</a></li><li class="chapter-item expanded "><a href="../chapter_installation/index.html"><strong aria-hidden="true">2.</strong> Installation</a></li><li class="chapter-item expanded "><a href="../chapter_notation/index.html"><strong aria-hidden="true">3.</strong> Notation</a></li><li class="chapter-item expanded "><a href="../chapter_introduction/index.html"><strong aria-hidden="true">4.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="../chapter_preliminaries/index.html"><strong aria-hidden="true">5.</strong> Preliminaries</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_preliminaries/ndarray.html"><strong aria-hidden="true">5.1.</strong> Data Manipulation</a></li><li class="chapter-item "><a href="../chapter_preliminaries/pandas.html"><strong aria-hidden="true">5.2.</strong> Data Preprocessing</a></li><li class="chapter-item "><a href="../chapter_preliminaries/linear-algebra.html"><strong aria-hidden="true">5.3.</strong> Linear Algebra</a></li><li class="chapter-item "><a href="../chapter_preliminaries/calculus.html"><strong aria-hidden="true">5.4.</strong> Calculus</a></li><li class="chapter-item "><a href="../chapter_preliminaries/autograd.html"><strong aria-hidden="true">5.5.</strong> Automatic Differentiation</a></li><li class="chapter-item "><a href="../chapter_preliminaries/probability.html"><strong aria-hidden="true">5.6.</strong> Probability and Statistics</a></li><li class="chapter-item "><a href="../chapter_preliminaries/lookup-api.html"><strong aria-hidden="true">5.7.</strong> Documentation</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_linear-regression/index.html"><strong aria-hidden="true">6.</strong> Linear Neural Networks for Regression</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_linear-regression/linear-regression.html"><strong aria-hidden="true">6.1.</strong> Linear Regression</a></li><li class="chapter-item "><a href="../chapter_linear-regression/oo-design.html"><strong aria-hidden="true">6.2.</strong> Object-Oriented Design for Implementation</a></li><li class="chapter-item "><a href="../chapter_linear-regression/synthetic-regression-data.html"><strong aria-hidden="true">6.3.</strong> Synthetic Regression Data</a></li><li class="chapter-item "><a href="../chapter_linear-regression/linear-regression-scratch.html"><strong aria-hidden="true">6.4.</strong> Linear Regression Implementation from Scratch</a></li><li class="chapter-item "><a href="../chapter_linear-regression/linear-regression-concise.html"><strong aria-hidden="true">6.5.</strong> Concise Implementation of Linear Regression</a></li><li class="chapter-item "><a href="../chapter_linear-regression/generalization.html"><strong aria-hidden="true">6.6.</strong> Generalization</a></li><li class="chapter-item "><a href="../chapter_linear-regression/weight-decay.html"><strong aria-hidden="true">6.7.</strong> Weight Decay</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_linear-classification/index.html"><strong aria-hidden="true">7.</strong> Linear Neural Networks for Classification</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_linear-classification/softmax-regression.html"><strong aria-hidden="true">7.1.</strong> Softmax Regression</a></li><li class="chapter-item "><a href="../chapter_linear-classification/image-classification-dataset.html"><strong aria-hidden="true">7.2.</strong> The Image Classification Dataset</a></li><li class="chapter-item "><a href="../chapter_linear-classification/classification.html"><strong aria-hidden="true">7.3.</strong> The Base Classification Model</a></li><li class="chapter-item "><a href="../chapter_linear-classification/softmax-regression-scratch.html"><strong aria-hidden="true">7.4.</strong> Softmax Regression Implementation from Scratch</a></li><li class="chapter-item "><a href="../chapter_linear-classification/softmax-regression-concise.html"><strong aria-hidden="true">7.5.</strong> Concise Implementation of Softmax Regression</a></li><li class="chapter-item "><a href="../chapter_linear-classification/generalization-classification.html"><strong aria-hidden="true">7.6.</strong> Generalization in Classification</a></li><li class="chapter-item "><a href="../chapter_linear-classification/environment-and-distribution-shift.html"><strong aria-hidden="true">7.7.</strong> Environment and Distribution Shift</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_multilayer-perceptrons/index.html"><strong aria-hidden="true">8.</strong> Multilayer Perceptrons</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/mlp.html"><strong aria-hidden="true">8.1.</strong> Multilayer Perceptrons</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/mlp-implementation.html"><strong aria-hidden="true">8.2.</strong> Implementation of Multilayer Perceptrons</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/backprop.html"><strong aria-hidden="true">8.3.</strong> Forward Propagation, Backward Propagation, and Computational Graphs</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/numerical-stability-and-init.html"><strong aria-hidden="true">8.4.</strong> Numerical Stability and Initialization</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/generalization-deep.html"><strong aria-hidden="true">8.5.</strong> Generalization in Deep Learning</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/dropout.html"><strong aria-hidden="true">8.6.</strong> Dropout</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/kaggle-house-price.html"><strong aria-hidden="true">8.7.</strong> Predicting House Prices on Kaggle</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_builders-guide/index.html"><strong aria-hidden="true">9.</strong> Builders' Guide</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_builders-guide/model-construction.html"><strong aria-hidden="true">9.1.</strong> Layers and Modules</a></li><li class="chapter-item "><a href="../chapter_builders-guide/parameters.html"><strong aria-hidden="true">9.2.</strong> Parameter Management</a></li><li class="chapter-item "><a href="../chapter_builders-guide/init-param.html"><strong aria-hidden="true">9.3.</strong> Parameter Initialization</a></li><li class="chapter-item "><a href="../chapter_builders-guide/lazy-init.html"><strong aria-hidden="true">9.4.</strong> Lazy Initialization</a></li><li class="chapter-item "><a href="../chapter_builders-guide/custom-layer.html"><strong aria-hidden="true">9.5.</strong> Custom Layers</a></li><li class="chapter-item "><a href="../chapter_builders-guide/read-write.html"><strong aria-hidden="true">9.6.</strong> File I/O</a></li><li class="chapter-item "><a href="../chapter_builders-guide/use-gpu.html"><strong aria-hidden="true">9.7.</strong> GPUs</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_convolutional-neural-networks/index.html"><strong aria-hidden="true">10.</strong> Convolutional Neural Networks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/why-conv.html"><strong aria-hidden="true">10.1.</strong> From Fully Connected Layers to Convolutions</a></li><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/conv-layer.html"><strong aria-hidden="true">10.2.</strong> Convolutions for Images</a></li><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/padding-and-strides.html"><strong aria-hidden="true">10.3.</strong> Padding and Stride</a></li><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/channels.html"><strong aria-hidden="true">10.4.</strong> Multiple Input and Multiple Output Channels</a></li><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/pooling.html"><strong aria-hidden="true">10.5.</strong> Pooling</a></li><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/lenet.html"><strong aria-hidden="true">10.6.</strong> Convolutional Neural Networks (LeNet)</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_convolutional-modern/index.html"><strong aria-hidden="true">11.</strong> Modern Convolutional Neural Networks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_convolutional-modern/alexnet.html"><strong aria-hidden="true">11.1.</strong> Deep Convolutional Neural Networks (AlexNet)</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/vgg.html"><strong aria-hidden="true">11.2.</strong> Networks Using Blocks (VGG)</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/nin.html"><strong aria-hidden="true">11.3.</strong> Network in Network (NiN)</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/googlenet.html"><strong aria-hidden="true">11.4.</strong> Multi-Branch Networks  (GoogLeNet)</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/batch-norm.html"><strong aria-hidden="true">11.5.</strong> Batch Normalization</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/resnet.html"><strong aria-hidden="true">11.6.</strong> Residual Networks (ResNet) and ResNeXt</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/densenet.html"><strong aria-hidden="true">11.7.</strong> Densely Connected Networks (DenseNet)</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/cnn-design.html"><strong aria-hidden="true">11.8.</strong> Designing Convolution Network Architectures</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_recurrent-neural-networks/index.html"><strong aria-hidden="true">12.</strong> Recurrent Neural Networks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/sequence.html"><strong aria-hidden="true">12.1.</strong> Working with Sequences</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/text-sequence.html"><strong aria-hidden="true">12.2.</strong> Converting Raw Text into Sequence Data</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/language-model.html"><strong aria-hidden="true">12.3.</strong> Language Models</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/rnn.html"><strong aria-hidden="true">12.4.</strong> Recurrent Neural Networks</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/rnn-scratch.html"><strong aria-hidden="true">12.5.</strong> Recurrent Neural Network Implementation from Scratch</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/rnn-concise.html"><strong aria-hidden="true">12.6.</strong> Concise Implementation of Recurrent Neural Networks</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/bptt.html"><strong aria-hidden="true">12.7.</strong> Backpropagation Through Time</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_recurrent-modern/index.html"><strong aria-hidden="true">13.</strong> Modern Recurrent Neural Networks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_recurrent-modern/lstm.html"><strong aria-hidden="true">13.1.</strong> Long Short-Term Memory (LSTM)</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/gru.html"><strong aria-hidden="true">13.2.</strong> Gated Recurrent Units (GRU)</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/deep-rnn.html"><strong aria-hidden="true">13.3.</strong> Deep Recurrent Neural Networks</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/bi-rnn.html"><strong aria-hidden="true">13.4.</strong> Bidirectional Recurrent Neural Networks</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/machine-translation-and-dataset.html"><strong aria-hidden="true">13.5.</strong> Machine Translation and the Dataset</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/encoder-decoder.html"><strong aria-hidden="true">13.6.</strong> The Encoder--Decoder Architecture</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/seq2seq.html"><strong aria-hidden="true">13.7.</strong> Sequence-to-Sequence Learning for Machine Translation</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/beam-search.html"><strong aria-hidden="true">13.8.</strong> Beam Search</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_attention-mechanisms-and-transformers/index.html"><strong aria-hidden="true">14.</strong> Attention Mechanisms and Transformers</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/queries-keys-values.html"><strong aria-hidden="true">14.1.</strong> Queries, Keys, and Values</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/attention-pooling.html"><strong aria-hidden="true">14.2.</strong> Attention Pooling by Similarity</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/attention-scoring-functions.html"><strong aria-hidden="true">14.3.</strong> Attention Scoring Functions</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/bahdanau-attention.html"><strong aria-hidden="true">14.4.</strong> The Bahdanau Attention Mechanism</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/multihead-attention.html"><strong aria-hidden="true">14.5.</strong> Multi-Head Attention</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/self-attention-and-positional-encoding.html"><strong aria-hidden="true">14.6.</strong> Self-Attention and Positional Encoding</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/transformer.html"><strong aria-hidden="true">14.7.</strong> The Transformer Architecture</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/vision-transformer.html"><strong aria-hidden="true">14.8.</strong> Transformers for Vision</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/large-pretraining-transformers.html"><strong aria-hidden="true">14.9.</strong> Large-Scale Pretraining with Transformers</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_optimization/index.html"><strong aria-hidden="true">15.</strong> Optimization Algorithms</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_optimization/optimization-intro.html"><strong aria-hidden="true">15.1.</strong> Optimization and Deep Learning</a></li><li class="chapter-item "><a href="../chapter_optimization/convexity.html"><strong aria-hidden="true">15.2.</strong> Convexity</a></li><li class="chapter-item "><a href="../chapter_optimization/gd.html"><strong aria-hidden="true">15.3.</strong> Gradient Descent</a></li><li class="chapter-item "><a href="../chapter_optimization/sgd.html"><strong aria-hidden="true">15.4.</strong> Stochastic Gradient Descent</a></li><li class="chapter-item "><a href="../chapter_optimization/minibatch-sgd.html"><strong aria-hidden="true">15.5.</strong> Minibatch Stochastic Gradient Descent</a></li><li class="chapter-item "><a href="../chapter_optimization/momentum.html"><strong aria-hidden="true">15.6.</strong> Momentum</a></li><li class="chapter-item "><a href="../chapter_optimization/adagrad.html"><strong aria-hidden="true">15.7.</strong> Adagrad</a></li><li class="chapter-item "><a href="../chapter_optimization/rmsprop.html"><strong aria-hidden="true">15.8.</strong> RMSProp</a></li><li class="chapter-item "><a href="../chapter_optimization/adadelta.html"><strong aria-hidden="true">15.9.</strong> Adadelta</a></li><li class="chapter-item "><a href="../chapter_optimization/adam.html"><strong aria-hidden="true">15.10.</strong> Adam</a></li><li class="chapter-item "><a href="../chapter_optimization/lr-scheduler.html"><strong aria-hidden="true">15.11.</strong> Learning Rate Scheduling</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_computational-performance/index.html"><strong aria-hidden="true">16.</strong> Computational Performance</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_computational-performance/hybridize.html"><strong aria-hidden="true">16.1.</strong> Compilers and Interpreters</a></li><li class="chapter-item "><a href="../chapter_computational-performance/async-computation.html"><strong aria-hidden="true">16.2.</strong> Asynchronous Computation</a></li><li class="chapter-item "><a href="../chapter_computational-performance/auto-parallelism.html"><strong aria-hidden="true">16.3.</strong> Automatic Parallelism</a></li><li class="chapter-item "><a href="../chapter_computational-performance/hardware.html"><strong aria-hidden="true">16.4.</strong> Hardware</a></li><li class="chapter-item "><a href="../chapter_computational-performance/multiple-gpus.html"><strong aria-hidden="true">16.5.</strong> Training on Multiple GPUs</a></li><li class="chapter-item "><a href="../chapter_computational-performance/multiple-gpus-concise.html"><strong aria-hidden="true">16.6.</strong> Concise Implementation for Multiple GPUs</a></li><li class="chapter-item "><a href="../chapter_computational-performance/parameterserver.html"><strong aria-hidden="true">16.7.</strong> Parameter Servers</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_computer-vision/index.html"><strong aria-hidden="true">17.</strong> Computer Vision</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_computer-vision/image-augmentation.html"><strong aria-hidden="true">17.1.</strong> Image Augmentation</a></li><li class="chapter-item "><a href="../chapter_computer-vision/fine-tuning.html"><strong aria-hidden="true">17.2.</strong> Fine-Tuning</a></li><li class="chapter-item "><a href="../chapter_computer-vision/bounding-box.html"><strong aria-hidden="true">17.3.</strong> Object Detection and Bounding Boxes</a></li><li class="chapter-item "><a href="../chapter_computer-vision/anchor.html"><strong aria-hidden="true">17.4.</strong> Anchor Boxes</a></li><li class="chapter-item "><a href="../chapter_computer-vision/multiscale-object-detection.html"><strong aria-hidden="true">17.5.</strong> Multiscale Object Detection</a></li><li class="chapter-item "><a href="../chapter_computer-vision/object-detection-dataset.html"><strong aria-hidden="true">17.6.</strong> The Object Detection Dataset</a></li><li class="chapter-item "><a href="../chapter_computer-vision/ssd.html"><strong aria-hidden="true">17.7.</strong> Single Shot Multibox Detection</a></li><li class="chapter-item "><a href="../chapter_computer-vision/rcnn.html"><strong aria-hidden="true">17.8.</strong> Region-based CNNs (R-CNNs)</a></li><li class="chapter-item "><a href="../chapter_computer-vision/semantic-segmentation-and-dataset.html"><strong aria-hidden="true">17.9.</strong> Semantic Segmentation and the Dataset</a></li><li class="chapter-item "><a href="../chapter_computer-vision/transposed-conv.html"><strong aria-hidden="true">17.10.</strong> Transposed Convolution</a></li><li class="chapter-item "><a href="../chapter_computer-vision/fcn.html"><strong aria-hidden="true">17.11.</strong> Fully Convolutional Networks</a></li><li class="chapter-item "><a href="../chapter_computer-vision/neural-style.html"><strong aria-hidden="true">17.12.</strong> Neural Style Transfer</a></li><li class="chapter-item "><a href="../chapter_computer-vision/kaggle-cifar10.html"><strong aria-hidden="true">17.13.</strong> Image Classification (CIFAR-10) on Kaggle</a></li><li class="chapter-item "><a href="../chapter_computer-vision/kaggle-dog.html"><strong aria-hidden="true">17.14.</strong> Dog Breed Identification (ImageNet Dogs) on Kaggle</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_natural-language-processing-pretraining/index.html"><strong aria-hidden="true">18.</strong> Natural Language Processing: Pretraining</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/word2vec.html"><strong aria-hidden="true">18.1.</strong> Word Embedding (word2vec)</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/approx-training.html"><strong aria-hidden="true">18.2.</strong> Approximate Training</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/word-embedding-dataset.html"><strong aria-hidden="true">18.3.</strong> The Dataset for Pretraining Word Embeddings</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/word2vec-pretraining.html"><strong aria-hidden="true">18.4.</strong> Pretraining word2vec</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/glove.html"><strong aria-hidden="true">18.5.</strong> Word Embedding with Global Vectors (GloVe)</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/subword-embedding.html"><strong aria-hidden="true">18.6.</strong> Subword Embedding</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/similarity-analogy.html"><strong aria-hidden="true">18.7.</strong> Word Similarity and Analogy</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/bert.html"><strong aria-hidden="true">18.8.</strong> Bidirectional Encoder Representations from Transformers (BERT)</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/bert-dataset.html"><strong aria-hidden="true">18.9.</strong> The Dataset for Pretraining BERT</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/bert-pretraining.html"><strong aria-hidden="true">18.10.</strong> Pretraining BERT</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_natural-language-processing-applications/index.html"><strong aria-hidden="true">19.</strong> Natural Language Processing: Applications</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/sentiment-analysis-and-dataset.html"><strong aria-hidden="true">19.1.</strong> Sentiment Analysis and the Dataset</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/sentiment-analysis-rnn.html"><strong aria-hidden="true">19.2.</strong> Sentiment Analysis: Using Recurrent Neural Networks</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/sentiment-analysis-cnn.html"><strong aria-hidden="true">19.3.</strong> Sentiment Analysis: Using Convolutional Neural Networks</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/natural-language-inference-and-dataset.html"><strong aria-hidden="true">19.4.</strong> Natural Language Inference and the Dataset</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/natural-language-inference-attention.html"><strong aria-hidden="true">19.5.</strong> Natural Language Inference: Using Attention</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/finetuning-bert.html"><strong aria-hidden="true">19.6.</strong> Fine-Tuning BERT for Sequence-Level and Token-Level Applications</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/natural-language-inference-bert.html"><strong aria-hidden="true">19.7.</strong> Natural Language Inference: Fine-Tuning BERT</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_reinforcement-learning/index.html"><strong aria-hidden="true">20.</strong> Reinforcement Learning</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_reinforcement-learning/mdp.html"><strong aria-hidden="true">20.1.</strong> Markov Decision Process (MDP)</a></li><li class="chapter-item "><a href="../chapter_reinforcement-learning/value-iter.html"><strong aria-hidden="true">20.2.</strong> Value Iteration</a></li><li class="chapter-item "><a href="../chapter_reinforcement-learning/qlearning.html"><strong aria-hidden="true">20.3.</strong> Q-Learning</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_gaussian-processes/index.html"><strong aria-hidden="true">21.</strong> Gaussian Processes</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_gaussian-processes/gp-intro.html"><strong aria-hidden="true">21.1.</strong> Introduction to Gaussian Processes</a></li><li class="chapter-item expanded "><a href="../chapter_gaussian-processes/gp-priors.html" class="active"><strong aria-hidden="true">21.2.</strong> Gaussian Process Priors</a></li><li class="chapter-item "><a href="../chapter_gaussian-processes/gp-inference.html"><strong aria-hidden="true">21.3.</strong> Gaussian Process Inference</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_hyperparameter-optimization/index.html"><strong aria-hidden="true">22.</strong> Hyperparameter Optimization</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_hyperparameter-optimization/hyperopt-intro.html"><strong aria-hidden="true">22.1.</strong> What Is Hyperparameter Optimization?</a></li><li class="chapter-item "><a href="../chapter_hyperparameter-optimization/hyperopt-api.html"><strong aria-hidden="true">22.2.</strong> Hyperparameter Optimization API</a></li><li class="chapter-item "><a href="../chapter_hyperparameter-optimization/rs-async.html"><strong aria-hidden="true">22.3.</strong> Asynchronous Random Search</a></li><li class="chapter-item "><a href="../chapter_hyperparameter-optimization/sh-intro.html"><strong aria-hidden="true">22.4.</strong> Multi-Fidelity Hyperparameter Optimization</a></li><li class="chapter-item "><a href="../chapter_hyperparameter-optimization/sh-async.html"><strong aria-hidden="true">22.5.</strong> Asynchronous Successive Halving</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_generative-adversarial-networks/index.html"><strong aria-hidden="true">23.</strong> Generative Adversarial Networks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_generative-adversarial-networks/gan.html"><strong aria-hidden="true">23.1.</strong> Generative Adversarial Networks</a></li><li class="chapter-item "><a href="../chapter_generative-adversarial-networks/dcgan.html"><strong aria-hidden="true">23.2.</strong> Deep Convolutional Generative Adversarial Networks</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_recommender-systems/index.html"><strong aria-hidden="true">24.</strong> Recommender Systems</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_recommender-systems/recsys-intro.html"><strong aria-hidden="true">24.1.</strong> Overview of Recommender Systems</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/movielens.html"><strong aria-hidden="true">24.2.</strong> The MovieLens Dataset</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/mf.html"><strong aria-hidden="true">24.3.</strong> Matrix Factorization</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/autorec.html"><strong aria-hidden="true">24.4.</strong> AutoRec: Rating Prediction with Autoencoders</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/ranking.html"><strong aria-hidden="true">24.5.</strong> Personalized Ranking for Recommender Systems</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/neumf.html"><strong aria-hidden="true">24.6.</strong> Neural Collaborative Filtering for Personalized Ranking</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/seqrec.html"><strong aria-hidden="true">24.7.</strong> Sequence-Aware Recommender Systems</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/ctr.html"><strong aria-hidden="true">24.8.</strong> Feature-Rich Recommender Systems</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/fm.html"><strong aria-hidden="true">24.9.</strong> Factorization Machines</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/deepfm.html"><strong aria-hidden="true">24.10.</strong> Deep Factorization Machines</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_appendix-mathematics-for-deep-learning/index.html"><strong aria-hidden="true">25.</strong> Appendix: Mathematics for Deep Learning</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/geometry-linear-algebraic-ops.html"><strong aria-hidden="true">25.1.</strong> Geometry and Linear Algebraic Operations</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/eigendecomposition.html"><strong aria-hidden="true">25.2.</strong> Eigendecompositions</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/single-variable-calculus.html"><strong aria-hidden="true">25.3.</strong> Single Variable Calculus</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/multivariable-calculus.html"><strong aria-hidden="true">25.4.</strong> Multivariable Calculus</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/integral-calculus.html"><strong aria-hidden="true">25.5.</strong> Integral Calculus</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/random-variables.html"><strong aria-hidden="true">25.6.</strong> Random Variables</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/maximum-likelihood.html"><strong aria-hidden="true">25.7.</strong> Maximum Likelihood</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/distributions.html"><strong aria-hidden="true">25.8.</strong> Distributions</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/naive-bayes.html"><strong aria-hidden="true">25.9.</strong> Naive Bayes</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/statistics.html"><strong aria-hidden="true">25.10.</strong> Statistics</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/information-theory.html"><strong aria-hidden="true">25.11.</strong> Information Theory</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_appendix-tools-for-deep-learning/index.html"><strong aria-hidden="true">26.</strong> Appendix: Tools for Deep Learning</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/jupyter.html"><strong aria-hidden="true">26.1.</strong> Using Jupyter Notebooks</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/sagemaker.html"><strong aria-hidden="true">26.2.</strong> Using Amazon SageMaker</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/aws.html"><strong aria-hidden="true">26.3.</strong> Using AWS EC2 Instances</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/colab.html"><strong aria-hidden="true">26.4.</strong> Using Google Colab</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/selecting-servers-gpus.html"><strong aria-hidden="true">26.5.</strong> Selecting Servers and GPUs</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/contributing.html"><strong aria-hidden="true">26.6.</strong> Contributing to This Book</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/utils.html"><strong aria-hidden="true">26.7.</strong> Utility Functions and Classes</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/d2l.html"><strong aria-hidden="true">26.8.</strong> The d2l API Document</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_references/zreferences.html"><strong aria-hidden="true">27.</strong> chapter_references/zreferences.md</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Dive into Deep Learning</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/d2l-ai/d2l-en" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <pre><code class="language-{.python .input}">%load_ext d2lbook.tab
+tab.interact_select(['pytorch'])
+</code></pre>
+<h1 id="gaussian-process-priors"><a class="header" href="#gaussian-process-priors">Gaussian Process Priors</a></h1>
+<p>Understanding Gaussian processes (GPs) is important for reasoning about model construction and generalization, and for achieving state-of-the-art performance in a variety of applications, including active learning, and hyperparameter tuning in deep learning. GPs are everywhere, and it is in our interests to know what they are and how we can use them.</p>
+<p>In this section, we introduce Gaussian process <em>priors</em> over functions. In the next notebook, we show how to use these priors to do <em>posterior inference</em> and make predictions. The next section can be viewed as "GPs in a nutshell", quickly giving what you need to apply Gaussian processes in practice.</p>
+<pre><code class="language-{.python .input}">from d2l import torch as d2l
+import numpy as np
+from scipy.spatial import distance_matrix
+
+d2l.set_figsize()
+</code></pre>
+<h2 id="definition"><a class="header" href="#definition">Definition</a></h2>
+<p>A Gaussian process is defined as <em>a collection of random variables, any finite number of which have a joint Gaussian distribution</em>. If a function $f(x)$ is a Gaussian process, with <em>mean function</em> $m(x)$ and <em>covariance function</em> or <em>kernel</em> $k(x,x')$, $f(x) \sim \mathcal{GP}(m, k)$, then any collection of function values queried at any collection of input points $x$ (times, spatial locations, image pixels, etc.), has a joint multivariate Gaussian distribution with mean vector $\mu$ and covariance matrix $K$: $f(x_1),\dots,f(x_n) \sim \mathcal{N}(\mu, K)$, where $\mu_i = E[f(x_i)] = m(x_i)$ and $K_{ij} = \textrm{Cov}(f(x_i),f(x_j)) = k(x_i,x_j)$.</p>
+<p>This definition may seem abstract and inaccessible, but Gaussian processes are in fact very simple objects. Any function</p>
+<p>$$f(x) = w^{\top} \phi(x) = \langle w, \phi(x) \rangle,$$ :eqlabel:<code>eq_gp-function</code></p>
+<p>with $w$ drawn from a Gaussian (normal) distribution, and $\phi$ being any vector of basis functions, for example $\phi(x) = (1, x, x^2, ..., x^d)^{\top}$,
+is a Gaussian process. Moreover, any Gaussian process f(x) can be expressed in the form of equation :eqref:<code>eq_gp-function</code>. Let's consider a few concrete examples, to begin getting acquainted with Gaussian processes, after which we can appreciate how simple and useful they really are.</p>
+<h2 id="a-simple-gaussian-process"><a class="header" href="#a-simple-gaussian-process">A Simple Gaussian Process</a></h2>
+<p>Suppose $f(x) = w_0 + w_1 x$, and $w_0, w_1 \sim \mathcal{N}(0,1)$, with $w_0, w_1, x$ all in one dimension. We can equivalently write this function as the inner product $f(x) = (w_0, w_1)(1, x)^{\top}$. In :eqref:<code>eq_gp-function</code> above, $w = (w_0, w_1)^{\top}$ and $\phi(x) = (1,x)^{\top}$.</p>
+<p>For any $x$, $f(x)$ is a sum of two Gaussian random variables. Since Gaussians are closed under addition, $f(x)$ is also a Gaussian random variable for any $x$. In fact, we can compute for any particular $x$ that $f(x)$ is $\mathcal{N}(0,1+x^2)$. Similarly, the joint distribution for any collection of function values, $(f(x_1),\dots,f(x_n))$, for any collection of inputs $x_1,\dots,x_n$, is a multivariate Gaussian distribution. Therefore $f(x)$ is a Gaussian process.</p>
+<p>In short, $f(x)$ is a <em>random function</em>, or a <em>distribution over functions</em>. We can gain some insights into this distribution by repeatedly sampling values for $w_0, w_1$, and visualizing the corresponding functions $f(x)$, which are straight lines with slopes and different intercepts, as follows:</p>
+<pre><code class="language-{.python .input}">def lin_func(x, n_sample):
+    preds = np.zeros((n_sample, x.shape[0]))
+    for ii in range(n_sample):
+        w = np.random.normal(0, 1, 2)
+        y = w[0] + w[1] * x
+        preds[ii, :] = y
+    return preds
+
+x_points = np.linspace(-5, 5, 50)
+outs = lin_func(x_points, 10)
+lw_bd = -2 * np.sqrt((1 + x_points ** 2))
+up_bd = 2 * np.sqrt((1 + x_points ** 2))
+
+d2l.plt.fill_between(x_points, lw_bd, up_bd, alpha=0.25)
+d2l.plt.plot(x_points, np.zeros(len(x_points)), linewidth=4, color='black')
+d2l.plt.plot(x_points, outs.T)
+d2l.plt.xlabel("x", fontsize=20)
+d2l.plt.ylabel("f(x)", fontsize=20)
+d2l.plt.show()
+</code></pre>
+<p>If $w_0$ and $w_1$ are instead drawn from $\mathcal{N}(0,\alpha^2)$, how do you imagine varying $\alpha$ affects the distribution over functions?</p>
+<h2 id="from-weight-space-to-function-space"><a class="header" href="#from-weight-space-to-function-space">From Weight Space to Function Space</a></h2>
+<p>In the plot above, we saw how a distribution over parameters in a model induces a distribution over functions. While we often have ideas about the functions we want to model --- whether they're smooth, periodic, quickly varying, etc. --- it is relatively tedious to reason about the parameters, which are largely uninterpretable. Fortunately, Gaussian processes provide an easy mechanism to reason <em>directly</em> about functions. Since a Gaussian distribution is entirely defined by its first two moments, its mean and covariance matrix, a Gaussian process by extension is defined by its mean function and covariance function.</p>
+<p>In the above example, the mean function</p>
+<p>$$m(x) = E[f(x)] = E[w_0 + w_1x] = E[w_0] + E[w_1]x = 0+0 = 0.$$</p>
+<p>Similarly, the covariance function is</p>
+<p>$$k(x,x') = \textrm{Cov}(f(x),f(x')) = E[f(x)f(x')]-E[f(x)]E[f(x')] = E[w_0^2 + w_0w_1x' + w_1w_0x + w_1^2xx'] = 1 + xx'.$$</p>
+<p>Our distribution over functions can now be directly specified and sampled from, without needing to sample from the distribution over parameters. For example, to draw from $f(x)$, we can simply form our multivariate Gaussian distribution associated with any collection of $x$ we want to query, and sample from it directly. We will begin to see just how advantageous this formulation will be.</p>
+<p>First, we note that essentially the same derivation for the simple straight line model above can be applied to find the mean and covariance function for <em>any</em> model of the form $f(x) = w^{\top} \phi(x)$, with $w \sim \mathcal{N}(u,S)$. In this case, the mean function $m(x) = u^{\top}\phi(x)$, and the covariance function $k(x,x') = \phi(x)^{\top}S\phi(x')$. Since $\phi(x)$ can represent a vector of any non-linear basis functions, we are considering a very general model class, including models with an even an <em>infinite</em> number of parameters.</p>
+<h2 id="the-radial-basis-function-rbf-kernel"><a class="header" href="#the-radial-basis-function-rbf-kernel">The Radial Basis Function (RBF) Kernel</a></h2>
+<p>The <em>radial basis function</em> (RBF) kernel is the most popular covariance function for Gaussian processes, and kernel machines in general.
+This kernel has the form $k_{\textrm{RBF}}(x,x') = a^2\exp\left(-\frac{1}{2\ell^2}||x-x'||^2\right)$, where $a$ is an amplitude parameter, and $\ell$ is a <em>lengthscale</em> hyperparameter.</p>
+<p>Let's derive this kernel starting from weight space. Consider the function</p>
+<p>$$f(x) = \sum_{i=1}^J w_i \phi_i(x), w_i  \sim \mathcal{N}\left(0,\frac{\sigma^2}{J}\right), \phi_i(x) = \exp\left(-\frac{(x-c_i)^2}{2\ell^2 }\right).$$</p>
+<p>$f(x)$ is a sum of radial basis functions, with width $\ell$, centred at the points $c_i$, as shown in the following figure.</p>
+<p>We can recognize $f(x)$ as having the form $w^{\top} \phi(x)$, where $w = (w_1,\dots,w_J)^{\top}$ and $\phi(x)$ is a vector containing each of the radial basis functions. The covariance function of this Gaussian process is then</p>
+<p>$$k(x,x') = \frac{\sigma^2}{J} \sum_{i=1}^{J} \phi_i(x)\phi_i(x').$$</p>
+<p>Now let's consider what happens as we take the number of parameters (and basis functions) to infinity. Let $c_J = \log J$, $c_1 = -\log J$, and $c_{i+1}-c_{i} = \Delta c = 2\frac{\log J}{J}$, and $J \to \infty$. The covariance function becomes the Riemann sum:</p>
+<p>$$k(x,x') = \lim_{J \to \infty} \frac{\sigma^2}{J} \sum_{i=1}^{J} \phi_i(x)\phi_i(x') = \int_{c_0}^{c_\infty} \phi_c(x)\phi_c(x') dc.$$</p>
+<p>By setting $c_0 = -\infty$ and $c_\infty = \infty$, we spread the infinitely many basis functions across the whole real line, each
+a distance $\Delta c \to 0$ apart:</p>
+<p>$$k(x,x') = \int_{-\infty}^{\infty} \exp(-\frac{(x-c)^2}{2\ell^2}) \exp(-\frac{(x'-c)^2}{2\ell^2 }) dc = \sqrt{\pi}\ell \sigma^2 \exp(-\frac{(x-x')^2}{2(\sqrt{2} \ell)^2}) \propto k_{\textrm{RBF}}(x,x').$$</p>
+<p>It is worth taking a moment to absorb what we have done here. By moving into the function space representation, we have derived how to represent a model with an <em>infinite</em> number of parameters, using a finite amount of computation. A Gaussian process with an RBF kernel is a <em>universal approximator</em>, capable of representing any continuous function to arbitrary precision. We can intuitively see why from the above derivation. We can collapse each radial basis function to a point mass taking $\ell \to 0$, and give each point mass any height we wish.</p>
+<p>So a Gaussian process with an RBF kernel is a model with an infinite number of parameters and much more flexibility than any finite neural network. Perhaps all the fuss about <em>overparametrized</em> neural networks is misplaced. As we will see, GPs with RBF kernels do not overfit, and in fact provide especially compelling generalization performance on small datasets. Moreover, the examples in :cite:<code>zhang2021understanding</code>, such as the ability to fit images with random labels perfectly, but still generalize well on structured problems, (can be perfectly reproduced using Gaussian processes) :cite:<code>wilson2020bayesian</code>. Neural networks are not as distinct as we make them out to be.</p>
+<p>We can build further intuition about Gaussian processes with RBF kernels, and hyperparameters such as <em>length-scale</em>, by sampling directly from the distribution over functions. As before, this involves a simple procedure:</p>
+<ol>
+<li>Choose the input $x$ points we want to query the GP: $x_1,\dots,x_n$.</li>
+<li>Evaluate $m(x_i)$, $i = 1,\dots,n$, and $k(x_i,x_j)$ for $i,j = 1,\dots,n$ to respectively form the mean vector and covariance matrix $\mu$ and $K$, where $(f(x_1),\dots,f(x_n)) \sim \mathcal{N}(\mu, K)$.</li>
+<li>Sample from this multivariate Gaussian distribution to obtain the sample function values.</li>
+<li>Sample more times to visualize more sample functions queried at those points.</li>
+</ol>
+<p>We illustrate this process in the figure below.</p>
+<pre><code class="language-{.python .input}">def rbfkernel(x1, x2, ls=4.):  #@save
+    dist = distance_matrix(np.expand_dims(x1, 1), np.expand_dims(x2, 1))
+    return np.exp(-(1. / ls / 2) * (dist ** 2))
+
+x_points = np.linspace(0, 5, 50)
+meanvec = np.zeros(len(x_points))
+covmat = rbfkernel(x_points,x_points, 1)
+
+prior_samples= np.random.multivariate_normal(meanvec, covmat, size=5);
+d2l.plt.plot(x_points, prior_samples.T, alpha=0.5)
+d2l.plt.show()
+</code></pre>
+<h2 id="the-neural-network-kernel"><a class="header" href="#the-neural-network-kernel">The Neural Network Kernel</a></h2>
+<p>Research on Gaussian processes in machine learning was triggered by research on neural networks. Radford Neal was pursuing ever larger Bayesian neural networks, ultimately showing in 1994 (later published in 1996, as it was one of the most infamous NeurIPS rejections) that such networks with an infinite number of hidden units become Gaussian processes with particular kernel functions :cite:<code>neal1996bayesian</code>. Interest in this derivation has re-surfaced, with ideas like the neural tangent kernel being used to investigate the generalization properties of neural networks :cite:<code>matthews2018gaussian</code> :cite:<code>novak2018bayesian</code>. We can derive the neural network kernel as follows.</p>
+<p>Consider a neural network function $f(x)$ with one hidden layer:</p>
+<p>$$f(x) = b + \sum_{i=1}^{J} v_i h(x; u_i).$$</p>
+<p>$b$ is a bias, $v_i$ are the hidden to output weights, $h$ is any bounded hidden unit transfer function, $u_i$ are the input to hidden weights, and $J$ is the number of hidden units. Let $b$ and $v_i$ be independent with zero mean and variances $\sigma_b^2$ and $\sigma_v^2/J$, respectively, and let the $u_i$ have independent identical distributions. We can then use the central limit theorem to show that any collection of function values $f(x_1),\dots,f(x_n)$ has a joint multivariate Gaussian distribution.</p>
+<p>The mean and covariance function of the corresponding Gaussian process are:</p>
+<p>$$m(x) = E[f(x)] = 0$$</p>
+<p>$$k(x,x') = \textrm{cov}[f(x),f(x')] = E[f(x)f(x')] = \sigma_b^2 + \frac{1}{J} \sum_{i=1}^{J} \sigma_v^2 E[h_i(x; u_i)h_i(x'; u_i)]$$</p>
+<p>In some cases, we can essentially evaluate this covariance function in closed form. Let $h(x; u) = \textrm{erf}(u_0 + \sum_{j=1}^{P} u_j x_j)$, where $\textrm{erf}(z) = \frac{2}{\sqrt{\pi}} \int_{0}^{z} e^{-t^2} dt$, and $u \sim \mathcal{N}(0,\Sigma)$. Then $k(x,x') = \frac{2}{\pi} \textrm{sin}(\frac{2 \tilde{x}^{\top} \Sigma \tilde{x}'}{\sqrt{(1 + 2 \tilde{x}^{\top} \Sigma \tilde{x})(1 + 2 \tilde{x}'^{\top} \Sigma \tilde{x}')}})$.</p>
+<p>The RBF kernel is <em>stationary</em>, meaning that it is <em>translation invariant</em>, and therefore can be written as a function of $\tau = x-x'$. Intuitively, stationarity means that the high-level properties of the function, such as rate of variation, do not change as we move in input space. The neural network kernel, however, is <em>non-stationary</em>. Below, we show sample functions from a Gaussian process with this kernel. We can see that the function looks qualitatively different near the origin.</p>
+<h2 id="summary"><a class="header" href="#summary">Summary</a></h2>
+<p>The first step in performing Bayesian inference involves specifying a prior. Gaussian processes can be used to specify a whole prior over functions. Starting from a traditional "weight space" view of modelling, we can induce a prior over functions by starting with the functional form of a model, and introducing a distribution over its parameters. We can alternatively specify a prior distribution directly in function space, with properties controlled by a kernel. The function-space approach has many advantages. We can build models that actually correspond to an infinite number of parameters, but use a finite amount of computation! Moreover, while these models have a great amount of flexibility, they also make strong assumptions about what types of functions are a priori likely, leading to relatively good generalization on small datasets.</p>
+<p>The assumptions of models in function space are intuitively controlled by kernels, which often encode higher level properties of functions, such as smoothness and periodicity. Many kernels are stationary, meaning that they are translation invariant. Functions drawn from a Gaussian process with a stationary kernel have roughly the same high-level properties (such as rate of variation) regardless of where we look in the input space.</p>
+<p>Gaussian processes are a relatively general model class, containing many examples of models we are already familiar with, including polynomials, Fourier series, and so on, as long as we have a Gaussian prior over the parameters. They also include neural networks with an infinite number of parameters, even without Gaussian distributions over the parameters. This connection, discovered by Radford Neal, triggered machine learning researchers to move away from neural networks, and towards Gaussian processes.</p>
+<h2 id="exercises"><a class="header" href="#exercises">Exercises</a></h2>
+<ol>
+<li>
+<p>Draw sample prior functions from a GP with an Ornstein-Uhlenbeck (OU) kernel, $k_{\textrm{OU}}(x,x') = \exp\left(-\frac{1}{2\ell}||x - x'|\right)$. If you fix the lengthscale $\ell$ to be the same, how do these functions look different than sample functions from a GP with an RBF kernel?</p>
+</li>
+<li>
+<p>How does changing the <em>amplitude</em> $a^2$ of the RBF kernel affect the distribution over functions?</p>
+</li>
+<li>
+<p>Suppose we form $u(x) = f(x) + 2g(x)$, where $f(x) \sim \mathcal{GP}(m_1,k_1)$ and $g(x) \sim \mathcal{GP}(m_2,k_2)$. Is $u(x)$ a Gaussian process, and if so, what is its mean and covariance function?</p>
+</li>
+<li>
+<p>Suppose we form $g(x) = a(x)f(x)$, where $f(x) \sim \mathcal{GP}(0,k)$ and $a(x) = x^2$. Is $g(x)$ a Gaussian process, and if so, what is its mean and covariance function? What is the effect of $a(x)$? What do sample functions drawn from $g(x)$ look like?</p>
+</li>
+<li>
+<p>Suppose we form $u(x) = f(x)g(x)$, where $f(x) \sim \mathcal{GP}(m_1,k_1)$ and $g(x) \sim \mathcal{GP}(m_2,k_2)$. Is $u(x)$ a Gaussian process, and if so, what is its mean and covariance function?</p>
+</li>
+</ol>
+<p>:begin_tab:<code>pytorch</code>
+<a href="https://discuss.d2l.ai/t/12116">Discussions</a>
+:end_tab:</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../chapter_gaussian-processes/gp-intro.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../chapter_gaussian-processes/gp-inference.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../chapter_gaussian-processes/gp-intro.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../chapter_gaussian-processes/gp-inference.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

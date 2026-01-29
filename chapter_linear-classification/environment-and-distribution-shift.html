@@ -1,0 +1,800 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Environment and Distribution Shift - Dive into Deep Learning</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../static/d2l.css">
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('light')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../index.html">Deep Learning</a></li><li class="chapter-item expanded "><a href="../chapter_preface/index.html"><strong aria-hidden="true">1.</strong> Preface</a></li><li class="chapter-item expanded "><a href="../chapter_installation/index.html"><strong aria-hidden="true">2.</strong> Installation</a></li><li class="chapter-item expanded "><a href="../chapter_notation/index.html"><strong aria-hidden="true">3.</strong> Notation</a></li><li class="chapter-item expanded "><a href="../chapter_introduction/index.html"><strong aria-hidden="true">4.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="../chapter_preliminaries/index.html"><strong aria-hidden="true">5.</strong> Preliminaries</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_preliminaries/ndarray.html"><strong aria-hidden="true">5.1.</strong> Data Manipulation</a></li><li class="chapter-item "><a href="../chapter_preliminaries/pandas.html"><strong aria-hidden="true">5.2.</strong> Data Preprocessing</a></li><li class="chapter-item "><a href="../chapter_preliminaries/linear-algebra.html"><strong aria-hidden="true">5.3.</strong> Linear Algebra</a></li><li class="chapter-item "><a href="../chapter_preliminaries/calculus.html"><strong aria-hidden="true">5.4.</strong> Calculus</a></li><li class="chapter-item "><a href="../chapter_preliminaries/autograd.html"><strong aria-hidden="true">5.5.</strong> Automatic Differentiation</a></li><li class="chapter-item "><a href="../chapter_preliminaries/probability.html"><strong aria-hidden="true">5.6.</strong> Probability and Statistics</a></li><li class="chapter-item "><a href="../chapter_preliminaries/lookup-api.html"><strong aria-hidden="true">5.7.</strong> Documentation</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_linear-regression/index.html"><strong aria-hidden="true">6.</strong> Linear Neural Networks for Regression</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_linear-regression/linear-regression.html"><strong aria-hidden="true">6.1.</strong> Linear Regression</a></li><li class="chapter-item "><a href="../chapter_linear-regression/oo-design.html"><strong aria-hidden="true">6.2.</strong> Object-Oriented Design for Implementation</a></li><li class="chapter-item "><a href="../chapter_linear-regression/synthetic-regression-data.html"><strong aria-hidden="true">6.3.</strong> Synthetic Regression Data</a></li><li class="chapter-item "><a href="../chapter_linear-regression/linear-regression-scratch.html"><strong aria-hidden="true">6.4.</strong> Linear Regression Implementation from Scratch</a></li><li class="chapter-item "><a href="../chapter_linear-regression/linear-regression-concise.html"><strong aria-hidden="true">6.5.</strong> Concise Implementation of Linear Regression</a></li><li class="chapter-item "><a href="../chapter_linear-regression/generalization.html"><strong aria-hidden="true">6.6.</strong> Generalization</a></li><li class="chapter-item "><a href="../chapter_linear-regression/weight-decay.html"><strong aria-hidden="true">6.7.</strong> Weight Decay</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_linear-classification/index.html"><strong aria-hidden="true">7.</strong> Linear Neural Networks for Classification</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_linear-classification/softmax-regression.html"><strong aria-hidden="true">7.1.</strong> Softmax Regression</a></li><li class="chapter-item "><a href="../chapter_linear-classification/image-classification-dataset.html"><strong aria-hidden="true">7.2.</strong> The Image Classification Dataset</a></li><li class="chapter-item "><a href="../chapter_linear-classification/classification.html"><strong aria-hidden="true">7.3.</strong> The Base Classification Model</a></li><li class="chapter-item "><a href="../chapter_linear-classification/softmax-regression-scratch.html"><strong aria-hidden="true">7.4.</strong> Softmax Regression Implementation from Scratch</a></li><li class="chapter-item "><a href="../chapter_linear-classification/softmax-regression-concise.html"><strong aria-hidden="true">7.5.</strong> Concise Implementation of Softmax Regression</a></li><li class="chapter-item "><a href="../chapter_linear-classification/generalization-classification.html"><strong aria-hidden="true">7.6.</strong> Generalization in Classification</a></li><li class="chapter-item expanded "><a href="../chapter_linear-classification/environment-and-distribution-shift.html" class="active"><strong aria-hidden="true">7.7.</strong> Environment and Distribution Shift</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_multilayer-perceptrons/index.html"><strong aria-hidden="true">8.</strong> Multilayer Perceptrons</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/mlp.html"><strong aria-hidden="true">8.1.</strong> Multilayer Perceptrons</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/mlp-implementation.html"><strong aria-hidden="true">8.2.</strong> Implementation of Multilayer Perceptrons</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/backprop.html"><strong aria-hidden="true">8.3.</strong> Forward Propagation, Backward Propagation, and Computational Graphs</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/numerical-stability-and-init.html"><strong aria-hidden="true">8.4.</strong> Numerical Stability and Initialization</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/generalization-deep.html"><strong aria-hidden="true">8.5.</strong> Generalization in Deep Learning</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/dropout.html"><strong aria-hidden="true">8.6.</strong> Dropout</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/kaggle-house-price.html"><strong aria-hidden="true">8.7.</strong> Predicting House Prices on Kaggle</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_builders-guide/index.html"><strong aria-hidden="true">9.</strong> Builders' Guide</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_builders-guide/model-construction.html"><strong aria-hidden="true">9.1.</strong> Layers and Modules</a></li><li class="chapter-item "><a href="../chapter_builders-guide/parameters.html"><strong aria-hidden="true">9.2.</strong> Parameter Management</a></li><li class="chapter-item "><a href="../chapter_builders-guide/init-param.html"><strong aria-hidden="true">9.3.</strong> Parameter Initialization</a></li><li class="chapter-item "><a href="../chapter_builders-guide/lazy-init.html"><strong aria-hidden="true">9.4.</strong> Lazy Initialization</a></li><li class="chapter-item "><a href="../chapter_builders-guide/custom-layer.html"><strong aria-hidden="true">9.5.</strong> Custom Layers</a></li><li class="chapter-item "><a href="../chapter_builders-guide/read-write.html"><strong aria-hidden="true">9.6.</strong> File I/O</a></li><li class="chapter-item "><a href="../chapter_builders-guide/use-gpu.html"><strong aria-hidden="true">9.7.</strong> GPUs</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_convolutional-neural-networks/index.html"><strong aria-hidden="true">10.</strong> Convolutional Neural Networks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/why-conv.html"><strong aria-hidden="true">10.1.</strong> From Fully Connected Layers to Convolutions</a></li><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/conv-layer.html"><strong aria-hidden="true">10.2.</strong> Convolutions for Images</a></li><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/padding-and-strides.html"><strong aria-hidden="true">10.3.</strong> Padding and Stride</a></li><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/channels.html"><strong aria-hidden="true">10.4.</strong> Multiple Input and Multiple Output Channels</a></li><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/pooling.html"><strong aria-hidden="true">10.5.</strong> Pooling</a></li><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/lenet.html"><strong aria-hidden="true">10.6.</strong> Convolutional Neural Networks (LeNet)</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_convolutional-modern/index.html"><strong aria-hidden="true">11.</strong> Modern Convolutional Neural Networks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_convolutional-modern/alexnet.html"><strong aria-hidden="true">11.1.</strong> Deep Convolutional Neural Networks (AlexNet)</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/vgg.html"><strong aria-hidden="true">11.2.</strong> Networks Using Blocks (VGG)</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/nin.html"><strong aria-hidden="true">11.3.</strong> Network in Network (NiN)</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/googlenet.html"><strong aria-hidden="true">11.4.</strong> Multi-Branch Networks  (GoogLeNet)</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/batch-norm.html"><strong aria-hidden="true">11.5.</strong> Batch Normalization</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/resnet.html"><strong aria-hidden="true">11.6.</strong> Residual Networks (ResNet) and ResNeXt</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/densenet.html"><strong aria-hidden="true">11.7.</strong> Densely Connected Networks (DenseNet)</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/cnn-design.html"><strong aria-hidden="true">11.8.</strong> Designing Convolution Network Architectures</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_recurrent-neural-networks/index.html"><strong aria-hidden="true">12.</strong> Recurrent Neural Networks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/sequence.html"><strong aria-hidden="true">12.1.</strong> Working with Sequences</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/text-sequence.html"><strong aria-hidden="true">12.2.</strong> Converting Raw Text into Sequence Data</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/language-model.html"><strong aria-hidden="true">12.3.</strong> Language Models</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/rnn.html"><strong aria-hidden="true">12.4.</strong> Recurrent Neural Networks</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/rnn-scratch.html"><strong aria-hidden="true">12.5.</strong> Recurrent Neural Network Implementation from Scratch</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/rnn-concise.html"><strong aria-hidden="true">12.6.</strong> Concise Implementation of Recurrent Neural Networks</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/bptt.html"><strong aria-hidden="true">12.7.</strong> Backpropagation Through Time</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_recurrent-modern/index.html"><strong aria-hidden="true">13.</strong> Modern Recurrent Neural Networks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_recurrent-modern/lstm.html"><strong aria-hidden="true">13.1.</strong> Long Short-Term Memory (LSTM)</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/gru.html"><strong aria-hidden="true">13.2.</strong> Gated Recurrent Units (GRU)</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/deep-rnn.html"><strong aria-hidden="true">13.3.</strong> Deep Recurrent Neural Networks</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/bi-rnn.html"><strong aria-hidden="true">13.4.</strong> Bidirectional Recurrent Neural Networks</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/machine-translation-and-dataset.html"><strong aria-hidden="true">13.5.</strong> Machine Translation and the Dataset</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/encoder-decoder.html"><strong aria-hidden="true">13.6.</strong> The Encoder--Decoder Architecture</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/seq2seq.html"><strong aria-hidden="true">13.7.</strong> Sequence-to-Sequence Learning for Machine Translation</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/beam-search.html"><strong aria-hidden="true">13.8.</strong> Beam Search</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_attention-mechanisms-and-transformers/index.html"><strong aria-hidden="true">14.</strong> Attention Mechanisms and Transformers</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/queries-keys-values.html"><strong aria-hidden="true">14.1.</strong> Queries, Keys, and Values</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/attention-pooling.html"><strong aria-hidden="true">14.2.</strong> Attention Pooling by Similarity</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/attention-scoring-functions.html"><strong aria-hidden="true">14.3.</strong> Attention Scoring Functions</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/bahdanau-attention.html"><strong aria-hidden="true">14.4.</strong> The Bahdanau Attention Mechanism</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/multihead-attention.html"><strong aria-hidden="true">14.5.</strong> Multi-Head Attention</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/self-attention-and-positional-encoding.html"><strong aria-hidden="true">14.6.</strong> Self-Attention and Positional Encoding</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/transformer.html"><strong aria-hidden="true">14.7.</strong> The Transformer Architecture</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/vision-transformer.html"><strong aria-hidden="true">14.8.</strong> Transformers for Vision</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/large-pretraining-transformers.html"><strong aria-hidden="true">14.9.</strong> Large-Scale Pretraining with Transformers</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_optimization/index.html"><strong aria-hidden="true">15.</strong> Optimization Algorithms</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_optimization/optimization-intro.html"><strong aria-hidden="true">15.1.</strong> Optimization and Deep Learning</a></li><li class="chapter-item "><a href="../chapter_optimization/convexity.html"><strong aria-hidden="true">15.2.</strong> Convexity</a></li><li class="chapter-item "><a href="../chapter_optimization/gd.html"><strong aria-hidden="true">15.3.</strong> Gradient Descent</a></li><li class="chapter-item "><a href="../chapter_optimization/sgd.html"><strong aria-hidden="true">15.4.</strong> Stochastic Gradient Descent</a></li><li class="chapter-item "><a href="../chapter_optimization/minibatch-sgd.html"><strong aria-hidden="true">15.5.</strong> Minibatch Stochastic Gradient Descent</a></li><li class="chapter-item "><a href="../chapter_optimization/momentum.html"><strong aria-hidden="true">15.6.</strong> Momentum</a></li><li class="chapter-item "><a href="../chapter_optimization/adagrad.html"><strong aria-hidden="true">15.7.</strong> Adagrad</a></li><li class="chapter-item "><a href="../chapter_optimization/rmsprop.html"><strong aria-hidden="true">15.8.</strong> RMSProp</a></li><li class="chapter-item "><a href="../chapter_optimization/adadelta.html"><strong aria-hidden="true">15.9.</strong> Adadelta</a></li><li class="chapter-item "><a href="../chapter_optimization/adam.html"><strong aria-hidden="true">15.10.</strong> Adam</a></li><li class="chapter-item "><a href="../chapter_optimization/lr-scheduler.html"><strong aria-hidden="true">15.11.</strong> Learning Rate Scheduling</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_computational-performance/index.html"><strong aria-hidden="true">16.</strong> Computational Performance</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_computational-performance/hybridize.html"><strong aria-hidden="true">16.1.</strong> Compilers and Interpreters</a></li><li class="chapter-item "><a href="../chapter_computational-performance/async-computation.html"><strong aria-hidden="true">16.2.</strong> Asynchronous Computation</a></li><li class="chapter-item "><a href="../chapter_computational-performance/auto-parallelism.html"><strong aria-hidden="true">16.3.</strong> Automatic Parallelism</a></li><li class="chapter-item "><a href="../chapter_computational-performance/hardware.html"><strong aria-hidden="true">16.4.</strong> Hardware</a></li><li class="chapter-item "><a href="../chapter_computational-performance/multiple-gpus.html"><strong aria-hidden="true">16.5.</strong> Training on Multiple GPUs</a></li><li class="chapter-item "><a href="../chapter_computational-performance/multiple-gpus-concise.html"><strong aria-hidden="true">16.6.</strong> Concise Implementation for Multiple GPUs</a></li><li class="chapter-item "><a href="../chapter_computational-performance/parameterserver.html"><strong aria-hidden="true">16.7.</strong> Parameter Servers</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_computer-vision/index.html"><strong aria-hidden="true">17.</strong> Computer Vision</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_computer-vision/image-augmentation.html"><strong aria-hidden="true">17.1.</strong> Image Augmentation</a></li><li class="chapter-item "><a href="../chapter_computer-vision/fine-tuning.html"><strong aria-hidden="true">17.2.</strong> Fine-Tuning</a></li><li class="chapter-item "><a href="../chapter_computer-vision/bounding-box.html"><strong aria-hidden="true">17.3.</strong> Object Detection and Bounding Boxes</a></li><li class="chapter-item "><a href="../chapter_computer-vision/anchor.html"><strong aria-hidden="true">17.4.</strong> Anchor Boxes</a></li><li class="chapter-item "><a href="../chapter_computer-vision/multiscale-object-detection.html"><strong aria-hidden="true">17.5.</strong> Multiscale Object Detection</a></li><li class="chapter-item "><a href="../chapter_computer-vision/object-detection-dataset.html"><strong aria-hidden="true">17.6.</strong> The Object Detection Dataset</a></li><li class="chapter-item "><a href="../chapter_computer-vision/ssd.html"><strong aria-hidden="true">17.7.</strong> Single Shot Multibox Detection</a></li><li class="chapter-item "><a href="../chapter_computer-vision/rcnn.html"><strong aria-hidden="true">17.8.</strong> Region-based CNNs (R-CNNs)</a></li><li class="chapter-item "><a href="../chapter_computer-vision/semantic-segmentation-and-dataset.html"><strong aria-hidden="true">17.9.</strong> Semantic Segmentation and the Dataset</a></li><li class="chapter-item "><a href="../chapter_computer-vision/transposed-conv.html"><strong aria-hidden="true">17.10.</strong> Transposed Convolution</a></li><li class="chapter-item "><a href="../chapter_computer-vision/fcn.html"><strong aria-hidden="true">17.11.</strong> Fully Convolutional Networks</a></li><li class="chapter-item "><a href="../chapter_computer-vision/neural-style.html"><strong aria-hidden="true">17.12.</strong> Neural Style Transfer</a></li><li class="chapter-item "><a href="../chapter_computer-vision/kaggle-cifar10.html"><strong aria-hidden="true">17.13.</strong> Image Classification (CIFAR-10) on Kaggle</a></li><li class="chapter-item "><a href="../chapter_computer-vision/kaggle-dog.html"><strong aria-hidden="true">17.14.</strong> Dog Breed Identification (ImageNet Dogs) on Kaggle</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_natural-language-processing-pretraining/index.html"><strong aria-hidden="true">18.</strong> Natural Language Processing: Pretraining</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/word2vec.html"><strong aria-hidden="true">18.1.</strong> Word Embedding (word2vec)</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/approx-training.html"><strong aria-hidden="true">18.2.</strong> Approximate Training</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/word-embedding-dataset.html"><strong aria-hidden="true">18.3.</strong> The Dataset for Pretraining Word Embeddings</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/word2vec-pretraining.html"><strong aria-hidden="true">18.4.</strong> Pretraining word2vec</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/glove.html"><strong aria-hidden="true">18.5.</strong> Word Embedding with Global Vectors (GloVe)</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/subword-embedding.html"><strong aria-hidden="true">18.6.</strong> Subword Embedding</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/similarity-analogy.html"><strong aria-hidden="true">18.7.</strong> Word Similarity and Analogy</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/bert.html"><strong aria-hidden="true">18.8.</strong> Bidirectional Encoder Representations from Transformers (BERT)</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/bert-dataset.html"><strong aria-hidden="true">18.9.</strong> The Dataset for Pretraining BERT</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/bert-pretraining.html"><strong aria-hidden="true">18.10.</strong> Pretraining BERT</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_natural-language-processing-applications/index.html"><strong aria-hidden="true">19.</strong> Natural Language Processing: Applications</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/sentiment-analysis-and-dataset.html"><strong aria-hidden="true">19.1.</strong> Sentiment Analysis and the Dataset</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/sentiment-analysis-rnn.html"><strong aria-hidden="true">19.2.</strong> Sentiment Analysis: Using Recurrent Neural Networks</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/sentiment-analysis-cnn.html"><strong aria-hidden="true">19.3.</strong> Sentiment Analysis: Using Convolutional Neural Networks</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/natural-language-inference-and-dataset.html"><strong aria-hidden="true">19.4.</strong> Natural Language Inference and the Dataset</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/natural-language-inference-attention.html"><strong aria-hidden="true">19.5.</strong> Natural Language Inference: Using Attention</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/finetuning-bert.html"><strong aria-hidden="true">19.6.</strong> Fine-Tuning BERT for Sequence-Level and Token-Level Applications</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/natural-language-inference-bert.html"><strong aria-hidden="true">19.7.</strong> Natural Language Inference: Fine-Tuning BERT</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_reinforcement-learning/index.html"><strong aria-hidden="true">20.</strong> Reinforcement Learning</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_reinforcement-learning/mdp.html"><strong aria-hidden="true">20.1.</strong> Markov Decision Process (MDP)</a></li><li class="chapter-item "><a href="../chapter_reinforcement-learning/value-iter.html"><strong aria-hidden="true">20.2.</strong> Value Iteration</a></li><li class="chapter-item "><a href="../chapter_reinforcement-learning/qlearning.html"><strong aria-hidden="true">20.3.</strong> Q-Learning</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_gaussian-processes/index.html"><strong aria-hidden="true">21.</strong> Gaussian Processes</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_gaussian-processes/gp-intro.html"><strong aria-hidden="true">21.1.</strong> Introduction to Gaussian Processes</a></li><li class="chapter-item "><a href="../chapter_gaussian-processes/gp-priors.html"><strong aria-hidden="true">21.2.</strong> Gaussian Process Priors</a></li><li class="chapter-item "><a href="../chapter_gaussian-processes/gp-inference.html"><strong aria-hidden="true">21.3.</strong> Gaussian Process Inference</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_hyperparameter-optimization/index.html"><strong aria-hidden="true">22.</strong> Hyperparameter Optimization</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_hyperparameter-optimization/hyperopt-intro.html"><strong aria-hidden="true">22.1.</strong> What Is Hyperparameter Optimization?</a></li><li class="chapter-item "><a href="../chapter_hyperparameter-optimization/hyperopt-api.html"><strong aria-hidden="true">22.2.</strong> Hyperparameter Optimization API</a></li><li class="chapter-item "><a href="../chapter_hyperparameter-optimization/rs-async.html"><strong aria-hidden="true">22.3.</strong> Asynchronous Random Search</a></li><li class="chapter-item "><a href="../chapter_hyperparameter-optimization/sh-intro.html"><strong aria-hidden="true">22.4.</strong> Multi-Fidelity Hyperparameter Optimization</a></li><li class="chapter-item "><a href="../chapter_hyperparameter-optimization/sh-async.html"><strong aria-hidden="true">22.5.</strong> Asynchronous Successive Halving</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_generative-adversarial-networks/index.html"><strong aria-hidden="true">23.</strong> Generative Adversarial Networks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_generative-adversarial-networks/gan.html"><strong aria-hidden="true">23.1.</strong> Generative Adversarial Networks</a></li><li class="chapter-item "><a href="../chapter_generative-adversarial-networks/dcgan.html"><strong aria-hidden="true">23.2.</strong> Deep Convolutional Generative Adversarial Networks</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_recommender-systems/index.html"><strong aria-hidden="true">24.</strong> Recommender Systems</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_recommender-systems/recsys-intro.html"><strong aria-hidden="true">24.1.</strong> Overview of Recommender Systems</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/movielens.html"><strong aria-hidden="true">24.2.</strong> The MovieLens Dataset</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/mf.html"><strong aria-hidden="true">24.3.</strong> Matrix Factorization</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/autorec.html"><strong aria-hidden="true">24.4.</strong> AutoRec: Rating Prediction with Autoencoders</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/ranking.html"><strong aria-hidden="true">24.5.</strong> Personalized Ranking for Recommender Systems</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/neumf.html"><strong aria-hidden="true">24.6.</strong> Neural Collaborative Filtering for Personalized Ranking</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/seqrec.html"><strong aria-hidden="true">24.7.</strong> Sequence-Aware Recommender Systems</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/ctr.html"><strong aria-hidden="true">24.8.</strong> Feature-Rich Recommender Systems</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/fm.html"><strong aria-hidden="true">24.9.</strong> Factorization Machines</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/deepfm.html"><strong aria-hidden="true">24.10.</strong> Deep Factorization Machines</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_appendix-mathematics-for-deep-learning/index.html"><strong aria-hidden="true">25.</strong> Appendix: Mathematics for Deep Learning</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/geometry-linear-algebraic-ops.html"><strong aria-hidden="true">25.1.</strong> Geometry and Linear Algebraic Operations</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/eigendecomposition.html"><strong aria-hidden="true">25.2.</strong> Eigendecompositions</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/single-variable-calculus.html"><strong aria-hidden="true">25.3.</strong> Single Variable Calculus</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/multivariable-calculus.html"><strong aria-hidden="true">25.4.</strong> Multivariable Calculus</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/integral-calculus.html"><strong aria-hidden="true">25.5.</strong> Integral Calculus</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/random-variables.html"><strong aria-hidden="true">25.6.</strong> Random Variables</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/maximum-likelihood.html"><strong aria-hidden="true">25.7.</strong> Maximum Likelihood</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/distributions.html"><strong aria-hidden="true">25.8.</strong> Distributions</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/naive-bayes.html"><strong aria-hidden="true">25.9.</strong> Naive Bayes</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/statistics.html"><strong aria-hidden="true">25.10.</strong> Statistics</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/information-theory.html"><strong aria-hidden="true">25.11.</strong> Information Theory</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_appendix-tools-for-deep-learning/index.html"><strong aria-hidden="true">26.</strong> Appendix: Tools for Deep Learning</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/jupyter.html"><strong aria-hidden="true">26.1.</strong> Using Jupyter Notebooks</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/sagemaker.html"><strong aria-hidden="true">26.2.</strong> Using Amazon SageMaker</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/aws.html"><strong aria-hidden="true">26.3.</strong> Using AWS EC2 Instances</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/colab.html"><strong aria-hidden="true">26.4.</strong> Using Google Colab</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/selecting-servers-gpus.html"><strong aria-hidden="true">26.5.</strong> Selecting Servers and GPUs</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/contributing.html"><strong aria-hidden="true">26.6.</strong> Contributing to This Book</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/utils.html"><strong aria-hidden="true">26.7.</strong> Utility Functions and Classes</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/d2l.html"><strong aria-hidden="true">26.8.</strong> The d2l API Document</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_references/zreferences.html"><strong aria-hidden="true">27.</strong> chapter_references/zreferences.md</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Dive into Deep Learning</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/d2l-ai/d2l-en" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="environment-and-distribution-shift"><a class="header" href="#environment-and-distribution-shift">Environment and Distribution Shift</a></h1>
+<p>:label:<code>sec_environment-and-distribution-shift</code></p>
+<p>In the previous sections, we worked through
+a number of hands-on applications of machine learning,
+fitting models to a variety of datasets.
+And yet, we never stopped to contemplate
+either where data came from in the first place
+or what we ultimately plan to do
+with the outputs from our models.
+Too often, machine learning developers
+in possession of data rush to develop models
+without pausing to consider these fundamental issues.</p>
+<p>Many failed machine learning deployments
+can be traced back to this failure.
+Sometimes models appear to perform marvelously
+as measured by test set accuracy
+but fail catastrophically in deployment
+when the distribution of data suddenly shifts.
+More insidiously, sometimes the very deployment of a model
+can be the catalyst that perturbs the data distribution.
+Say, for example, that we trained a model
+to predict who will repay rather than default on a loan,
+finding that an applicant's choice of footwear
+was associated with the risk of default
+(Oxfords indicate repayment, sneakers indicate default).
+We might be inclined
+thereafter to grant a loan
+to any applicant wearing Oxfords
+and to deny all applicants wearing sneakers.</p>
+<p>In this case, our ill-considered leap from
+pattern recognition to decision-making
+and our failure to critically consider the environment
+might have disastrous consequences.
+For starters, as soon as we began
+making decisions based on footwear,
+customers would catch on and change their behavior.
+Before long, all applicants would be wearing Oxfords,
+without any coincident improvement in credit-worthiness.
+Take a minute to digest this because similar issues abound
+in many applications of machine learning:
+by introducing our model-based decisions to the environment,
+we might break the model.</p>
+<p>While we cannot possibly give these topics
+a complete treatment in one section,
+we aim here to expose some common concerns,
+and to stimulate the critical thinking
+required to detect such situations early,
+mitigate damage, and use machine learning responsibly.
+Some of the solutions are simple
+(ask for the "right" data),
+some are technically difficult
+(implement a reinforcement learning system),
+and others require that we step outside the realm of
+statistical prediction altogether and
+grapple with difficult philosophical questions
+concerning the ethical application of algorithms.</p>
+<h2 id="types-of-distribution-shift"><a class="header" href="#types-of-distribution-shift">Types of Distribution Shift</a></h2>
+<p>To begin, we stick with the passive prediction setting
+considering the various ways that data distributions might shift
+and what might be done to salvage model performance.
+In one classic setup, we assume that our training data
+was sampled from some distribution $p_S(\mathbf{x},y)$
+but that our test data will consist
+of unlabeled examples drawn from
+some different distribution $p_T(\mathbf{x},y)$.
+Already, we must confront a sobering reality.
+Absent any assumptions on how $p_S$
+and $p_T$ relate to each other,
+learning a robust classifier is impossible.</p>
+<p>Consider a binary classification problem,
+where we wish to distinguish between dogs and cats.
+If the distribution can shift in arbitrary ways,
+then our setup permits the pathological case
+in which the distribution over inputs remains
+constant: $p_S(\mathbf{x}) = p_T(\mathbf{x})$,
+but the labels are all flipped:
+$p_S(y \mid \mathbf{x}) = 1 - p_T(y \mid \mathbf{x})$.
+In other words, if God can suddenly decide
+that in the future all "cats" are now dogs
+and what we previously called "dogs" are now cats---without
+any change in the distribution of inputs $p(\mathbf{x})$,
+then we cannot possibly distinguish this setting
+from one in which the distribution did not change at all.</p>
+<p>Fortunately, under some restricted assumptions
+on the ways our data might change in the future,
+principled algorithms can detect shift
+and sometimes even adapt on the fly,
+improving on the accuracy of the original classifier.</p>
+<h3 id="covariate-shift"><a class="header" href="#covariate-shift">Covariate Shift</a></h3>
+<p>Among categories of distribution shift,
+covariate shift may be the most widely studied.
+Here, we assume that while the distribution of inputs
+may change over time, the labeling function,
+i.e., the conditional distribution
+$P(y \mid \mathbf{x})$ does not change.
+Statisticians call this <em>covariate shift</em>
+because the problem arises due to a
+shift in the distribution of the covariates (features).
+While we can sometimes reason about distribution shift
+without invoking causality, we note that covariate shift
+is the natural assumption to invoke in settings
+where we believe that $\mathbf{x}$ causes $y$.</p>
+<p>Consider the challenge of distinguishing cats and dogs.
+Our training data might consist of images of the kind in :numref:<code>fig_cat-dog-train</code>.</p>
+<p><img src="../img/cat-dog-train.png" alt="Training data for distinguishing cats and dogs (illustrations: Lafeez Hossain / 500px / Getty Images; ilkermetinkursova / iStock / Getty Images Plus; GlobalP / iStock / Getty Images Plus; Musthafa Aboobakuru / 500px / Getty Images)." />
+:label:<code>fig_cat-dog-train</code></p>
+<p>At test time we are asked to classify the images in :numref:<code>fig_cat-dog-test</code>.</p>
+<p><img src="../img/cat-dog-test.png" alt="Test data for distinguishing cats and dogs (illustrations: SIBAS_minich / iStock / Getty Images Plus; Ghrzuzudu / iStock / Getty Images Plus; id-work / DigitalVision Vectors / Getty Images; Yime / iStock / Getty Images Plus)." />
+:label:<code>fig_cat-dog-test</code></p>
+<p>The training set consists of photos,
+while the test set contains only cartoons.
+Training on a dataset with substantially different
+characteristics from the test set
+can spell trouble absent a coherent plan
+for how to adapt to the new domain.</p>
+<h3 id="label-shift"><a class="header" href="#label-shift">Label Shift</a></h3>
+<p><em>Label shift</em> describes the converse problem.
+Here, we assume that the label marginal $P(y)$
+can change
+but the class-conditional distribution
+$P(\mathbf{x} \mid y)$ remains fixed across domains.
+Label shift is a reasonable assumption to make
+when we believe that $y$ causes $\mathbf{x}$.
+For example, we may want to predict diagnoses
+given their symptoms (or other manifestations),
+even as the relative prevalence of diagnoses
+are changing over time.
+Label shift is the appropriate assumption here
+because diseases cause symptoms.
+In some degenerate cases the label shift
+and covariate shift assumptions can hold simultaneously.
+For example, when the label is deterministic,
+the covariate shift assumption will be satisfied,
+even when $y$ causes $\mathbf{x}$.
+Interestingly, in these cases,
+it is often advantageous to work with methods
+that flow from the label shift assumption.
+That is because these methods tend
+to involve manipulating objects that look like labels (often low-dimensional),
+as opposed to objects that look like inputs,
+which tend to be high-dimensional in deep learning.</p>
+<h3 id="concept-shift"><a class="header" href="#concept-shift">Concept Shift</a></h3>
+<p>We may also encounter the related problem of <em>concept shift</em>,
+which arises when the very definitions of labels can change.
+This sounds weird---a <em>cat</em> is a <em>cat</em>, no?
+However, other categories are subject to changes in usage over time.
+Diagnostic criteria for mental illness,
+what passes for fashionable, and job titles,
+are all subject to considerable
+amounts of concept shift.
+It turns out that if we navigate around the United States,
+shifting the source of our data by geography,
+we will find considerable concept shift regarding
+the distribution of names for <em>soft drinks</em>
+as shown in :numref:<code>fig_popvssoda</code>.</p>
+<p><img src="../img/popvssoda.png" alt="Concept shift for soft drink names in the United States (CC-BY: Alan McConchie, PopVsSoda.com)." />
+:width:<code>400px</code>
+:label:<code>fig_popvssoda</code></p>
+<p>If we were to build a machine translation system,
+the distribution $P(y \mid \mathbf{x})$ might be different
+depending on our location.
+This problem can be tricky to spot.
+We might hope to exploit knowledge
+that shift only takes place gradually
+either in a temporal or geographic sense.</p>
+<h2 id="examples-of-distribution-shift"><a class="header" href="#examples-of-distribution-shift">Examples of Distribution Shift</a></h2>
+<p>Before delving into formalism and algorithms,
+we can discuss some concrete situations
+where covariate or concept shift might not be obvious.</p>
+<h3 id="medical-diagnostics"><a class="header" href="#medical-diagnostics">Medical Diagnostics</a></h3>
+<p>Imagine that you want to design an algorithm to detect cancer.
+You collect data from healthy and sick people
+and you train your algorithm.
+It works fine, giving you high accuracy
+and you conclude that you are ready
+for a successful career in medical diagnostics.
+<em>Not so fast.</em></p>
+<p>The distributions that gave rise to the training data
+and those you will encounter in the wild might differ considerably.
+This happened to an unfortunate startup
+that some of we authors worked with years ago.
+They were developing a blood test for a disease
+that predominantly affects older men
+and hoped to study it using blood samples
+that they had collected from patients.
+However, it is considerably more difficult
+to obtain blood samples from healthy men
+than from sick patients already in the system.
+To compensate, the startup solicited
+blood donations from students on a university campus
+to serve as healthy controls in developing their test.
+Then they asked whether we could help them
+to build a classifier for detecting the disease.</p>
+<p>As we explained to them,
+it would indeed be easy to distinguish
+between the healthy and sick cohorts
+with near-perfect accuracy.
+However, that is because the test subjects
+differed in age, hormone levels,
+physical activity, diet, alcohol consumption,
+and many more factors unrelated to the disease.
+This was unlikely to be the case with real patients.
+Due to their sampling procedure,
+we could expect to encounter extreme covariate shift.
+Moreover, this case was unlikely to be
+correctable via conventional methods.
+In short, they wasted a significant sum of money.</p>
+<h3 id="self-driving-cars"><a class="header" href="#self-driving-cars">Self-Driving Cars</a></h3>
+<p>Say a company wanted to leverage machine learning
+for developing self-driving cars.
+One key component here is a roadside detector.
+Since real annotated data is expensive to get,
+they had the (smart and questionable) idea
+to use synthetic data from a game rendering engine
+as additional training data.
+This worked really well on "test data"
+drawn from the rendering engine.
+Alas, inside a real car it was a disaster.
+As it turned out, the roadside had been rendered
+with a very simplistic texture.
+More importantly, <em>all</em> the roadside had been rendered
+with the <em>same</em> texture and the roadside detector
+learned about this "feature" very quickly.</p>
+<p>A similar thing happened to the US Army
+when they first tried to detect tanks in the forest.
+They took aerial photographs of the forest without tanks,
+then drove the tanks into the forest
+and took another set of pictures.
+The classifier appeared to work <em>perfectly</em>.
+Unfortunately, it had merely learned
+how to distinguish trees with shadows
+from trees without shadows---the first set
+of pictures was taken in the early morning,
+the second set at noon.</p>
+<h3 id="nonstationary-distributions"><a class="header" href="#nonstationary-distributions">Nonstationary Distributions</a></h3>
+<p>A much more subtle situation arises
+when the distribution changes slowly
+(also known as <em>nonstationary distribution</em>)
+and the model is not updated adequately.
+Below are some typical cases.</p>
+<ul>
+<li>We train a computational advertising model and then fail to update it frequently (e.g., we forget to incorporate that an obscure new device called an iPad was just launched).</li>
+<li>We build a spam filter. It works well at detecting all spam that we have seen so far. But then the spammers wise up and craft new messages that look unlike anything we have seen before.</li>
+<li>We build a product recommendation system. It works throughout the winter but then continues to recommend Santa hats long after Christmas.</li>
+</ul>
+<h3 id="more-anecdotes"><a class="header" href="#more-anecdotes">More Anecdotes</a></h3>
+<ul>
+<li>We build a face detector. It works well on all benchmarks. Unfortunately it fails on test data---the offending examples are close-ups where the face fills the entire image (no such data was in the training set).</li>
+<li>We build a web search engine for the US market and want to deploy it in the UK.</li>
+<li>We train an image classifier by compiling a large dataset where each among a large set of classes is equally represented in the dataset, say 1000 categories, represented by 1000 images each. Then we deploy the system in the real world, where the actual label distribution of photographs is decidedly non-uniform.</li>
+</ul>
+<h2 id="correction-of-distribution-shift"><a class="header" href="#correction-of-distribution-shift">Correction of Distribution Shift</a></h2>
+<p>As we have discussed, there are many cases
+where training and test distributions
+$P(\mathbf{x}, y)$ are different.
+In some cases, we get lucky and the models work
+despite covariate, label, or concept shift.
+In other cases, we can do better by employing
+principled strategies to cope with the shift.
+The remainder of this section grows considerably more technical.
+The impatient reader could continue on to the next section
+as this material is not prerequisite to subsequent concepts.</p>
+<h3 id="empirical-risk-and--risk"><a class="header" href="#empirical-risk-and--risk">Empirical Risk and  Risk</a></h3>
+<p>:label:<code>subsec_empirical-risk-and-risk</code></p>
+<p>Let's first reflect on what exactly
+is happening during model training:
+we iterate over features and associated labels
+of training data
+${(\mathbf{x}_1, y_1), \ldots, (\mathbf{x}_n, y_n)}$
+and update the parameters of a model $f$ after every minibatch.
+For simplicity we do not consider regularization,
+so we largely minimize the loss on the training:</p>
+<p>$$\mathop{\mathrm{minimize}}<em>f \frac{1}{n} \sum</em>{i=1}^n l(f(\mathbf{x}_i), y_i),$$
+:eqlabel:<code>eq_empirical-risk-min</code></p>
+<p>where $l$ is the loss function
+measuring "how bad" the prediction $f(\mathbf{x}_i)$ is given the associated label $y_i$.
+Statisticians call the term in :eqref:<code>eq_empirical-risk-min</code> <em>empirical risk</em>.
+The <em>empirical risk</em> is an average loss over the training data
+for approximating the <em>risk</em>,
+which is the
+expectation of the loss over the entire population of data drawn from their true distribution
+$p(\mathbf{x},y)$:</p>
+<p>$$E_{p(\mathbf{x}, y)} [l(f(\mathbf{x}), y)] = \int\int l(f(\mathbf{x}), y) p(\mathbf{x}, y) ;d\mathbf{x}dy.$$
+:eqlabel:<code>eq_true-risk</code></p>
+<p>However, in practice we typically cannot obtain the entire population of data.
+Thus, <em>empirical risk minimization</em>,
+which is minimizing the empirical risk in :eqref:<code>eq_empirical-risk-min</code>,
+is a practical strategy for machine learning,
+with the hope of approximately
+minimizing the risk.</p>
+<h3 id="covariate-shift-correction"><a class="header" href="#covariate-shift-correction">Covariate Shift Correction</a></h3>
+<p>:label:<code>subsec_covariate-shift-correction</code></p>
+<p>Assume that we want to estimate
+some dependency $P(y \mid \mathbf{x})$
+for which we have labeled data $(\mathbf{x}_i, y_i)$.
+Unfortunately, the observations $\mathbf{x}_i$ are drawn
+from some <em>source distribution</em> $q(\mathbf{x})$
+rather than the <em>target distribution</em> $p(\mathbf{x})$.
+Fortunately,
+the dependency assumption means
+that the conditional distribution does not change: $p(y \mid \mathbf{x}) = q(y \mid \mathbf{x})$.
+If the source distribution $q(\mathbf{x})$ is "wrong",
+we can correct for that by using the following simple identity in the risk:</p>
+<p>$$
+\begin{aligned}
+\int\int l(f(\mathbf{x}), y) p(y \mid \mathbf{x})p(\mathbf{x}) ;d\mathbf{x}dy =
+\int\int l(f(\mathbf{x}), y) q(y \mid \mathbf{x})q(\mathbf{x})\frac{p(\mathbf{x})}{q(\mathbf{x})} ;d\mathbf{x}dy.
+\end{aligned}
+$$</p>
+<p>In other words, we need to reweigh each data example
+by the ratio of the
+probability
+that it would have been drawn from the correct distribution to that from the wrong one:</p>
+<p>$$\beta_i \stackrel{\textrm{def}}{=} \frac{p(\mathbf{x}_i)}{q(\mathbf{x}_i)}.$$</p>
+<p>Plugging in the weight $\beta_i$ for
+each data example $(\mathbf{x}_i, y_i)$
+we can train our model using
+<em>weighted empirical risk minimization</em>:</p>
+<p>$$\mathop{\mathrm{minimize}}<em>f \frac{1}{n} \sum</em>{i=1}^n \beta_i l(f(\mathbf{x}_i), y_i).$$
+:eqlabel:<code>eq_weighted-empirical-risk-min</code></p>
+<p>Alas, we do not know that ratio,
+so before we can do anything useful we need to estimate it.
+Many methods are available,
+including some fancy operator-theoretic approaches
+that attempt to recalibrate the expectation operator directly
+using a minimum-norm or a maximum entropy principle.
+Note that for any such approach, we need samples
+drawn from both distributions---the "true" $p$, e.g.,
+by access to test data, and the one used
+for generating the training set $q$ (the latter is trivially available).
+Note however, that we only need features $\mathbf{x} \sim p(\mathbf{x})$;
+we do not need to access labels $y \sim p(y)$.</p>
+<p>In this case, there exists a very effective approach
+that will give almost as good results as the original: namely, logistic regression,
+which is a special case of softmax regression (see :numref:<code>sec_softmax</code>)
+for binary classification.
+This is all that is needed to compute estimated probability ratios.
+We learn a classifier to distinguish
+between data drawn from $p(\mathbf{x})$
+and data drawn from $q(\mathbf{x})$.
+If it is impossible to distinguish
+between the two distributions
+then it means that the associated instances
+are equally likely to come from
+either one of those two distributions.
+On the other hand, any instances
+that can be well discriminated
+should be significantly overweighted
+or underweighted accordingly.</p>
+<p>For simplicity's sake assume that we have
+an equal number of instances from both distributions
+$p(\mathbf{x})$
+and $q(\mathbf{x})$, respectively.
+Now denote by $z$ labels that are $1$
+for data drawn from $p$ and $-1$ for data drawn from $q$.
+Then the probability in a mixed dataset is given by</p>
+<p>$$P(z=1 \mid \mathbf{x}) = \frac{p(\mathbf{x})}{p(\mathbf{x})+q(\mathbf{x})} \textrm{ and hence } \frac{P(z=1 \mid \mathbf{x})}{P(z=-1 \mid \mathbf{x})} = \frac{p(\mathbf{x})}{q(\mathbf{x})}.$$</p>
+<p>Thus, if we use a logistic regression approach,
+where $P(z=1 \mid \mathbf{x})=\frac{1}{1+\exp(-h(\mathbf{x}))}$ ($h$ is a parametrized function),
+it follows that</p>
+<p>$$
+\beta_i = \frac{1/(1 + \exp(-h(\mathbf{x}_i)))}{\exp(-h(\mathbf{x}_i))/(1 + \exp(-h(\mathbf{x}_i)))} = \exp(h(\mathbf{x}_i)).
+$$</p>
+<p>As a result, we need to solve two problems:
+the first, to distinguish between
+data drawn from both distributions,
+and then a weighted empirical risk minimization problem
+in :eqref:<code>eq_weighted-empirical-risk-min</code>
+where we weigh terms by $\beta_i$.</p>
+<p>Now we are ready to describe a correction algorithm.
+Suppose that we have a training set ${(\mathbf{x}_1, y_1), \ldots, (\mathbf{x}_n, y_n)}$ and an unlabeled test set ${\mathbf{u}_1, \ldots, \mathbf{u}_m}$.
+For covariate shift,
+we assume that $\mathbf{x}_i$ for all $1 \leq i \leq n$ are drawn from some source distribution
+and $\mathbf{u}_i$ for all $1 \leq i \leq m$
+are drawn from the target distribution.
+Here is a prototypical algorithm
+for correcting covariate shift:</p>
+<ol>
+<li>Create a binary-classification training set: ${(\mathbf{x}_1, -1), \ldots, (\mathbf{x}_n, -1), (\mathbf{u}_1, 1), \ldots, (\mathbf{u}_m, 1)}$.</li>
+<li>Train a binary classifier using logistic regression to get the function $h$.</li>
+<li>Weigh training data using $\beta_i = \exp(h(\mathbf{x}_i))$ or better $\beta_i = \min(\exp(h(\mathbf{x}_i)), c)$ for some constant $c$.</li>
+<li>Use weights $\beta_i$ for training on ${(\mathbf{x}_1, y_1), \ldots, (\mathbf{x}_n, y_n)}$ in :eqref:<code>eq_weighted-empirical-risk-min</code>.</li>
+</ol>
+<p>Note that the above algorithm relies on a crucial assumption.
+For this scheme to work, we need that each data example
+in the target (e.g., test time) distribution
+had nonzero probability of occurring at training time.
+If we find a point where $p(\mathbf{x}) &gt; 0$ but $q(\mathbf{x}) = 0$,
+then the corresponding importance weight should be infinity.</p>
+<h3 id="label-shift-correction"><a class="header" href="#label-shift-correction">Label Shift Correction</a></h3>
+<p>Assume that we are dealing with a
+classification task with $k$ categories.
+Using the same notation in :numref:<code>subsec_covariate-shift-correction</code>,
+$q$ and $p$ are the source distribution (e.g., training time) and target distribution (e.g., test time), respectively.
+Assume that the distribution of labels shifts over time:
+$q(y) \neq p(y)$, but the class-conditional distribution
+stays the same: $q(\mathbf{x} \mid y)=p(\mathbf{x} \mid y)$.
+If the source distribution $q(y)$ is "wrong",
+we can correct for that
+according to
+the following identity in the risk
+as defined in
+:eqref:<code>eq_true-risk</code>:</p>
+<p>$$
+\begin{aligned}
+\int\int l(f(\mathbf{x}), y) p(\mathbf{x} \mid y)p(y) ;d\mathbf{x}dy =
+\int\int l(f(\mathbf{x}), y) q(\mathbf{x} \mid y)q(y)\frac{p(y)}{q(y)} ;d\mathbf{x}dy.
+\end{aligned}
+$$</p>
+<p>Here, our importance weights will correspond to the
+label likelihood ratios:</p>
+<p>$$\beta_i \stackrel{\textrm{def}}{=} \frac{p(y_i)}{q(y_i)}.$$</p>
+<p>One nice thing about label shift is that
+if we have a reasonably good model
+on the source distribution,
+then we can get consistent estimates of these weights
+without ever having to deal with the ambient dimension.
+In deep learning, the inputs tend
+to be high-dimensional objects like images,
+while the labels are often simpler objects like categories.</p>
+<p>To estimate the target label distribution,
+we first take our reasonably good off-the-shelf classifier
+(typically trained on the training data)
+and compute its "confusion" matrix using the validation set
+(also from the training distribution).
+The <em>confusion matrix</em>, $\mathbf{C}$, is simply a $k \times k$ matrix,
+where each column corresponds to the label category (ground truth)
+and each row corresponds to our model's predicted category.
+Each cell's value $c_{ij}$ is the fraction of total predictions on the validation set
+where the true label was $j$ and our model predicted $i$.</p>
+<p>Now, we cannot calculate the confusion matrix
+on the target data directly
+because we do not get to see the labels for the examples
+that we see in the wild,
+unless we invest in a complex real-time annotation pipeline.
+What we can do, however, is average all of our model's predictions
+at test time together, yielding the mean model outputs $\mu(\hat{\mathbf{y}}) \in \mathbb{R}^k$,
+where the $i^\textrm{th}$ element $\mu(\hat{y}_i)$
+is the fraction of the total predictions on the test set
+where our model predicted $i$.</p>
+<p>It turns out that under some mild conditions---if
+our classifier was reasonably accurate in the first place,
+and if the target data contains only categories
+that we have seen before,
+and if the label shift assumption holds in the first place
+(the strongest assumption here)---we can estimate the test set label distribution
+by solving a simple linear system</p>
+<p>$$\mathbf{C} p(\mathbf{y}) = \mu(\hat{\mathbf{y}}),$$</p>
+<p>because as an estimate $\sum_{j=1}^k c_{ij} p(y_j) = \mu(\hat{y}_i)$ holds for all $1 \leq i \leq k$,
+where $p(y_j)$ is the $j^\textrm{th}$ element of the $k$-dimensional label distribution vector $p(\mathbf{y})$.
+If our classifier is sufficiently accurate to begin with,
+then the confusion matrix $\mathbf{C}$ will be invertible,
+and we get a solution $p(\mathbf{y}) = \mathbf{C}^{-1} \mu(\hat{\mathbf{y}})$.</p>
+<p>Because we observe the labels on the source data,
+it is easy to estimate the distribution $q(y)$.
+Then, for any training example $i$ with label $y_i$,
+we can take the ratio of our estimated $p(y_i)/q(y_i)$
+to calculate the weight $\beta_i$,
+and plug this into weighted empirical risk minimization
+in :eqref:<code>eq_weighted-empirical-risk-min</code>.</p>
+<h3 id="concept-shift-correction"><a class="header" href="#concept-shift-correction">Concept Shift Correction</a></h3>
+<p>Concept shift is much harder to fix in a principled manner.
+For instance, in a situation where suddenly the problem changes
+from distinguishing cats from dogs to one of
+distinguishing white from black animals,
+it will be unreasonable to assume
+that we can do much better than just collecting new labels
+and training from scratch.
+Fortunately, in practice, such extreme shifts are rare.
+Instead, what usually happens is that the task keeps on changing slowly.
+To make things more concrete, here are some examples:</p>
+<ul>
+<li>In computational advertising, new products are launched,
+old products become less popular. This means that the distribution over ads and their popularity changes gradually and any click-through rate predictor needs to change gradually with it.</li>
+<li>Traffic camera lenses degrade gradually due to environmental wear, affecting image quality progressively.</li>
+<li>News content changes gradually (i.e., most of the news remains unchanged but new stories appear).</li>
+</ul>
+<p>In such cases, we can use the same approach that we used for training networks to make them adapt to the change in the data. In other words, we use the existing network weights and simply perform a few update steps with the new data rather than training from scratch.</p>
+<h2 id="a-taxonomy-of-learning-problems"><a class="header" href="#a-taxonomy-of-learning-problems">A Taxonomy of Learning Problems</a></h2>
+<p>Armed with knowledge about how to deal with changes in distributions, we can now consider some other aspects of machine learning problem formulation.</p>
+<h3 id="batch-learning"><a class="header" href="#batch-learning">Batch Learning</a></h3>
+<p>In <em>batch learning</em>, we have access to training features and labels ${(\mathbf{x}_1, y_1), \ldots, (\mathbf{x}_n, y_n)}$, which we use to train a model $f(\mathbf{x})$. Later on, we deploy this model to score new data $(\mathbf{x}, y)$ drawn from the same distribution. This is the default assumption for any of the problems that we discuss here. For instance, we might train a cat detector based on lots of pictures of cats and dogs. Once we have trained it, we ship it as part of a smart catdoor computer vision system that lets only cats in. This is then installed in a customer's home and is never updated again (barring extreme circumstances).</p>
+<h3 id="online-learning"><a class="header" href="#online-learning">Online Learning</a></h3>
+<p>Now imagine that the data $(\mathbf{x}_i, y_i)$ arrives one sample at a time. More specifically, assume that we first observe $\mathbf{x}_i$, then we need to come up with an estimate $f(\mathbf{x}_i)$. Only once we have done this do we observe $y_i$ and so receive a reward or incur a loss, given our decision.
+Many real problems fall into this category. For example, we need to predict tomorrow's stock price, which allows us to trade based on that estimate and at the end of the day we find out whether our estimate made us a profit. In other words, in <em>online learning</em>, we have the following cycle where we are continuously improving our model given new observations:</p>
+<p>$$\begin{aligned}&amp;\textrm{model } f_t \longrightarrow \textrm{data }  \mathbf{x}_t \longrightarrow \textrm{estimate } f_t(\mathbf{x}_t) \longrightarrow\ \textrm{obs}&amp;\textrm{ervation } y_t \longrightarrow \textrm{loss } l(y_t, f_t(\mathbf{x}<em>t)) \longrightarrow \textrm{model } f</em>{t+1}\end{aligned}$$</p>
+<h3 id="bandits"><a class="header" href="#bandits">Bandits</a></h3>
+<p><em>Bandits</em> are a special case of the problem above. While in most learning problems we have a continuously parametrized function $f$ where we want to learn its parameters (e.g., a deep network), in a <em>bandit</em> problem we only have a finite number of arms that we can pull, i.e., a finite number of actions that we can take. It is not very surprising that for this simpler problem stronger theoretical guarantees in terms of optimality can be obtained. We list it mainly since this problem is often (confusingly) treated as if it were a distinct learning setting.</p>
+<h3 id="control"><a class="header" href="#control">Control</a></h3>
+<p>In many cases the environment remembers what we did. Not necessarily in an adversarial manner but it will just remember and the response will depend on what happened before. For instance, a coffee boiler controller will observe different temperatures depending on whether it was heating the boiler previously. PID (proportional-integral-derivative) controller algorithms are a popular choice there.
+Likewise, a user's behavior on a news site will depend on what we showed them previously (e.g., they will read most news only once). Many such algorithms form a model of the environment in which they act so as to make their decisions appear less random.
+Recently,
+control theory (e.g., PID variants) has also been used
+to automatically tune hyperparameters
+to achieve better disentangling and reconstruction quality,
+and improve the diversity of generated text and the reconstruction quality of generated images :cite:<code>Shao.Yao.Sun.ea.2020</code>.</p>
+<h3 id="reinforcement-learning"><a class="header" href="#reinforcement-learning">Reinforcement Learning</a></h3>
+<p>In the more general case of an environment with memory, we may encounter situations where the environment is trying to cooperate with us (cooperative games, in particular for non-zero-sum games), or others where the environment will try to win. Chess, Go, Backgammon, or StarCraft are some of the cases in <em>reinforcement learning</em>. Likewise, we might want to build a good controller for autonomous cars. Other cars are likely to respond to the autonomous car's driving style in nontrivial ways, e.g., trying to avoid it, trying to cause an accident, or trying to cooperate with it.</p>
+<h3 id="considering-the-environment"><a class="header" href="#considering-the-environment">Considering the Environment</a></h3>
+<p>One key distinction between the different situations above is that a strategy that might have worked throughout in the case of a stationary environment, might not work throughout in an environment that can adapt. For instance, an arbitrage opportunity discovered by a trader is likely to disappear once it is exploited. The speed and manner at which the environment changes determines to a large extent the type of algorithms that we can bring to bear. For instance, if we know that things may only change slowly, we can force any estimate to change only slowly, too. If we know that the environment might change instantaneously, but only very infrequently, we can make allowances for that. These types of knowledge are crucial for the aspiring data scientist in dealing with concept shift, i.e., when the problem that is being solved can change over time.</p>
+<h2 id="fairness-accountability-and-transparency-in-machine-learning"><a class="header" href="#fairness-accountability-and-transparency-in-machine-learning">Fairness, Accountability, and Transparency in Machine Learning</a></h2>
+<p>Finally, it is important to remember
+that when you deploy machine learning systems
+you are not merely optimizing a predictive model---you
+are typically providing a tool that will
+be used to (partially or fully) automate decisions.
+These technical systems can impact the lives
+of individuals who are subject to the resulting decisions.
+The leap from considering predictions to making decisions
+raises not only new technical questions,
+but also a slew of ethical questions
+that must be carefully considered.
+If we are deploying a medical diagnostic system,
+we need to know for which populations
+it may work and for which it may not.
+Overlooking foreseeable risks to the welfare of
+a subpopulation could cause us to administer inferior care.
+Moreover, once we contemplate decision-making systems,
+we must step back and reconsider how we evaluate our technology.
+Among other consequences of this change of scope,
+we will find that <em>accuracy</em> is seldom the right measure.
+For instance, when translating predictions into actions,
+we will often want to take into account
+the potential cost sensitivity of erring in various ways.
+If one way of misclassifying an image
+could be perceived as a racial sleight of hand,
+while misclassification to a different category
+would be harmless, then we might want to adjust
+our thresholds accordingly, accounting for societal values
+in designing the decision-making protocol.
+We also want to be careful about
+how prediction systems can lead to feedback loops.
+For example, consider predictive policing systems,
+which allocate patrol officers
+to areas with high forecasted crime.
+It is easy to see how a worrying pattern can emerge:</p>
+<ol>
+<li>Neighborhoods with more crime get more patrols.</li>
+<li>Consequently, more crimes are discovered in these neighborhoods, entering the training data available for future iterations.</li>
+<li>Exposed to more positives, the model predicts yet more crime in these neighborhoods.</li>
+<li>In the next iteration, the updated model targets the same neighborhood even more heavily leading to yet more crimes discovered, etc.</li>
+</ol>
+<p>Often, the various mechanisms by which
+a model's predictions become coupled to its training data
+are unaccounted for in the modeling process.
+This can lead to what researchers call <em>runaway feedback loops</em>.
+Additionally, we want to be careful about
+whether we are addressing the right problem in the first place.
+Predictive algorithms now play an outsize role
+in mediating the dissemination of information.
+Should the news that an individual encounters
+be determined by the set of Facebook pages they have <em>Liked</em>?
+These are just a few among the many pressing ethical dilemmas
+that you might encounter in a career in machine learning.</p>
+<h2 id="summary"><a class="header" href="#summary">Summary</a></h2>
+<p>In many cases training and test sets do not come from the same distribution. This is called distribution shift.
+The risk is the expectation of the loss over the entire population of data drawn from their true distribution. However, this entire population is usually unavailable. Empirical risk is an average loss over the training data to approximate the risk. In practice, we perform empirical risk minimization.</p>
+<p>Under the corresponding assumptions, covariate and label shift can be detected and corrected for at test time. Failure to account for this bias can become problematic at test time.
+In some cases, the environment may remember automated actions and respond in surprising ways. We must account for this possibility when building models and continue to monitor live systems, open to the possibility that our models and the environment will become entangled in unanticipated ways.</p>
+<h2 id="exercises"><a class="header" href="#exercises">Exercises</a></h2>
+<ol>
+<li>What could happen when we change the behavior of a search engine? What might the users do? What about the advertisers?</li>
+<li>Implement a covariate shift detector. Hint: build a classifier.</li>
+<li>Implement a covariate shift corrector.</li>
+<li>Besides distribution shift, what else could affect how the empirical risk approximates the risk?</li>
+</ol>
+<p><a href="https://discuss.d2l.ai/t/105">Discussions</a></p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../chapter_linear-classification/generalization-classification.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../chapter_multilayer-perceptrons/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../chapter_linear-classification/generalization-classification.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../chapter_multilayer-perceptrons/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

@@ -1,0 +1,757 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Bidirectional Encoder Representations from Transformers (BERT) - Dive into Deep Learning</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../static/d2l.css">
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('light')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../index.html">Deep Learning</a></li><li class="chapter-item expanded "><a href="../chapter_preface/index.html"><strong aria-hidden="true">1.</strong> Preface</a></li><li class="chapter-item expanded "><a href="../chapter_installation/index.html"><strong aria-hidden="true">2.</strong> Installation</a></li><li class="chapter-item expanded "><a href="../chapter_notation/index.html"><strong aria-hidden="true">3.</strong> Notation</a></li><li class="chapter-item expanded "><a href="../chapter_introduction/index.html"><strong aria-hidden="true">4.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="../chapter_preliminaries/index.html"><strong aria-hidden="true">5.</strong> Preliminaries</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_preliminaries/ndarray.html"><strong aria-hidden="true">5.1.</strong> Data Manipulation</a></li><li class="chapter-item "><a href="../chapter_preliminaries/pandas.html"><strong aria-hidden="true">5.2.</strong> Data Preprocessing</a></li><li class="chapter-item "><a href="../chapter_preliminaries/linear-algebra.html"><strong aria-hidden="true">5.3.</strong> Linear Algebra</a></li><li class="chapter-item "><a href="../chapter_preliminaries/calculus.html"><strong aria-hidden="true">5.4.</strong> Calculus</a></li><li class="chapter-item "><a href="../chapter_preliminaries/autograd.html"><strong aria-hidden="true">5.5.</strong> Automatic Differentiation</a></li><li class="chapter-item "><a href="../chapter_preliminaries/probability.html"><strong aria-hidden="true">5.6.</strong> Probability and Statistics</a></li><li class="chapter-item "><a href="../chapter_preliminaries/lookup-api.html"><strong aria-hidden="true">5.7.</strong> Documentation</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_linear-regression/index.html"><strong aria-hidden="true">6.</strong> Linear Neural Networks for Regression</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_linear-regression/linear-regression.html"><strong aria-hidden="true">6.1.</strong> Linear Regression</a></li><li class="chapter-item "><a href="../chapter_linear-regression/oo-design.html"><strong aria-hidden="true">6.2.</strong> Object-Oriented Design for Implementation</a></li><li class="chapter-item "><a href="../chapter_linear-regression/synthetic-regression-data.html"><strong aria-hidden="true">6.3.</strong> Synthetic Regression Data</a></li><li class="chapter-item "><a href="../chapter_linear-regression/linear-regression-scratch.html"><strong aria-hidden="true">6.4.</strong> Linear Regression Implementation from Scratch</a></li><li class="chapter-item "><a href="../chapter_linear-regression/linear-regression-concise.html"><strong aria-hidden="true">6.5.</strong> Concise Implementation of Linear Regression</a></li><li class="chapter-item "><a href="../chapter_linear-regression/generalization.html"><strong aria-hidden="true">6.6.</strong> Generalization</a></li><li class="chapter-item "><a href="../chapter_linear-regression/weight-decay.html"><strong aria-hidden="true">6.7.</strong> Weight Decay</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_linear-classification/index.html"><strong aria-hidden="true">7.</strong> Linear Neural Networks for Classification</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_linear-classification/softmax-regression.html"><strong aria-hidden="true">7.1.</strong> Softmax Regression</a></li><li class="chapter-item "><a href="../chapter_linear-classification/image-classification-dataset.html"><strong aria-hidden="true">7.2.</strong> The Image Classification Dataset</a></li><li class="chapter-item "><a href="../chapter_linear-classification/classification.html"><strong aria-hidden="true">7.3.</strong> The Base Classification Model</a></li><li class="chapter-item "><a href="../chapter_linear-classification/softmax-regression-scratch.html"><strong aria-hidden="true">7.4.</strong> Softmax Regression Implementation from Scratch</a></li><li class="chapter-item "><a href="../chapter_linear-classification/softmax-regression-concise.html"><strong aria-hidden="true">7.5.</strong> Concise Implementation of Softmax Regression</a></li><li class="chapter-item "><a href="../chapter_linear-classification/generalization-classification.html"><strong aria-hidden="true">7.6.</strong> Generalization in Classification</a></li><li class="chapter-item "><a href="../chapter_linear-classification/environment-and-distribution-shift.html"><strong aria-hidden="true">7.7.</strong> Environment and Distribution Shift</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_multilayer-perceptrons/index.html"><strong aria-hidden="true">8.</strong> Multilayer Perceptrons</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/mlp.html"><strong aria-hidden="true">8.1.</strong> Multilayer Perceptrons</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/mlp-implementation.html"><strong aria-hidden="true">8.2.</strong> Implementation of Multilayer Perceptrons</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/backprop.html"><strong aria-hidden="true">8.3.</strong> Forward Propagation, Backward Propagation, and Computational Graphs</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/numerical-stability-and-init.html"><strong aria-hidden="true">8.4.</strong> Numerical Stability and Initialization</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/generalization-deep.html"><strong aria-hidden="true">8.5.</strong> Generalization in Deep Learning</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/dropout.html"><strong aria-hidden="true">8.6.</strong> Dropout</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/kaggle-house-price.html"><strong aria-hidden="true">8.7.</strong> Predicting House Prices on Kaggle</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_builders-guide/index.html"><strong aria-hidden="true">9.</strong> Builders' Guide</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_builders-guide/model-construction.html"><strong aria-hidden="true">9.1.</strong> Layers and Modules</a></li><li class="chapter-item "><a href="../chapter_builders-guide/parameters.html"><strong aria-hidden="true">9.2.</strong> Parameter Management</a></li><li class="chapter-item "><a href="../chapter_builders-guide/init-param.html"><strong aria-hidden="true">9.3.</strong> Parameter Initialization</a></li><li class="chapter-item "><a href="../chapter_builders-guide/lazy-init.html"><strong aria-hidden="true">9.4.</strong> Lazy Initialization</a></li><li class="chapter-item "><a href="../chapter_builders-guide/custom-layer.html"><strong aria-hidden="true">9.5.</strong> Custom Layers</a></li><li class="chapter-item "><a href="../chapter_builders-guide/read-write.html"><strong aria-hidden="true">9.6.</strong> File I/O</a></li><li class="chapter-item "><a href="../chapter_builders-guide/use-gpu.html"><strong aria-hidden="true">9.7.</strong> GPUs</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_convolutional-neural-networks/index.html"><strong aria-hidden="true">10.</strong> Convolutional Neural Networks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/why-conv.html"><strong aria-hidden="true">10.1.</strong> From Fully Connected Layers to Convolutions</a></li><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/conv-layer.html"><strong aria-hidden="true">10.2.</strong> Convolutions for Images</a></li><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/padding-and-strides.html"><strong aria-hidden="true">10.3.</strong> Padding and Stride</a></li><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/channels.html"><strong aria-hidden="true">10.4.</strong> Multiple Input and Multiple Output Channels</a></li><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/pooling.html"><strong aria-hidden="true">10.5.</strong> Pooling</a></li><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/lenet.html"><strong aria-hidden="true">10.6.</strong> Convolutional Neural Networks (LeNet)</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_convolutional-modern/index.html"><strong aria-hidden="true">11.</strong> Modern Convolutional Neural Networks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_convolutional-modern/alexnet.html"><strong aria-hidden="true">11.1.</strong> Deep Convolutional Neural Networks (AlexNet)</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/vgg.html"><strong aria-hidden="true">11.2.</strong> Networks Using Blocks (VGG)</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/nin.html"><strong aria-hidden="true">11.3.</strong> Network in Network (NiN)</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/googlenet.html"><strong aria-hidden="true">11.4.</strong> Multi-Branch Networks  (GoogLeNet)</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/batch-norm.html"><strong aria-hidden="true">11.5.</strong> Batch Normalization</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/resnet.html"><strong aria-hidden="true">11.6.</strong> Residual Networks (ResNet) and ResNeXt</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/densenet.html"><strong aria-hidden="true">11.7.</strong> Densely Connected Networks (DenseNet)</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/cnn-design.html"><strong aria-hidden="true">11.8.</strong> Designing Convolution Network Architectures</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_recurrent-neural-networks/index.html"><strong aria-hidden="true">12.</strong> Recurrent Neural Networks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/sequence.html"><strong aria-hidden="true">12.1.</strong> Working with Sequences</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/text-sequence.html"><strong aria-hidden="true">12.2.</strong> Converting Raw Text into Sequence Data</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/language-model.html"><strong aria-hidden="true">12.3.</strong> Language Models</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/rnn.html"><strong aria-hidden="true">12.4.</strong> Recurrent Neural Networks</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/rnn-scratch.html"><strong aria-hidden="true">12.5.</strong> Recurrent Neural Network Implementation from Scratch</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/rnn-concise.html"><strong aria-hidden="true">12.6.</strong> Concise Implementation of Recurrent Neural Networks</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/bptt.html"><strong aria-hidden="true">12.7.</strong> Backpropagation Through Time</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_recurrent-modern/index.html"><strong aria-hidden="true">13.</strong> Modern Recurrent Neural Networks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_recurrent-modern/lstm.html"><strong aria-hidden="true">13.1.</strong> Long Short-Term Memory (LSTM)</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/gru.html"><strong aria-hidden="true">13.2.</strong> Gated Recurrent Units (GRU)</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/deep-rnn.html"><strong aria-hidden="true">13.3.</strong> Deep Recurrent Neural Networks</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/bi-rnn.html"><strong aria-hidden="true">13.4.</strong> Bidirectional Recurrent Neural Networks</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/machine-translation-and-dataset.html"><strong aria-hidden="true">13.5.</strong> Machine Translation and the Dataset</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/encoder-decoder.html"><strong aria-hidden="true">13.6.</strong> The Encoder--Decoder Architecture</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/seq2seq.html"><strong aria-hidden="true">13.7.</strong> Sequence-to-Sequence Learning for Machine Translation</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/beam-search.html"><strong aria-hidden="true">13.8.</strong> Beam Search</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_attention-mechanisms-and-transformers/index.html"><strong aria-hidden="true">14.</strong> Attention Mechanisms and Transformers</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/queries-keys-values.html"><strong aria-hidden="true">14.1.</strong> Queries, Keys, and Values</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/attention-pooling.html"><strong aria-hidden="true">14.2.</strong> Attention Pooling by Similarity</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/attention-scoring-functions.html"><strong aria-hidden="true">14.3.</strong> Attention Scoring Functions</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/bahdanau-attention.html"><strong aria-hidden="true">14.4.</strong> The Bahdanau Attention Mechanism</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/multihead-attention.html"><strong aria-hidden="true">14.5.</strong> Multi-Head Attention</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/self-attention-and-positional-encoding.html"><strong aria-hidden="true">14.6.</strong> Self-Attention and Positional Encoding</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/transformer.html"><strong aria-hidden="true">14.7.</strong> The Transformer Architecture</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/vision-transformer.html"><strong aria-hidden="true">14.8.</strong> Transformers for Vision</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/large-pretraining-transformers.html"><strong aria-hidden="true">14.9.</strong> Large-Scale Pretraining with Transformers</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_optimization/index.html"><strong aria-hidden="true">15.</strong> Optimization Algorithms</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_optimization/optimization-intro.html"><strong aria-hidden="true">15.1.</strong> Optimization and Deep Learning</a></li><li class="chapter-item "><a href="../chapter_optimization/convexity.html"><strong aria-hidden="true">15.2.</strong> Convexity</a></li><li class="chapter-item "><a href="../chapter_optimization/gd.html"><strong aria-hidden="true">15.3.</strong> Gradient Descent</a></li><li class="chapter-item "><a href="../chapter_optimization/sgd.html"><strong aria-hidden="true">15.4.</strong> Stochastic Gradient Descent</a></li><li class="chapter-item "><a href="../chapter_optimization/minibatch-sgd.html"><strong aria-hidden="true">15.5.</strong> Minibatch Stochastic Gradient Descent</a></li><li class="chapter-item "><a href="../chapter_optimization/momentum.html"><strong aria-hidden="true">15.6.</strong> Momentum</a></li><li class="chapter-item "><a href="../chapter_optimization/adagrad.html"><strong aria-hidden="true">15.7.</strong> Adagrad</a></li><li class="chapter-item "><a href="../chapter_optimization/rmsprop.html"><strong aria-hidden="true">15.8.</strong> RMSProp</a></li><li class="chapter-item "><a href="../chapter_optimization/adadelta.html"><strong aria-hidden="true">15.9.</strong> Adadelta</a></li><li class="chapter-item "><a href="../chapter_optimization/adam.html"><strong aria-hidden="true">15.10.</strong> Adam</a></li><li class="chapter-item "><a href="../chapter_optimization/lr-scheduler.html"><strong aria-hidden="true">15.11.</strong> Learning Rate Scheduling</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_computational-performance/index.html"><strong aria-hidden="true">16.</strong> Computational Performance</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_computational-performance/hybridize.html"><strong aria-hidden="true">16.1.</strong> Compilers and Interpreters</a></li><li class="chapter-item "><a href="../chapter_computational-performance/async-computation.html"><strong aria-hidden="true">16.2.</strong> Asynchronous Computation</a></li><li class="chapter-item "><a href="../chapter_computational-performance/auto-parallelism.html"><strong aria-hidden="true">16.3.</strong> Automatic Parallelism</a></li><li class="chapter-item "><a href="../chapter_computational-performance/hardware.html"><strong aria-hidden="true">16.4.</strong> Hardware</a></li><li class="chapter-item "><a href="../chapter_computational-performance/multiple-gpus.html"><strong aria-hidden="true">16.5.</strong> Training on Multiple GPUs</a></li><li class="chapter-item "><a href="../chapter_computational-performance/multiple-gpus-concise.html"><strong aria-hidden="true">16.6.</strong> Concise Implementation for Multiple GPUs</a></li><li class="chapter-item "><a href="../chapter_computational-performance/parameterserver.html"><strong aria-hidden="true">16.7.</strong> Parameter Servers</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_computer-vision/index.html"><strong aria-hidden="true">17.</strong> Computer Vision</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_computer-vision/image-augmentation.html"><strong aria-hidden="true">17.1.</strong> Image Augmentation</a></li><li class="chapter-item "><a href="../chapter_computer-vision/fine-tuning.html"><strong aria-hidden="true">17.2.</strong> Fine-Tuning</a></li><li class="chapter-item "><a href="../chapter_computer-vision/bounding-box.html"><strong aria-hidden="true">17.3.</strong> Object Detection and Bounding Boxes</a></li><li class="chapter-item "><a href="../chapter_computer-vision/anchor.html"><strong aria-hidden="true">17.4.</strong> Anchor Boxes</a></li><li class="chapter-item "><a href="../chapter_computer-vision/multiscale-object-detection.html"><strong aria-hidden="true">17.5.</strong> Multiscale Object Detection</a></li><li class="chapter-item "><a href="../chapter_computer-vision/object-detection-dataset.html"><strong aria-hidden="true">17.6.</strong> The Object Detection Dataset</a></li><li class="chapter-item "><a href="../chapter_computer-vision/ssd.html"><strong aria-hidden="true">17.7.</strong> Single Shot Multibox Detection</a></li><li class="chapter-item "><a href="../chapter_computer-vision/rcnn.html"><strong aria-hidden="true">17.8.</strong> Region-based CNNs (R-CNNs)</a></li><li class="chapter-item "><a href="../chapter_computer-vision/semantic-segmentation-and-dataset.html"><strong aria-hidden="true">17.9.</strong> Semantic Segmentation and the Dataset</a></li><li class="chapter-item "><a href="../chapter_computer-vision/transposed-conv.html"><strong aria-hidden="true">17.10.</strong> Transposed Convolution</a></li><li class="chapter-item "><a href="../chapter_computer-vision/fcn.html"><strong aria-hidden="true">17.11.</strong> Fully Convolutional Networks</a></li><li class="chapter-item "><a href="../chapter_computer-vision/neural-style.html"><strong aria-hidden="true">17.12.</strong> Neural Style Transfer</a></li><li class="chapter-item "><a href="../chapter_computer-vision/kaggle-cifar10.html"><strong aria-hidden="true">17.13.</strong> Image Classification (CIFAR-10) on Kaggle</a></li><li class="chapter-item "><a href="../chapter_computer-vision/kaggle-dog.html"><strong aria-hidden="true">17.14.</strong> Dog Breed Identification (ImageNet Dogs) on Kaggle</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_natural-language-processing-pretraining/index.html"><strong aria-hidden="true">18.</strong> Natural Language Processing: Pretraining</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/word2vec.html"><strong aria-hidden="true">18.1.</strong> Word Embedding (word2vec)</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/approx-training.html"><strong aria-hidden="true">18.2.</strong> Approximate Training</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/word-embedding-dataset.html"><strong aria-hidden="true">18.3.</strong> The Dataset for Pretraining Word Embeddings</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/word2vec-pretraining.html"><strong aria-hidden="true">18.4.</strong> Pretraining word2vec</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/glove.html"><strong aria-hidden="true">18.5.</strong> Word Embedding with Global Vectors (GloVe)</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/subword-embedding.html"><strong aria-hidden="true">18.6.</strong> Subword Embedding</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/similarity-analogy.html"><strong aria-hidden="true">18.7.</strong> Word Similarity and Analogy</a></li><li class="chapter-item expanded "><a href="../chapter_natural-language-processing-pretraining/bert.html" class="active"><strong aria-hidden="true">18.8.</strong> Bidirectional Encoder Representations from Transformers (BERT)</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/bert-dataset.html"><strong aria-hidden="true">18.9.</strong> The Dataset for Pretraining BERT</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/bert-pretraining.html"><strong aria-hidden="true">18.10.</strong> Pretraining BERT</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_natural-language-processing-applications/index.html"><strong aria-hidden="true">19.</strong> Natural Language Processing: Applications</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/sentiment-analysis-and-dataset.html"><strong aria-hidden="true">19.1.</strong> Sentiment Analysis and the Dataset</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/sentiment-analysis-rnn.html"><strong aria-hidden="true">19.2.</strong> Sentiment Analysis: Using Recurrent Neural Networks</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/sentiment-analysis-cnn.html"><strong aria-hidden="true">19.3.</strong> Sentiment Analysis: Using Convolutional Neural Networks</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/natural-language-inference-and-dataset.html"><strong aria-hidden="true">19.4.</strong> Natural Language Inference and the Dataset</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/natural-language-inference-attention.html"><strong aria-hidden="true">19.5.</strong> Natural Language Inference: Using Attention</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/finetuning-bert.html"><strong aria-hidden="true">19.6.</strong> Fine-Tuning BERT for Sequence-Level and Token-Level Applications</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/natural-language-inference-bert.html"><strong aria-hidden="true">19.7.</strong> Natural Language Inference: Fine-Tuning BERT</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_reinforcement-learning/index.html"><strong aria-hidden="true">20.</strong> Reinforcement Learning</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_reinforcement-learning/mdp.html"><strong aria-hidden="true">20.1.</strong> Markov Decision Process (MDP)</a></li><li class="chapter-item "><a href="../chapter_reinforcement-learning/value-iter.html"><strong aria-hidden="true">20.2.</strong> Value Iteration</a></li><li class="chapter-item "><a href="../chapter_reinforcement-learning/qlearning.html"><strong aria-hidden="true">20.3.</strong> Q-Learning</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_gaussian-processes/index.html"><strong aria-hidden="true">21.</strong> Gaussian Processes</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_gaussian-processes/gp-intro.html"><strong aria-hidden="true">21.1.</strong> Introduction to Gaussian Processes</a></li><li class="chapter-item "><a href="../chapter_gaussian-processes/gp-priors.html"><strong aria-hidden="true">21.2.</strong> Gaussian Process Priors</a></li><li class="chapter-item "><a href="../chapter_gaussian-processes/gp-inference.html"><strong aria-hidden="true">21.3.</strong> Gaussian Process Inference</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_hyperparameter-optimization/index.html"><strong aria-hidden="true">22.</strong> Hyperparameter Optimization</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_hyperparameter-optimization/hyperopt-intro.html"><strong aria-hidden="true">22.1.</strong> What Is Hyperparameter Optimization?</a></li><li class="chapter-item "><a href="../chapter_hyperparameter-optimization/hyperopt-api.html"><strong aria-hidden="true">22.2.</strong> Hyperparameter Optimization API</a></li><li class="chapter-item "><a href="../chapter_hyperparameter-optimization/rs-async.html"><strong aria-hidden="true">22.3.</strong> Asynchronous Random Search</a></li><li class="chapter-item "><a href="../chapter_hyperparameter-optimization/sh-intro.html"><strong aria-hidden="true">22.4.</strong> Multi-Fidelity Hyperparameter Optimization</a></li><li class="chapter-item "><a href="../chapter_hyperparameter-optimization/sh-async.html"><strong aria-hidden="true">22.5.</strong> Asynchronous Successive Halving</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_generative-adversarial-networks/index.html"><strong aria-hidden="true">23.</strong> Generative Adversarial Networks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_generative-adversarial-networks/gan.html"><strong aria-hidden="true">23.1.</strong> Generative Adversarial Networks</a></li><li class="chapter-item "><a href="../chapter_generative-adversarial-networks/dcgan.html"><strong aria-hidden="true">23.2.</strong> Deep Convolutional Generative Adversarial Networks</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_recommender-systems/index.html"><strong aria-hidden="true">24.</strong> Recommender Systems</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_recommender-systems/recsys-intro.html"><strong aria-hidden="true">24.1.</strong> Overview of Recommender Systems</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/movielens.html"><strong aria-hidden="true">24.2.</strong> The MovieLens Dataset</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/mf.html"><strong aria-hidden="true">24.3.</strong> Matrix Factorization</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/autorec.html"><strong aria-hidden="true">24.4.</strong> AutoRec: Rating Prediction with Autoencoders</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/ranking.html"><strong aria-hidden="true">24.5.</strong> Personalized Ranking for Recommender Systems</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/neumf.html"><strong aria-hidden="true">24.6.</strong> Neural Collaborative Filtering for Personalized Ranking</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/seqrec.html"><strong aria-hidden="true">24.7.</strong> Sequence-Aware Recommender Systems</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/ctr.html"><strong aria-hidden="true">24.8.</strong> Feature-Rich Recommender Systems</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/fm.html"><strong aria-hidden="true">24.9.</strong> Factorization Machines</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/deepfm.html"><strong aria-hidden="true">24.10.</strong> Deep Factorization Machines</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_appendix-mathematics-for-deep-learning/index.html"><strong aria-hidden="true">25.</strong> Appendix: Mathematics for Deep Learning</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/geometry-linear-algebraic-ops.html"><strong aria-hidden="true">25.1.</strong> Geometry and Linear Algebraic Operations</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/eigendecomposition.html"><strong aria-hidden="true">25.2.</strong> Eigendecompositions</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/single-variable-calculus.html"><strong aria-hidden="true">25.3.</strong> Single Variable Calculus</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/multivariable-calculus.html"><strong aria-hidden="true">25.4.</strong> Multivariable Calculus</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/integral-calculus.html"><strong aria-hidden="true">25.5.</strong> Integral Calculus</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/random-variables.html"><strong aria-hidden="true">25.6.</strong> Random Variables</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/maximum-likelihood.html"><strong aria-hidden="true">25.7.</strong> Maximum Likelihood</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/distributions.html"><strong aria-hidden="true">25.8.</strong> Distributions</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/naive-bayes.html"><strong aria-hidden="true">25.9.</strong> Naive Bayes</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/statistics.html"><strong aria-hidden="true">25.10.</strong> Statistics</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/information-theory.html"><strong aria-hidden="true">25.11.</strong> Information Theory</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_appendix-tools-for-deep-learning/index.html"><strong aria-hidden="true">26.</strong> Appendix: Tools for Deep Learning</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/jupyter.html"><strong aria-hidden="true">26.1.</strong> Using Jupyter Notebooks</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/sagemaker.html"><strong aria-hidden="true">26.2.</strong> Using Amazon SageMaker</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/aws.html"><strong aria-hidden="true">26.3.</strong> Using AWS EC2 Instances</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/colab.html"><strong aria-hidden="true">26.4.</strong> Using Google Colab</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/selecting-servers-gpus.html"><strong aria-hidden="true">26.5.</strong> Selecting Servers and GPUs</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/contributing.html"><strong aria-hidden="true">26.6.</strong> Contributing to This Book</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/utils.html"><strong aria-hidden="true">26.7.</strong> Utility Functions and Classes</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/d2l.html"><strong aria-hidden="true">26.8.</strong> The d2l API Document</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_references/zreferences.html"><strong aria-hidden="true">27.</strong> chapter_references/zreferences.md</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Dive into Deep Learning</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/d2l-ai/d2l-en" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="bidirectional-encoder-representations-from-transformers-bert"><a class="header" href="#bidirectional-encoder-representations-from-transformers-bert">Bidirectional Encoder Representations from Transformers (BERT)</a></h1>
+<p>:label:<code>sec_bert</code></p>
+<p>We have introduced several word embedding models for natural language understanding.
+After pretraining, the output can be thought of as a matrix
+where each row is a vector that represents a word of a predefined vocabulary.
+In fact, these word embedding models are all <em>context-independent</em>.
+Let's begin by illustrating this property.</p>
+<h2 id="from-context-independent-to-context-sensitive"><a class="header" href="#from-context-independent-to-context-sensitive">From Context-Independent to Context-Sensitive</a></h2>
+<p>Recall the experiments in :numref:<code>sec_word2vec_pretraining</code> and :numref:<code>sec_synonyms</code>.
+For instance, word2vec and GloVe both assign the same pretrained vector to the same word regardless of the context of the word (if any).
+Formally, a context-independent representation of any token $x$
+is a function $f(x)$ that only takes $x$ as its input.
+Given the abundance of polysemy and complex semantics in natural languages,
+context-independent representations have obvious limitations.
+For instance, the word "crane" in contexts
+"a crane is flying" and "a crane driver came" has completely different meanings;
+thus, the same word may be assigned different representations depending on contexts.</p>
+<p>This motivates the development of <em>context-sensitive</em> word representations,
+where representations of words depend on their contexts.
+Hence, a context-sensitive representation of token $x$ is a function $f(x, c(x))$
+depending on both $x$ and its context $c(x)$.
+Popular context-sensitive representations
+include TagLM (language-model-augmented sequence tagger) :cite:<code>Peters.Ammar.Bhagavatula.ea.2017</code>,
+CoVe (Context Vectors) :cite:<code>McCann.Bradbury.Xiong.ea.2017</code>,
+and ELMo (Embeddings from Language Models) :cite:<code>Peters.Neumann.Iyyer.ea.2018</code>.</p>
+<p>For example, by taking the entire sequence as input,
+ELMo is a function that assigns a representation to each word from the input sequence.
+Specifically, ELMo combines all the intermediate layer representations from pretrained bidirectional LSTM as the output representation.
+Then the ELMo representation will be added to a downstream task's existing supervised model
+as additional features, such as by concatenating ELMo representation and the original representation (e.g., GloVe) of tokens in the existing model.
+On the one hand,
+all the weights in the pretrained bidirectional LSTM model are frozen after ELMo representations are added.
+On the other hand,
+the existing supervised model is specifically customized for a given task.
+Leveraging different best models for different tasks at that time,
+adding ELMo improved the state of the art across six natural language processing tasks:
+sentiment analysis, natural language inference,
+semantic role labeling, coreference resolution,
+named entity recognition, and question answering.</p>
+<h2 id="from-task-specific-to-task-agnostic"><a class="header" href="#from-task-specific-to-task-agnostic">From Task-Specific to Task-Agnostic</a></h2>
+<p>Although ELMo has significantly improved solutions to a diverse set of natural language processing tasks,
+each solution still hinges on a <em>task-specific</em> architecture.
+However, it is practically non-trivial to craft a specific architecture for every natural language processing task.
+The GPT (Generative Pre-Training) model represents an effort in designing
+a general <em>task-agnostic</em> model for context-sensitive representations :cite:<code>Radford.Narasimhan.Salimans.ea.2018</code>.
+Built on a Transformer decoder,
+GPT pretrains a language model that will be used to represent text sequences.
+When applying GPT to a downstream task,
+the output of the language model will be fed into an added linear output layer
+to predict the label of the task.
+In sharp contrast to ELMo that freezes parameters of the pretrained model,
+GPT fine-tunes <em>all</em> the parameters in the pretrained Transformer decoder
+during supervised learning of the downstream task.
+GPT was evaluated on twelve tasks of natural language inference,
+question answering, sentence similarity, and classification,
+and improved the state of the art in nine of them with minimal changes
+to the model architecture.</p>
+<p>However, due to the autoregressive nature of language models,
+GPT only looks forward (left-to-right).
+In contexts "i went to the bank to deposit cash" and "i went to the bank to sit down",
+as "bank" is sensitive to the context to its left,
+GPT will return the same representation for "bank",
+though it has different meanings.</p>
+<h2 id="bert-combining-the-best-of-both-worlds"><a class="header" href="#bert-combining-the-best-of-both-worlds">BERT: Combining the Best of Both Worlds</a></h2>
+<p>As we have seen,
+ELMo encodes context bidirectionally but uses task-specific architectures;
+while GPT is task-agnostic but encodes context left-to-right.
+Combining the best of both worlds,
+BERT (Bidirectional Encoder Representations from Transformers)
+encodes context bidirectionally and requires minimal architecture changes
+for a wide range of natural language processing tasks :cite:<code>Devlin.Chang.Lee.ea.2018</code>.
+Using a pretrained Transformer encoder,
+BERT is able to represent any token based on its bidirectional context.
+During supervised learning of downstream tasks,
+BERT is similar to GPT in two aspects.
+First, BERT representations will be fed into an added output layer,
+with minimal changes to the model architecture depending on nature of tasks,
+such as predicting for every token vs. predicting for the entire sequence.
+Second,
+all the parameters of the pretrained Transformer encoder are fine-tuned,
+while the additional output layer will be trained from scratch.
+:numref:<code>fig_elmo-gpt-bert</code> depicts the differences among ELMo, GPT, and BERT.</p>
+<p><img src="../img/elmo-gpt-bert.svg" alt="A comparison of ELMo, GPT, and BERT." />
+:label:<code>fig_elmo-gpt-bert</code></p>
+<p>BERT further improved the state of the art on eleven natural language processing tasks
+under broad categories of (i) single text classification (e.g., sentiment analysis), (ii) text pair classification (e.g., natural language inference),
+(iii) question answering, (iv) text tagging (e.g., named entity recognition).
+All proposed in 2018,
+from context-sensitive ELMo to task-agnostic GPT and BERT,
+conceptually simple yet empirically powerful pretraining of deep representations for natural languages have revolutionized solutions to various natural language processing tasks.</p>
+<p>In the rest of this chapter,
+we will dive into the pretraining of BERT.
+When natural language processing applications are explained in :numref:<code>chap_nlp_app</code>,
+we will illustrate fine-tuning of BERT for downstream applications.</p>
+<pre><code class="language-{.python .input}">#@tab mxnet
+from d2l import mxnet as d2l
+from mxnet import gluon, np, npx
+from mxnet.gluon import nn
+
+npx.set_np()
+</code></pre>
+<pre><code class="language-{.python .input}">#@tab pytorch
+from d2l import torch as d2l
+import torch
+from torch import nn
+</code></pre>
+<h2 id="input-representation"><a class="header" href="#input-representation">[<strong>Input Representation</strong>]</a></h2>
+<p>:label:<code>subsec_bert_input_rep</code></p>
+<p>In natural language processing,
+some tasks (e.g., sentiment analysis) take single text as input,
+while in some other tasks (e.g., natural language inference),
+the input is a pair of text sequences.
+The BERT input sequence unambiguously represents both single text and text pairs.
+In the former,
+the BERT input sequence is the concatenation of
+the special classification token “&lt;cls&gt;”,
+tokens of a text sequence,
+and the special separation token “&lt;sep&gt;”.
+In the latter,
+the BERT input sequence is the concatenation of
+“&lt;cls&gt;”, tokens of the first text sequence,
+“&lt;sep&gt;”, tokens of the second text sequence, and “&lt;sep&gt;”.
+We will consistently distinguish the terminology "BERT input sequence"
+from other types of "sequences".
+For instance, one <em>BERT input sequence</em> may include either one <em>text sequence</em> or two <em>text sequences</em>.</p>
+<p>To distinguish text pairs,
+the learned segment embeddings $\mathbf{e}_A$ and $\mathbf{e}_B$
+are added to the token embeddings of the first sequence and the second sequence, respectively.
+For single text inputs, only $\mathbf{e}_A$ is used.</p>
+<p>The following <code>get_tokens_and_segments</code> takes either one sentence or two sentences
+as input, then returns tokens of the BERT input sequence
+and their corresponding segment IDs.</p>
+<pre><code class="language-{.python .input}">#@tab all
+#@save
+def get_tokens_and_segments(tokens_a, tokens_b=None):
+    """Get tokens of the BERT input sequence and their segment IDs."""
+    tokens = ['&lt;cls&gt;'] + tokens_a + ['&lt;sep&gt;']
+    # 0 and 1 are marking segment A and B, respectively
+    segments = [0] * (len(tokens_a) + 2)
+    if tokens_b is not None:
+        tokens += tokens_b + ['&lt;sep&gt;']
+        segments += [1] * (len(tokens_b) + 1)
+    return tokens, segments
+</code></pre>
+<p>BERT chooses the Transformer encoder as its bidirectional architecture.
+Common in the Transformer encoder,
+positional embeddings are added at every position of the BERT input sequence.
+However, different from the original Transformer encoder,
+BERT uses <em>learnable</em> positional embeddings.
+To sum up, :numref:<code>fig_bert-input</code> shows that
+the embeddings of the BERT input sequence are the sum
+of the token embeddings, segment embeddings, and positional embeddings.</p>
+<p><img src="../img/bert-input.svg" alt="The embeddings of the BERT input sequence are the sum of the token embeddings, segment embeddings, and positional embeddings." />
+:label:<code>fig_bert-input</code></p>
+<p>The following [<strong><code>BERTEncoder</code> class</strong>] is similar to the <code>TransformerEncoder</code> class
+as implemented in :numref:<code>sec_transformer</code>.
+Different from <code>TransformerEncoder</code>, <code>BERTEncoder</code> uses
+segment embeddings and learnable positional embeddings.</p>
+<pre><code class="language-{.python .input}">#@tab mxnet
+#@save
+class BERTEncoder(nn.Block):
+    """BERT encoder."""
+    def __init__(self, vocab_size, num_hiddens, ffn_num_hiddens, num_heads,
+                 num_blks, dropout, max_len=1000, **kwargs):
+        super(BERTEncoder, self).__init__(**kwargs)
+        self.token_embedding = nn.Embedding(vocab_size, num_hiddens)
+        self.segment_embedding = nn.Embedding(2, num_hiddens)
+        self.blks = nn.Sequential()
+        for _ in range(num_blks):
+            self.blks.add(d2l.TransformerEncoderBlock(
+                num_hiddens, ffn_num_hiddens, num_heads, dropout, True))
+        # In BERT, positional embeddings are learnable, thus we create a
+        # parameter of positional embeddings that are long enough
+        self.pos_embedding = self.params.get('pos_embedding',
+                                             shape=(1, max_len, num_hiddens))
+
+    def forward(self, tokens, segments, valid_lens):
+        # Shape of `X` remains unchanged in the following code snippet:
+        # (batch size, max sequence length, `num_hiddens`)
+        X = self.token_embedding(tokens) + self.segment_embedding(segments)
+        X = X + self.pos_embedding.data(ctx=X.ctx)[:, :X.shape[1], :]
+        for blk in self.blks:
+            X = blk(X, valid_lens)
+        return X
+</code></pre>
+<pre><code class="language-{.python .input}">#@tab pytorch
+#@save
+class BERTEncoder(nn.Module):
+    """BERT encoder."""
+    def __init__(self, vocab_size, num_hiddens, ffn_num_hiddens, num_heads,
+                 num_blks, dropout, max_len=1000, **kwargs):
+        super(BERTEncoder, self).__init__(**kwargs)
+        self.token_embedding = nn.Embedding(vocab_size, num_hiddens)
+        self.segment_embedding = nn.Embedding(2, num_hiddens)
+        self.blks = nn.Sequential()
+        for i in range(num_blks):
+            self.blks.add_module(f"{i}", d2l.TransformerEncoderBlock(
+                num_hiddens, ffn_num_hiddens, num_heads, dropout, True))
+        # In BERT, positional embeddings are learnable, thus we create a
+        # parameter of positional embeddings that are long enough
+        self.pos_embedding = nn.Parameter(torch.randn(1, max_len,
+                                                      num_hiddens))
+
+    def forward(self, tokens, segments, valid_lens):
+        # Shape of `X` remains unchanged in the following code snippet:
+        # (batch size, max sequence length, `num_hiddens`)
+        X = self.token_embedding(tokens) + self.segment_embedding(segments)
+        X = X + self.pos_embedding[:, :X.shape[1], :]
+        for blk in self.blks:
+            X = blk(X, valid_lens)
+        return X
+</code></pre>
+<p>Suppose that the vocabulary size is 10000.
+To demonstrate forward [<strong>inference of <code>BERTEncoder</code></strong>],
+let's create an instance of it and initialize its parameters.</p>
+<pre><code class="language-{.python .input}">#@tab mxnet
+vocab_size, num_hiddens, ffn_num_hiddens, num_heads = 10000, 768, 1024, 4
+num_blks, dropout = 2, 0.2
+encoder = BERTEncoder(vocab_size, num_hiddens, ffn_num_hiddens, num_heads,
+                      num_blks, dropout)
+encoder.initialize()
+</code></pre>
+<pre><code class="language-{.python .input}">#@tab pytorch
+vocab_size, num_hiddens, ffn_num_hiddens, num_heads = 10000, 768, 1024, 4
+ffn_num_input, num_blks, dropout = 768, 2, 0.2
+encoder = BERTEncoder(vocab_size, num_hiddens, ffn_num_hiddens, num_heads,
+                      num_blks, dropout)
+</code></pre>
+<p>We define <code>tokens</code> to be 2 BERT input sequences of length 8,
+where each token is an index of the vocabulary.
+The forward inference of <code>BERTEncoder</code> with the input <code>tokens</code>
+returns the encoded result where each token is represented by a vector
+whose length is predefined by the hyperparameter <code>num_hiddens</code>.
+This hyperparameter is usually referred to as the <em>hidden size</em>
+(number of hidden units) of the Transformer encoder.</p>
+<pre><code class="language-{.python .input}">#@tab mxnet
+tokens = np.random.randint(0, vocab_size, (2, 8))
+segments = np.array([[0, 0, 0, 0, 1, 1, 1, 1], [0, 0, 0, 1, 1, 1, 1, 1]])
+encoded_X = encoder(tokens, segments, None)
+encoded_X.shape
+</code></pre>
+<pre><code class="language-{.python .input}">#@tab pytorch
+tokens = torch.randint(0, vocab_size, (2, 8))
+segments = torch.tensor([[0, 0, 0, 0, 1, 1, 1, 1], [0, 0, 0, 1, 1, 1, 1, 1]])
+encoded_X = encoder(tokens, segments, None)
+encoded_X.shape
+</code></pre>
+<h2 id="pretraining-tasks"><a class="header" href="#pretraining-tasks">Pretraining Tasks</a></h2>
+<p>:label:<code>subsec_bert_pretraining_tasks</code></p>
+<p>The forward inference of <code>BERTEncoder</code> gives the BERT representation
+of each token of the input text and the inserted
+special tokens “&lt;cls&gt;” and “&lt;seq&gt;”.
+Next, we will use these representations to compute the loss function
+for pretraining BERT.
+The pretraining is composed of the following two tasks:
+masked language modeling and next sentence prediction.</p>
+<h3 id="masked-language-modeling"><a class="header" href="#masked-language-modeling">[<strong>Masked Language Modeling</strong>]</a></h3>
+<p>:label:<code>subsec_mlm</code></p>
+<p>As illustrated in :numref:<code>sec_language-model</code>,
+a language model predicts a token using the context on its left.
+To encode context bidirectionally for representing each token,
+BERT randomly masks tokens and uses tokens from the bidirectional context to
+predict the masked tokens in a self-supervised fashion.
+This task is referred to as a <em>masked language model</em>.</p>
+<p>In this pretraining task,
+15% of tokens will be selected at random as the masked tokens for prediction.
+To predict a masked token without cheating by using the label,
+one straightforward approach is to always replace it with a special “&lt;mask&gt;” token in the BERT input sequence.
+However, the artificial special token “&lt;mask&gt;” will never appear
+in fine-tuning.
+To avoid such a mismatch between pretraining and fine-tuning,
+if a token is masked for prediction (e.g., "great" is selected to be masked and predicted in "this movie is great"),
+in the input it will be replaced with:</p>
+<ul>
+<li>a special “&lt;mask&gt;” token for 80% of the time (e.g., "this movie is great" becomes "this movie is &lt;mask&gt;");</li>
+<li>a random token for 10% of the time (e.g., "this movie is great" becomes "this movie is drink");</li>
+<li>the unchanged label token for 10% of the time (e.g., "this movie is great" becomes "this movie is great").</li>
+</ul>
+<p>Note that for 10% of 15% time a random token is inserted.
+This occasional noise encourages BERT to be less biased towards the masked token (especially when the label token remains unchanged) in its bidirectional context encoding.</p>
+<p>We implement the following <code>MaskLM</code> class to predict masked tokens
+in the masked language model task of BERT pretraining.
+The prediction uses a one-hidden-layer MLP (<code>self.mlp</code>).
+In forward inference, it takes two inputs:
+the encoded result of <code>BERTEncoder</code> and the token positions for prediction.
+The output is the prediction results at these positions.</p>
+<pre><code class="language-{.python .input}">#@tab mxnet
+#@save
+class MaskLM(nn.Block):
+    """The masked language model task of BERT."""
+    def __init__(self, vocab_size, num_hiddens, **kwargs):
+        super(MaskLM, self).__init__(**kwargs)
+        self.mlp = nn.Sequential()
+        self.mlp.add(
+            nn.Dense(num_hiddens, flatten=False, activation='relu'))
+        self.mlp.add(nn.LayerNorm())
+        self.mlp.add(nn.Dense(vocab_size, flatten=False))
+
+    def forward(self, X, pred_positions):
+        num_pred_positions = pred_positions.shape[1]
+        pred_positions = pred_positions.reshape(-1)
+        batch_size = X.shape[0]
+        batch_idx = np.arange(0, batch_size)
+        # Suppose that `batch_size` = 2, `num_pred_positions` = 3, then
+        # `batch_idx` is `np.array([0, 0, 0, 1, 1, 1])`
+        batch_idx = np.repeat(batch_idx, num_pred_positions)
+        masked_X = X[batch_idx, pred_positions]
+        masked_X = masked_X.reshape((batch_size, num_pred_positions, -1))
+        mlm_Y_hat = self.mlp(masked_X)
+        return mlm_Y_hat
+</code></pre>
+<pre><code class="language-{.python .input}">#@tab pytorch
+#@save
+class MaskLM(nn.Module):
+    """The masked language model task of BERT."""
+    def __init__(self, vocab_size, num_hiddens, **kwargs):
+        super(MaskLM, self).__init__(**kwargs)
+        self.mlp = nn.Sequential(nn.LazyLinear(num_hiddens),
+                                 nn.ReLU(),
+                                 nn.LayerNorm(num_hiddens),
+                                 nn.LazyLinear(vocab_size))
+
+    def forward(self, X, pred_positions):
+        num_pred_positions = pred_positions.shape[1]
+        pred_positions = pred_positions.reshape(-1)
+        batch_size = X.shape[0]
+        batch_idx = torch.arange(0, batch_size)
+        # Suppose that `batch_size` = 2, `num_pred_positions` = 3, then
+        # `batch_idx` is `torch.tensor([0, 0, 0, 1, 1, 1])`
+        batch_idx = torch.repeat_interleave(batch_idx, num_pred_positions)
+        masked_X = X[batch_idx, pred_positions]
+        masked_X = masked_X.reshape((batch_size, num_pred_positions, -1))
+        mlm_Y_hat = self.mlp(masked_X)
+        return mlm_Y_hat
+</code></pre>
+<p>To demonstrate [<strong>the forward inference of <code>MaskLM</code></strong>],
+we create its instance <code>mlm</code> and initialize it.
+Recall that <code>encoded_X</code> from the forward inference of <code>BERTEncoder</code>
+represents 2 BERT input sequences.
+We define <code>mlm_positions</code> as the 3 indices to predict in either BERT input sequence of <code>encoded_X</code>.
+The forward inference of <code>mlm</code> returns prediction results <code>mlm_Y_hat</code>
+at all the masked positions <code>mlm_positions</code> of <code>encoded_X</code>.
+For each prediction, the size of the result is equal to the vocabulary size.</p>
+<pre><code class="language-{.python .input}">#@tab mxnet
+mlm = MaskLM(vocab_size, num_hiddens)
+mlm.initialize()
+mlm_positions = np.array([[1, 5, 2], [6, 1, 5]])
+mlm_Y_hat = mlm(encoded_X, mlm_positions)
+mlm_Y_hat.shape
+</code></pre>
+<pre><code class="language-{.python .input}">#@tab pytorch
+mlm = MaskLM(vocab_size, num_hiddens)
+mlm_positions = torch.tensor([[1, 5, 2], [6, 1, 5]])
+mlm_Y_hat = mlm(encoded_X, mlm_positions)
+mlm_Y_hat.shape
+</code></pre>
+<p>With the ground truth labels <code>mlm_Y</code> of the predicted tokens <code>mlm_Y_hat</code> under masks,
+we can calculate the cross-entropy loss of the masked language model task in BERT pretraining.</p>
+<pre><code class="language-{.python .input}">#@tab mxnet
+mlm_Y = np.array([[7, 8, 9], [10, 20, 30]])
+loss = gluon.loss.SoftmaxCrossEntropyLoss()
+mlm_l = loss(mlm_Y_hat.reshape((-1, vocab_size)), mlm_Y.reshape(-1))
+mlm_l.shape
+</code></pre>
+<pre><code class="language-{.python .input}">#@tab pytorch
+mlm_Y = torch.tensor([[7, 8, 9], [10, 20, 30]])
+loss = nn.CrossEntropyLoss(reduction='none')
+mlm_l = loss(mlm_Y_hat.reshape((-1, vocab_size)), mlm_Y.reshape(-1))
+mlm_l.shape
+</code></pre>
+<h3 id="next-sentence-prediction"><a class="header" href="#next-sentence-prediction">[<strong>Next Sentence Prediction</strong>]</a></h3>
+<p>:label:<code>subsec_nsp</code></p>
+<p>Although masked language modeling is able to encode bidirectional context
+for representing words, it does not explicitly model the logical relationship
+between text pairs.
+To help understand the relationship between two text sequences,
+BERT considers a binary classification task, <em>next sentence prediction</em>, in its pretraining.
+When generating sentence pairs for pretraining,
+for half of the time they are indeed consecutive sentences with the label "True";
+while for the other half of the time the second sentence is randomly sampled from the corpus with the label "False".</p>
+<p>The following <code>NextSentencePred</code> class uses a one-hidden-layer MLP
+to predict whether the second sentence is the next sentence of the first
+in the BERT input sequence.
+Due to self-attention in the Transformer encoder,
+the BERT representation of the special token “&lt;cls&gt;”
+encodes both the two sentences from the input.
+Hence, the output layer (<code>self.output</code>) of the MLP classifier takes <code>X</code> as input,
+where <code>X</code> is the output of the MLP hidden layer whose input is the encoded “&lt;cls&gt;” token.</p>
+<pre><code class="language-{.python .input}">#@tab mxnet
+#@save
+class NextSentencePred(nn.Block):
+    """The next sentence prediction task of BERT."""
+    def __init__(self, **kwargs):
+        super(NextSentencePred, self).__init__(**kwargs)
+        self.output = nn.Dense(2)
+
+    def forward(self, X):
+        # `X` shape: (batch size, `num_hiddens`)
+        return self.output(X)
+</code></pre>
+<pre><code class="language-{.python .input}">#@tab pytorch
+#@save
+class NextSentencePred(nn.Module):
+    """The next sentence prediction task of BERT."""
+    def __init__(self, **kwargs):
+        super(NextSentencePred, self).__init__(**kwargs)
+        self.output = nn.LazyLinear(2)
+
+    def forward(self, X):
+        # `X` shape: (batch size, `num_hiddens`)
+        return self.output(X)
+</code></pre>
+<p>We can see that [<strong>the forward inference of an <code>NextSentencePred</code></strong>] instance
+returns binary predictions for each BERT input sequence.</p>
+<pre><code class="language-{.python .input}">#@tab mxnet
+nsp = NextSentencePred()
+nsp.initialize()
+nsp_Y_hat = nsp(encoded_X)
+nsp_Y_hat.shape
+</code></pre>
+<pre><code class="language-{.python .input}">#@tab pytorch
+# PyTorch by default will not flatten the tensor as seen in mxnet where, if
+# flatten=True, all but the first axis of input data are collapsed together
+encoded_X = torch.flatten(encoded_X, start_dim=1)
+# input_shape for NSP: (batch size, `num_hiddens`)
+nsp = NextSentencePred()
+nsp_Y_hat = nsp(encoded_X)
+nsp_Y_hat.shape
+</code></pre>
+<p>The cross-entropy loss of the 2 binary classifications can also be computed.</p>
+<pre><code class="language-{.python .input}">#@tab mxnet
+nsp_y = np.array([0, 1])
+nsp_l = loss(nsp_Y_hat, nsp_y)
+nsp_l.shape
+</code></pre>
+<pre><code class="language-{.python .input}">#@tab pytorch
+nsp_y = torch.tensor([0, 1])
+nsp_l = loss(nsp_Y_hat, nsp_y)
+nsp_l.shape
+</code></pre>
+<p>It is noteworthy that all the labels in both the aforementioned pretraining tasks
+can be trivially obtained from the pretraining corpus without manual labeling effort.
+The original BERT has been pretrained on the concatenation of BookCorpus :cite:<code>Zhu.Kiros.Zemel.ea.2015</code>
+and English Wikipedia.
+These two text corpora are huge:
+they have 800 million words and 2.5 billion words, respectively.</p>
+<h2 id="putting-it-all-together"><a class="header" href="#putting-it-all-together">[<strong>Putting It All Together</strong>]</a></h2>
+<p>When pretraining BERT, the final loss function is a linear combination of
+both the loss functions for masked language modeling and next sentence prediction.
+Now we can define the <code>BERTModel</code> class by instantiating the three classes
+<code>BERTEncoder</code>, <code>MaskLM</code>, and <code>NextSentencePred</code>.
+The forward inference returns the encoded BERT representations <code>encoded_X</code>,
+predictions of masked language modeling <code>mlm_Y_hat</code>,
+and next sentence predictions <code>nsp_Y_hat</code>.</p>
+<pre><code class="language-{.python .input}">#@tab mxnet
+#@save
+class BERTModel(nn.Block):
+    """The BERT model."""
+    def __init__(self, vocab_size, num_hiddens, ffn_num_hiddens, num_heads,
+                 num_blks, dropout, max_len=1000):
+        super(BERTModel, self).__init__()
+        self.encoder = BERTEncoder(vocab_size, num_hiddens, ffn_num_hiddens,
+                                   num_heads, num_blks, dropout, max_len)
+        self.hidden = nn.Dense(num_hiddens, activation='tanh')
+        self.mlm = MaskLM(vocab_size, num_hiddens)
+        self.nsp = NextSentencePred()
+
+    def forward(self, tokens, segments, valid_lens=None, pred_positions=None):
+        encoded_X = self.encoder(tokens, segments, valid_lens)
+        if pred_positions is not None:
+            mlm_Y_hat = self.mlm(encoded_X, pred_positions)
+        else:
+            mlm_Y_hat = None
+        # The hidden layer of the MLP classifier for next sentence prediction.
+        # 0 is the index of the '&lt;cls&gt;' token
+        nsp_Y_hat = self.nsp(self.hidden(encoded_X[:, 0, :]))
+        return encoded_X, mlm_Y_hat, nsp_Y_hat
+</code></pre>
+<pre><code class="language-{.python .input}">#@tab pytorch
+#@save
+class BERTModel(nn.Module):
+    """The BERT model."""
+    def __init__(self, vocab_size, num_hiddens, ffn_num_hiddens, 
+                 num_heads, num_blks, dropout, max_len=1000):
+        super(BERTModel, self).__init__()
+        self.encoder = BERTEncoder(vocab_size, num_hiddens, ffn_num_hiddens,
+                                   num_heads, num_blks, dropout,
+                                   max_len=max_len)
+        self.hidden = nn.Sequential(nn.LazyLinear(num_hiddens),
+                                    nn.Tanh())
+        self.mlm = MaskLM(vocab_size, num_hiddens)
+        self.nsp = NextSentencePred()
+
+    def forward(self, tokens, segments, valid_lens=None, pred_positions=None):
+        encoded_X = self.encoder(tokens, segments, valid_lens)
+        if pred_positions is not None:
+            mlm_Y_hat = self.mlm(encoded_X, pred_positions)
+        else:
+            mlm_Y_hat = None
+        # The hidden layer of the MLP classifier for next sentence prediction.
+        # 0 is the index of the '&lt;cls&gt;' token
+        nsp_Y_hat = self.nsp(self.hidden(encoded_X[:, 0, :]))
+        return encoded_X, mlm_Y_hat, nsp_Y_hat
+</code></pre>
+<h2 id="summary"><a class="header" href="#summary">Summary</a></h2>
+<ul>
+<li>Word embedding models such as word2vec and GloVe are context-independent. They assign the same pretrained vector to the same word regardless of the context of the word (if any). It is hard for them to handle well polysemy or complex semantics in natural languages.</li>
+<li>For context-sensitive word representations such as ELMo and GPT, representations of words depend on their contexts.</li>
+<li>ELMo encodes context bidirectionally but uses task-specific architectures (however, it is practically non-trivial to craft a specific architecture for every natural language processing task); while GPT is task-agnostic but encodes context left-to-right.</li>
+<li>BERT combines the best of both worlds: it encodes context bidirectionally and requires minimal architecture changes for a wide range of natural language processing tasks.</li>
+<li>The embeddings of the BERT input sequence are the sum of the token embeddings, segment embeddings, and positional embeddings.</li>
+<li>Pretraining BERT is composed of two tasks: masked language modeling and next sentence prediction. The former is able to encode bidirectional context for representing words, while the latter explicitly models the logical relationship between text pairs.</li>
+</ul>
+<h2 id="exercises"><a class="header" href="#exercises">Exercises</a></h2>
+<ol>
+<li>All other things being equal, will a masked language model require more or fewer pretraining steps to converge than a left-to-right language model? Why?</li>
+<li>In the original implementation of BERT, the positionwise feed-forward network in <code>BERTEncoder</code> (via <code>d2l.TransformerEncoderBlock</code>) and the fully connected layer in <code>MaskLM</code> both use the Gaussian error linear unit (GELU) :cite:<code>Hendrycks.Gimpel.2016</code> as the activation function. Research into the difference between GELU and ReLU.</li>
+</ol>
+<p>:begin_tab:<code>mxnet</code>
+<a href="https://discuss.d2l.ai/t/388">Discussions</a>
+:end_tab:</p>
+<p>:begin_tab:<code>pytorch</code>
+<a href="https://discuss.d2l.ai/t/1490">Discussions</a>
+:end_tab:</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../chapter_natural-language-processing-pretraining/similarity-analogy.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../chapter_natural-language-processing-pretraining/bert-dataset.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../chapter_natural-language-processing-pretraining/similarity-analogy.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../chapter_natural-language-processing-pretraining/bert-dataset.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

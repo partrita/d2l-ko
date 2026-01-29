@@ -1,0 +1,21 @@
+[book]
+authors = ["Aston Zhang", "Zachary C. Lipton", "Mu Li", "Alexander J. Smola"]
+language = "en"
+src = "."
+title = "Dive into Deep Learning"
+
+[build]
+build-dir = "book"
+create-missing = false
+
+[output.html]
+additional-css = ["static/d2l.css"]
+git-repository-url = "https://github.com/d2l-ai/d2l-en"
+mathjax-support = true
+
+[output.html.fold]
+enable = true
+level = 1
+
+# [preprocessor.katex]
+# renderers = ["html"]

@@ -1,0 +1,1112 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Linear Algebra - Dive into Deep Learning</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../static/d2l.css">
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('light')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../index.html">Deep Learning</a></li><li class="chapter-item expanded "><a href="../chapter_preface/index.html"><strong aria-hidden="true">1.</strong> Preface</a></li><li class="chapter-item expanded "><a href="../chapter_installation/index.html"><strong aria-hidden="true">2.</strong> Installation</a></li><li class="chapter-item expanded "><a href="../chapter_notation/index.html"><strong aria-hidden="true">3.</strong> Notation</a></li><li class="chapter-item expanded "><a href="../chapter_introduction/index.html"><strong aria-hidden="true">4.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="../chapter_preliminaries/index.html"><strong aria-hidden="true">5.</strong> Preliminaries</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_preliminaries/ndarray.html"><strong aria-hidden="true">5.1.</strong> Data Manipulation</a></li><li class="chapter-item "><a href="../chapter_preliminaries/pandas.html"><strong aria-hidden="true">5.2.</strong> Data Preprocessing</a></li><li class="chapter-item expanded "><a href="../chapter_preliminaries/linear-algebra.html" class="active"><strong aria-hidden="true">5.3.</strong> Linear Algebra</a></li><li class="chapter-item "><a href="../chapter_preliminaries/calculus.html"><strong aria-hidden="true">5.4.</strong> Calculus</a></li><li class="chapter-item "><a href="../chapter_preliminaries/autograd.html"><strong aria-hidden="true">5.5.</strong> Automatic Differentiation</a></li><li class="chapter-item "><a href="../chapter_preliminaries/probability.html"><strong aria-hidden="true">5.6.</strong> Probability and Statistics</a></li><li class="chapter-item "><a href="../chapter_preliminaries/lookup-api.html"><strong aria-hidden="true">5.7.</strong> Documentation</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_linear-regression/index.html"><strong aria-hidden="true">6.</strong> Linear Neural Networks for Regression</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_linear-regression/linear-regression.html"><strong aria-hidden="true">6.1.</strong> Linear Regression</a></li><li class="chapter-item "><a href="../chapter_linear-regression/oo-design.html"><strong aria-hidden="true">6.2.</strong> Object-Oriented Design for Implementation</a></li><li class="chapter-item "><a href="../chapter_linear-regression/synthetic-regression-data.html"><strong aria-hidden="true">6.3.</strong> Synthetic Regression Data</a></li><li class="chapter-item "><a href="../chapter_linear-regression/linear-regression-scratch.html"><strong aria-hidden="true">6.4.</strong> Linear Regression Implementation from Scratch</a></li><li class="chapter-item "><a href="../chapter_linear-regression/linear-regression-concise.html"><strong aria-hidden="true">6.5.</strong> Concise Implementation of Linear Regression</a></li><li class="chapter-item "><a href="../chapter_linear-regression/generalization.html"><strong aria-hidden="true">6.6.</strong> Generalization</a></li><li class="chapter-item "><a href="../chapter_linear-regression/weight-decay.html"><strong aria-hidden="true">6.7.</strong> Weight Decay</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_linear-classification/index.html"><strong aria-hidden="true">7.</strong> Linear Neural Networks for Classification</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_linear-classification/softmax-regression.html"><strong aria-hidden="true">7.1.</strong> Softmax Regression</a></li><li class="chapter-item "><a href="../chapter_linear-classification/image-classification-dataset.html"><strong aria-hidden="true">7.2.</strong> The Image Classification Dataset</a></li><li class="chapter-item "><a href="../chapter_linear-classification/classification.html"><strong aria-hidden="true">7.3.</strong> The Base Classification Model</a></li><li class="chapter-item "><a href="../chapter_linear-classification/softmax-regression-scratch.html"><strong aria-hidden="true">7.4.</strong> Softmax Regression Implementation from Scratch</a></li><li class="chapter-item "><a href="../chapter_linear-classification/softmax-regression-concise.html"><strong aria-hidden="true">7.5.</strong> Concise Implementation of Softmax Regression</a></li><li class="chapter-item "><a href="../chapter_linear-classification/generalization-classification.html"><strong aria-hidden="true">7.6.</strong> Generalization in Classification</a></li><li class="chapter-item "><a href="../chapter_linear-classification/environment-and-distribution-shift.html"><strong aria-hidden="true">7.7.</strong> Environment and Distribution Shift</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_multilayer-perceptrons/index.html"><strong aria-hidden="true">8.</strong> Multilayer Perceptrons</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/mlp.html"><strong aria-hidden="true">8.1.</strong> Multilayer Perceptrons</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/mlp-implementation.html"><strong aria-hidden="true">8.2.</strong> Implementation of Multilayer Perceptrons</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/backprop.html"><strong aria-hidden="true">8.3.</strong> Forward Propagation, Backward Propagation, and Computational Graphs</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/numerical-stability-and-init.html"><strong aria-hidden="true">8.4.</strong> Numerical Stability and Initialization</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/generalization-deep.html"><strong aria-hidden="true">8.5.</strong> Generalization in Deep Learning</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/dropout.html"><strong aria-hidden="true">8.6.</strong> Dropout</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/kaggle-house-price.html"><strong aria-hidden="true">8.7.</strong> Predicting House Prices on Kaggle</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_builders-guide/index.html"><strong aria-hidden="true">9.</strong> Builders' Guide</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_builders-guide/model-construction.html"><strong aria-hidden="true">9.1.</strong> Layers and Modules</a></li><li class="chapter-item "><a href="../chapter_builders-guide/parameters.html"><strong aria-hidden="true">9.2.</strong> Parameter Management</a></li><li class="chapter-item "><a href="../chapter_builders-guide/init-param.html"><strong aria-hidden="true">9.3.</strong> Parameter Initialization</a></li><li class="chapter-item "><a href="../chapter_builders-guide/lazy-init.html"><strong aria-hidden="true">9.4.</strong> Lazy Initialization</a></li><li class="chapter-item "><a href="../chapter_builders-guide/custom-layer.html"><strong aria-hidden="true">9.5.</strong> Custom Layers</a></li><li class="chapter-item "><a href="../chapter_builders-guide/read-write.html"><strong aria-hidden="true">9.6.</strong> File I/O</a></li><li class="chapter-item "><a href="../chapter_builders-guide/use-gpu.html"><strong aria-hidden="true">9.7.</strong> GPUs</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_convolutional-neural-networks/index.html"><strong aria-hidden="true">10.</strong> Convolutional Neural Networks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/why-conv.html"><strong aria-hidden="true">10.1.</strong> From Fully Connected Layers to Convolutions</a></li><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/conv-layer.html"><strong aria-hidden="true">10.2.</strong> Convolutions for Images</a></li><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/padding-and-strides.html"><strong aria-hidden="true">10.3.</strong> Padding and Stride</a></li><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/channels.html"><strong aria-hidden="true">10.4.</strong> Multiple Input and Multiple Output Channels</a></li><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/pooling.html"><strong aria-hidden="true">10.5.</strong> Pooling</a></li><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/lenet.html"><strong aria-hidden="true">10.6.</strong> Convolutional Neural Networks (LeNet)</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_convolutional-modern/index.html"><strong aria-hidden="true">11.</strong> Modern Convolutional Neural Networks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_convolutional-modern/alexnet.html"><strong aria-hidden="true">11.1.</strong> Deep Convolutional Neural Networks (AlexNet)</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/vgg.html"><strong aria-hidden="true">11.2.</strong> Networks Using Blocks (VGG)</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/nin.html"><strong aria-hidden="true">11.3.</strong> Network in Network (NiN)</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/googlenet.html"><strong aria-hidden="true">11.4.</strong> Multi-Branch Networks  (GoogLeNet)</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/batch-norm.html"><strong aria-hidden="true">11.5.</strong> Batch Normalization</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/resnet.html"><strong aria-hidden="true">11.6.</strong> Residual Networks (ResNet) and ResNeXt</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/densenet.html"><strong aria-hidden="true">11.7.</strong> Densely Connected Networks (DenseNet)</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/cnn-design.html"><strong aria-hidden="true">11.8.</strong> Designing Convolution Network Architectures</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_recurrent-neural-networks/index.html"><strong aria-hidden="true">12.</strong> Recurrent Neural Networks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/sequence.html"><strong aria-hidden="true">12.1.</strong> Working with Sequences</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/text-sequence.html"><strong aria-hidden="true">12.2.</strong> Converting Raw Text into Sequence Data</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/language-model.html"><strong aria-hidden="true">12.3.</strong> Language Models</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/rnn.html"><strong aria-hidden="true">12.4.</strong> Recurrent Neural Networks</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/rnn-scratch.html"><strong aria-hidden="true">12.5.</strong> Recurrent Neural Network Implementation from Scratch</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/rnn-concise.html"><strong aria-hidden="true">12.6.</strong> Concise Implementation of Recurrent Neural Networks</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/bptt.html"><strong aria-hidden="true">12.7.</strong> Backpropagation Through Time</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_recurrent-modern/index.html"><strong aria-hidden="true">13.</strong> Modern Recurrent Neural Networks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_recurrent-modern/lstm.html"><strong aria-hidden="true">13.1.</strong> Long Short-Term Memory (LSTM)</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/gru.html"><strong aria-hidden="true">13.2.</strong> Gated Recurrent Units (GRU)</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/deep-rnn.html"><strong aria-hidden="true">13.3.</strong> Deep Recurrent Neural Networks</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/bi-rnn.html"><strong aria-hidden="true">13.4.</strong> Bidirectional Recurrent Neural Networks</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/machine-translation-and-dataset.html"><strong aria-hidden="true">13.5.</strong> Machine Translation and the Dataset</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/encoder-decoder.html"><strong aria-hidden="true">13.6.</strong> The Encoder--Decoder Architecture</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/seq2seq.html"><strong aria-hidden="true">13.7.</strong> Sequence-to-Sequence Learning for Machine Translation</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/beam-search.html"><strong aria-hidden="true">13.8.</strong> Beam Search</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_attention-mechanisms-and-transformers/index.html"><strong aria-hidden="true">14.</strong> Attention Mechanisms and Transformers</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/queries-keys-values.html"><strong aria-hidden="true">14.1.</strong> Queries, Keys, and Values</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/attention-pooling.html"><strong aria-hidden="true">14.2.</strong> Attention Pooling by Similarity</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/attention-scoring-functions.html"><strong aria-hidden="true">14.3.</strong> Attention Scoring Functions</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/bahdanau-attention.html"><strong aria-hidden="true">14.4.</strong> The Bahdanau Attention Mechanism</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/multihead-attention.html"><strong aria-hidden="true">14.5.</strong> Multi-Head Attention</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/self-attention-and-positional-encoding.html"><strong aria-hidden="true">14.6.</strong> Self-Attention and Positional Encoding</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/transformer.html"><strong aria-hidden="true">14.7.</strong> The Transformer Architecture</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/vision-transformer.html"><strong aria-hidden="true">14.8.</strong> Transformers for Vision</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/large-pretraining-transformers.html"><strong aria-hidden="true">14.9.</strong> Large-Scale Pretraining with Transformers</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_optimization/index.html"><strong aria-hidden="true">15.</strong> Optimization Algorithms</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_optimization/optimization-intro.html"><strong aria-hidden="true">15.1.</strong> Optimization and Deep Learning</a></li><li class="chapter-item "><a href="../chapter_optimization/convexity.html"><strong aria-hidden="true">15.2.</strong> Convexity</a></li><li class="chapter-item "><a href="../chapter_optimization/gd.html"><strong aria-hidden="true">15.3.</strong> Gradient Descent</a></li><li class="chapter-item "><a href="../chapter_optimization/sgd.html"><strong aria-hidden="true">15.4.</strong> Stochastic Gradient Descent</a></li><li class="chapter-item "><a href="../chapter_optimization/minibatch-sgd.html"><strong aria-hidden="true">15.5.</strong> Minibatch Stochastic Gradient Descent</a></li><li class="chapter-item "><a href="../chapter_optimization/momentum.html"><strong aria-hidden="true">15.6.</strong> Momentum</a></li><li class="chapter-item "><a href="../chapter_optimization/adagrad.html"><strong aria-hidden="true">15.7.</strong> Adagrad</a></li><li class="chapter-item "><a href="../chapter_optimization/rmsprop.html"><strong aria-hidden="true">15.8.</strong> RMSProp</a></li><li class="chapter-item "><a href="../chapter_optimization/adadelta.html"><strong aria-hidden="true">15.9.</strong> Adadelta</a></li><li class="chapter-item "><a href="../chapter_optimization/adam.html"><strong aria-hidden="true">15.10.</strong> Adam</a></li><li class="chapter-item "><a href="../chapter_optimization/lr-scheduler.html"><strong aria-hidden="true">15.11.</strong> Learning Rate Scheduling</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_computational-performance/index.html"><strong aria-hidden="true">16.</strong> Computational Performance</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_computational-performance/hybridize.html"><strong aria-hidden="true">16.1.</strong> Compilers and Interpreters</a></li><li class="chapter-item "><a href="../chapter_computational-performance/async-computation.html"><strong aria-hidden="true">16.2.</strong> Asynchronous Computation</a></li><li class="chapter-item "><a href="../chapter_computational-performance/auto-parallelism.html"><strong aria-hidden="true">16.3.</strong> Automatic Parallelism</a></li><li class="chapter-item "><a href="../chapter_computational-performance/hardware.html"><strong aria-hidden="true">16.4.</strong> Hardware</a></li><li class="chapter-item "><a href="../chapter_computational-performance/multiple-gpus.html"><strong aria-hidden="true">16.5.</strong> Training on Multiple GPUs</a></li><li class="chapter-item "><a href="../chapter_computational-performance/multiple-gpus-concise.html"><strong aria-hidden="true">16.6.</strong> Concise Implementation for Multiple GPUs</a></li><li class="chapter-item "><a href="../chapter_computational-performance/parameterserver.html"><strong aria-hidden="true">16.7.</strong> Parameter Servers</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_computer-vision/index.html"><strong aria-hidden="true">17.</strong> Computer Vision</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_computer-vision/image-augmentation.html"><strong aria-hidden="true">17.1.</strong> Image Augmentation</a></li><li class="chapter-item "><a href="../chapter_computer-vision/fine-tuning.html"><strong aria-hidden="true">17.2.</strong> Fine-Tuning</a></li><li class="chapter-item "><a href="../chapter_computer-vision/bounding-box.html"><strong aria-hidden="true">17.3.</strong> Object Detection and Bounding Boxes</a></li><li class="chapter-item "><a href="../chapter_computer-vision/anchor.html"><strong aria-hidden="true">17.4.</strong> Anchor Boxes</a></li><li class="chapter-item "><a href="../chapter_computer-vision/multiscale-object-detection.html"><strong aria-hidden="true">17.5.</strong> Multiscale Object Detection</a></li><li class="chapter-item "><a href="../chapter_computer-vision/object-detection-dataset.html"><strong aria-hidden="true">17.6.</strong> The Object Detection Dataset</a></li><li class="chapter-item "><a href="../chapter_computer-vision/ssd.html"><strong aria-hidden="true">17.7.</strong> Single Shot Multibox Detection</a></li><li class="chapter-item "><a href="../chapter_computer-vision/rcnn.html"><strong aria-hidden="true">17.8.</strong> Region-based CNNs (R-CNNs)</a></li><li class="chapter-item "><a href="../chapter_computer-vision/semantic-segmentation-and-dataset.html"><strong aria-hidden="true">17.9.</strong> Semantic Segmentation and the Dataset</a></li><li class="chapter-item "><a href="../chapter_computer-vision/transposed-conv.html"><strong aria-hidden="true">17.10.</strong> Transposed Convolution</a></li><li class="chapter-item "><a href="../chapter_computer-vision/fcn.html"><strong aria-hidden="true">17.11.</strong> Fully Convolutional Networks</a></li><li class="chapter-item "><a href="../chapter_computer-vision/neural-style.html"><strong aria-hidden="true">17.12.</strong> Neural Style Transfer</a></li><li class="chapter-item "><a href="../chapter_computer-vision/kaggle-cifar10.html"><strong aria-hidden="true">17.13.</strong> Image Classification (CIFAR-10) on Kaggle</a></li><li class="chapter-item "><a href="../chapter_computer-vision/kaggle-dog.html"><strong aria-hidden="true">17.14.</strong> Dog Breed Identification (ImageNet Dogs) on Kaggle</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_natural-language-processing-pretraining/index.html"><strong aria-hidden="true">18.</strong> Natural Language Processing: Pretraining</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/word2vec.html"><strong aria-hidden="true">18.1.</strong> Word Embedding (word2vec)</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/approx-training.html"><strong aria-hidden="true">18.2.</strong> Approximate Training</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/word-embedding-dataset.html"><strong aria-hidden="true">18.3.</strong> The Dataset for Pretraining Word Embeddings</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/word2vec-pretraining.html"><strong aria-hidden="true">18.4.</strong> Pretraining word2vec</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/glove.html"><strong aria-hidden="true">18.5.</strong> Word Embedding with Global Vectors (GloVe)</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/subword-embedding.html"><strong aria-hidden="true">18.6.</strong> Subword Embedding</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/similarity-analogy.html"><strong aria-hidden="true">18.7.</strong> Word Similarity and Analogy</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/bert.html"><strong aria-hidden="true">18.8.</strong> Bidirectional Encoder Representations from Transformers (BERT)</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/bert-dataset.html"><strong aria-hidden="true">18.9.</strong> The Dataset for Pretraining BERT</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/bert-pretraining.html"><strong aria-hidden="true">18.10.</strong> Pretraining BERT</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_natural-language-processing-applications/index.html"><strong aria-hidden="true">19.</strong> Natural Language Processing: Applications</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/sentiment-analysis-and-dataset.html"><strong aria-hidden="true">19.1.</strong> Sentiment Analysis and the Dataset</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/sentiment-analysis-rnn.html"><strong aria-hidden="true">19.2.</strong> Sentiment Analysis: Using Recurrent Neural Networks</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/sentiment-analysis-cnn.html"><strong aria-hidden="true">19.3.</strong> Sentiment Analysis: Using Convolutional Neural Networks</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/natural-language-inference-and-dataset.html"><strong aria-hidden="true">19.4.</strong> Natural Language Inference and the Dataset</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/natural-language-inference-attention.html"><strong aria-hidden="true">19.5.</strong> Natural Language Inference: Using Attention</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/finetuning-bert.html"><strong aria-hidden="true">19.6.</strong> Fine-Tuning BERT for Sequence-Level and Token-Level Applications</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/natural-language-inference-bert.html"><strong aria-hidden="true">19.7.</strong> Natural Language Inference: Fine-Tuning BERT</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_reinforcement-learning/index.html"><strong aria-hidden="true">20.</strong> Reinforcement Learning</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_reinforcement-learning/mdp.html"><strong aria-hidden="true">20.1.</strong> Markov Decision Process (MDP)</a></li><li class="chapter-item "><a href="../chapter_reinforcement-learning/value-iter.html"><strong aria-hidden="true">20.2.</strong> Value Iteration</a></li><li class="chapter-item "><a href="../chapter_reinforcement-learning/qlearning.html"><strong aria-hidden="true">20.3.</strong> Q-Learning</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_gaussian-processes/index.html"><strong aria-hidden="true">21.</strong> Gaussian Processes</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_gaussian-processes/gp-intro.html"><strong aria-hidden="true">21.1.</strong> Introduction to Gaussian Processes</a></li><li class="chapter-item "><a href="../chapter_gaussian-processes/gp-priors.html"><strong aria-hidden="true">21.2.</strong> Gaussian Process Priors</a></li><li class="chapter-item "><a href="../chapter_gaussian-processes/gp-inference.html"><strong aria-hidden="true">21.3.</strong> Gaussian Process Inference</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_hyperparameter-optimization/index.html"><strong aria-hidden="true">22.</strong> Hyperparameter Optimization</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_hyperparameter-optimization/hyperopt-intro.html"><strong aria-hidden="true">22.1.</strong> What Is Hyperparameter Optimization?</a></li><li class="chapter-item "><a href="../chapter_hyperparameter-optimization/hyperopt-api.html"><strong aria-hidden="true">22.2.</strong> Hyperparameter Optimization API</a></li><li class="chapter-item "><a href="../chapter_hyperparameter-optimization/rs-async.html"><strong aria-hidden="true">22.3.</strong> Asynchronous Random Search</a></li><li class="chapter-item "><a href="../chapter_hyperparameter-optimization/sh-intro.html"><strong aria-hidden="true">22.4.</strong> Multi-Fidelity Hyperparameter Optimization</a></li><li class="chapter-item "><a href="../chapter_hyperparameter-optimization/sh-async.html"><strong aria-hidden="true">22.5.</strong> Asynchronous Successive Halving</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_generative-adversarial-networks/index.html"><strong aria-hidden="true">23.</strong> Generative Adversarial Networks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_generative-adversarial-networks/gan.html"><strong aria-hidden="true">23.1.</strong> Generative Adversarial Networks</a></li><li class="chapter-item "><a href="../chapter_generative-adversarial-networks/dcgan.html"><strong aria-hidden="true">23.2.</strong> Deep Convolutional Generative Adversarial Networks</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_recommender-systems/index.html"><strong aria-hidden="true">24.</strong> Recommender Systems</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_recommender-systems/recsys-intro.html"><strong aria-hidden="true">24.1.</strong> Overview of Recommender Systems</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/movielens.html"><strong aria-hidden="true">24.2.</strong> The MovieLens Dataset</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/mf.html"><strong aria-hidden="true">24.3.</strong> Matrix Factorization</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/autorec.html"><strong aria-hidden="true">24.4.</strong> AutoRec: Rating Prediction with Autoencoders</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/ranking.html"><strong aria-hidden="true">24.5.</strong> Personalized Ranking for Recommender Systems</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/neumf.html"><strong aria-hidden="true">24.6.</strong> Neural Collaborative Filtering for Personalized Ranking</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/seqrec.html"><strong aria-hidden="true">24.7.</strong> Sequence-Aware Recommender Systems</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/ctr.html"><strong aria-hidden="true">24.8.</strong> Feature-Rich Recommender Systems</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/fm.html"><strong aria-hidden="true">24.9.</strong> Factorization Machines</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/deepfm.html"><strong aria-hidden="true">24.10.</strong> Deep Factorization Machines</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_appendix-mathematics-for-deep-learning/index.html"><strong aria-hidden="true">25.</strong> Appendix: Mathematics for Deep Learning</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/geometry-linear-algebraic-ops.html"><strong aria-hidden="true">25.1.</strong> Geometry and Linear Algebraic Operations</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/eigendecomposition.html"><strong aria-hidden="true">25.2.</strong> Eigendecompositions</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/single-variable-calculus.html"><strong aria-hidden="true">25.3.</strong> Single Variable Calculus</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/multivariable-calculus.html"><strong aria-hidden="true">25.4.</strong> Multivariable Calculus</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/integral-calculus.html"><strong aria-hidden="true">25.5.</strong> Integral Calculus</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/random-variables.html"><strong aria-hidden="true">25.6.</strong> Random Variables</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/maximum-likelihood.html"><strong aria-hidden="true">25.7.</strong> Maximum Likelihood</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/distributions.html"><strong aria-hidden="true">25.8.</strong> Distributions</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/naive-bayes.html"><strong aria-hidden="true">25.9.</strong> Naive Bayes</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/statistics.html"><strong aria-hidden="true">25.10.</strong> Statistics</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/information-theory.html"><strong aria-hidden="true">25.11.</strong> Information Theory</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_appendix-tools-for-deep-learning/index.html"><strong aria-hidden="true">26.</strong> Appendix: Tools for Deep Learning</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/jupyter.html"><strong aria-hidden="true">26.1.</strong> Using Jupyter Notebooks</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/sagemaker.html"><strong aria-hidden="true">26.2.</strong> Using Amazon SageMaker</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/aws.html"><strong aria-hidden="true">26.3.</strong> Using AWS EC2 Instances</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/colab.html"><strong aria-hidden="true">26.4.</strong> Using Google Colab</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/selecting-servers-gpus.html"><strong aria-hidden="true">26.5.</strong> Selecting Servers and GPUs</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/contributing.html"><strong aria-hidden="true">26.6.</strong> Contributing to This Book</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/utils.html"><strong aria-hidden="true">26.7.</strong> Utility Functions and Classes</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/d2l.html"><strong aria-hidden="true">26.8.</strong> The d2l API Document</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_references/zreferences.html"><strong aria-hidden="true">27.</strong> chapter_references/zreferences.md</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Dive into Deep Learning</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/d2l-ai/d2l-en" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <pre><code class="language-{.python .input}">%load_ext d2lbook.tab
+tab.interact_select(['mxnet', 'pytorch', 'tensorflow', 'jax'])
+</code></pre>
+<h1 id="linear-algebra"><a class="header" href="#linear-algebra">Linear Algebra</a></h1>
+<p>:label:<code>sec_linear-algebra</code></p>
+<p>By now, we can load datasets into tensors
+and manipulate these tensors
+with basic mathematical operations.
+To start building sophisticated models,
+we will also need a few tools from linear algebra.
+This section offers a gentle introduction
+to the most essential concepts,
+starting from scalar arithmetic
+and ramping up to matrix multiplication.</p>
+<pre><code class="language-{.python .input}">%%tab mxnet
+from mxnet import np, npx
+npx.set_np()
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab pytorch
+import torch
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab tensorflow
+import tensorflow as tf
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab jax
+from jax import numpy as jnp
+</code></pre>
+<h2 id="scalars"><a class="header" href="#scalars">Scalars</a></h2>
+<p>Most everyday mathematics
+consists of manipulating
+numbers one at a time.
+Formally, we call these values <em>scalars</em>.
+For example, the temperature in Palo Alto
+is a balmy $72$ degrees Fahrenheit.
+If you wanted to convert the temperature to Celsius
+you would evaluate the expression
+$c = \frac{5}{9}(f - 32)$, setting $f$ to $72$.
+In this equation, the values
+$5$, $9$, and $32$ are constant scalars.
+The variables $c$ and $f$
+in general represent unknown scalars.</p>
+<p>We denote scalars
+by ordinary lower-cased letters
+(e.g., $x$, $y$, and $z$)
+and the space of all (continuous)
+<em>real-valued</em> scalars by $\mathbb{R}$.
+For expedience, we will skip past
+rigorous definitions of <em>spaces</em>:
+just remember that the expression $x \in \mathbb{R}$
+is a formal way to say that $x$ is a real-valued scalar.
+The symbol $\in$ (pronounced "in")
+denotes membership in a set.
+For example, $x, y \in {0, 1}$
+indicates that $x$ and $y$ are variables
+that can only take values $0$ or $1$.</p>
+<p>(<strong>Scalars are implemented as tensors
+that contain only one element.</strong>)
+Below, we assign two scalars
+and perform the familiar addition, multiplication,
+division, and exponentiation operations.</p>
+<pre><code class="language-{.python .input}">%%tab mxnet
+x = np.array(3.0)
+y = np.array(2.0)
+
+x + y, x * y, x / y, x ** y
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab pytorch
+x = torch.tensor(3.0)
+y = torch.tensor(2.0)
+
+x + y, x * y, x / y, x**y
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab tensorflow
+x = tf.constant(3.0)
+y = tf.constant(2.0)
+
+x + y, x * y, x / y, x**y
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab jax
+x = jnp.array(3.0)
+y = jnp.array(2.0)
+
+x + y, x * y, x / y, x**y
+</code></pre>
+<h2 id="vectors"><a class="header" href="#vectors">Vectors</a></h2>
+<p>For current purposes, [<strong>you can think of a vector as a fixed-length array of scalars.</strong>]
+As with their code counterparts,
+we call these scalars the <em>elements</em> of the vector
+(synonyms include <em>entries</em> and <em>components</em>).
+When vectors represent examples from real-world datasets,
+their values hold some real-world significance.
+For example, if we were training a model to predict
+the risk of a loan defaulting,
+we might associate each applicant with a vector
+whose components correspond to quantities
+like their income, length of employment,
+or number of previous defaults.
+If we were studying the risk of heart attack,
+each vector might represent a patient
+and its components might correspond to
+their most recent vital signs, cholesterol levels,
+minutes of exercise per day, etc.
+We denote vectors by bold lowercase letters,
+(e.g., $\mathbf{x}$, $\mathbf{y}$, and $\mathbf{z}$).</p>
+<p>Vectors are implemented as $1^{\textrm{st}}$-order tensors.
+In general, such tensors can have arbitrary lengths,
+subject to memory limitations. Caution: in Python, as in most programming languages, vector indices start at $0$, also known as <em>zero-based indexing</em>, whereas in linear algebra subscripts begin at $1$ (one-based indexing).</p>
+<pre><code class="language-{.python .input}">%%tab mxnet
+x = np.arange(3)
+x
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab pytorch
+x = torch.arange(3)
+x
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab tensorflow
+x = tf.range(3)
+x
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab jax
+x = jnp.arange(3)
+x
+</code></pre>
+<p>We can refer to an element of a vector by using a subscript.
+For example, $x_2$ denotes the second element of $\mathbf{x}$.
+Since $x_2$ is a scalar, we do not bold it.
+By default, we visualize vectors
+by stacking their elements vertically:</p>
+<p>$$\mathbf{x} =\begin{bmatrix}x_{1}  \ \vdots  \x_{n}\end{bmatrix}.$$
+:eqlabel:<code>eq_vec_def</code></p>
+<p>Here $x_1, \ldots, x_n$ are elements of the vector.
+Later on, we will distinguish between such <em>column vectors</em>
+and <em>row vectors</em> whose elements are stacked horizontally.
+Recall that [<strong>we access a tensor's elements via indexing.</strong>]</p>
+<pre><code class="language-{.python .input}">%%tab all
+x[2]
+</code></pre>
+<p>To indicate that a vector contains $n$ elements,
+we write $\mathbf{x} \in \mathbb{R}^n$.
+Formally, we call $n$ the <em>dimensionality</em> of the vector.
+[<strong>In code, this corresponds to the tensor's length</strong>],
+accessible via Python's built-in <code>len</code> function.</p>
+<pre><code class="language-{.python .input}">%%tab all
+len(x)
+</code></pre>
+<p>We can also access the length via the <code>shape</code> attribute.
+The shape is a tuple that indicates a tensor's length along each axis.
+(<strong>Tensors with just one axis have shapes with just one element.</strong>)</p>
+<pre><code class="language-{.python .input}">%%tab all
+x.shape
+</code></pre>
+<p>Oftentimes, the word "dimension" gets overloaded
+to mean both the number of axes
+and the length along a particular axis.
+To avoid this confusion,
+we use <em>order</em> to refer to the number of axes
+and <em>dimensionality</em> exclusively to refer
+to the number of components.</p>
+<h2 id="matrices"><a class="header" href="#matrices">Matrices</a></h2>
+<p>Just as scalars are $0^{\textrm{th}}$-order tensors
+and vectors are $1^{\textrm{st}}$-order tensors,
+matrices are $2^{\textrm{nd}}$-order tensors.
+We denote matrices by bold capital letters
+(e.g., $\mathbf{X}$, $\mathbf{Y}$, and $\mathbf{Z}$),
+and represent them in code by tensors with two axes.
+The expression $\mathbf{A} \in \mathbb{R}^{m \times n}$
+indicates that a matrix $\mathbf{A}$
+contains $m \times n$ real-valued scalars,
+arranged as $m$ rows and $n$ columns.
+When $m = n$, we say that a matrix is <em>square</em>.
+Visually, we can illustrate any matrix as a table.
+To refer to an individual element,
+we subscript both the row and column indices, e.g.,
+$a_{ij}$ is the value that belongs to $\mathbf{A}$'s
+$i^{\textrm{th}}$ row and $j^{\textrm{th}}$ column:</p>
+<p>$$\mathbf{A}=\begin{bmatrix} a_{11} &amp; a_{12} &amp; \cdots &amp; a_{1n} \ a_{21} &amp; a_{22} &amp; \cdots &amp; a_{2n} \ \vdots &amp; \vdots &amp; \ddots &amp; \vdots \ a_{m1} &amp; a_{m2} &amp; \cdots &amp; a_{mn} \ \end{bmatrix}.$$
+:eqlabel:<code>eq_matrix_def</code></p>
+<p>In code, we represent a matrix $\mathbf{A} \in \mathbb{R}^{m \times n}$
+by a $2^{\textrm{nd}}$-order tensor with shape ($m$, $n$).
+[<strong>We can convert any appropriately sized $m \times n$ tensor
+into an $m \times n$ matrix</strong>]
+by passing the desired shape to <code>reshape</code>:</p>
+<pre><code class="language-{.python .input}">%%tab mxnet
+A = np.arange(6).reshape(3, 2)
+A
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab pytorch
+A = torch.arange(6).reshape(3, 2)
+A
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab tensorflow
+A = tf.reshape(tf.range(6), (3, 2))
+A
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab jax
+A = jnp.arange(6).reshape(3, 2)
+A
+</code></pre>
+<p>Sometimes we want to flip the axes.
+When we exchange a matrix's rows and columns,
+the result is called its <em>transpose</em>.
+Formally, we signify a matrix $\mathbf{A}$'s transpose
+by $\mathbf{A}^\top$ and if $\mathbf{B} = \mathbf{A}^\top$,
+then $b_{ij} = a_{ji}$ for all $i$ and $j$.
+Thus, the transpose of an $m \times n$ matrix
+is an $n \times m$ matrix:</p>
+<p>$$
+\mathbf{A}^\top =
+\begin{bmatrix}
+a_{11} &amp; a_{21} &amp; \dots  &amp; a_{m1} \
+a_{12} &amp; a_{22} &amp; \dots  &amp; a_{m2} \
+\vdots &amp; \vdots &amp; \ddots  &amp; \vdots \
+a_{1n} &amp; a_{2n} &amp; \dots  &amp; a_{mn}
+\end{bmatrix}.
+$$</p>
+<p>In code, we can access any (<strong>matrix's transpose</strong>) as follows:</p>
+<pre><code class="language-{.python .input}">%%tab mxnet, pytorch, jax
+A.T
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab tensorflow
+tf.transpose(A)
+</code></pre>
+<p>[<strong>Symmetric matrices are the subset of square matrices
+that are equal to their own transposes:
+$\mathbf{A} = \mathbf{A}^\top$.</strong>]
+The following matrix is symmetric:</p>
+<pre><code class="language-{.python .input}">%%tab mxnet
+A = np.array([[1, 2, 3], [2, 0, 4], [3, 4, 5]])
+A == A.T
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab pytorch
+A = torch.tensor([[1, 2, 3], [2, 0, 4], [3, 4, 5]])
+A == A.T
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab tensorflow
+A = tf.constant([[1, 2, 3], [2, 0, 4], [3, 4, 5]])
+A == tf.transpose(A)
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab jax
+A = jnp.array([[1, 2, 3], [2, 0, 4], [3, 4, 5]])
+A == A.T
+</code></pre>
+<p>Matrices are useful for representing datasets.
+Typically, rows correspond to individual records
+and columns correspond to distinct attributes.</p>
+<h2 id="tensors"><a class="header" href="#tensors">Tensors</a></h2>
+<p>While you can go far in your machine learning journey
+with only scalars, vectors, and matrices,
+eventually you may need to work with
+higher-order [<strong>tensors</strong>].
+Tensors (<strong>give us a generic way of describing
+extensions to $n^{\textrm{th}}$-order arrays.</strong>)
+We call software objects of the <em>tensor class</em> "tensors"
+precisely because they too can have arbitrary numbers of axes.
+While it may be confusing to use the word
+<em>tensor</em> for both the mathematical object
+and its realization in code,
+our meaning should usually be clear from context.
+We denote general tensors by capital letters
+with a special font face
+(e.g., $\mathsf{X}$, $\mathsf{Y}$, and $\mathsf{Z}$)
+and their indexing mechanism
+(e.g., $x_{ijk}$ and $[\mathsf{X}]_{1, 2i-1, 3}$)
+follows naturally from that of matrices.</p>
+<p>Tensors will become more important
+when we start working with images.
+Each image arrives as a $3^{\textrm{rd}}$-order tensor
+with axes corresponding to the height, width, and <em>channel</em>.
+At each spatial location, the intensities
+of each color (red, green, and blue)
+are stacked along the channel.
+Furthermore, a collection of images is represented
+in code by a $4^{\textrm{th}}$-order tensor,
+where distinct images are indexed
+along the first axis.
+Higher-order tensors are constructed, as were vectors and matrices,
+by growing the number of shape components.</p>
+<pre><code class="language-{.python .input}">%%tab mxnet
+np.arange(24).reshape(2, 3, 4)
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab pytorch
+torch.arange(24).reshape(2, 3, 4)
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab tensorflow
+tf.reshape(tf.range(24), (2, 3, 4))
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab jax
+jnp.arange(24).reshape(2, 3, 4)
+</code></pre>
+<h2 id="basic-properties-of-tensor-arithmetic"><a class="header" href="#basic-properties-of-tensor-arithmetic">Basic Properties of Tensor Arithmetic</a></h2>
+<p>Scalars, vectors, matrices,
+and higher-order tensors
+all have some handy properties.
+For example, elementwise operations
+produce outputs that have the
+same shape as their operands.</p>
+<pre><code class="language-{.python .input}">%%tab mxnet
+A = np.arange(6).reshape(2, 3)
+B = A.copy()  # Assign a copy of A to B by allocating new memory
+A, A + B
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab pytorch
+A = torch.arange(6, dtype=torch.float32).reshape(2, 3)
+B = A.clone()  # Assign a copy of A to B by allocating new memory
+A, A + B
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab tensorflow
+A = tf.reshape(tf.range(6, dtype=tf.float32), (2, 3))
+B = A  # No cloning of A to B by allocating new memory
+A, A + B
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab jax
+A = jnp.arange(6, dtype=jnp.float32).reshape(2, 3)
+B = A
+A, A + B
+</code></pre>
+<p>The [<strong>elementwise product of two matrices
+is called their <em>Hadamard product</em></strong>] (denoted $\odot$).
+We can spell out the entries
+of the Hadamard product of two matrices
+$\mathbf{A}, \mathbf{B} \in \mathbb{R}^{m \times n}$:</p>
+<p>$$
+\mathbf{A} \odot \mathbf{B} =
+\begin{bmatrix}
+a_{11}  b_{11} &amp; a_{12}  b_{12} &amp; \dots  &amp; a_{1n}  b_{1n} \
+a_{21}  b_{21} &amp; a_{22}  b_{22} &amp; \dots  &amp; a_{2n}  b_{2n} \
+\vdots &amp; \vdots &amp; \ddots &amp; \vdots \
+a_{m1}  b_{m1} &amp; a_{m2}  b_{m2} &amp; \dots  &amp; a_{mn}  b_{mn}
+\end{bmatrix}.
+$$</p>
+<pre><code class="language-{.python .input}">%%tab all
+A * B
+</code></pre>
+<p>[<strong>Adding or multiplying a scalar and a tensor</strong>] produces a result
+with the same shape as the original tensor.
+Here, each element of the tensor is added to (or multiplied by) the scalar.</p>
+<pre><code class="language-{.python .input}">%%tab mxnet
+a = 2
+X = np.arange(24).reshape(2, 3, 4)
+a + X, (a * X).shape
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab pytorch
+a = 2
+X = torch.arange(24).reshape(2, 3, 4)
+a + X, (a * X).shape
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab tensorflow
+a = 2
+X = tf.reshape(tf.range(24), (2, 3, 4))
+a + X, (a * X).shape
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab jax
+a = 2
+X = jnp.arange(24).reshape(2, 3, 4)
+a + X, (a * X).shape
+</code></pre>
+<h2 id="reduction"><a class="header" href="#reduction">Reduction</a></h2>
+<p>:label:<code>subsec_lin-alg-reduction</code></p>
+<p>Often, we wish to calculate [<strong>the sum of a tensor's elements.</strong>]
+To express the sum of the elements in a vector $\mathbf{x}$ of length $n$,
+we write $\sum_{i=1}^n x_i$. There is a simple function for it:</p>
+<pre><code class="language-{.python .input}">%%tab mxnet
+x = np.arange(3)
+x, x.sum()
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab pytorch
+x = torch.arange(3, dtype=torch.float32)
+x, x.sum()
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab tensorflow
+x = tf.range(3, dtype=tf.float32)
+x, tf.reduce_sum(x)
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab jax
+x = jnp.arange(3, dtype=jnp.float32)
+x, x.sum()
+</code></pre>
+<p>To express [<strong>sums over the elements of tensors of arbitrary shape</strong>],
+we simply sum over all its axes.
+For example, the sum of the elements
+of an $m \times n$ matrix $\mathbf{A}$
+could be written $\sum_{i=1}^{m} \sum_{j=1}^{n} a_{ij}$.</p>
+<pre><code class="language-{.python .input}">%%tab mxnet, pytorch, jax
+A.shape, A.sum()
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab tensorflow
+A.shape, tf.reduce_sum(A)
+</code></pre>
+<p>By default, invoking the sum function
+<em>reduces</em> a tensor along all of its axes,
+eventually producing a scalar.
+Our libraries also allow us to [<strong>specify the axes
+along which the tensor should be reduced.</strong>]
+To sum over all elements along the rows (axis 0),
+we specify <code>axis=0</code> in <code>sum</code>.
+Since the input matrix reduces along axis 0
+to generate the output vector,
+this axis is missing from the shape of the output.</p>
+<pre><code class="language-{.python .input}">%%tab mxnet, pytorch, jax
+A.shape, A.sum(axis=0).shape
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab tensorflow
+A.shape, tf.reduce_sum(A, axis=0).shape
+</code></pre>
+<p>Specifying <code>axis=1</code> will reduce the column dimension (axis 1) by summing up elements of all the columns.</p>
+<pre><code class="language-{.python .input}">%%tab mxnet, pytorch, jax
+A.shape, A.sum(axis=1).shape
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab tensorflow
+A.shape, tf.reduce_sum(A, axis=1).shape
+</code></pre>
+<p>Reducing a matrix along both rows and columns via summation
+is equivalent to summing up all the elements of the matrix.</p>
+<pre><code class="language-{.python .input}">%%tab mxnet, pytorch, jax
+A.sum(axis=[0, 1]) == A.sum()  # Same as A.sum()
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab tensorflow
+tf.reduce_sum(A, axis=[0, 1]), tf.reduce_sum(A)  # Same as tf.reduce_sum(A)
+</code></pre>
+<p>[<strong>A related quantity is the <em>mean</em>, also called the <em>average</em>.</strong>]
+We calculate the mean by dividing the sum
+by the total number of elements.
+Because computing the mean is so common,
+it gets a dedicated library function
+that works analogously to <code>sum</code>.</p>
+<pre><code class="language-{.python .input}">%%tab mxnet, jax
+A.mean(), A.sum() / A.size
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab pytorch
+A.mean(), A.sum() / A.numel()
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab tensorflow
+tf.reduce_mean(A), tf.reduce_sum(A) / tf.size(A).numpy()
+</code></pre>
+<p>Likewise, the function for calculating the mean
+can also reduce a tensor along specific axes.</p>
+<pre><code class="language-{.python .input}">%%tab mxnet, pytorch, jax
+A.mean(axis=0), A.sum(axis=0) / A.shape[0]
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab tensorflow
+tf.reduce_mean(A, axis=0), tf.reduce_sum(A, axis=0) / A.shape[0]
+</code></pre>
+<h2 id="non-reduction-sum"><a class="header" href="#non-reduction-sum">Non-Reduction Sum</a></h2>
+<p>:label:<code>subsec_lin-alg-non-reduction</code></p>
+<p>Sometimes it can be useful to [<strong>keep the number of axes unchanged</strong>]
+when invoking the function for calculating the sum or mean.
+This matters when we want to use the broadcast mechanism.</p>
+<pre><code class="language-{.python .input}">%%tab mxnet, pytorch, jax
+sum_A = A.sum(axis=1, keepdims=True)
+sum_A, sum_A.shape
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab tensorflow
+sum_A = tf.reduce_sum(A, axis=1, keepdims=True)
+sum_A, sum_A.shape
+</code></pre>
+<p>For instance, since <code>sum_A</code> keeps its two axes after summing each row,
+we can (<strong>divide <code>A</code> by <code>sum_A</code> with broadcasting</strong>)
+to create a matrix where each row sums up to $1$.</p>
+<pre><code class="language-{.python .input}">%%tab all
+A / sum_A
+</code></pre>
+<p>If we want to calculate [<strong>the cumulative sum of elements of <code>A</code> along some axis</strong>],
+say <code>axis=0</code> (row by row), we can call the <code>cumsum</code> function.
+By design, this function does not reduce the input tensor along any axis.</p>
+<pre><code class="language-{.python .input}">%%tab mxnet, pytorch, jax
+A.cumsum(axis=0)
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab tensorflow
+tf.cumsum(A, axis=0)
+</code></pre>
+<h2 id="dot-products"><a class="header" href="#dot-products">Dot Products</a></h2>
+<p>So far, we have only performed elementwise operations, sums, and averages.
+And if this was all we could do, linear algebra
+would not deserve its own section.
+Fortunately, this is where things get more interesting.
+One of the most fundamental operations is the dot product.
+Given two vectors $\mathbf{x}, \mathbf{y} \in \mathbb{R}^d$,
+their <em>dot product</em> $\mathbf{x}^\top \mathbf{y}$ (also known as <em>inner product</em>, $\langle \mathbf{x}, \mathbf{y}  \rangle$)
+is a sum over the products of the elements at the same position:
+$\mathbf{x}^\top \mathbf{y} = \sum_{i=1}^{d} x_i y_i$.</p>
+<p>[<del>The <em>dot product</em> of two vectors is a sum over the products of the elements at the same position</del>]</p>
+<pre><code class="language-{.python .input}">%%tab mxnet
+y = np.ones(3)
+x, y, np.dot(x, y)
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab pytorch
+y = torch.ones(3, dtype = torch.float32)
+x, y, torch.dot(x, y)
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab tensorflow
+y = tf.ones(3, dtype=tf.float32)
+x, y, tf.tensordot(x, y, axes=1)
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab jax
+y = jnp.ones(3, dtype = jnp.float32)
+x, y, jnp.dot(x, y)
+</code></pre>
+<p>Equivalently, (<strong>we can calculate the dot product of two vectors
+by performing an elementwise multiplication followed by a sum:</strong>)</p>
+<pre><code class="language-{.python .input}">%%tab mxnet
+np.sum(x * y)
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab pytorch
+torch.sum(x * y)
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab tensorflow
+tf.reduce_sum(x * y)
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab jax
+jnp.sum(x * y)
+</code></pre>
+<p>Dot products are useful in a wide range of contexts.
+For example, given some set of values,
+denoted by a vector $\mathbf{x}  \in \mathbb{R}^n$,
+and a set of weights, denoted by $\mathbf{w} \in \mathbb{R}^n$,
+the weighted sum of the values in $\mathbf{x}$
+according to the weights $\mathbf{w}$
+could be expressed as the dot product $\mathbf{x}^\top \mathbf{w}$.
+When the weights are nonnegative
+and sum to $1$, i.e., $\left(\sum_{i=1}^{n} {w_i} = 1\right)$,
+the dot product expresses a <em>weighted average</em>.
+After normalizing two vectors to have unit length,
+the dot products express the cosine of the angle between them.
+Later in this section, we will formally introduce this notion of <em>length</em>.</p>
+<h2 id="matrix--vector-products"><a class="header" href="#matrix--vector-products">Matrix--Vector Products</a></h2>
+<p>Now that we know how to calculate dot products,
+we can begin to understand the <em>product</em>
+between an $m \times n$ matrix $\mathbf{A}$
+and an $n$-dimensional vector $\mathbf{x}$.
+To start off, we visualize our matrix
+in terms of its row vectors</p>
+<p>$$\mathbf{A}=
+\begin{bmatrix}
+\mathbf{a}^\top_{1} \
+\mathbf{a}^\top_{2} \
+\vdots \
+\mathbf{a}^\top_m \
+\end{bmatrix},$$</p>
+<p>where each $\mathbf{a}^\top_{i} \in \mathbb{R}^n$
+is a row vector representing the $i^\textrm{th}$ row
+of the matrix $\mathbf{A}$.</p>
+<p>[<strong>The matrix--vector product $\mathbf{A}\mathbf{x}$
+is simply a column vector of length $m$,
+whose $i^\textrm{th}$ element is the dot product
+$\mathbf{a}^\top_i \mathbf{x}$:</strong>]</p>
+<p>$$
+\mathbf{A}\mathbf{x}
+= \begin{bmatrix}
+\mathbf{a}^\top_{1} \
+\mathbf{a}^\top_{2} \
+\vdots \
+\mathbf{a}^\top_m \
+\end{bmatrix}\mathbf{x}
+= \begin{bmatrix}
+\mathbf{a}^\top_{1} \mathbf{x}  \
+\mathbf{a}^\top_{2} \mathbf{x} \
+\vdots\
+\mathbf{a}^\top_{m} \mathbf{x}\
+\end{bmatrix}.
+$$</p>
+<p>We can think of multiplication with a matrix
+$\mathbf{A}\in \mathbb{R}^{m \times n}$
+as a transformation that projects vectors
+from $\mathbb{R}^{n}$ to $\mathbb{R}^{m}$.
+These transformations are remarkably useful.
+For example, we can represent rotations
+as multiplications by certain square matrices.
+Matrix--vector products also describe
+the key calculation involved in computing
+the outputs of each layer in a neural network
+given the outputs from the previous layer.</p>
+<p>:begin_tab:<code>mxnet</code>
+To express a matrix--vector product in code,
+we use the same <code>dot</code> function.
+The operation is inferred
+based on the type of the arguments.
+Note that the column dimension of <code>A</code>
+(its length along axis 1)
+must be the same as the dimension of <code>x</code> (its length).
+:end_tab:</p>
+<p>:begin_tab:<code>pytorch</code>
+To express a matrix--vector product in code,
+we use the <code>mv</code> function.
+Note that the column dimension of <code>A</code>
+(its length along axis 1)
+must be the same as the dimension of <code>x</code> (its length).
+Python has a convenience operator <code>@</code>
+that can execute both matrix--vector
+and matrix--matrix products
+(depending on its arguments).
+Thus we can write <code>A@x</code>.
+:end_tab:</p>
+<p>:begin_tab:<code>tensorflow</code>
+To express a matrix--vector product in code,
+we use the <code>matvec</code> function.
+Note that the column dimension of <code>A</code>
+(its length along axis 1)
+must be the same as the dimension of <code>x</code> (its length).
+:end_tab:</p>
+<pre><code class="language-{.python .input}">%%tab mxnet
+A.shape, x.shape, np.dot(A, x)
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab pytorch
+A.shape, x.shape, torch.mv(A, x), A@x
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab tensorflow
+A.shape, x.shape, tf.linalg.matvec(A, x)
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab jax
+A.shape, x.shape, jnp.matmul(A, x)
+</code></pre>
+<h2 id="matrix--matrix-multiplication"><a class="header" href="#matrix--matrix-multiplication">Matrix--Matrix Multiplication</a></h2>
+<p>Once you have gotten the hang of dot products and matrix--vector products,
+then <em>matrix--matrix multiplication</em> should be straightforward.</p>
+<p>Say that we have two matrices
+$\mathbf{A} \in \mathbb{R}^{n \times k}$
+and $\mathbf{B} \in \mathbb{R}^{k \times m}$:</p>
+<p>$$\mathbf{A}=\begin{bmatrix}
+a_{11} &amp; a_{12} &amp; \cdots &amp; a_{1k} \
+a_{21} &amp; a_{22} &amp; \cdots &amp; a_{2k} \
+\vdots &amp; \vdots &amp; \ddots &amp; \vdots \
+a_{n1} &amp; a_{n2} &amp; \cdots &amp; a_{nk} \
+\end{bmatrix},\quad
+\mathbf{B}=\begin{bmatrix}
+b_{11} &amp; b_{12} &amp; \cdots &amp; b_{1m} \
+b_{21} &amp; b_{22} &amp; \cdots &amp; b_{2m} \
+\vdots &amp; \vdots &amp; \ddots &amp; \vdots \
+b_{k1} &amp; b_{k2} &amp; \cdots &amp; b_{km} \
+\end{bmatrix}.$$</p>
+<p>Let $\mathbf{a}^\top_{i} \in \mathbb{R}^k$ denote
+the row vector representing the $i^\textrm{th}$ row
+of the matrix $\mathbf{A}$
+and let $\mathbf{b}_{j} \in \mathbb{R}^k$ denote
+the column vector from the $j^\textrm{th}$ column
+of the matrix $\mathbf{B}$:</p>
+<p>$$\mathbf{A}=
+\begin{bmatrix}
+\mathbf{a}^\top_{1} \
+\mathbf{a}^\top_{2} \
+\vdots \
+\mathbf{a}^\top_n \
+\end{bmatrix},
+\quad \mathbf{B}=\begin{bmatrix}
+\mathbf{b}<em>{1} &amp; \mathbf{b}</em>{2} &amp; \cdots &amp; \mathbf{b}_{m} \
+\end{bmatrix}.
+$$</p>
+<p>To form the matrix product $\mathbf{C} \in \mathbb{R}^{n \times m}$,
+we simply compute each element $c_{ij}$
+as the dot product between
+the $i^{\textrm{th}}$ row of $\mathbf{A}$
+and the $j^{\textrm{th}}$ column of $\mathbf{B}$,
+i.e., $\mathbf{a}^\top_i \mathbf{b}_j$:</p>
+<p>$$\mathbf{C} = \mathbf{AB} = \begin{bmatrix}
+\mathbf{a}^\top_{1} \
+\mathbf{a}^\top_{2} \
+\vdots \
+\mathbf{a}^\top_n \
+\end{bmatrix}
+\begin{bmatrix}
+\mathbf{b}<em>{1} &amp; \mathbf{b}</em>{2} &amp; \cdots &amp; \mathbf{b}<em>{m} \
+\end{bmatrix}
+= \begin{bmatrix}
+\mathbf{a}^\top</em>{1} \mathbf{b}<em>1 &amp; \mathbf{a}^\top</em>{1}\mathbf{b}<em>2&amp; \cdots &amp; \mathbf{a}^\top</em>{1} \mathbf{b}<em>m \
+\mathbf{a}^\top</em>{2}\mathbf{b}<em>1 &amp; \mathbf{a}^\top</em>{2} \mathbf{b}<em>2 &amp; \cdots &amp; \mathbf{a}^\top</em>{2} \mathbf{b}<em>m \
+\vdots &amp; \vdots &amp; \ddots &amp;\vdots\
+\mathbf{a}^\top</em>{n} \mathbf{b}<em>1 &amp; \mathbf{a}^\top</em>{n}\mathbf{b}<em>2&amp; \cdots&amp; \mathbf{a}^\top</em>{n} \mathbf{b}_m
+\end{bmatrix}.
+$$</p>
+<p>[<strong>We can think of the matrix--matrix multiplication $\mathbf{AB}$
+as performing $m$ matrix--vector products
+or $m \times n$ dot products
+and stitching the results together
+to form an $n \times m$ matrix.</strong>]
+In the following snippet,
+we perform matrix multiplication on <code>A</code> and <code>B</code>.
+Here, <code>A</code> is a matrix with two rows and three columns,
+and <code>B</code> is a matrix with three rows and four columns.
+After multiplication, we obtain a matrix with two rows and four columns.</p>
+<pre><code class="language-{.python .input}">%%tab mxnet
+B = np.ones(shape=(3, 4))
+np.dot(A, B)
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab pytorch
+B = torch.ones(3, 4)
+torch.mm(A, B), A@B
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab tensorflow
+B = tf.ones((3, 4), tf.float32)
+tf.matmul(A, B)
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab jax
+B = jnp.ones((3, 4))
+jnp.matmul(A, B)
+</code></pre>
+<p>The term <em>matrix--matrix multiplication</em> is
+often simplified to <em>matrix multiplication</em>,
+and should not be confused with the Hadamard product.</p>
+<h2 id="norms"><a class="header" href="#norms">Norms</a></h2>
+<p>:label:<code>subsec_lin-algebra-norms</code></p>
+<p>Some of the most useful operators in linear algebra are <em>norms</em>.
+Informally, the norm of a vector tells us how <em>big</em> it is.
+For instance, the $\ell_2$ norm measures
+the (Euclidean) length of a vector.
+Here, we are employing a notion of <em>size</em> that concerns the magnitude of a vector's components
+(not its dimensionality).</p>
+<p>A norm is a function $| \cdot |$ that maps a vector
+to a scalar and satisfies the following three properties:</p>
+<ol>
+<li>Given any vector $\mathbf{x}$, if we scale (all elements of) the vector
+by a scalar $\alpha \in \mathbb{R}$, its norm scales accordingly:
+$$|\alpha \mathbf{x}| = |\alpha| |\mathbf{x}|.$$</li>
+<li>For any vectors $\mathbf{x}$ and $\mathbf{y}$:
+norms satisfy the triangle inequality:
+$$|\mathbf{x} + \mathbf{y}| \leq |\mathbf{x}| + |\mathbf{y}|.$$</li>
+<li>The norm of a vector is nonnegative and it only vanishes if the vector is zero:
+$$|\mathbf{x}| &gt; 0 \textrm{ for all } \mathbf{x} \neq 0.$$</li>
+</ol>
+<p>Many functions are valid norms and different norms
+encode different notions of size.
+The Euclidean norm that we all learned in elementary school geometry
+when calculating the hypotenuse of a right triangle
+is the square root of the sum of squares of a vector's elements.
+Formally, this is called [<strong>the $\ell_2$ <em>norm</em></strong>] and expressed as</p>
+<p>(<strong>$$|\mathbf{x}|<em>2 = \sqrt{\sum</em>{i=1}^n x_i^2}.$$</strong>)</p>
+<p>The method <code>norm</code> calculates the $\ell_2$ norm.</p>
+<pre><code class="language-{.python .input}">%%tab mxnet
+u = np.array([3, -4])
+np.linalg.norm(u)
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab pytorch
+u = torch.tensor([3.0, -4.0])
+torch.norm(u)
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab tensorflow
+u = tf.constant([3.0, -4.0])
+tf.norm(u)
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab jax
+u = jnp.array([3.0, -4.0])
+jnp.linalg.norm(u)
+</code></pre>
+<p>[<strong>The $\ell_1$ norm</strong>] is also common
+and the associated measure is called the Manhattan distance.
+By definition, the $\ell_1$ norm sums
+the absolute values of a vector's elements:</p>
+<p>(<strong>$$|\mathbf{x}|<em>1 = \sum</em>{i=1}^n \left|x_i \right|.$$</strong>)</p>
+<p>Compared to the $\ell_2$ norm, it is less sensitive to outliers.
+To compute the $\ell_1$ norm,
+we compose the absolute value
+with the sum operation.</p>
+<pre><code class="language-{.python .input}">%%tab mxnet
+np.abs(u).sum()
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab pytorch
+torch.abs(u).sum()
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab tensorflow
+tf.reduce_sum(tf.abs(u))
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab jax
+jnp.linalg.norm(u, ord=1) # same as jnp.abs(u).sum()
+</code></pre>
+<p>Both the $\ell_2$ and $\ell_1$ norms are special cases
+of the more general $\ell_p$ <em>norms</em>:</p>
+<p>$$|\mathbf{x}|<em>p = \left(\sum</em>{i=1}^n \left|x_i \right|^p \right)^{1/p}.$$</p>
+<p>In the case of matrices, matters are more complicated.
+After all, matrices can be viewed both as collections of individual entries
+<em>and</em> as objects that operate on vectors and transform them into other vectors.
+For instance, we can ask by how much longer
+the matrix--vector product $\mathbf{X} \mathbf{v}$
+could be relative to $\mathbf{v}$.
+This line of thought leads to what is called the <em>spectral</em> norm.
+For now, we introduce [<strong>the <em>Frobenius norm</em>,
+which is much easier to compute</strong>] and defined as
+the square root of the sum of the squares
+of a matrix's elements:</p>
+<p>[<strong>$$|\mathbf{X}|<em>\textrm{F} = \sqrt{\sum</em>{i=1}^m \sum_{j=1}^n x_{ij}^2}.$$</strong>]</p>
+<p>The Frobenius norm behaves as if it were
+an $\ell_2$ norm of a matrix-shaped vector.
+Invoking the following function will calculate
+the Frobenius norm of a matrix.</p>
+<pre><code class="language-{.python .input}">%%tab mxnet
+np.linalg.norm(np.ones((4, 9)))
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab pytorch
+torch.norm(torch.ones((4, 9)))
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab tensorflow
+tf.norm(tf.ones((4, 9)))
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab jax
+jnp.linalg.norm(jnp.ones((4, 9)))
+</code></pre>
+<p>While we do not want to get too far ahead of ourselves,
+we already can plant some intuition about why these concepts are useful.
+In deep learning, we are often trying to solve optimization problems:
+<em>maximize</em> the probability assigned to observed data;
+<em>maximize</em> the revenue associated with a recommender model;
+<em>minimize</em> the distance between predictions
+and the ground truth observations;
+<em>minimize</em> the distance between representations
+of photos of the same person
+while <em>maximizing</em> the distance between representations
+of photos of different people.
+These distances, which constitute
+the objectives of deep learning algorithms,
+are often expressed as norms.</p>
+<h2 id="discussion"><a class="header" href="#discussion">Discussion</a></h2>
+<p>In this section, we have reviewed all the linear algebra
+that you will need to understand
+a significant chunk of modern deep learning.
+There is a lot more to linear algebra, though,
+and much of it is useful for machine learning.
+For example, matrices can be decomposed into factors,
+and these decompositions can reveal
+low-dimensional structure in real-world datasets.
+There are entire subfields of machine learning
+that focus on using matrix decompositions
+and their generalizations to high-order tensors
+to discover structure in datasets
+and solve prediction problems.
+But this book focuses on deep learning.
+And we believe you will be more inclined
+to learn more mathematics
+once you have gotten your hands dirty
+applying machine learning to real datasets.
+So while we reserve the right
+to introduce more mathematics later on,
+we wrap up this section here.</p>
+<p>If you are eager to learn more linear algebra,
+there are many excellent books and online resources.
+For a more advanced crash course, consider checking out
+:citet:<code>Strang.1993</code>, :citet:<code>Kolter.2008</code>, and :citet:<code>Petersen.Pedersen.ea.2008</code>.</p>
+<p>To recap:</p>
+<ul>
+<li>Scalars, vectors, matrices, and tensors are
+the basic mathematical objects used in linear algebra
+and have zero, one, two, and an arbitrary number of axes, respectively.</li>
+<li>Tensors can be sliced or reduced along specified axes
+via indexing, or operations such as <code>sum</code> and <code>mean</code>, respectively.</li>
+<li>Elementwise products are called Hadamard products.
+By contrast, dot products, matrix--vector products, and matrix--matrix products
+are not elementwise operations and in general return objects
+having shapes that are different from the the operands.</li>
+<li>Compared to Hadamard products, matrix--matrix products
+take considerably longer to compute (cubic rather than quadratic time).</li>
+<li>Norms capture various notions of the magnitude of a vector (or matrix),
+and are commonly applied to the difference of two vectors
+to measure their distance apart.</li>
+<li>Common vector norms include the $\ell_1$ and $\ell_2$ norms,
+and common matrix norms include the <em>spectral</em> and <em>Frobenius</em> norms.</li>
+</ul>
+<h2 id="exercises"><a class="header" href="#exercises">Exercises</a></h2>
+<ol>
+<li>Prove that the transpose of the transpose of a matrix is the matrix itself: $(\mathbf{A}^\top)^\top = \mathbf{A}$.</li>
+<li>Given two matrices $\mathbf{A}$ and $\mathbf{B}$, show that sum and transposition commute: $\mathbf{A}^\top + \mathbf{B}^\top = (\mathbf{A} + \mathbf{B})^\top$.</li>
+<li>Given any square matrix $\mathbf{A}$, is $\mathbf{A} + \mathbf{A}^\top$ always symmetric? Can you prove the result by using only the results of the previous two exercises?</li>
+<li>We defined the tensor <code>X</code> of shape (2, 3, 4) in this section. What is the output of <code>len(X)</code>? Write your answer without implementing any code, then check your answer using code.</li>
+<li>For a tensor <code>X</code> of arbitrary shape, does <code>len(X)</code> always correspond to the length of a certain axis of <code>X</code>? What is that axis?</li>
+<li>Run <code>A / A.sum(axis=1)</code> and see what happens. Can you analyze the results?</li>
+<li>When traveling between two points in downtown Manhattan, what is the distance that you need to cover in terms of the coordinates, i.e., in terms of avenues and streets? Can you travel diagonally?</li>
+<li>Consider a tensor of shape (2, 3, 4). What are the shapes of the summation outputs along axes 0, 1, and 2?</li>
+<li>Feed a tensor with three or more axes to the <code>linalg.norm</code> function and observe its output. What does this function compute for tensors of arbitrary shape?</li>
+<li>Consider three large matrices, say $\mathbf{A} \in \mathbb{R}^{2^{10} \times 2^{16}}$, $\mathbf{B} \in \mathbb{R}^{2^{16} \times 2^{5}}$ and $\mathbf{C} \in \mathbb{R}^{2^{5} \times 2^{14}}$, initialized with Gaussian random variables. You want to compute the product $\mathbf{A} \mathbf{B} \mathbf{C}$. Is there any difference in memory footprint and speed, depending on whether you compute $(\mathbf{A} \mathbf{B}) \mathbf{C}$ or $\mathbf{A} (\mathbf{B} \mathbf{C})$? Why?</li>
+<li>Consider three large matrices, say $\mathbf{A} \in \mathbb{R}^{2^{10} \times 2^{16}}$, $\mathbf{B} \in \mathbb{R}^{2^{16} \times 2^{5}}$ and $\mathbf{C} \in \mathbb{R}^{2^{5} \times 2^{16}}$. Is there any difference in speed depending on whether you compute $\mathbf{A} \mathbf{B}$ or $\mathbf{A} \mathbf{C}^\top$? Why? What changes if you initialize $\mathbf{C} = \mathbf{B}^\top$ without cloning memory? Why?</li>
+<li>Consider three matrices, say $\mathbf{A}, \mathbf{B}, \mathbf{C} \in \mathbb{R}^{100 \times 200}$. Construct a tensor with three axes by stacking $[\mathbf{A}, \mathbf{B}, \mathbf{C}]$. What is the dimensionality? Slice out the second coordinate of the third axis to recover $\mathbf{B}$. Check that your answer is correct.</li>
+</ol>
+<p>:begin_tab:<code>mxnet</code>
+<a href="https://discuss.d2l.ai/t/30">Discussions</a>
+:end_tab:</p>
+<p>:begin_tab:<code>pytorch</code>
+<a href="https://discuss.d2l.ai/t/31">Discussions</a>
+:end_tab:</p>
+<p>:begin_tab:<code>tensorflow</code>
+<a href="https://discuss.d2l.ai/t/196">Discussions</a>
+:end_tab:</p>
+<p>:begin_tab:<code>jax</code>
+<a href="https://discuss.d2l.ai/t/17968">Discussions</a>
+:end_tab:</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../chapter_preliminaries/pandas.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../chapter_preliminaries/calculus.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../chapter_preliminaries/pandas.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../chapter_preliminaries/calculus.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

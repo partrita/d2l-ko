@@ -1,0 +1,1023 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Sequence-to-Sequence Learning for Machine Translation - Dive into Deep Learning</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../static/d2l.css">
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('light')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../index.html">Deep Learning</a></li><li class="chapter-item expanded "><a href="../chapter_preface/index.html"><strong aria-hidden="true">1.</strong> Preface</a></li><li class="chapter-item expanded "><a href="../chapter_installation/index.html"><strong aria-hidden="true">2.</strong> Installation</a></li><li class="chapter-item expanded "><a href="../chapter_notation/index.html"><strong aria-hidden="true">3.</strong> Notation</a></li><li class="chapter-item expanded "><a href="../chapter_introduction/index.html"><strong aria-hidden="true">4.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="../chapter_preliminaries/index.html"><strong aria-hidden="true">5.</strong> Preliminaries</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_preliminaries/ndarray.html"><strong aria-hidden="true">5.1.</strong> Data Manipulation</a></li><li class="chapter-item "><a href="../chapter_preliminaries/pandas.html"><strong aria-hidden="true">5.2.</strong> Data Preprocessing</a></li><li class="chapter-item "><a href="../chapter_preliminaries/linear-algebra.html"><strong aria-hidden="true">5.3.</strong> Linear Algebra</a></li><li class="chapter-item "><a href="../chapter_preliminaries/calculus.html"><strong aria-hidden="true">5.4.</strong> Calculus</a></li><li class="chapter-item "><a href="../chapter_preliminaries/autograd.html"><strong aria-hidden="true">5.5.</strong> Automatic Differentiation</a></li><li class="chapter-item "><a href="../chapter_preliminaries/probability.html"><strong aria-hidden="true">5.6.</strong> Probability and Statistics</a></li><li class="chapter-item "><a href="../chapter_preliminaries/lookup-api.html"><strong aria-hidden="true">5.7.</strong> Documentation</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_linear-regression/index.html"><strong aria-hidden="true">6.</strong> Linear Neural Networks for Regression</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_linear-regression/linear-regression.html"><strong aria-hidden="true">6.1.</strong> Linear Regression</a></li><li class="chapter-item "><a href="../chapter_linear-regression/oo-design.html"><strong aria-hidden="true">6.2.</strong> Object-Oriented Design for Implementation</a></li><li class="chapter-item "><a href="../chapter_linear-regression/synthetic-regression-data.html"><strong aria-hidden="true">6.3.</strong> Synthetic Regression Data</a></li><li class="chapter-item "><a href="../chapter_linear-regression/linear-regression-scratch.html"><strong aria-hidden="true">6.4.</strong> Linear Regression Implementation from Scratch</a></li><li class="chapter-item "><a href="../chapter_linear-regression/linear-regression-concise.html"><strong aria-hidden="true">6.5.</strong> Concise Implementation of Linear Regression</a></li><li class="chapter-item "><a href="../chapter_linear-regression/generalization.html"><strong aria-hidden="true">6.6.</strong> Generalization</a></li><li class="chapter-item "><a href="../chapter_linear-regression/weight-decay.html"><strong aria-hidden="true">6.7.</strong> Weight Decay</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_linear-classification/index.html"><strong aria-hidden="true">7.</strong> Linear Neural Networks for Classification</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_linear-classification/softmax-regression.html"><strong aria-hidden="true">7.1.</strong> Softmax Regression</a></li><li class="chapter-item "><a href="../chapter_linear-classification/image-classification-dataset.html"><strong aria-hidden="true">7.2.</strong> The Image Classification Dataset</a></li><li class="chapter-item "><a href="../chapter_linear-classification/classification.html"><strong aria-hidden="true">7.3.</strong> The Base Classification Model</a></li><li class="chapter-item "><a href="../chapter_linear-classification/softmax-regression-scratch.html"><strong aria-hidden="true">7.4.</strong> Softmax Regression Implementation from Scratch</a></li><li class="chapter-item "><a href="../chapter_linear-classification/softmax-regression-concise.html"><strong aria-hidden="true">7.5.</strong> Concise Implementation of Softmax Regression</a></li><li class="chapter-item "><a href="../chapter_linear-classification/generalization-classification.html"><strong aria-hidden="true">7.6.</strong> Generalization in Classification</a></li><li class="chapter-item "><a href="../chapter_linear-classification/environment-and-distribution-shift.html"><strong aria-hidden="true">7.7.</strong> Environment and Distribution Shift</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_multilayer-perceptrons/index.html"><strong aria-hidden="true">8.</strong> Multilayer Perceptrons</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/mlp.html"><strong aria-hidden="true">8.1.</strong> Multilayer Perceptrons</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/mlp-implementation.html"><strong aria-hidden="true">8.2.</strong> Implementation of Multilayer Perceptrons</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/backprop.html"><strong aria-hidden="true">8.3.</strong> Forward Propagation, Backward Propagation, and Computational Graphs</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/numerical-stability-and-init.html"><strong aria-hidden="true">8.4.</strong> Numerical Stability and Initialization</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/generalization-deep.html"><strong aria-hidden="true">8.5.</strong> Generalization in Deep Learning</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/dropout.html"><strong aria-hidden="true">8.6.</strong> Dropout</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/kaggle-house-price.html"><strong aria-hidden="true">8.7.</strong> Predicting House Prices on Kaggle</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_builders-guide/index.html"><strong aria-hidden="true">9.</strong> Builders' Guide</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_builders-guide/model-construction.html"><strong aria-hidden="true">9.1.</strong> Layers and Modules</a></li><li class="chapter-item "><a href="../chapter_builders-guide/parameters.html"><strong aria-hidden="true">9.2.</strong> Parameter Management</a></li><li class="chapter-item "><a href="../chapter_builders-guide/init-param.html"><strong aria-hidden="true">9.3.</strong> Parameter Initialization</a></li><li class="chapter-item "><a href="../chapter_builders-guide/lazy-init.html"><strong aria-hidden="true">9.4.</strong> Lazy Initialization</a></li><li class="chapter-item "><a href="../chapter_builders-guide/custom-layer.html"><strong aria-hidden="true">9.5.</strong> Custom Layers</a></li><li class="chapter-item "><a href="../chapter_builders-guide/read-write.html"><strong aria-hidden="true">9.6.</strong> File I/O</a></li><li class="chapter-item "><a href="../chapter_builders-guide/use-gpu.html"><strong aria-hidden="true">9.7.</strong> GPUs</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_convolutional-neural-networks/index.html"><strong aria-hidden="true">10.</strong> Convolutional Neural Networks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/why-conv.html"><strong aria-hidden="true">10.1.</strong> From Fully Connected Layers to Convolutions</a></li><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/conv-layer.html"><strong aria-hidden="true">10.2.</strong> Convolutions for Images</a></li><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/padding-and-strides.html"><strong aria-hidden="true">10.3.</strong> Padding and Stride</a></li><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/channels.html"><strong aria-hidden="true">10.4.</strong> Multiple Input and Multiple Output Channels</a></li><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/pooling.html"><strong aria-hidden="true">10.5.</strong> Pooling</a></li><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/lenet.html"><strong aria-hidden="true">10.6.</strong> Convolutional Neural Networks (LeNet)</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_convolutional-modern/index.html"><strong aria-hidden="true">11.</strong> Modern Convolutional Neural Networks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_convolutional-modern/alexnet.html"><strong aria-hidden="true">11.1.</strong> Deep Convolutional Neural Networks (AlexNet)</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/vgg.html"><strong aria-hidden="true">11.2.</strong> Networks Using Blocks (VGG)</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/nin.html"><strong aria-hidden="true">11.3.</strong> Network in Network (NiN)</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/googlenet.html"><strong aria-hidden="true">11.4.</strong> Multi-Branch Networks  (GoogLeNet)</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/batch-norm.html"><strong aria-hidden="true">11.5.</strong> Batch Normalization</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/resnet.html"><strong aria-hidden="true">11.6.</strong> Residual Networks (ResNet) and ResNeXt</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/densenet.html"><strong aria-hidden="true">11.7.</strong> Densely Connected Networks (DenseNet)</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/cnn-design.html"><strong aria-hidden="true">11.8.</strong> Designing Convolution Network Architectures</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_recurrent-neural-networks/index.html"><strong aria-hidden="true">12.</strong> Recurrent Neural Networks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/sequence.html"><strong aria-hidden="true">12.1.</strong> Working with Sequences</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/text-sequence.html"><strong aria-hidden="true">12.2.</strong> Converting Raw Text into Sequence Data</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/language-model.html"><strong aria-hidden="true">12.3.</strong> Language Models</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/rnn.html"><strong aria-hidden="true">12.4.</strong> Recurrent Neural Networks</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/rnn-scratch.html"><strong aria-hidden="true">12.5.</strong> Recurrent Neural Network Implementation from Scratch</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/rnn-concise.html"><strong aria-hidden="true">12.6.</strong> Concise Implementation of Recurrent Neural Networks</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/bptt.html"><strong aria-hidden="true">12.7.</strong> Backpropagation Through Time</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_recurrent-modern/index.html"><strong aria-hidden="true">13.</strong> Modern Recurrent Neural Networks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_recurrent-modern/lstm.html"><strong aria-hidden="true">13.1.</strong> Long Short-Term Memory (LSTM)</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/gru.html"><strong aria-hidden="true">13.2.</strong> Gated Recurrent Units (GRU)</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/deep-rnn.html"><strong aria-hidden="true">13.3.</strong> Deep Recurrent Neural Networks</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/bi-rnn.html"><strong aria-hidden="true">13.4.</strong> Bidirectional Recurrent Neural Networks</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/machine-translation-and-dataset.html"><strong aria-hidden="true">13.5.</strong> Machine Translation and the Dataset</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/encoder-decoder.html"><strong aria-hidden="true">13.6.</strong> The Encoder--Decoder Architecture</a></li><li class="chapter-item expanded "><a href="../chapter_recurrent-modern/seq2seq.html" class="active"><strong aria-hidden="true">13.7.</strong> Sequence-to-Sequence Learning for Machine Translation</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/beam-search.html"><strong aria-hidden="true">13.8.</strong> Beam Search</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_attention-mechanisms-and-transformers/index.html"><strong aria-hidden="true">14.</strong> Attention Mechanisms and Transformers</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/queries-keys-values.html"><strong aria-hidden="true">14.1.</strong> Queries, Keys, and Values</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/attention-pooling.html"><strong aria-hidden="true">14.2.</strong> Attention Pooling by Similarity</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/attention-scoring-functions.html"><strong aria-hidden="true">14.3.</strong> Attention Scoring Functions</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/bahdanau-attention.html"><strong aria-hidden="true">14.4.</strong> The Bahdanau Attention Mechanism</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/multihead-attention.html"><strong aria-hidden="true">14.5.</strong> Multi-Head Attention</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/self-attention-and-positional-encoding.html"><strong aria-hidden="true">14.6.</strong> Self-Attention and Positional Encoding</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/transformer.html"><strong aria-hidden="true">14.7.</strong> The Transformer Architecture</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/vision-transformer.html"><strong aria-hidden="true">14.8.</strong> Transformers for Vision</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/large-pretraining-transformers.html"><strong aria-hidden="true">14.9.</strong> Large-Scale Pretraining with Transformers</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_optimization/index.html"><strong aria-hidden="true">15.</strong> Optimization Algorithms</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_optimization/optimization-intro.html"><strong aria-hidden="true">15.1.</strong> Optimization and Deep Learning</a></li><li class="chapter-item "><a href="../chapter_optimization/convexity.html"><strong aria-hidden="true">15.2.</strong> Convexity</a></li><li class="chapter-item "><a href="../chapter_optimization/gd.html"><strong aria-hidden="true">15.3.</strong> Gradient Descent</a></li><li class="chapter-item "><a href="../chapter_optimization/sgd.html"><strong aria-hidden="true">15.4.</strong> Stochastic Gradient Descent</a></li><li class="chapter-item "><a href="../chapter_optimization/minibatch-sgd.html"><strong aria-hidden="true">15.5.</strong> Minibatch Stochastic Gradient Descent</a></li><li class="chapter-item "><a href="../chapter_optimization/momentum.html"><strong aria-hidden="true">15.6.</strong> Momentum</a></li><li class="chapter-item "><a href="../chapter_optimization/adagrad.html"><strong aria-hidden="true">15.7.</strong> Adagrad</a></li><li class="chapter-item "><a href="../chapter_optimization/rmsprop.html"><strong aria-hidden="true">15.8.</strong> RMSProp</a></li><li class="chapter-item "><a href="../chapter_optimization/adadelta.html"><strong aria-hidden="true">15.9.</strong> Adadelta</a></li><li class="chapter-item "><a href="../chapter_optimization/adam.html"><strong aria-hidden="true">15.10.</strong> Adam</a></li><li class="chapter-item "><a href="../chapter_optimization/lr-scheduler.html"><strong aria-hidden="true">15.11.</strong> Learning Rate Scheduling</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_computational-performance/index.html"><strong aria-hidden="true">16.</strong> Computational Performance</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_computational-performance/hybridize.html"><strong aria-hidden="true">16.1.</strong> Compilers and Interpreters</a></li><li class="chapter-item "><a href="../chapter_computational-performance/async-computation.html"><strong aria-hidden="true">16.2.</strong> Asynchronous Computation</a></li><li class="chapter-item "><a href="../chapter_computational-performance/auto-parallelism.html"><strong aria-hidden="true">16.3.</strong> Automatic Parallelism</a></li><li class="chapter-item "><a href="../chapter_computational-performance/hardware.html"><strong aria-hidden="true">16.4.</strong> Hardware</a></li><li class="chapter-item "><a href="../chapter_computational-performance/multiple-gpus.html"><strong aria-hidden="true">16.5.</strong> Training on Multiple GPUs</a></li><li class="chapter-item "><a href="../chapter_computational-performance/multiple-gpus-concise.html"><strong aria-hidden="true">16.6.</strong> Concise Implementation for Multiple GPUs</a></li><li class="chapter-item "><a href="../chapter_computational-performance/parameterserver.html"><strong aria-hidden="true">16.7.</strong> Parameter Servers</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_computer-vision/index.html"><strong aria-hidden="true">17.</strong> Computer Vision</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_computer-vision/image-augmentation.html"><strong aria-hidden="true">17.1.</strong> Image Augmentation</a></li><li class="chapter-item "><a href="../chapter_computer-vision/fine-tuning.html"><strong aria-hidden="true">17.2.</strong> Fine-Tuning</a></li><li class="chapter-item "><a href="../chapter_computer-vision/bounding-box.html"><strong aria-hidden="true">17.3.</strong> Object Detection and Bounding Boxes</a></li><li class="chapter-item "><a href="../chapter_computer-vision/anchor.html"><strong aria-hidden="true">17.4.</strong> Anchor Boxes</a></li><li class="chapter-item "><a href="../chapter_computer-vision/multiscale-object-detection.html"><strong aria-hidden="true">17.5.</strong> Multiscale Object Detection</a></li><li class="chapter-item "><a href="../chapter_computer-vision/object-detection-dataset.html"><strong aria-hidden="true">17.6.</strong> The Object Detection Dataset</a></li><li class="chapter-item "><a href="../chapter_computer-vision/ssd.html"><strong aria-hidden="true">17.7.</strong> Single Shot Multibox Detection</a></li><li class="chapter-item "><a href="../chapter_computer-vision/rcnn.html"><strong aria-hidden="true">17.8.</strong> Region-based CNNs (R-CNNs)</a></li><li class="chapter-item "><a href="../chapter_computer-vision/semantic-segmentation-and-dataset.html"><strong aria-hidden="true">17.9.</strong> Semantic Segmentation and the Dataset</a></li><li class="chapter-item "><a href="../chapter_computer-vision/transposed-conv.html"><strong aria-hidden="true">17.10.</strong> Transposed Convolution</a></li><li class="chapter-item "><a href="../chapter_computer-vision/fcn.html"><strong aria-hidden="true">17.11.</strong> Fully Convolutional Networks</a></li><li class="chapter-item "><a href="../chapter_computer-vision/neural-style.html"><strong aria-hidden="true">17.12.</strong> Neural Style Transfer</a></li><li class="chapter-item "><a href="../chapter_computer-vision/kaggle-cifar10.html"><strong aria-hidden="true">17.13.</strong> Image Classification (CIFAR-10) on Kaggle</a></li><li class="chapter-item "><a href="../chapter_computer-vision/kaggle-dog.html"><strong aria-hidden="true">17.14.</strong> Dog Breed Identification (ImageNet Dogs) on Kaggle</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_natural-language-processing-pretraining/index.html"><strong aria-hidden="true">18.</strong> Natural Language Processing: Pretraining</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/word2vec.html"><strong aria-hidden="true">18.1.</strong> Word Embedding (word2vec)</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/approx-training.html"><strong aria-hidden="true">18.2.</strong> Approximate Training</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/word-embedding-dataset.html"><strong aria-hidden="true">18.3.</strong> The Dataset for Pretraining Word Embeddings</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/word2vec-pretraining.html"><strong aria-hidden="true">18.4.</strong> Pretraining word2vec</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/glove.html"><strong aria-hidden="true">18.5.</strong> Word Embedding with Global Vectors (GloVe)</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/subword-embedding.html"><strong aria-hidden="true">18.6.</strong> Subword Embedding</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/similarity-analogy.html"><strong aria-hidden="true">18.7.</strong> Word Similarity and Analogy</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/bert.html"><strong aria-hidden="true">18.8.</strong> Bidirectional Encoder Representations from Transformers (BERT)</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/bert-dataset.html"><strong aria-hidden="true">18.9.</strong> The Dataset for Pretraining BERT</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/bert-pretraining.html"><strong aria-hidden="true">18.10.</strong> Pretraining BERT</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_natural-language-processing-applications/index.html"><strong aria-hidden="true">19.</strong> Natural Language Processing: Applications</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/sentiment-analysis-and-dataset.html"><strong aria-hidden="true">19.1.</strong> Sentiment Analysis and the Dataset</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/sentiment-analysis-rnn.html"><strong aria-hidden="true">19.2.</strong> Sentiment Analysis: Using Recurrent Neural Networks</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/sentiment-analysis-cnn.html"><strong aria-hidden="true">19.3.</strong> Sentiment Analysis: Using Convolutional Neural Networks</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/natural-language-inference-and-dataset.html"><strong aria-hidden="true">19.4.</strong> Natural Language Inference and the Dataset</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/natural-language-inference-attention.html"><strong aria-hidden="true">19.5.</strong> Natural Language Inference: Using Attention</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/finetuning-bert.html"><strong aria-hidden="true">19.6.</strong> Fine-Tuning BERT for Sequence-Level and Token-Level Applications</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/natural-language-inference-bert.html"><strong aria-hidden="true">19.7.</strong> Natural Language Inference: Fine-Tuning BERT</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_reinforcement-learning/index.html"><strong aria-hidden="true">20.</strong> Reinforcement Learning</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_reinforcement-learning/mdp.html"><strong aria-hidden="true">20.1.</strong> Markov Decision Process (MDP)</a></li><li class="chapter-item "><a href="../chapter_reinforcement-learning/value-iter.html"><strong aria-hidden="true">20.2.</strong> Value Iteration</a></li><li class="chapter-item "><a href="../chapter_reinforcement-learning/qlearning.html"><strong aria-hidden="true">20.3.</strong> Q-Learning</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_gaussian-processes/index.html"><strong aria-hidden="true">21.</strong> Gaussian Processes</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_gaussian-processes/gp-intro.html"><strong aria-hidden="true">21.1.</strong> Introduction to Gaussian Processes</a></li><li class="chapter-item "><a href="../chapter_gaussian-processes/gp-priors.html"><strong aria-hidden="true">21.2.</strong> Gaussian Process Priors</a></li><li class="chapter-item "><a href="../chapter_gaussian-processes/gp-inference.html"><strong aria-hidden="true">21.3.</strong> Gaussian Process Inference</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_hyperparameter-optimization/index.html"><strong aria-hidden="true">22.</strong> Hyperparameter Optimization</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_hyperparameter-optimization/hyperopt-intro.html"><strong aria-hidden="true">22.1.</strong> What Is Hyperparameter Optimization?</a></li><li class="chapter-item "><a href="../chapter_hyperparameter-optimization/hyperopt-api.html"><strong aria-hidden="true">22.2.</strong> Hyperparameter Optimization API</a></li><li class="chapter-item "><a href="../chapter_hyperparameter-optimization/rs-async.html"><strong aria-hidden="true">22.3.</strong> Asynchronous Random Search</a></li><li class="chapter-item "><a href="../chapter_hyperparameter-optimization/sh-intro.html"><strong aria-hidden="true">22.4.</strong> Multi-Fidelity Hyperparameter Optimization</a></li><li class="chapter-item "><a href="../chapter_hyperparameter-optimization/sh-async.html"><strong aria-hidden="true">22.5.</strong> Asynchronous Successive Halving</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_generative-adversarial-networks/index.html"><strong aria-hidden="true">23.</strong> Generative Adversarial Networks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_generative-adversarial-networks/gan.html"><strong aria-hidden="true">23.1.</strong> Generative Adversarial Networks</a></li><li class="chapter-item "><a href="../chapter_generative-adversarial-networks/dcgan.html"><strong aria-hidden="true">23.2.</strong> Deep Convolutional Generative Adversarial Networks</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_recommender-systems/index.html"><strong aria-hidden="true">24.</strong> Recommender Systems</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_recommender-systems/recsys-intro.html"><strong aria-hidden="true">24.1.</strong> Overview of Recommender Systems</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/movielens.html"><strong aria-hidden="true">24.2.</strong> The MovieLens Dataset</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/mf.html"><strong aria-hidden="true">24.3.</strong> Matrix Factorization</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/autorec.html"><strong aria-hidden="true">24.4.</strong> AutoRec: Rating Prediction with Autoencoders</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/ranking.html"><strong aria-hidden="true">24.5.</strong> Personalized Ranking for Recommender Systems</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/neumf.html"><strong aria-hidden="true">24.6.</strong> Neural Collaborative Filtering for Personalized Ranking</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/seqrec.html"><strong aria-hidden="true">24.7.</strong> Sequence-Aware Recommender Systems</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/ctr.html"><strong aria-hidden="true">24.8.</strong> Feature-Rich Recommender Systems</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/fm.html"><strong aria-hidden="true">24.9.</strong> Factorization Machines</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/deepfm.html"><strong aria-hidden="true">24.10.</strong> Deep Factorization Machines</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_appendix-mathematics-for-deep-learning/index.html"><strong aria-hidden="true">25.</strong> Appendix: Mathematics for Deep Learning</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/geometry-linear-algebraic-ops.html"><strong aria-hidden="true">25.1.</strong> Geometry and Linear Algebraic Operations</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/eigendecomposition.html"><strong aria-hidden="true">25.2.</strong> Eigendecompositions</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/single-variable-calculus.html"><strong aria-hidden="true">25.3.</strong> Single Variable Calculus</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/multivariable-calculus.html"><strong aria-hidden="true">25.4.</strong> Multivariable Calculus</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/integral-calculus.html"><strong aria-hidden="true">25.5.</strong> Integral Calculus</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/random-variables.html"><strong aria-hidden="true">25.6.</strong> Random Variables</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/maximum-likelihood.html"><strong aria-hidden="true">25.7.</strong> Maximum Likelihood</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/distributions.html"><strong aria-hidden="true">25.8.</strong> Distributions</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/naive-bayes.html"><strong aria-hidden="true">25.9.</strong> Naive Bayes</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/statistics.html"><strong aria-hidden="true">25.10.</strong> Statistics</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/information-theory.html"><strong aria-hidden="true">25.11.</strong> Information Theory</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_appendix-tools-for-deep-learning/index.html"><strong aria-hidden="true">26.</strong> Appendix: Tools for Deep Learning</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/jupyter.html"><strong aria-hidden="true">26.1.</strong> Using Jupyter Notebooks</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/sagemaker.html"><strong aria-hidden="true">26.2.</strong> Using Amazon SageMaker</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/aws.html"><strong aria-hidden="true">26.3.</strong> Using AWS EC2 Instances</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/colab.html"><strong aria-hidden="true">26.4.</strong> Using Google Colab</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/selecting-servers-gpus.html"><strong aria-hidden="true">26.5.</strong> Selecting Servers and GPUs</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/contributing.html"><strong aria-hidden="true">26.6.</strong> Contributing to This Book</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/utils.html"><strong aria-hidden="true">26.7.</strong> Utility Functions and Classes</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/d2l.html"><strong aria-hidden="true">26.8.</strong> The d2l API Document</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_references/zreferences.html"><strong aria-hidden="true">27.</strong> chapter_references/zreferences.md</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Dive into Deep Learning</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/d2l-ai/d2l-en" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <pre><code class="language-{.python .input}">%load_ext d2lbook.tab
+tab.interact_select('mxnet', 'pytorch', 'tensorflow', 'jax')
+</code></pre>
+<h1 id="sequence-to-sequence-learning-for-machine-translation"><a class="header" href="#sequence-to-sequence-learning-for-machine-translation">Sequence-to-Sequence Learning for Machine Translation</a></h1>
+<p>:label:<code>sec_seq2seq</code></p>
+<p>In so-called sequence-to-sequence problems such as machine translation
+(as discussed in :numref:<code>sec_machine_translation</code>),
+where inputs and outputs each consist
+of variable-length unaligned sequences,
+we generally rely on encoder--decoder architectures
+(:numref:<code>sec_encoder-decoder</code>).
+In this section,
+we will demonstrate the application
+of an encoder--decoder architecture,
+where both the encoder and decoder
+are implemented as RNNs,
+to the task of machine translation
+:cite:<code>Sutskever.Vinyals.Le.2014,Cho.Van-Merrienboer.Gulcehre.ea.2014</code>.</p>
+<p>Here, the encoder RNN will take a variable-length sequence as input
+and transform it into a fixed-shape hidden state.
+Later, in :numref:<code>chap_attention-and-transformers</code>,
+we will introduce attention mechanisms,
+which allow us to access encoded inputs
+without having to compress the entire input
+into a single fixed-length representation.</p>
+<p>Then to generate the output sequence,
+one token at a time,
+the decoder model,
+consisting of a separate RNN,
+will predict each successive target token
+given both the input sequence
+and the preceding tokens in the output.
+During training, the decoder will typically
+be conditioned upon the preceding tokens
+in the official "ground truth" label.
+However, at test time, we will want to condition
+each output of the decoder on the tokens already predicted.
+Note that if we ignore the encoder,
+the decoder in a sequence-to-sequence architecture
+behaves just like a normal language model.
+:numref:<code>fig_seq2seq</code> illustrates
+how to use two RNNs
+for sequence-to-sequence learning
+in machine translation.</p>
+<p><img src="../img/seq2seq.svg" alt="Sequence-to-sequence learning with an RNN encoder and an RNN decoder." />
+:label:<code>fig_seq2seq</code></p>
+<p>In :numref:<code>fig_seq2seq</code>,
+the special "&lt;eos&gt;" token
+marks the end of the sequence.
+Our model can stop making predictions
+once this token is generated.
+At the initial time step of the RNN decoder,
+there are two special design decisions to be aware of:
+First, we begin every input with a special
+beginning-of-sequence "&lt;bos&gt;" token.
+Second, we may feed
+the final hidden state of the encoder
+into the decoder
+at every single decoding time step :cite:<code>Cho.Van-Merrienboer.Gulcehre.ea.2014</code>.
+In some other designs,
+such as that of :citet:<code>Sutskever.Vinyals.Le.2014</code>,
+the final hidden state of the RNN encoder
+is used
+to initiate the hidden state of the decoder
+only at the first decoding step.</p>
+<pre><code class="language-{.python .input}">%%tab mxnet
+import collections
+from d2l import mxnet as d2l
+import math
+from mxnet import np, npx, init, gluon, autograd
+from mxnet.gluon import nn, rnn
+npx.set_np()
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab pytorch
+import collections
+from d2l import torch as d2l
+import math
+import torch
+from torch import nn
+from torch.nn import functional as F
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab tensorflow
+import collections
+from d2l import tensorflow as d2l
+import math
+import tensorflow as tf
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab jax
+import collections
+from d2l import jax as d2l
+from flax import linen as nn
+from functools import partial
+import jax
+from jax import numpy as jnp
+import math
+import optax
+</code></pre>
+<h2 id="teacher-forcing"><a class="header" href="#teacher-forcing">Teacher Forcing</a></h2>
+<p>While running the encoder on the input sequence
+is relatively straightforward,
+handling the input and output
+of the decoder requires more care.
+The most common approach is sometimes called <em>teacher forcing</em>.
+Here, the original target sequence (token labels)
+is fed into the decoder as input.
+More concretely,
+the special beginning-of-sequence token
+and the original target sequence,
+excluding the final token,
+are concatenated as input to the decoder,
+while the decoder output (labels for training) is
+the original target sequence,
+shifted by one token:
+"&lt;bos&gt;", "Ils", "regardent", "." $\rightarrow$
+"Ils", "regardent", ".", "&lt;eos&gt;" (:numref:<code>fig_seq2seq</code>).</p>
+<p>Our implementation in
+:numref:<code>subsec_loading-seq-fixed-len</code>
+prepared training data for teacher forcing,
+where shifting tokens for self-supervised learning
+is similar to the training of language models in
+:numref:<code>sec_language-model</code>.
+An alternative approach is
+to feed the <em>predicted</em> token
+from the previous time step
+as the current input to the decoder.</p>
+<p>In the following, we explain the design
+depicted in :numref:<code>fig_seq2seq</code>
+in greater detail.
+We will train this model for machine translation
+on the English--French dataset as introduced in
+:numref:<code>sec_machine_translation</code>.</p>
+<h2 id="encoder"><a class="header" href="#encoder">Encoder</a></h2>
+<p>Recall that the encoder transforms an input sequence of variable length
+into a fixed-shape <em>context variable</em> $\mathbf{c}$ (see :numref:<code>fig_seq2seq</code>).</p>
+<p>Consider a single sequence example (batch size 1).
+Suppose the input sequence is $x_1, \ldots, x_T$,
+such that $x_t$ is the $t^{\textrm{th}}$ token.
+At time step $t$, the RNN transforms
+the input feature vector $\mathbf{x}_t$ for $x_t$
+and the hidden state $\mathbf{h} _{t-1}$
+from the previous time step
+into the current hidden state $\mathbf{h}_t$.
+We can use a function $f$ to express
+the transformation of the RNN's recurrent layer:</p>
+<p>$$\mathbf{h}_t = f(\mathbf{x}<em>t, \mathbf{h}</em>{t-1}). $$</p>
+<p>In general, the encoder transforms
+the hidden states at all time steps
+into a context variable through a customized function $q$:</p>
+<p>$$\mathbf{c} =  q(\mathbf{h}_1, \ldots, \mathbf{h}_T).$$</p>
+<p>For example, in :numref:<code>fig_seq2seq</code>,
+the context variable is just the hidden state $\mathbf{h}_T$
+corresponding to the encoder RNN's representation
+after processing the final token of the input sequence.</p>
+<p>In this example, we have used a unidirectional RNN
+to design the encoder,
+where the hidden state only depends on the input subsequence
+at and before the time step of the hidden state.
+We can also construct encoders using bidirectional RNNs.
+In this case, a hidden state depends on the subsequence before and after the time step
+(including the input at the current time step),
+which encodes the information of the entire sequence.</p>
+<p>Now let's [<strong>implement the RNN encoder</strong>].
+Note that we use an <em>embedding layer</em>
+to obtain the feature vector for each token in the input sequence.
+The weight of an embedding layer is a matrix,
+where the number of rows corresponds to
+the size of the input vocabulary (<code>vocab_size</code>)
+and number of columns corresponds to
+the feature vector's dimension (<code>embed_size</code>).
+For any input token index $i$,
+the embedding layer fetches the $i^{\textrm{th}}$ row
+(starting from 0) of the weight matrix
+to return its feature vector.
+Here we implement the encoder with a multilayer GRU.</p>
+<pre><code class="language-{.python .input}">%%tab mxnet
+class Seq2SeqEncoder(d2l.Encoder):  #@save
+    """The RNN encoder for sequence-to-sequence learning."""
+    def __init__(self, vocab_size, embed_size, num_hiddens, num_layers,
+                 dropout=0):
+        super().__init__()
+        self.embedding = nn.Embedding(vocab_size, embed_size)
+        self.rnn = d2l.GRU(num_hiddens, num_layers, dropout)
+        self.initialize(init.Xavier())
+            
+    def forward(self, X, *args):
+        # X shape: (batch_size, num_steps)
+        embs = self.embedding(d2l.transpose(X))
+        # embs shape: (num_steps, batch_size, embed_size)    
+        outputs, state = self.rnn(embs)
+        # outputs shape: (num_steps, batch_size, num_hiddens)
+        # state shape: (num_layers, batch_size, num_hiddens)
+        return outputs, state
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab pytorch
+def init_seq2seq(module):  #@save
+    """Initialize weights for sequence-to-sequence learning."""
+    if type(module) == nn.Linear:
+         nn.init.xavier_uniform_(module.weight)
+    if type(module) == nn.GRU:
+        for param in module._flat_weights_names:
+            if "weight" in param:
+                nn.init.xavier_uniform_(module._parameters[param])
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab pytorch
+class Seq2SeqEncoder(d2l.Encoder):  #@save
+    """The RNN encoder for sequence-to-sequence learning."""
+    def __init__(self, vocab_size, embed_size, num_hiddens, num_layers,
+                 dropout=0):
+        super().__init__()
+        self.embedding = nn.Embedding(vocab_size, embed_size)
+        self.rnn = d2l.GRU(embed_size, num_hiddens, num_layers, dropout)
+        self.apply(init_seq2seq)
+            
+    def forward(self, X, *args):
+        # X shape: (batch_size, num_steps)
+        embs = self.embedding(d2l.astype(d2l.transpose(X), d2l.int64))
+        # embs shape: (num_steps, batch_size, embed_size)
+        outputs, state = self.rnn(embs)
+        # outputs shape: (num_steps, batch_size, num_hiddens)
+        # state shape: (num_layers, batch_size, num_hiddens)
+        return outputs, state
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab tensorflow
+class Seq2SeqEncoder(d2l.Encoder):  #@save
+    """The RNN encoder for sequence-to-sequence learning."""
+    def __init__(self, vocab_size, embed_size, num_hiddens, num_layers,
+                 dropout=0):
+        super().__init__()
+        self.embedding = tf.keras.layers.Embedding(vocab_size, embed_size)
+        self.rnn = d2l.GRU(num_hiddens, num_layers, dropout)
+            
+    def call(self, X, *args):
+        # X shape: (batch_size, num_steps)
+        embs = self.embedding(d2l.transpose(X))
+        # embs shape: (num_steps, batch_size, embed_size)    
+        outputs, state = self.rnn(embs)
+        # outputs shape: (num_steps, batch_size, num_hiddens)
+        # state shape: (num_layers, batch_size, num_hiddens)
+        return outputs, state
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab jax
+class Seq2SeqEncoder(d2l.Encoder):  #@save
+    """The RNN encoder for sequence-to-sequence learning."""
+    vocab_size: int
+    embed_size: int
+    num_hiddens: int
+    num_layers: int
+    dropout: float = 0
+
+    def setup(self):
+        self.embedding = nn.Embed(self.vocab_size, self.embed_size)
+        self.rnn = d2l.GRU(self.num_hiddens, self.num_layers, self.dropout)
+
+    def __call__(self, X, *args, training=False):
+        # X shape: (batch_size, num_steps)
+        embs = self.embedding(d2l.astype(d2l.transpose(X), d2l.int32))
+        # embs shape: (num_steps, batch_size, embed_size)
+        outputs, state = self.rnn(embs, training=training)
+        # outputs shape: (num_steps, batch_size, num_hiddens)
+        # state shape: (num_layers, batch_size, num_hiddens)
+        return outputs, state
+</code></pre>
+<p>Let's use a concrete example
+to [<strong>illustrate the above encoder implementation.</strong>]
+Below, we instantiate a two-layer GRU encoder
+whose number of hidden units is 16.
+Given a minibatch of sequence inputs <code>X</code>
+(batch size $=4$; number of time steps $=9$),
+the hidden states of the final layer
+at all the time steps
+(<code>enc_outputs</code> returned by the encoder's recurrent layers)
+are a tensor of shape
+(number of time steps, batch size, number of hidden units).</p>
+<pre><code class="language-{.python .input}">%%tab all
+vocab_size, embed_size, num_hiddens, num_layers = 10, 8, 16, 2
+batch_size, num_steps = 4, 9
+encoder = Seq2SeqEncoder(vocab_size, embed_size, num_hiddens, num_layers)
+X = d2l.zeros((batch_size, num_steps))
+if tab.selected('pytorch', 'mxnet', 'tensorflow'):
+    enc_outputs, enc_state = encoder(X)
+if tab.selected('jax'):
+    (enc_outputs, enc_state), _ = encoder.init_with_output(d2l.get_key(), X)
+
+d2l.check_shape(enc_outputs, (num_steps, batch_size, num_hiddens))
+</code></pre>
+<p>Since we are using a GRU here,
+the shape of the multilayer hidden states
+at the final time step is
+(number of hidden layers, batch size, number of hidden units).</p>
+<pre><code class="language-{.python .input}">%%tab all
+if tab.selected('mxnet', 'pytorch', 'jax'):
+    d2l.check_shape(enc_state, (num_layers, batch_size, num_hiddens))
+if tab.selected('tensorflow'):
+    d2l.check_len(enc_state, num_layers)
+    d2l.check_shape(enc_state[0], (batch_size, num_hiddens))
+</code></pre>
+<h2 id="decoder"><a class="header" href="#decoder">[<strong>Decoder</strong>]</a></h2>
+<p>:label:<code>sec_seq2seq_decoder</code></p>
+<p>Given a target output sequence $y_1, y_2, \ldots, y_{T'}$
+for each time step $t'$
+(we use $t^\prime$ to differentiate from the input sequence time steps),
+the decoder assigns a predicted probability
+to each possible token occurring at step $y_{t'+1}$
+conditioned upon the previous tokens in the target
+$y_1, \ldots, y_{t'}$
+and the context variable
+$\mathbf{c}$, i.e., $P(y_{t'+1} \mid y_1, \ldots, y_{t'}, \mathbf{c})$.</p>
+<p>To predict the subsequent token $t^\prime+1$ in the target sequence,
+the RNN decoder takes the previous step's target token $y_{t^\prime}$,
+the hidden RNN state from the previous time step $\mathbf{s}<em>{t^\prime-1}$,
+and the context variable $\mathbf{c}$ as its input,
+and transforms them into the hidden state
+$\mathbf{s}</em>{t^\prime}$ at the current time step.
+We can use a function $g$ to express
+the transformation of the decoder's hidden layer:</p>
+<p>$$\mathbf{s}<em>{t^\prime} = g(y</em>{t^\prime-1}, \mathbf{c}, \mathbf{s}_{t^\prime-1}).$$
+:eqlabel:<code>eq_seq2seq_s_t</code></p>
+<p>After obtaining the hidden state of the decoder,
+we can use an output layer and the softmax operation
+to compute the predictive distribution
+$p(y_{t^{\prime}+1} \mid y_1, \ldots, y_{t^\prime}, \mathbf{c})$
+over the subsequent output token ${t^\prime+1}$.</p>
+<p>Following :numref:<code>fig_seq2seq</code>,
+when implementing the decoder as follows,
+we directly use the hidden state at the final time step
+of the encoder
+to initialize the hidden state of the decoder.
+This requires that the RNN encoder and the RNN decoder
+have the same number of layers and hidden units.
+To further incorporate the encoded input sequence information,
+the context variable is concatenated
+with the decoder input at all the time steps.
+To predict the probability distribution of the output token,
+we use a fully connected layer
+to transform the hidden state
+at the final layer of the RNN decoder.</p>
+<pre><code class="language-{.python .input}">%%tab mxnet
+class Seq2SeqDecoder(d2l.Decoder):
+    """The RNN decoder for sequence to sequence learning."""
+    def __init__(self, vocab_size, embed_size, num_hiddens, num_layers,
+                 dropout=0):
+        super().__init__()
+        self.embedding = nn.Embedding(vocab_size, embed_size)
+        self.rnn = d2l.GRU(num_hiddens, num_layers, dropout)
+        self.dense = nn.Dense(vocab_size, flatten=False)
+        self.initialize(init.Xavier())
+            
+    def init_state(self, enc_all_outputs, *args):
+        return enc_all_outputs 
+
+    def forward(self, X, state):
+        # X shape: (batch_size, num_steps)
+        # embs shape: (num_steps, batch_size, embed_size)
+        embs = self.embedding(d2l.transpose(X))
+        enc_output, hidden_state = state
+        # context shape: (batch_size, num_hiddens)
+        context = enc_output[-1]
+        # Broadcast context to (num_steps, batch_size, num_hiddens)
+        context = np.tile(context, (embs.shape[0], 1, 1))
+        # Concat at the feature dimension
+        embs_and_context = d2l.concat((embs, context), -1)
+        outputs, hidden_state = self.rnn(embs_and_context, hidden_state)
+        outputs = d2l.swapaxes(self.dense(outputs), 0, 1)
+        # outputs shape: (batch_size, num_steps, vocab_size)
+        # hidden_state shape: (num_layers, batch_size, num_hiddens)
+        return outputs, [enc_output, hidden_state]
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab pytorch
+class Seq2SeqDecoder(d2l.Decoder):
+    """The RNN decoder for sequence to sequence learning."""
+    def __init__(self, vocab_size, embed_size, num_hiddens, num_layers,
+                 dropout=0):
+        super().__init__()
+        self.embedding = nn.Embedding(vocab_size, embed_size)
+        self.rnn = d2l.GRU(embed_size+num_hiddens, num_hiddens,
+                           num_layers, dropout)
+        self.dense = nn.LazyLinear(vocab_size)
+        self.apply(init_seq2seq)
+            
+    def init_state(self, enc_all_outputs, *args):
+        return enc_all_outputs
+
+    def forward(self, X, state):
+        # X shape: (batch_size, num_steps)
+        # embs shape: (num_steps, batch_size, embed_size)
+        embs = self.embedding(d2l.astype(d2l.transpose(X), d2l.int32))
+        enc_output, hidden_state = state
+        # context shape: (batch_size, num_hiddens)
+        context = enc_output[-1]
+        # Broadcast context to (num_steps, batch_size, num_hiddens)
+        context = context.repeat(embs.shape[0], 1, 1)
+        # Concat at the feature dimension
+        embs_and_context = d2l.concat((embs, context), -1)
+        outputs, hidden_state = self.rnn(embs_and_context, hidden_state)
+        outputs = d2l.swapaxes(self.dense(outputs), 0, 1)
+        # outputs shape: (batch_size, num_steps, vocab_size)
+        # hidden_state shape: (num_layers, batch_size, num_hiddens)
+        return outputs, [enc_output, hidden_state]
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab tensorflow
+class Seq2SeqDecoder(d2l.Decoder):
+    """The RNN decoder for sequence to sequence learning."""
+    def __init__(self, vocab_size, embed_size, num_hiddens, num_layers,
+                 dropout=0):
+        super().__init__()
+        self.embedding = tf.keras.layers.Embedding(vocab_size, embed_size)
+        self.rnn = d2l.GRU(num_hiddens, num_layers, dropout)
+        self.dense = tf.keras.layers.Dense(vocab_size)
+            
+    def init_state(self, enc_all_outputs, *args):
+        return enc_all_outputs
+
+    def call(self, X, state):
+        # X shape: (batch_size, num_steps)
+        # embs shape: (num_steps, batch_size, embed_size)
+        embs = self.embedding(d2l.transpose(X))
+        enc_output, hidden_state = state
+        # context shape: (batch_size, num_hiddens)
+        context = enc_output[-1]
+        # Broadcast context to (num_steps, batch_size, num_hiddens)
+        context = tf.tile(tf.expand_dims(context, 0), (embs.shape[0], 1, 1))
+        # Concat at the feature dimension
+        embs_and_context = d2l.concat((embs, context), -1)
+        outputs, hidden_state = self.rnn(embs_and_context, hidden_state)
+        outputs = d2l.transpose(self.dense(outputs), (1, 0, 2))
+        # outputs shape: (batch_size, num_steps, vocab_size)
+        # hidden_state shape: (num_layers, batch_size, num_hiddens)
+        return outputs, [enc_output, hidden_state]
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab jax
+class Seq2SeqDecoder(d2l.Decoder):
+    """The RNN decoder for sequence to sequence learning."""
+    vocab_size: int
+    embed_size: int
+    num_hiddens: int
+    num_layers: int
+    dropout: float = 0
+
+    def setup(self):
+        self.embedding = nn.Embed(self.vocab_size, self.embed_size)
+        self.rnn = d2l.GRU(self.num_hiddens, self.num_layers, self.dropout)
+        self.dense = nn.Dense(self.vocab_size)
+
+    def init_state(self, enc_all_outputs, *args):
+        return enc_all_outputs
+
+    def __call__(self, X, state, training=False):
+        # X shape: (batch_size, num_steps)
+        # embs shape: (num_steps, batch_size, embed_size)
+        embs = self.embedding(d2l.astype(d2l.transpose(X), d2l.int32))
+        enc_output, hidden_state = state
+        # context shape: (batch_size, num_hiddens)
+        context = enc_output[-1]
+        # Broadcast context to (num_steps, batch_size, num_hiddens)
+        context = jnp.tile(context, (embs.shape[0], 1, 1))
+        # Concat at the feature dimension
+        embs_and_context = d2l.concat((embs, context), -1)
+        outputs, hidden_state = self.rnn(embs_and_context, hidden_state,
+                                         training=training)
+        outputs = d2l.swapaxes(self.dense(outputs), 0, 1)
+        # outputs shape: (batch_size, num_steps, vocab_size)
+        # hidden_state shape: (num_layers, batch_size, num_hiddens)
+        return outputs, [enc_output, hidden_state]
+</code></pre>
+<p>To [<strong>illustrate the implemented decoder</strong>],
+below we instantiate it with the same hyperparameters from the aforementioned encoder.
+As we can see, the output shape of the decoder becomes (batch size, number of time steps, vocabulary size),
+where the final dimension of the tensor stores the predicted token distribution.</p>
+<pre><code class="language-{.python .input}">%%tab all
+decoder = Seq2SeqDecoder(vocab_size, embed_size, num_hiddens, num_layers)
+if tab.selected('mxnet', 'pytorch', 'tensorflow'):
+    state = decoder.init_state(encoder(X))
+    dec_outputs, state = decoder(X, state)
+if tab.selected('jax'):
+    state = decoder.init_state(encoder.init_with_output(d2l.get_key(), X)[0])
+    (dec_outputs, state), _ = decoder.init_with_output(d2l.get_key(), X,
+                                                       state)
+
+
+d2l.check_shape(dec_outputs, (batch_size, num_steps, vocab_size))
+if tab.selected('mxnet', 'pytorch', 'jax'):
+    d2l.check_shape(state[1], (num_layers, batch_size, num_hiddens))
+if tab.selected('tensorflow'):
+    d2l.check_len(state[1], num_layers)
+    d2l.check_shape(state[1][0], (batch_size, num_hiddens))
+</code></pre>
+<p>The layers in the above RNN encoder--decoder model
+are summarized in :numref:<code>fig_seq2seq_details</code>.</p>
+<p><img src="../img/seq2seq-details.svg" alt="Layers in an RNN encoder--decoder model." />
+:label:<code>fig_seq2seq_details</code></p>
+<h2 id="encoder--decoder-for-sequence-to-sequence-learning"><a class="header" href="#encoder--decoder-for-sequence-to-sequence-learning">Encoder--Decoder for Sequence-to-Sequence Learning</a></h2>
+<p>Putting it all together in code yields the following:</p>
+<pre><code class="language-{.python .input}">%%tab pytorch, tensorflow, mxnet
+class Seq2Seq(d2l.EncoderDecoder):  #@save
+    """The RNN encoder--decoder for sequence to sequence learning."""
+    def __init__(self, encoder, decoder, tgt_pad, lr):
+        super().__init__(encoder, decoder)
+        self.save_hyperparameters()
+        
+    def validation_step(self, batch):
+        Y_hat = self(*batch[:-1])
+        self.plot('loss', self.loss(Y_hat, batch[-1]), train=False)
+        
+    def configure_optimizers(self):
+        # Adam optimizer is used here
+        if tab.selected('mxnet'):
+            return gluon.Trainer(self.parameters(), 'adam',
+                                 {'learning_rate': self.lr})
+        if tab.selected('pytorch'):
+            return torch.optim.Adam(self.parameters(), lr=self.lr)
+        if tab.selected('tensorflow'):
+            return tf.keras.optimizers.Adam(learning_rate=self.lr)
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab jax
+class Seq2Seq(d2l.EncoderDecoder):  #@save
+    """The RNN encoder--decoder for sequence to sequence learning."""
+    encoder: nn.Module
+    decoder: nn.Module
+    tgt_pad: int
+    lr: float
+
+    def validation_step(self, params, batch, state):
+        l, _ = self.loss(params, batch[:-1], batch[-1], state)
+        self.plot('loss', l, train=False)
+
+    def configure_optimizers(self):
+        # Adam optimizer is used here
+        return optax.adam(learning_rate=self.lr)
+</code></pre>
+<h2 id="loss-function-with-masking"><a class="header" href="#loss-function-with-masking">Loss Function with Masking</a></h2>
+<p>At each time step, the decoder predicts
+a probability distribution for the output tokens.
+As with language modeling,
+we can apply softmax
+to obtain the distribution
+and calculate the cross-entropy loss for optimization.
+Recall from :numref:<code>sec_machine_translation</code>
+that the special padding tokens
+are appended to the end of sequences
+and so sequences of varying lengths
+can be efficiently loaded
+in minibatches of the same shape.
+However, prediction of padding tokens
+should be excluded from loss calculations.
+To this end, we can
+[<strong>mask irrelevant entries with zero values</strong>]
+so that multiplication
+of any irrelevant prediction
+with zero equates to zero.</p>
+<pre><code class="language-{.python .input}">%%tab pytorch, mxnet, tensorflow
+@d2l.add_to_class(Seq2Seq)
+def loss(self, Y_hat, Y):
+    l = super(Seq2Seq, self).loss(Y_hat, Y, averaged=False)
+    mask = d2l.astype(d2l.reshape(Y, -1) != self.tgt_pad, d2l.float32)
+    return d2l.reduce_sum(l * mask) / d2l.reduce_sum(mask)
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab jax
+@d2l.add_to_class(Seq2Seq)
+@partial(jax.jit, static_argnums=(0, 5))
+def loss(self, params, X, Y, state, averaged=False):
+    Y_hat = state.apply_fn({'params': params}, *X,
+                           rngs={'dropout': state.dropout_rng})
+    Y_hat = d2l.reshape(Y_hat, (-1, Y_hat.shape[-1]))
+    Y = d2l.reshape(Y, (-1,))
+    fn = optax.softmax_cross_entropy_with_integer_labels
+    l = fn(Y_hat, Y)
+    mask = d2l.astype(d2l.reshape(Y, -1) != self.tgt_pad, d2l.float32)
+    return d2l.reduce_sum(l * mask) / d2l.reduce_sum(mask), {}
+</code></pre>
+<h2 id="training"><a class="header" href="#training">[<strong>Training</strong>]</a></h2>
+<p>:label:<code>sec_seq2seq_training</code></p>
+<p>Now we can [<strong>create and train an RNN encoder--decoder model</strong>]
+for sequence-to-sequence learning on the machine translation dataset.</p>
+<pre><code class="language-{.python .input}">%%tab all
+data = d2l.MTFraEng(batch_size=128) 
+embed_size, num_hiddens, num_layers, dropout = 256, 256, 2, 0.2
+if tab.selected('mxnet', 'pytorch', 'jax'):
+    encoder = Seq2SeqEncoder(
+        len(data.src_vocab), embed_size, num_hiddens, num_layers, dropout)
+    decoder = Seq2SeqDecoder(
+        len(data.tgt_vocab), embed_size, num_hiddens, num_layers, dropout)
+if tab.selected('mxnet', 'pytorch'):
+    model = Seq2Seq(encoder, decoder, tgt_pad=data.tgt_vocab['&lt;pad&gt;'],
+                    lr=0.005)
+if tab.selected('jax'):
+    model = Seq2Seq(encoder, decoder, tgt_pad=data.tgt_vocab['&lt;pad&gt;'],
+                    lr=0.005, training=True)
+if tab.selected('mxnet', 'pytorch', 'jax'):
+    trainer = d2l.Trainer(max_epochs=30, gradient_clip_val=1, num_gpus=1)
+if tab.selected('tensorflow'):
+    with d2l.try_gpu():
+        encoder = Seq2SeqEncoder(
+            len(data.src_vocab), embed_size, num_hiddens, num_layers, dropout)
+        decoder = Seq2SeqDecoder(
+            len(data.tgt_vocab), embed_size, num_hiddens, num_layers, dropout)
+        model = Seq2Seq(encoder, decoder, tgt_pad=data.tgt_vocab['&lt;pad&gt;'],
+                        lr=0.005)
+    trainer = d2l.Trainer(max_epochs=30, gradient_clip_val=1)
+trainer.fit(model, data)
+</code></pre>
+<h2 id="prediction"><a class="header" href="#prediction">[<strong>Prediction</strong>]</a></h2>
+<p>To predict the output sequence
+at each step,
+the predicted token from the previous
+time step is fed into the decoder as an input.
+One simple strategy is to sample whichever token
+that has been assigned by the decoder the highest probability
+when predicting at each step.
+As in training, at the initial time step
+the beginning-of-sequence ("&lt;bos&gt;") token
+is fed into the decoder.
+This prediction process
+is illustrated in :numref:<code>fig_seq2seq_predict</code>.
+When the end-of-sequence ("&lt;eos&gt;") token is predicted,
+the prediction of the output sequence is complete.</p>
+<p><img src="../img/seq2seq-predict.svg" alt="Predicting the output sequence token by token using an RNN encoder--decoder." />
+:label:<code>fig_seq2seq_predict</code></p>
+<p>In the next section, we will introduce
+more sophisticated strategies
+based on beam search (:numref:<code>sec_beam-search</code>).</p>
+<pre><code class="language-{.python .input}">%%tab pytorch, mxnet, tensorflow
+@d2l.add_to_class(d2l.EncoderDecoder)  #@save
+def predict_step(self, batch, device, num_steps,
+                 save_attention_weights=False):
+    if tab.selected('mxnet', 'pytorch'):
+        batch = [d2l.to(a, device) for a in batch]
+    src, tgt, src_valid_len, _ = batch
+    if tab.selected('mxnet', 'pytorch'):
+        enc_all_outputs = self.encoder(src, src_valid_len)
+    if tab.selected('tensorflow'):
+        enc_all_outputs = self.encoder(src, src_valid_len, training=False)
+    dec_state = self.decoder.init_state(enc_all_outputs, src_valid_len)
+    outputs, attention_weights = [d2l.expand_dims(tgt[:, 0], 1), ], []
+    for _ in range(num_steps):
+        if tab.selected('mxnet', 'pytorch'):
+            Y, dec_state = self.decoder(outputs[-1], dec_state)
+        if tab.selected('tensorflow'):
+            Y, dec_state = self.decoder(outputs[-1], dec_state, training=False)
+        outputs.append(d2l.argmax(Y, 2))
+        # Save attention weights (to be covered later)
+        if save_attention_weights:
+            attention_weights.append(self.decoder.attention_weights)
+    return d2l.concat(outputs[1:], 1), attention_weights
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab jax
+@d2l.add_to_class(d2l.EncoderDecoder)  #@save
+def predict_step(self, params, batch, num_steps,
+                 save_attention_weights=False):
+    src, tgt, src_valid_len, _ = batch
+    enc_all_outputs, inter_enc_vars = self.encoder.apply(
+        {'params': params['encoder']}, src, src_valid_len, training=False,
+        mutable='intermediates')
+    # Save encoder attention weights if inter_enc_vars containing encoder
+    # attention weights is not empty. (to be covered later)
+    enc_attention_weights = []
+    if bool(inter_enc_vars) and save_attention_weights:
+        # Encoder Attention Weights saved in the intermediates collection
+        enc_attention_weights = inter_enc_vars[
+            'intermediates']['enc_attention_weights'][0]
+
+    dec_state = self.decoder.init_state(enc_all_outputs, src_valid_len)
+    outputs, attention_weights = [d2l.expand_dims(tgt[:,0], 1), ], []
+    for _ in range(num_steps):
+        (Y, dec_state), inter_dec_vars = self.decoder.apply(
+            {'params': params['decoder']}, outputs[-1], dec_state,
+            training=False, mutable='intermediates')
+        outputs.append(d2l.argmax(Y, 2))
+        # Save attention weights (to be covered later)
+        if save_attention_weights:
+            # Decoder Attention Weights saved in the intermediates collection
+            dec_attention_weights = inter_dec_vars[
+                'intermediates']['dec_attention_weights'][0]
+            attention_weights.append(dec_attention_weights)
+    return d2l.concat(outputs[1:], 1), (attention_weights,
+                                        enc_attention_weights)
+</code></pre>
+<h2 id="evaluation-of-predicted-sequences"><a class="header" href="#evaluation-of-predicted-sequences">Evaluation of Predicted Sequences</a></h2>
+<p>We can evaluate a predicted sequence
+by comparing it with the
+target sequence (the ground truth).
+But what precisely is the appropriate measure
+for comparing similarity between two sequences?</p>
+<p>Bilingual Evaluation Understudy (BLEU),
+though originally proposed for evaluating
+machine translation results :cite:<code>Papineni.Roukos.Ward.ea.2002</code>,
+has been extensively used in measuring
+the quality of output sequences for different applications.
+In principle, for any $n$-gram (:numref:<code>subsec_markov-models-and-n-grams</code>) in the predicted sequence,
+BLEU evaluates whether this $n$-gram appears
+in the target sequence.</p>
+<p>Denote by $p_n$ the precision of an $n$-gram,
+defined as the ratio
+of the number of matched $n$-grams in
+the predicted and target sequences
+to the number of $n$-grams in the predicted sequence.
+To explain, given a target sequence $A$, $B$, $C$, $D$, $E$, $F$,
+and a predicted sequence $A$, $B$, $B$, $C$, $D$,
+we have $p_1 = 4/5$,  $p_2 = 3/4$, $p_3 = 1/3$, and $p_4 = 0$.
+Now let $\textrm{len}<em>{\textrm{label}}$ and $\textrm{len}</em>{\textrm{pred}}$
+be the numbers of tokens in the target sequence
+and the predicted sequence, respectively.
+Then, BLEU is defined as</p>
+<p>$$ \exp\left(\min\left(0, 1 - \frac{\textrm{len}<em>{\textrm{label}}}{\textrm{len}</em>{\textrm{pred}}}\right)\right) \prod_{n=1}^k p_n^{1/2^n},$$
+:eqlabel:<code>eq_bleu</code></p>
+<p>where $k$ is the longest $n$-gram for matching.</p>
+<p>Based on the definition of BLEU in :eqref:<code>eq_bleu</code>,
+whenever the predicted sequence is the same as the target sequence, BLEU is 1.
+Moreover,
+since matching longer $n$-grams is more difficult,
+BLEU assigns a greater weight
+when a longer $n$-gram has high precision.
+Specifically, when $p_n$ is fixed,
+$p_n^{1/2^n}$ increases as $n$ grows (the original paper uses $p_n^{1/n}$).
+Furthermore,
+since
+predicting shorter sequences
+tends to yield a higher $p_n$ value,
+the coefficient before the multiplication term in :eqref:<code>eq_bleu</code>
+penalizes shorter predicted sequences.
+For example, when $k=2$,
+given the target sequence $A$, $B$, $C$, $D$, $E$, $F$ and the predicted sequence $A$, $B$,
+although $p_1 = p_2 = 1$, the penalty factor $\exp(1-6/2) \approx 0.14$ lowers the BLEU.</p>
+<p>We [<strong>implement the BLEU measure</strong>] as follows.</p>
+<pre><code class="language-{.python .input}">%%tab all
+def bleu(pred_seq, label_seq, k):  #@save
+    """Compute the BLEU."""
+    pred_tokens, label_tokens = pred_seq.split(' '), label_seq.split(' ')
+    len_pred, len_label = len(pred_tokens), len(label_tokens)
+    score = math.exp(min(0, 1 - len_label / len_pred))
+    for n in range(1, min(k, len_pred) + 1):
+        num_matches, label_subs = 0, collections.defaultdict(int)
+        for i in range(len_label - n + 1):
+            label_subs[' '.join(label_tokens[i: i + n])] += 1
+        for i in range(len_pred - n + 1):
+            if label_subs[' '.join(pred_tokens[i: i + n])] &gt; 0:
+                num_matches += 1
+                label_subs[' '.join(pred_tokens[i: i + n])] -= 1
+        score *= math.pow(num_matches / (len_pred - n + 1), math.pow(0.5, n))
+    return score
+</code></pre>
+<p>In the end,
+we use the trained RNN encoder--decoder
+to [<strong>translate a few English sentences into French</strong>]
+and compute the BLEU of the results.</p>
+<pre><code class="language-{.python .input}">%%tab all
+engs = ['go .', 'i lost .', 'he\'s calm .', 'i\'m home .']
+fras = ['va !', 'j\'ai perdu .', 'il est calme .', 'je suis chez moi .']
+if tab.selected('pytorch', 'mxnet', 'tensorflow'):
+    preds, _ = model.predict_step(
+        data.build(engs, fras), d2l.try_gpu(), data.num_steps)
+if tab.selected('jax'):
+    preds, _ = model.predict_step(trainer.state.params, data.build(engs, fras),
+                                  data.num_steps)
+for en, fr, p in zip(engs, fras, preds):
+    translation = []
+    for token in data.tgt_vocab.to_tokens(p):
+        if token == '&lt;eos&gt;':
+            break
+        translation.append(token)        
+    print(f'{en} =&gt; {translation}, bleu,'
+          f'{bleu(" ".join(translation), fr, k=2):.3f}')
+</code></pre>
+<h2 id="summary"><a class="header" href="#summary">Summary</a></h2>
+<p>Following the design of the encoder--decoder architecture, we can use two RNNs to design a model for sequence-to-sequence learning.
+In encoder--decoder training, the teacher forcing approach feeds original output sequences (in contrast to predictions) into the decoder.
+When implementing the encoder and the decoder, we can use multilayer RNNs.
+We can use masks to filter out irrelevant computations, such as when calculating the loss.
+For evaluating output sequences,
+BLEU is a popular measure that matches $n$-grams between the predicted sequence and the target sequence.</p>
+<h2 id="exercises"><a class="header" href="#exercises">Exercises</a></h2>
+<ol>
+<li>Can you adjust the hyperparameters to improve the translation results?</li>
+<li>Rerun the experiment without using masks in the loss calculation. What results do you observe? Why?</li>
+<li>If the encoder and the decoder differ in the number of layers or the number of hidden units, how can we initialize the hidden state of the decoder?</li>
+<li>In training, replace teacher forcing with feeding the prediction at the previous time step into the decoder. How does this influence the performance?</li>
+<li>Rerun the experiment by replacing GRU with LSTM.</li>
+<li>Are there any other ways to design the output layer of the decoder?</li>
+</ol>
+<p>:begin_tab:<code>mxnet</code>
+<a href="https://discuss.d2l.ai/t/345">Discussions</a>
+:end_tab:</p>
+<p>:begin_tab:<code>pytorch</code>
+<a href="https://discuss.d2l.ai/t/1062">Discussions</a>
+:end_tab:</p>
+<p>:begin_tab:<code>tensorflow</code>
+<a href="https://discuss.d2l.ai/t/3865">Discussions</a>
+:end_tab:</p>
+<p>:begin_tab:<code>jax</code>
+<a href="https://discuss.d2l.ai/t/18022">Discussions</a>
+:end_tab:</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../chapter_recurrent-modern/encoder-decoder.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../chapter_recurrent-modern/beam-search.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../chapter_recurrent-modern/encoder-decoder.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../chapter_recurrent-modern/beam-search.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

@@ -1,0 +1,888 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Random Variables - Dive into Deep Learning</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../static/d2l.css">
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('light')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../index.html">Deep Learning</a></li><li class="chapter-item expanded "><a href="../chapter_preface/index.html"><strong aria-hidden="true">1.</strong> Preface</a></li><li class="chapter-item expanded "><a href="../chapter_installation/index.html"><strong aria-hidden="true">2.</strong> Installation</a></li><li class="chapter-item expanded "><a href="../chapter_notation/index.html"><strong aria-hidden="true">3.</strong> Notation</a></li><li class="chapter-item expanded "><a href="../chapter_introduction/index.html"><strong aria-hidden="true">4.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="../chapter_preliminaries/index.html"><strong aria-hidden="true">5.</strong> Preliminaries</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_preliminaries/ndarray.html"><strong aria-hidden="true">5.1.</strong> Data Manipulation</a></li><li class="chapter-item "><a href="../chapter_preliminaries/pandas.html"><strong aria-hidden="true">5.2.</strong> Data Preprocessing</a></li><li class="chapter-item "><a href="../chapter_preliminaries/linear-algebra.html"><strong aria-hidden="true">5.3.</strong> Linear Algebra</a></li><li class="chapter-item "><a href="../chapter_preliminaries/calculus.html"><strong aria-hidden="true">5.4.</strong> Calculus</a></li><li class="chapter-item "><a href="../chapter_preliminaries/autograd.html"><strong aria-hidden="true">5.5.</strong> Automatic Differentiation</a></li><li class="chapter-item "><a href="../chapter_preliminaries/probability.html"><strong aria-hidden="true">5.6.</strong> Probability and Statistics</a></li><li class="chapter-item "><a href="../chapter_preliminaries/lookup-api.html"><strong aria-hidden="true">5.7.</strong> Documentation</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_linear-regression/index.html"><strong aria-hidden="true">6.</strong> Linear Neural Networks for Regression</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_linear-regression/linear-regression.html"><strong aria-hidden="true">6.1.</strong> Linear Regression</a></li><li class="chapter-item "><a href="../chapter_linear-regression/oo-design.html"><strong aria-hidden="true">6.2.</strong> Object-Oriented Design for Implementation</a></li><li class="chapter-item "><a href="../chapter_linear-regression/synthetic-regression-data.html"><strong aria-hidden="true">6.3.</strong> Synthetic Regression Data</a></li><li class="chapter-item "><a href="../chapter_linear-regression/linear-regression-scratch.html"><strong aria-hidden="true">6.4.</strong> Linear Regression Implementation from Scratch</a></li><li class="chapter-item "><a href="../chapter_linear-regression/linear-regression-concise.html"><strong aria-hidden="true">6.5.</strong> Concise Implementation of Linear Regression</a></li><li class="chapter-item "><a href="../chapter_linear-regression/generalization.html"><strong aria-hidden="true">6.6.</strong> Generalization</a></li><li class="chapter-item "><a href="../chapter_linear-regression/weight-decay.html"><strong aria-hidden="true">6.7.</strong> Weight Decay</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_linear-classification/index.html"><strong aria-hidden="true">7.</strong> Linear Neural Networks for Classification</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_linear-classification/softmax-regression.html"><strong aria-hidden="true">7.1.</strong> Softmax Regression</a></li><li class="chapter-item "><a href="../chapter_linear-classification/image-classification-dataset.html"><strong aria-hidden="true">7.2.</strong> The Image Classification Dataset</a></li><li class="chapter-item "><a href="../chapter_linear-classification/classification.html"><strong aria-hidden="true">7.3.</strong> The Base Classification Model</a></li><li class="chapter-item "><a href="../chapter_linear-classification/softmax-regression-scratch.html"><strong aria-hidden="true">7.4.</strong> Softmax Regression Implementation from Scratch</a></li><li class="chapter-item "><a href="../chapter_linear-classification/softmax-regression-concise.html"><strong aria-hidden="true">7.5.</strong> Concise Implementation of Softmax Regression</a></li><li class="chapter-item "><a href="../chapter_linear-classification/generalization-classification.html"><strong aria-hidden="true">7.6.</strong> Generalization in Classification</a></li><li class="chapter-item "><a href="../chapter_linear-classification/environment-and-distribution-shift.html"><strong aria-hidden="true">7.7.</strong> Environment and Distribution Shift</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_multilayer-perceptrons/index.html"><strong aria-hidden="true">8.</strong> Multilayer Perceptrons</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/mlp.html"><strong aria-hidden="true">8.1.</strong> Multilayer Perceptrons</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/mlp-implementation.html"><strong aria-hidden="true">8.2.</strong> Implementation of Multilayer Perceptrons</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/backprop.html"><strong aria-hidden="true">8.3.</strong> Forward Propagation, Backward Propagation, and Computational Graphs</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/numerical-stability-and-init.html"><strong aria-hidden="true">8.4.</strong> Numerical Stability and Initialization</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/generalization-deep.html"><strong aria-hidden="true">8.5.</strong> Generalization in Deep Learning</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/dropout.html"><strong aria-hidden="true">8.6.</strong> Dropout</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/kaggle-house-price.html"><strong aria-hidden="true">8.7.</strong> Predicting House Prices on Kaggle</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_builders-guide/index.html"><strong aria-hidden="true">9.</strong> Builders' Guide</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_builders-guide/model-construction.html"><strong aria-hidden="true">9.1.</strong> Layers and Modules</a></li><li class="chapter-item "><a href="../chapter_builders-guide/parameters.html"><strong aria-hidden="true">9.2.</strong> Parameter Management</a></li><li class="chapter-item "><a href="../chapter_builders-guide/init-param.html"><strong aria-hidden="true">9.3.</strong> Parameter Initialization</a></li><li class="chapter-item "><a href="../chapter_builders-guide/lazy-init.html"><strong aria-hidden="true">9.4.</strong> Lazy Initialization</a></li><li class="chapter-item "><a href="../chapter_builders-guide/custom-layer.html"><strong aria-hidden="true">9.5.</strong> Custom Layers</a></li><li class="chapter-item "><a href="../chapter_builders-guide/read-write.html"><strong aria-hidden="true">9.6.</strong> File I/O</a></li><li class="chapter-item "><a href="../chapter_builders-guide/use-gpu.html"><strong aria-hidden="true">9.7.</strong> GPUs</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_convolutional-neural-networks/index.html"><strong aria-hidden="true">10.</strong> Convolutional Neural Networks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/why-conv.html"><strong aria-hidden="true">10.1.</strong> From Fully Connected Layers to Convolutions</a></li><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/conv-layer.html"><strong aria-hidden="true">10.2.</strong> Convolutions for Images</a></li><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/padding-and-strides.html"><strong aria-hidden="true">10.3.</strong> Padding and Stride</a></li><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/channels.html"><strong aria-hidden="true">10.4.</strong> Multiple Input and Multiple Output Channels</a></li><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/pooling.html"><strong aria-hidden="true">10.5.</strong> Pooling</a></li><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/lenet.html"><strong aria-hidden="true">10.6.</strong> Convolutional Neural Networks (LeNet)</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_convolutional-modern/index.html"><strong aria-hidden="true">11.</strong> Modern Convolutional Neural Networks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_convolutional-modern/alexnet.html"><strong aria-hidden="true">11.1.</strong> Deep Convolutional Neural Networks (AlexNet)</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/vgg.html"><strong aria-hidden="true">11.2.</strong> Networks Using Blocks (VGG)</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/nin.html"><strong aria-hidden="true">11.3.</strong> Network in Network (NiN)</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/googlenet.html"><strong aria-hidden="true">11.4.</strong> Multi-Branch Networks  (GoogLeNet)</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/batch-norm.html"><strong aria-hidden="true">11.5.</strong> Batch Normalization</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/resnet.html"><strong aria-hidden="true">11.6.</strong> Residual Networks (ResNet) and ResNeXt</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/densenet.html"><strong aria-hidden="true">11.7.</strong> Densely Connected Networks (DenseNet)</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/cnn-design.html"><strong aria-hidden="true">11.8.</strong> Designing Convolution Network Architectures</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_recurrent-neural-networks/index.html"><strong aria-hidden="true">12.</strong> Recurrent Neural Networks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/sequence.html"><strong aria-hidden="true">12.1.</strong> Working with Sequences</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/text-sequence.html"><strong aria-hidden="true">12.2.</strong> Converting Raw Text into Sequence Data</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/language-model.html"><strong aria-hidden="true">12.3.</strong> Language Models</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/rnn.html"><strong aria-hidden="true">12.4.</strong> Recurrent Neural Networks</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/rnn-scratch.html"><strong aria-hidden="true">12.5.</strong> Recurrent Neural Network Implementation from Scratch</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/rnn-concise.html"><strong aria-hidden="true">12.6.</strong> Concise Implementation of Recurrent Neural Networks</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/bptt.html"><strong aria-hidden="true">12.7.</strong> Backpropagation Through Time</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_recurrent-modern/index.html"><strong aria-hidden="true">13.</strong> Modern Recurrent Neural Networks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_recurrent-modern/lstm.html"><strong aria-hidden="true">13.1.</strong> Long Short-Term Memory (LSTM)</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/gru.html"><strong aria-hidden="true">13.2.</strong> Gated Recurrent Units (GRU)</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/deep-rnn.html"><strong aria-hidden="true">13.3.</strong> Deep Recurrent Neural Networks</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/bi-rnn.html"><strong aria-hidden="true">13.4.</strong> Bidirectional Recurrent Neural Networks</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/machine-translation-and-dataset.html"><strong aria-hidden="true">13.5.</strong> Machine Translation and the Dataset</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/encoder-decoder.html"><strong aria-hidden="true">13.6.</strong> The Encoder--Decoder Architecture</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/seq2seq.html"><strong aria-hidden="true">13.7.</strong> Sequence-to-Sequence Learning for Machine Translation</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/beam-search.html"><strong aria-hidden="true">13.8.</strong> Beam Search</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_attention-mechanisms-and-transformers/index.html"><strong aria-hidden="true">14.</strong> Attention Mechanisms and Transformers</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/queries-keys-values.html"><strong aria-hidden="true">14.1.</strong> Queries, Keys, and Values</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/attention-pooling.html"><strong aria-hidden="true">14.2.</strong> Attention Pooling by Similarity</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/attention-scoring-functions.html"><strong aria-hidden="true">14.3.</strong> Attention Scoring Functions</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/bahdanau-attention.html"><strong aria-hidden="true">14.4.</strong> The Bahdanau Attention Mechanism</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/multihead-attention.html"><strong aria-hidden="true">14.5.</strong> Multi-Head Attention</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/self-attention-and-positional-encoding.html"><strong aria-hidden="true">14.6.</strong> Self-Attention and Positional Encoding</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/transformer.html"><strong aria-hidden="true">14.7.</strong> The Transformer Architecture</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/vision-transformer.html"><strong aria-hidden="true">14.8.</strong> Transformers for Vision</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/large-pretraining-transformers.html"><strong aria-hidden="true">14.9.</strong> Large-Scale Pretraining with Transformers</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_optimization/index.html"><strong aria-hidden="true">15.</strong> Optimization Algorithms</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_optimization/optimization-intro.html"><strong aria-hidden="true">15.1.</strong> Optimization and Deep Learning</a></li><li class="chapter-item "><a href="../chapter_optimization/convexity.html"><strong aria-hidden="true">15.2.</strong> Convexity</a></li><li class="chapter-item "><a href="../chapter_optimization/gd.html"><strong aria-hidden="true">15.3.</strong> Gradient Descent</a></li><li class="chapter-item "><a href="../chapter_optimization/sgd.html"><strong aria-hidden="true">15.4.</strong> Stochastic Gradient Descent</a></li><li class="chapter-item "><a href="../chapter_optimization/minibatch-sgd.html"><strong aria-hidden="true">15.5.</strong> Minibatch Stochastic Gradient Descent</a></li><li class="chapter-item "><a href="../chapter_optimization/momentum.html"><strong aria-hidden="true">15.6.</strong> Momentum</a></li><li class="chapter-item "><a href="../chapter_optimization/adagrad.html"><strong aria-hidden="true">15.7.</strong> Adagrad</a></li><li class="chapter-item "><a href="../chapter_optimization/rmsprop.html"><strong aria-hidden="true">15.8.</strong> RMSProp</a></li><li class="chapter-item "><a href="../chapter_optimization/adadelta.html"><strong aria-hidden="true">15.9.</strong> Adadelta</a></li><li class="chapter-item "><a href="../chapter_optimization/adam.html"><strong aria-hidden="true">15.10.</strong> Adam</a></li><li class="chapter-item "><a href="../chapter_optimization/lr-scheduler.html"><strong aria-hidden="true">15.11.</strong> Learning Rate Scheduling</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_computational-performance/index.html"><strong aria-hidden="true">16.</strong> Computational Performance</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_computational-performance/hybridize.html"><strong aria-hidden="true">16.1.</strong> Compilers and Interpreters</a></li><li class="chapter-item "><a href="../chapter_computational-performance/async-computation.html"><strong aria-hidden="true">16.2.</strong> Asynchronous Computation</a></li><li class="chapter-item "><a href="../chapter_computational-performance/auto-parallelism.html"><strong aria-hidden="true">16.3.</strong> Automatic Parallelism</a></li><li class="chapter-item "><a href="../chapter_computational-performance/hardware.html"><strong aria-hidden="true">16.4.</strong> Hardware</a></li><li class="chapter-item "><a href="../chapter_computational-performance/multiple-gpus.html"><strong aria-hidden="true">16.5.</strong> Training on Multiple GPUs</a></li><li class="chapter-item "><a href="../chapter_computational-performance/multiple-gpus-concise.html"><strong aria-hidden="true">16.6.</strong> Concise Implementation for Multiple GPUs</a></li><li class="chapter-item "><a href="../chapter_computational-performance/parameterserver.html"><strong aria-hidden="true">16.7.</strong> Parameter Servers</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_computer-vision/index.html"><strong aria-hidden="true">17.</strong> Computer Vision</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_computer-vision/image-augmentation.html"><strong aria-hidden="true">17.1.</strong> Image Augmentation</a></li><li class="chapter-item "><a href="../chapter_computer-vision/fine-tuning.html"><strong aria-hidden="true">17.2.</strong> Fine-Tuning</a></li><li class="chapter-item "><a href="../chapter_computer-vision/bounding-box.html"><strong aria-hidden="true">17.3.</strong> Object Detection and Bounding Boxes</a></li><li class="chapter-item "><a href="../chapter_computer-vision/anchor.html"><strong aria-hidden="true">17.4.</strong> Anchor Boxes</a></li><li class="chapter-item "><a href="../chapter_computer-vision/multiscale-object-detection.html"><strong aria-hidden="true">17.5.</strong> Multiscale Object Detection</a></li><li class="chapter-item "><a href="../chapter_computer-vision/object-detection-dataset.html"><strong aria-hidden="true">17.6.</strong> The Object Detection Dataset</a></li><li class="chapter-item "><a href="../chapter_computer-vision/ssd.html"><strong aria-hidden="true">17.7.</strong> Single Shot Multibox Detection</a></li><li class="chapter-item "><a href="../chapter_computer-vision/rcnn.html"><strong aria-hidden="true">17.8.</strong> Region-based CNNs (R-CNNs)</a></li><li class="chapter-item "><a href="../chapter_computer-vision/semantic-segmentation-and-dataset.html"><strong aria-hidden="true">17.9.</strong> Semantic Segmentation and the Dataset</a></li><li class="chapter-item "><a href="../chapter_computer-vision/transposed-conv.html"><strong aria-hidden="true">17.10.</strong> Transposed Convolution</a></li><li class="chapter-item "><a href="../chapter_computer-vision/fcn.html"><strong aria-hidden="true">17.11.</strong> Fully Convolutional Networks</a></li><li class="chapter-item "><a href="../chapter_computer-vision/neural-style.html"><strong aria-hidden="true">17.12.</strong> Neural Style Transfer</a></li><li class="chapter-item "><a href="../chapter_computer-vision/kaggle-cifar10.html"><strong aria-hidden="true">17.13.</strong> Image Classification (CIFAR-10) on Kaggle</a></li><li class="chapter-item "><a href="../chapter_computer-vision/kaggle-dog.html"><strong aria-hidden="true">17.14.</strong> Dog Breed Identification (ImageNet Dogs) on Kaggle</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_natural-language-processing-pretraining/index.html"><strong aria-hidden="true">18.</strong> Natural Language Processing: Pretraining</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/word2vec.html"><strong aria-hidden="true">18.1.</strong> Word Embedding (word2vec)</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/approx-training.html"><strong aria-hidden="true">18.2.</strong> Approximate Training</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/word-embedding-dataset.html"><strong aria-hidden="true">18.3.</strong> The Dataset for Pretraining Word Embeddings</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/word2vec-pretraining.html"><strong aria-hidden="true">18.4.</strong> Pretraining word2vec</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/glove.html"><strong aria-hidden="true">18.5.</strong> Word Embedding with Global Vectors (GloVe)</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/subword-embedding.html"><strong aria-hidden="true">18.6.</strong> Subword Embedding</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/similarity-analogy.html"><strong aria-hidden="true">18.7.</strong> Word Similarity and Analogy</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/bert.html"><strong aria-hidden="true">18.8.</strong> Bidirectional Encoder Representations from Transformers (BERT)</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/bert-dataset.html"><strong aria-hidden="true">18.9.</strong> The Dataset for Pretraining BERT</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/bert-pretraining.html"><strong aria-hidden="true">18.10.</strong> Pretraining BERT</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_natural-language-processing-applications/index.html"><strong aria-hidden="true">19.</strong> Natural Language Processing: Applications</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/sentiment-analysis-and-dataset.html"><strong aria-hidden="true">19.1.</strong> Sentiment Analysis and the Dataset</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/sentiment-analysis-rnn.html"><strong aria-hidden="true">19.2.</strong> Sentiment Analysis: Using Recurrent Neural Networks</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/sentiment-analysis-cnn.html"><strong aria-hidden="true">19.3.</strong> Sentiment Analysis: Using Convolutional Neural Networks</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/natural-language-inference-and-dataset.html"><strong aria-hidden="true">19.4.</strong> Natural Language Inference and the Dataset</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/natural-language-inference-attention.html"><strong aria-hidden="true">19.5.</strong> Natural Language Inference: Using Attention</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/finetuning-bert.html"><strong aria-hidden="true">19.6.</strong> Fine-Tuning BERT for Sequence-Level and Token-Level Applications</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/natural-language-inference-bert.html"><strong aria-hidden="true">19.7.</strong> Natural Language Inference: Fine-Tuning BERT</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_reinforcement-learning/index.html"><strong aria-hidden="true">20.</strong> Reinforcement Learning</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_reinforcement-learning/mdp.html"><strong aria-hidden="true">20.1.</strong> Markov Decision Process (MDP)</a></li><li class="chapter-item "><a href="../chapter_reinforcement-learning/value-iter.html"><strong aria-hidden="true">20.2.</strong> Value Iteration</a></li><li class="chapter-item "><a href="../chapter_reinforcement-learning/qlearning.html"><strong aria-hidden="true">20.3.</strong> Q-Learning</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_gaussian-processes/index.html"><strong aria-hidden="true">21.</strong> Gaussian Processes</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_gaussian-processes/gp-intro.html"><strong aria-hidden="true">21.1.</strong> Introduction to Gaussian Processes</a></li><li class="chapter-item "><a href="../chapter_gaussian-processes/gp-priors.html"><strong aria-hidden="true">21.2.</strong> Gaussian Process Priors</a></li><li class="chapter-item "><a href="../chapter_gaussian-processes/gp-inference.html"><strong aria-hidden="true">21.3.</strong> Gaussian Process Inference</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_hyperparameter-optimization/index.html"><strong aria-hidden="true">22.</strong> Hyperparameter Optimization</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_hyperparameter-optimization/hyperopt-intro.html"><strong aria-hidden="true">22.1.</strong> What Is Hyperparameter Optimization?</a></li><li class="chapter-item "><a href="../chapter_hyperparameter-optimization/hyperopt-api.html"><strong aria-hidden="true">22.2.</strong> Hyperparameter Optimization API</a></li><li class="chapter-item "><a href="../chapter_hyperparameter-optimization/rs-async.html"><strong aria-hidden="true">22.3.</strong> Asynchronous Random Search</a></li><li class="chapter-item "><a href="../chapter_hyperparameter-optimization/sh-intro.html"><strong aria-hidden="true">22.4.</strong> Multi-Fidelity Hyperparameter Optimization</a></li><li class="chapter-item "><a href="../chapter_hyperparameter-optimization/sh-async.html"><strong aria-hidden="true">22.5.</strong> Asynchronous Successive Halving</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_generative-adversarial-networks/index.html"><strong aria-hidden="true">23.</strong> Generative Adversarial Networks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_generative-adversarial-networks/gan.html"><strong aria-hidden="true">23.1.</strong> Generative Adversarial Networks</a></li><li class="chapter-item "><a href="../chapter_generative-adversarial-networks/dcgan.html"><strong aria-hidden="true">23.2.</strong> Deep Convolutional Generative Adversarial Networks</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_recommender-systems/index.html"><strong aria-hidden="true">24.</strong> Recommender Systems</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_recommender-systems/recsys-intro.html"><strong aria-hidden="true">24.1.</strong> Overview of Recommender Systems</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/movielens.html"><strong aria-hidden="true">24.2.</strong> The MovieLens Dataset</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/mf.html"><strong aria-hidden="true">24.3.</strong> Matrix Factorization</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/autorec.html"><strong aria-hidden="true">24.4.</strong> AutoRec: Rating Prediction with Autoencoders</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/ranking.html"><strong aria-hidden="true">24.5.</strong> Personalized Ranking for Recommender Systems</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/neumf.html"><strong aria-hidden="true">24.6.</strong> Neural Collaborative Filtering for Personalized Ranking</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/seqrec.html"><strong aria-hidden="true">24.7.</strong> Sequence-Aware Recommender Systems</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/ctr.html"><strong aria-hidden="true">24.8.</strong> Feature-Rich Recommender Systems</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/fm.html"><strong aria-hidden="true">24.9.</strong> Factorization Machines</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/deepfm.html"><strong aria-hidden="true">24.10.</strong> Deep Factorization Machines</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_appendix-mathematics-for-deep-learning/index.html"><strong aria-hidden="true">25.</strong> Appendix: Mathematics for Deep Learning</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/geometry-linear-algebraic-ops.html"><strong aria-hidden="true">25.1.</strong> Geometry and Linear Algebraic Operations</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/eigendecomposition.html"><strong aria-hidden="true">25.2.</strong> Eigendecompositions</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/single-variable-calculus.html"><strong aria-hidden="true">25.3.</strong> Single Variable Calculus</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/multivariable-calculus.html"><strong aria-hidden="true">25.4.</strong> Multivariable Calculus</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/integral-calculus.html"><strong aria-hidden="true">25.5.</strong> Integral Calculus</a></li><li class="chapter-item expanded "><a href="../chapter_appendix-mathematics-for-deep-learning/random-variables.html" class="active"><strong aria-hidden="true">25.6.</strong> Random Variables</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/maximum-likelihood.html"><strong aria-hidden="true">25.7.</strong> Maximum Likelihood</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/distributions.html"><strong aria-hidden="true">25.8.</strong> Distributions</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/naive-bayes.html"><strong aria-hidden="true">25.9.</strong> Naive Bayes</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/statistics.html"><strong aria-hidden="true">25.10.</strong> Statistics</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/information-theory.html"><strong aria-hidden="true">25.11.</strong> Information Theory</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_appendix-tools-for-deep-learning/index.html"><strong aria-hidden="true">26.</strong> Appendix: Tools for Deep Learning</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/jupyter.html"><strong aria-hidden="true">26.1.</strong> Using Jupyter Notebooks</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/sagemaker.html"><strong aria-hidden="true">26.2.</strong> Using Amazon SageMaker</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/aws.html"><strong aria-hidden="true">26.3.</strong> Using AWS EC2 Instances</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/colab.html"><strong aria-hidden="true">26.4.</strong> Using Google Colab</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/selecting-servers-gpus.html"><strong aria-hidden="true">26.5.</strong> Selecting Servers and GPUs</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/contributing.html"><strong aria-hidden="true">26.6.</strong> Contributing to This Book</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/utils.html"><strong aria-hidden="true">26.7.</strong> Utility Functions and Classes</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/d2l.html"><strong aria-hidden="true">26.8.</strong> The d2l API Document</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_references/zreferences.html"><strong aria-hidden="true">27.</strong> chapter_references/zreferences.md</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Dive into Deep Learning</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/d2l-ai/d2l-en" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="random-variables"><a class="header" href="#random-variables">Random Variables</a></h1>
+<p>:label:<code>sec_random_variables</code></p>
+<p>In :numref:<code>sec_prob</code> we saw the basics of how to work with discrete random variables, which in our case refer to those random variables which take either a finite set of possible values, or the integers.  In this section, we develop the theory of <em>continuous random variables</em>, which are random variables which  can take on any real value.</p>
+<h2 id="continuous-random-variables"><a class="header" href="#continuous-random-variables">Continuous Random Variables</a></h2>
+<p>Continuous random variables are a significantly more subtle topic than discrete random variables.  A fair analogy to make is that the technical jump is comparable to the jump between adding lists of numbers and integrating functions.  As such, we will need to take some time to develop the theory.</p>
+<h3 id="from-discrete-to-continuous"><a class="header" href="#from-discrete-to-continuous">From Discrete to Continuous</a></h3>
+<p>To understand the additional technical challenges encountered when working with continuous random variables, let's perform a thought experiment.  Suppose that we are throwing a dart at the dart board, and we want to know the probability that it hits exactly $2 \textrm{cm}$ from the center of the board.</p>
+<p>To start with, we imagine measuring a single digit of accuracy, that is to say with bins for $0 \textrm{cm}$, $1 \textrm{cm}$, $2 \textrm{cm}$, and so on.  We throw say $100$ darts at the dart board, and if $20$ of them fall into the bin for $2\textrm{cm}$ we conclude that $20%$ of the darts we throw hit the board $2 \textrm{cm}$ away from the center.</p>
+<p>However, when we look closer, this does not match our question!  We wanted exact equality, whereas these bins hold all that fell between say $1.5\textrm{cm}$ and $2.5\textrm{cm}$.</p>
+<p>Undeterred, we continue further.  We measure even more precisely, say $1.9\textrm{cm}$, $2.0\textrm{cm}$, $2.1\textrm{cm}$, and now see that perhaps $3$ of the $100$ darts hit the board in the $2.0\textrm{cm}$ bucket.  Thus we conclude the probability is $3%$.</p>
+<p>However, this does not solve anything!  We have just pushed the issue down one digit further.  Let's abstract a bit. Imagine we know the probability that the first $k$ digits match with $2.00000\ldots$ and we want to know the probability it matches for the first $k+1$ digits. It is fairly reasonable to assume that the ${k+1}^{\textrm{th}}$ digit is essentially a random choice from the set ${0, 1, 2, \ldots, 9}$.  At least, we cannot conceive of a physically meaningful process which would force the number of micrometers away form the center to prefer to end in a $7$ vs a $3$.</p>
+<p>What this means is that in essence each additional digit of accuracy we require should decrease probability of matching by a factor of $10$.  Or put another way, we would expect that</p>
+<p>$$
+P(\textrm{distance is}; 2.00\ldots, ;\textrm{to}; k ;\textrm{digits} ) \approx p\cdot10^{-k}.
+$$</p>
+<p>The value $p$ essentially encodes what happens with the first few digits, and the $10^{-k}$ handles the rest.</p>
+<p>Notice that if we know the position accurate to $k=4$ digits after the decimal, that means we know the value falls within the interval say $[1.99995,2.00005]$ which is an interval of length $2.00005-1.99995 = 10^{-4}$.  Thus, if we call the length of this interval $\epsilon$, we can say</p>
+<p>$$
+P(\textrm{distance is in an}; \epsilon\textrm{-sized interval around}; 2 ) \approx \epsilon \cdot p.
+$$</p>
+<p>Let's take this one final step further.  We have been thinking about the point $2$ the entire time, but never thinking about other points.  Nothing is different there fundamentally, but it is the case that the value $p$ will likely be different.  We would at least hope that a dart thrower was more likely to hit a point near the center, like $2\textrm{cm}$ rather than $20\textrm{cm}$.  Thus, the value $p$ is not fixed, but rather should depend on the point $x$.  This tells us that we should expect</p>
+<p>$$P(\textrm{distance is in an}; \epsilon \textrm{-sized interval around}; x ) \approx \epsilon \cdot p(x).$$
+:eqlabel:<code>eq_pdf_deriv</code></p>
+<p>Indeed, :eqref:<code>eq_pdf_deriv</code> precisely defines the <em>probability density function</em>.  It is a function $p(x)$ which encodes the relative probability of hitting near one point vs. another.  Let's visualize what such a function might look like.</p>
+<pre><code class="language-{.python .input}">#@tab mxnet
+%matplotlib inline
+from d2l import mxnet as d2l
+from IPython import display
+from mxnet import np, npx
+npx.set_np()
+
+# Plot the probability density function for some random variable
+x = np.arange(-5, 5, 0.01)
+p = 0.2*np.exp(-(x - 3)**2 / 2)/np.sqrt(2 * np.pi) + \
+    0.8*np.exp(-(x + 1)**2 / 2)/np.sqrt(2 * np.pi)
+
+d2l.plot(x, p, 'x', 'Density')
+</code></pre>
+<pre><code class="language-{.python .input}">#@tab pytorch
+%matplotlib inline
+from d2l import torch as d2l
+from IPython import display
+import torch
+torch.pi = torch.acos(torch.zeros(1)).item() * 2  # Define pi in torch
+
+# Plot the probability density function for some random variable
+x = torch.arange(-5, 5, 0.01)
+p = 0.2*torch.exp(-(x - 3)**2 / 2)/torch.sqrt(2 * torch.tensor(torch.pi)) + \
+    0.8*torch.exp(-(x + 1)**2 / 2)/torch.sqrt(2 * torch.tensor(torch.pi))
+
+d2l.plot(x, p, 'x', 'Density')
+</code></pre>
+<pre><code class="language-{.python .input}">#@tab tensorflow
+%matplotlib inline
+from d2l import tensorflow as d2l
+from IPython import display
+import tensorflow as tf
+tf.pi = tf.acos(tf.zeros(1)).numpy() * 2  # Define pi in TensorFlow
+
+# Plot the probability density function for some random variable
+x = tf.range(-5, 5, 0.01)
+p = 0.2*tf.exp(-(x - 3)**2 / 2)/tf.sqrt(2 * tf.constant(tf.pi)) + \
+    0.8*tf.exp(-(x + 1)**2 / 2)/tf.sqrt(2 * tf.constant(tf.pi))
+
+d2l.plot(x, p, 'x', 'Density')
+</code></pre>
+<p>The locations where the function value is large indicates regions where we are more likely to find the random value.  The low portions are areas where we are unlikely to find the random value.</p>
+<h3 id="probability-density-functions"><a class="header" href="#probability-density-functions">Probability Density Functions</a></h3>
+<p>Let's now investigate this further.  We have already seen what a probability density function is intuitively for a random variable $X$, namely the density function is a function $p(x)$ so that</p>
+<p>$$P(X ; \textrm{is in an}; \epsilon \textrm{-sized interval around}; x ) \approx \epsilon \cdot p(x).$$
+:eqlabel:<code>eq_pdf_def</code></p>
+<p>But what does this imply for the properties of $p(x)$?</p>
+<p>First, probabilities are never negative, thus we should expect that $p(x) \ge 0$ as well.</p>
+<p>Second, let's imagine that we slice up the $\mathbb{R}$ into an infinite number of slices which are $\epsilon$ wide, say with slices $(\epsilon\cdot i, \epsilon \cdot (i+1)]$.  For each of these, we know from :eqref:<code>eq_pdf_def</code> the probability is approximately</p>
+<p>$$
+P(X ; \textrm{is in an}; \epsilon\textrm{-sized interval around}; x ) \approx \epsilon \cdot p(\epsilon \cdot i),
+$$</p>
+<p>so summed over all of them it should be</p>
+<p>$$
+P(X\in\mathbb{R}) \approx \sum_i \epsilon \cdot p(\epsilon\cdot i).
+$$</p>
+<p>This is nothing more than the approximation of an integral discussed in :numref:<code>sec_integral_calculus</code>, thus we can say that</p>
+<p>$$
+P(X\in\mathbb{R}) = \int_{-\infty}^{\infty} p(x) ; dx.
+$$</p>
+<p>We know that $P(X\in\mathbb{R}) = 1$, since the random variable must take on <em>some</em> number, we can conclude that for any density</p>
+<p>$$
+\int_{-\infty}^{\infty} p(x) ; dx = 1.
+$$</p>
+<p>Indeed, digging into this further shows that for any $a$, and $b$, we see that</p>
+<p>$$
+P(X\in(a, b]) = \int _ {a}^{b} p(x) ; dx.
+$$</p>
+<p>We may approximate this in code by using the same discrete approximation methods as before.  In this case we can approximate the probability of falling in the blue region.</p>
+<pre><code class="language-{.python .input}">#@tab mxnet
+# Approximate probability using numerical integration
+epsilon = 0.01
+x = np.arange(-5, 5, 0.01)
+p = 0.2*np.exp(-(x - 3)**2 / 2) / np.sqrt(2 * np.pi) + \
+    0.8*np.exp(-(x + 1)**2 / 2) / np.sqrt(2 * np.pi)
+
+d2l.set_figsize()
+d2l.plt.plot(x, p, color='black')
+d2l.plt.fill_between(x.tolist()[300:800], p.tolist()[300:800])
+d2l.plt.show()
+
+f'approximate Probability: {np.sum(epsilon*p[300:800])}'
+</code></pre>
+<pre><code class="language-{.python .input}">#@tab pytorch
+# Approximate probability using numerical integration
+epsilon = 0.01
+x = torch.arange(-5, 5, 0.01)
+p = 0.2*torch.exp(-(x - 3)**2 / 2) / torch.sqrt(2 * torch.tensor(torch.pi)) +\
+    0.8*torch.exp(-(x + 1)**2 / 2) / torch.sqrt(2 * torch.tensor(torch.pi))
+
+d2l.set_figsize()
+d2l.plt.plot(x, p, color='black')
+d2l.plt.fill_between(x.tolist()[300:800], p.tolist()[300:800])
+d2l.plt.show()
+
+f'approximate Probability: {torch.sum(epsilon*p[300:800])}'
+</code></pre>
+<pre><code class="language-{.python .input}">#@tab tensorflow
+# Approximate probability using numerical integration
+epsilon = 0.01
+x = tf.range(-5, 5, 0.01)
+p = 0.2*tf.exp(-(x - 3)**2 / 2) / tf.sqrt(2 * tf.constant(tf.pi)) +\
+    0.8*tf.exp(-(x + 1)**2 / 2) / tf.sqrt(2 * tf.constant(tf.pi))
+
+d2l.set_figsize()
+d2l.plt.plot(x, p, color='black')
+d2l.plt.fill_between(x.numpy().tolist()[300:800], p.numpy().tolist()[300:800])
+d2l.plt.show()
+
+f'approximate Probability: {tf.reduce_sum(epsilon*p[300:800])}'
+</code></pre>
+<p>It turns out that these two properties describe exactly the space of possible probability density functions (or <em>p.d.f.</em>'s for the commonly encountered abbreviation).  They are non-negative functions $p(x) \ge 0$ such that</p>
+<p>$$\int_{-\infty}^{\infty} p(x) ; dx = 1.$$
+:eqlabel:<code>eq_pdf_int_one</code></p>
+<p>We interpret this function by using integration to obtain the probability our random variable is in a specific interval:</p>
+<p>$$P(X\in(a, b]) = \int _ {a}^{b} p(x) ; dx.$$
+:eqlabel:<code>eq_pdf_int_int</code></p>
+<p>In :numref:<code>sec_distributions</code> we will see a number of common distributions, but let's continue working in the abstract.</p>
+<h3 id="cumulative-distribution-functions"><a class="header" href="#cumulative-distribution-functions">Cumulative Distribution Functions</a></h3>
+<p>In the previous section, we saw the notion of the p.d.f.  In practice, this is a commonly encountered method to discuss continuous random variables, but it has one significant pitfall: that the values of the p.d.f. are not themselves probabilities, but rather a function that we must integrate to yield probabilities.  There is nothing wrong with a density being larger than $10$, as long as it is not larger than $10$ for more than an interval of length $1/10$.  This can be counter-intuitive, so people often also think in terms of the <em>cumulative distribution function</em>, or c.d.f., which <em>is</em> a probability.</p>
+<p>In particular, by using :eqref:<code>eq_pdf_int_int</code>, we define the c.d.f. for a random variable $X$ with density $p(x)$ by</p>
+<p>$$
+F(x) = \int _ {-\infty}^{x} p(x) ; dx = P(X \le x).
+$$</p>
+<p>Let's observe a few properties.</p>
+<ul>
+<li>$F(x) \rightarrow 0$ as $x\rightarrow -\infty$.</li>
+<li>$F(x) \rightarrow 1$ as $x\rightarrow \infty$.</li>
+<li>$F(x)$ is non-decreasing ($y &gt; x \implies F(y) \ge F(x)$).</li>
+<li>$F(x)$ is continuous (has no jumps) if $X$ is a continuous random variable.</li>
+</ul>
+<p>With the fourth bullet point, note that this would not be true if $X$ were discrete, say taking the values $0$ and $1$ both with probability $1/2$.  In that case</p>
+<p>$$
+F(x) = \begin{cases}
+0 &amp; x &lt; 0, \
+\frac{1}{2} &amp; x &lt; 1, \
+1 &amp; x \ge 1.
+\end{cases}
+$$</p>
+<p>In this example, we see one of the benefits of working with the c.d.f., the ability to deal with continuous or discrete random variables in the same framework, or indeed mixtures of the two (flip a coin: if heads return the roll of a die, if tails return the distance of a dart throw from the center of a dart board).</p>
+<h3 id="means"><a class="header" href="#means">Means</a></h3>
+<p>Suppose that we are dealing with a random variables $X$.  The distribution itself can be hard to interpret.  It is often useful to be able to summarize the behavior of a random variable concisely.  Numbers that help us capture the behavior of a random variable are called <em>summary statistics</em>.  The most commonly encountered ones are the <em>mean</em>, the <em>variance</em>, and the <em>standard deviation</em>.</p>
+<p>The <em>mean</em> encodes the average value of a random variable.  If we have a discrete random variable $X$, which takes the values $x_i$ with probabilities $p_i$, then the mean is given by the weighted average: sum the values times the probability that the random variable takes on that value:</p>
+<p>$$\mu_X = E[X] = \sum_i x_i p_i.$$
+:eqlabel:<code>eq_exp_def</code></p>
+<p>The way we should interpret the mean (albeit with caution) is that it tells us essentially where the random variable tends to be located.</p>
+<p>As a minimalistic example that we will examine throughout this section, let's take $X$ to be the random variable which takes the value $a-2$ with probability $p$, $a+2$ with probability $p$ and $a$ with probability $1-2p$.  We can compute using :eqref:<code>eq_exp_def</code> that, for any possible choice of $a$ and $p$, the mean is</p>
+<p>$$
+\mu_X = E[X] = \sum_i x_i p_i = (a-2)p + a(1-2p) + (a+2)p = a.
+$$</p>
+<p>Thus we see that the mean is $a$.  This matches the intuition since $a$ is the location around which we centered our random variable.</p>
+<p>Because they are helpful, let's summarize a few properties.</p>
+<ul>
+<li>For any random variable $X$ and numbers $a$ and $b$, we have that $\mu_{aX+b} = a\mu_X + b$.</li>
+<li>If we have two random variables $X$ and $Y$, we have $\mu_{X+Y} = \mu_X+\mu_Y$.</li>
+</ul>
+<p>Means are useful for understanding the average behavior of a random variable, however the mean is not sufficient to even have a full intuitive understanding.  Making a profit of $$10 \pm $1$ per sale is very different from making $$10 \pm $15$ per sale despite having the same average value.  The second one has a much larger degree of fluctuation, and thus represents a much larger risk.  Thus, to understand the behavior of a random variable, we will need at minimum one more measure: some measure of how widely a random variable fluctuates.</p>
+<h3 id="variances"><a class="header" href="#variances">Variances</a></h3>
+<p>This leads us to consider the <em>variance</em> of a random variable.  This is a quantitative measure of how far a random variable deviates from the mean.  Consider the expression $X - \mu_X$.  This is the deviation of the random variable from its mean.  This value can be positive or negative, so we need to do something to make it positive so that we are measuring the magnitude of the deviation.</p>
+<p>A reasonable thing to try is to look at $\left|X-\mu_X\right|$, and indeed this leads to a useful quantity called the <em>mean absolute deviation</em>, however due to connections with other areas of mathematics and statistics, people often use a different solution.</p>
+<p>In particular, they look at $(X-\mu_X)^2.$  If we look at the typical size of this quantity by taking the mean, we arrive at the variance</p>
+<p>$$\sigma_X^2 = \textrm{Var}(X) = E\left[(X-\mu_X)^2\right] = E[X^2] - \mu_X^2.$$
+:eqlabel:<code>eq_var_def</code></p>
+<p>The last equality in :eqref:<code>eq_var_def</code> holds by expanding out the definition in the middle, and applying the properties of expectation.</p>
+<p>Let's look at our example where $X$ is the random variable which takes the value $a-2$ with probability $p$, $a+2$ with probability $p$ and $a$ with probability $1-2p$.  In this case $\mu_X = a$, so all we need to compute is $E\left[X^2\right]$.  This can readily be done:</p>
+<p>$$
+E\left[X^2\right] = (a-2)^2p + a^2(1-2p) + (a+2)^2p = a^2 + 8p.
+$$</p>
+<p>Thus, we see that by :eqref:<code>eq_var_def</code> our variance is</p>
+<p>$$
+\sigma_X^2 = \textrm{Var}(X) = E[X^2] - \mu_X^2 = a^2 + 8p - a^2 = 8p.
+$$</p>
+<p>This result again makes sense.  The largest $p$ can be is $1/2$ which corresponds to picking $a-2$ or $a+2$ with a coin flip.  The variance of this being $4$ corresponds to the fact that both $a-2$ and $a+2$ are $2$ units away from the mean, and $2^2 = 4$.  On the other end of the spectrum, if $p=0$, this random variable always takes the value $0$ and so it has no variance at all.</p>
+<p>We will list a few properties of variance below:</p>
+<ul>
+<li>For any random variable $X$, $\textrm{Var}(X) \ge 0$, with $\textrm{Var}(X) = 0$ if and only if $X$ is a constant.</li>
+<li>For any random variable $X$ and numbers $a$ and $b$, we have that $\textrm{Var}(aX+b) = a^2\textrm{Var}(X)$.</li>
+<li>If we have two <em>independent</em> random variables $X$ and $Y$, we have $\textrm{Var}(X+Y) = \textrm{Var}(X) + \textrm{Var}(Y)$.</li>
+</ul>
+<p>When interpreting these values, there can be a bit of a hiccup.  In particular, let's try imagining what happens if we keep track of units through this computation.  Suppose that we are working with the star rating assigned to a product on the web page.  Then $a$, $a-2$, and $a+2$ are all measured in units of stars.  Similarly, the mean $\mu_X$ is then also measured in stars (being a weighted average).  However, if we get to the variance, we immediately encounter an issue, which is we want to look at $(X-\mu_X)^2$, which is in units of <em>squared stars</em>.  This means that the variance itself is not comparable to the original measurements.  To make it interpretable, we will need to return to our original units.</p>
+<h3 id="standard-deviations"><a class="header" href="#standard-deviations">Standard Deviations</a></h3>
+<p>This summary statistics can always be deduced from the variance by taking the square root!  Thus we define the <em>standard deviation</em> to be</p>
+<p>$$
+\sigma_X = \sqrt{\textrm{Var}(X)}.
+$$</p>
+<p>In our example, this means we now have the standard deviation is $\sigma_X = 2\sqrt{2p}$.  If we are dealing with units of stars for our review example, $\sigma_X$ is again in units of stars.</p>
+<p>The properties we had for the variance can be restated for the standard deviation.</p>
+<ul>
+<li>For any random variable $X$, $\sigma_{X} \ge 0$.</li>
+<li>For any random variable $X$ and numbers $a$ and $b$, we have that $\sigma_{aX+b} = |a|\sigma_{X}$</li>
+<li>If we have two <em>independent</em> random variables $X$ and $Y$, we have $\sigma_{X+Y} = \sqrt{\sigma_{X}^2 + \sigma_{Y}^2}$.</li>
+</ul>
+<p>It is natural at this moment to ask, "If the standard deviation is in the units of our original random variable, does it represent something we can draw with regards to that random variable?"  The answer is a resounding yes!  Indeed much like the mean told us the typical location of our random variable, the standard deviation gives the typical range of variation of that random variable.  We can make this rigorous with what is known as Chebyshev's inequality:</p>
+<p>$$P\left(X \not\in [\mu_X - \alpha\sigma_X, \mu_X + \alpha\sigma_X]\right) \le \frac{1}{\alpha^2}.$$
+:eqlabel:<code>eq_chebyshev</code></p>
+<p>Or to state it verbally in the case of $\alpha=10$, $99%$ of the samples from any random variable fall within $10$ standard deviations of the mean.  This gives an immediate interpretation to our standard summary statistics.</p>
+<p>To see how this statement is rather subtle, let's take a look at our running example again where  $X$ is the random variable which takes the value $a-2$ with probability $p$, $a+2$ with probability $p$ and $a$ with probability $1-2p$.  We saw that the mean was $a$ and the standard deviation was $2\sqrt{2p}$.  This means, if we take Chebyshev's inequality :eqref:<code>eq_chebyshev</code> with $\alpha = 2$, we see that the expression is</p>
+<p>$$
+P\left(X \not\in [a - 4\sqrt{2p}, a + 4\sqrt{2p}]\right) \le \frac{1}{4}.
+$$</p>
+<p>This means that $75%$ of the time, this random variable will fall within this interval for any value of $p$.  Now, notice that as $p \rightarrow 0$, this interval also converges to the single point $a$.  But we know that our random variable takes the values $a-2, a$, and $a+2$ only so eventually we can be certain $a-2$ and $a+2$ will fall outside the interval!  The question is, at what $p$ does that happen.  So we want to solve: for what $p$ does $a+4\sqrt{2p} = a+2$, which is solved when $p=1/8$, which is <em>exactly</em> the first $p$ where it could possibly happen without violating our claim that no more than $1/4$ of samples from the distribution would fall outside the interval ($1/8$ to the left, and $1/8$ to the right).</p>
+<p>Let's visualize this.  We will show the probability of getting the three values as three vertical bars with height proportional to the probability.  The interval will be drawn as a horizontal line in the middle.  The first plot shows what happens for $p &gt; 1/8$ where the interval safely contains all points.</p>
+<pre><code class="language-{.python .input}">#@tab mxnet
+# Define a helper to plot these figures
+def plot_chebyshev(a, p):
+    d2l.set_figsize()
+    d2l.plt.stem([a-2, a, a+2], [p, 1-2*p, p], use_line_collection=True)
+    d2l.plt.xlim([-4, 4])
+    d2l.plt.xlabel('x')
+    d2l.plt.ylabel('p.m.f.')
+
+    d2l.plt.hlines(0.5, a - 4 * np.sqrt(2 * p),
+                   a + 4 * np.sqrt(2 * p), 'black', lw=4)
+    d2l.plt.vlines(a - 4 * np.sqrt(2 * p), 0.53, 0.47, 'black', lw=1)
+    d2l.plt.vlines(a + 4 * np.sqrt(2 * p), 0.53, 0.47, 'black', lw=1)
+    d2l.plt.title(f'p = {p:.3f}')
+
+    d2l.plt.show()
+
+# Plot interval when p &gt; 1/8
+plot_chebyshev(0.0, 0.2)
+</code></pre>
+<pre><code class="language-{.python .input}">#@tab pytorch
+# Define a helper to plot these figures
+def plot_chebyshev(a, p):
+    d2l.set_figsize()
+    d2l.plt.stem([a-2, a, a+2], [p, 1-2*p, p], use_line_collection=True)
+    d2l.plt.xlim([-4, 4])
+    d2l.plt.xlabel('x')
+    d2l.plt.ylabel('p.m.f.')
+
+    d2l.plt.hlines(0.5, a - 4 * torch.sqrt(2 * p),
+                   a + 4 * torch.sqrt(2 * p), 'black', lw=4)
+    d2l.plt.vlines(a - 4 * torch.sqrt(2 * p), 0.53, 0.47, 'black', lw=1)
+    d2l.plt.vlines(a + 4 * torch.sqrt(2 * p), 0.53, 0.47, 'black', lw=1)
+    d2l.plt.title(f'p = {p:.3f}')
+
+    d2l.plt.show()
+
+# Plot interval when p &gt; 1/8
+plot_chebyshev(0.0, torch.tensor(0.2))
+</code></pre>
+<pre><code class="language-{.python .input}">#@tab tensorflow
+# Define a helper to plot these figures
+def plot_chebyshev(a, p):
+    d2l.set_figsize()
+    d2l.plt.stem([a-2, a, a+2], [p, 1-2*p, p], use_line_collection=True)
+    d2l.plt.xlim([-4, 4])
+    d2l.plt.xlabel('x')
+    d2l.plt.ylabel('p.m.f.')
+
+    d2l.plt.hlines(0.5, a - 4 * tf.sqrt(2 * p),
+                   a + 4 * tf.sqrt(2 * p), 'black', lw=4)
+    d2l.plt.vlines(a - 4 * tf.sqrt(2 * p), 0.53, 0.47, 'black', lw=1)
+    d2l.plt.vlines(a + 4 * tf.sqrt(2 * p), 0.53, 0.47, 'black', lw=1)
+    d2l.plt.title(f'p = {p:.3f}')
+
+    d2l.plt.show()
+
+# Plot interval when p &gt; 1/8
+plot_chebyshev(0.0, tf.constant(0.2))
+</code></pre>
+<p>The second shows that at $p = 1/8$, the interval exactly touches the two points.  This shows that the inequality is <em>sharp</em>, since no smaller interval could be taken while keeping the inequality true.</p>
+<pre><code class="language-{.python .input}">#@tab mxnet
+# Plot interval when p = 1/8
+plot_chebyshev(0.0, 0.125)
+</code></pre>
+<pre><code class="language-{.python .input}">#@tab pytorch
+# Plot interval when p = 1/8
+plot_chebyshev(0.0, torch.tensor(0.125))
+</code></pre>
+<pre><code class="language-{.python .input}">#@tab tensorflow
+# Plot interval when p = 1/8
+plot_chebyshev(0.0, tf.constant(0.125))
+</code></pre>
+<p>The third shows that for $p &lt; 1/8$ the interval only contains the center.  This does not invalidate the inequality since we only needed to ensure that no more than $1/4$ of the probability falls outside the interval, which means that once $p &lt; 1/8$, the two points at $a-2$ and $a+2$ can be discarded.</p>
+<pre><code class="language-{.python .input}">#@tab mxnet
+# Plot interval when p &lt; 1/8
+plot_chebyshev(0.0, 0.05)
+</code></pre>
+<pre><code class="language-{.python .input}">#@tab pytorch
+# Plot interval when p &lt; 1/8
+plot_chebyshev(0.0, torch.tensor(0.05))
+</code></pre>
+<pre><code class="language-{.python .input}">#@tab tensorflow
+# Plot interval when p &lt; 1/8
+plot_chebyshev(0.0, tf.constant(0.05))
+</code></pre>
+<h3 id="means-and-variances-in-the-continuum"><a class="header" href="#means-and-variances-in-the-continuum">Means and Variances in the Continuum</a></h3>
+<p>This has all been in terms of discrete random variables, but the case of continuous random variables is similar.  To intuitively understand how this works, imagine that we split the real number line into intervals of length $\epsilon$ given by $(\epsilon i, \epsilon (i+1)]$.  Once we do this, our continuous random variable has been made discrete and we can use :eqref:<code>eq_exp_def</code> say that</p>
+<p>$$
+\begin{aligned}
+\mu_X &amp; \approx \sum_{i} (\epsilon i)P(X \in (\epsilon i, \epsilon (i+1)]) \
+&amp; \approx \sum_{i} (\epsilon i)p_X(\epsilon i)\epsilon, \
+\end{aligned}
+$$</p>
+<p>where $p_X$ is the density of $X$.  This is an approximation to the integral of $xp_X(x)$, so we can conclude that</p>
+<p>$$
+\mu_X = \int_{-\infty}^\infty xp_X(x) ; dx.
+$$</p>
+<p>Similarly, using :eqref:<code>eq_var_def</code> the variance can be written as</p>
+<p>$$
+\sigma^2_X = E[X^2] - \mu_X^2 = \int_{-\infty}^\infty x^2p_X(x) ; dx - \left(\int_{-\infty}^\infty xp_X(x) ; dx\right)^2.
+$$</p>
+<p>Everything stated above about the mean, the variance, and the standard deviation still applies in this case.  For instance, if we consider the random variable with density</p>
+<p>$$
+p(x) = \begin{cases}
+1 &amp; x \in [0,1], \
+0 &amp; \textrm{otherwise}.
+\end{cases}
+$$</p>
+<p>we can compute</p>
+<p>$$
+\mu_X = \int_{-\infty}^\infty xp(x) ; dx = \int_0^1 x ; dx = \frac{1}{2}.
+$$</p>
+<p>and</p>
+<p>$$
+\sigma_X^2 = \int_{-\infty}^\infty x^2p(x) ; dx - \left(\frac{1}{2}\right)^2 = \frac{1}{3} - \frac{1}{4} = \frac{1}{12}.
+$$</p>
+<p>As a warning, let's examine one more example, known as the <em>Cauchy distribution</em>.  This is the distribution with p.d.f. given by</p>
+<p>$$
+p(x) = \frac{1}{1+x^2}.
+$$</p>
+<pre><code class="language-{.python .input}">#@tab mxnet
+# Plot the Cauchy distribution p.d.f.
+x = np.arange(-5, 5, 0.01)
+p = 1 / (1 + x**2)
+
+d2l.plot(x, p, 'x', 'p.d.f.')
+</code></pre>
+<pre><code class="language-{.python .input}">#@tab pytorch
+# Plot the Cauchy distribution p.d.f.
+x = torch.arange(-5, 5, 0.01)
+p = 1 / (1 + x**2)
+
+d2l.plot(x, p, 'x', 'p.d.f.')
+</code></pre>
+<pre><code class="language-{.python .input}">#@tab tensorflow
+# Plot the Cauchy distribution p.d.f.
+x = tf.range(-5, 5, 0.01)
+p = 1 / (1 + x**2)
+
+d2l.plot(x, p, 'x', 'p.d.f.')
+</code></pre>
+<p>This function looks innocent, and indeed consulting a table of integrals will show it has area one under it, and thus it defines a continuous random variable.</p>
+<p>To see what goes astray, let's try to compute the variance of this.  This would involve using :eqref:<code>eq_var_def</code> computing</p>
+<p>$$
+\int_{-\infty}^\infty \frac{x^2}{1+x^2}; dx.
+$$</p>
+<p>The function on the inside looks like this:</p>
+<pre><code class="language-{.python .input}">#@tab mxnet
+# Plot the integrand needed to compute the variance
+x = np.arange(-20, 20, 0.01)
+p = x**2 / (1 + x**2)
+
+d2l.plot(x, p, 'x', 'integrand')
+</code></pre>
+<pre><code class="language-{.python .input}">#@tab pytorch
+# Plot the integrand needed to compute the variance
+x = torch.arange(-20, 20, 0.01)
+p = x**2 / (1 + x**2)
+
+d2l.plot(x, p, 'x', 'integrand')
+</code></pre>
+<pre><code class="language-{.python .input}">#@tab tensorflow
+# Plot the integrand needed to compute the variance
+x = tf.range(-20, 20, 0.01)
+p = x**2 / (1 + x**2)
+
+d2l.plot(x, p, 'x', 'integrand')
+</code></pre>
+<p>This function clearly has infinite area under it since it is essentially the constant one with a small dip near zero, and indeed we could show that</p>
+<p>$$
+\int_{-\infty}^\infty \frac{x^2}{1+x^2}; dx = \infty.
+$$</p>
+<p>This means it does not have a well-defined finite variance.</p>
+<p>However, looking deeper shows an even more disturbing result.  Let's try to compute the mean using :eqref:<code>eq_exp_def</code>.  Using the change of variables formula, we see</p>
+<p>$$
+\mu_X = \int_{-\infty}^{\infty} \frac{x}{1+x^2} ; dx = \frac{1}{2}\int_1^\infty \frac{1}{u} ; du.
+$$</p>
+<p>The integral inside is the definition of the logarithm, so this is in essence $\log(\infty) = \infty$, so there is no well-defined average value either!</p>
+<p>Machine learning scientists define their models so that we most often do not need to deal with these issues, and will in the vast majority of cases deal with random variables with well-defined means and variances.  However, every so often random variables with <em>heavy tails</em> (that is those random variables where the probabilities of getting large values are large enough to make things like the mean or variance undefined) are helpful in modeling physical systems, thus it is worth knowing that they exist.</p>
+<h3 id="joint-density-functions"><a class="header" href="#joint-density-functions">Joint Density Functions</a></h3>
+<p>The above work all assumes we are working with a single real valued random variable.  But what if we are dealing with two or more potentially highly correlated random variables?  This circumstance is the norm in machine learning: imagine random variables like $R_{i, j}$ which encode the red value of the pixel at the $(i, j)$ coordinate in an image, or $P_t$ which is a random variable given by a stock price at time $t$.  Nearby pixels tend to have similar color, and nearby times tend to have similar prices.  We cannot treat them as separate random variables, and expect to create a successful model (we will see in :numref:<code>sec_naive_bayes</code> a model that under-performs due to such an assumption).  We need to develop the mathematical language to handle these correlated continuous random variables.</p>
+<p>Thankfully, with the multiple integrals in :numref:<code>sec_integral_calculus</code> we can develop such a language.  Suppose that we have, for simplicity, two random variables $X, Y$ which can be correlated.  Then, similar to the case of a single variable, we can ask the question:</p>
+<p>$$
+P(X ;\textrm{is in an}; \epsilon \textrm{-sized interval around}; x ; \textrm{and} ;Y ;\textrm{is in an}; \epsilon \textrm{-sized interval around}; y ).
+$$</p>
+<p>Similar reasoning to the single variable case shows that this should be approximately</p>
+<p>$$
+P(X ;\textrm{is in an}; \epsilon \textrm{-sized interval around}; x ; \textrm{and} ;Y ;\textrm{is in an}; \epsilon \textrm{-sized interval around}; y ) \approx \epsilon^{2}p(x, y),
+$$</p>
+<p>for some function $p(x, y)$.  This is referred to as the joint density of $X$ and $Y$.  Similar properties are true for this as we saw in the single variable case. Namely:</p>
+<ul>
+<li>$p(x, y) \ge 0$;</li>
+<li>$\int _ {\mathbb{R}^2} p(x, y) ;dx ;dy = 1$;</li>
+<li>$P((X, Y) \in \mathcal{D}) = \int _ {\mathcal{D}} p(x, y) ;dx ;dy$.</li>
+</ul>
+<p>In this way, we can deal with multiple, potentially correlated random variables.  If we wish to work with more than two random variables, we can extend the multivariate density to as many coordinates as desired by considering $p(\mathbf{x}) = p(x_1, \ldots, x_n)$.  The same properties of being non-negative, and having total integral of one still hold.</p>
+<h3 id="marginal-distributions"><a class="header" href="#marginal-distributions">Marginal Distributions</a></h3>
+<p>When dealing with multiple variables, we oftentimes want to be able to ignore the relationships and ask, "how is this one variable distributed?"  Such a distribution is called a <em>marginal distribution</em>.</p>
+<p>To be concrete, let's suppose that we have two random variables $X, Y$ with joint density given by $p _ {X, Y}(x, y)$.  We will be using the subscript to indicate what random variables the density is for.  The question of finding the marginal distribution is taking this function, and using it to find $p _ X(x)$.</p>
+<p>As with most things, it is best to return to the intuitive picture to figure out what should be true.  Recall that the density is the function $p _ X$ so that</p>
+<p>$$
+P(X \in [x, x+\epsilon]) \approx \epsilon \cdot p _ X(x).
+$$</p>
+<p>There is no mention of $Y$, but if all we are given is $p _{X, Y}$, we need to include $Y$ somehow. We can first observe that this is the same as</p>
+<p>$$
+P(X \in [x, x+\epsilon] \textrm{, and } Y \in \mathbb{R}) \approx \epsilon \cdot p _ X(x).
+$$</p>
+<p>Our density does not directly tell us about what happens in this case, we need to split into small intervals in $y$ as well, so we can write this as</p>
+<p>$$
+\begin{aligned}
+\epsilon \cdot p _ X(x) &amp; \approx \sum _ {i} P(X \in [x, x+\epsilon] \textrm{, and } Y \in [\epsilon \cdot i, \epsilon \cdot (i+1)]) \
+&amp; \approx \sum _ {i} \epsilon^{2} p _ {X, Y}(x, \epsilon\cdot i).
+\end{aligned}
+$$</p>
+<p><img src="../img/marginal.svg" alt="By summing along the columns of our array of probabilities, we are able to obtain the marginal distribution for just the random variable represented along the $\mathit{x}$-axis." />
+:label:<code>fig_marginal</code></p>
+<p>This tells us to add up the value of the density along a series of squares in a line as is shown in :numref:<code>fig_marginal</code>.  Indeed, after canceling one factor of epsilon from both sides, and recognizing the sum on the right is the integral over $y$, we can conclude that</p>
+<p>$$
+\begin{aligned}
+p _ X(x) &amp;  \approx \sum _ {i} \epsilon p _ {X, Y}(x, \epsilon\cdot i) \
+&amp; \approx \int_{-\infty}^\infty p_{X, Y}(x, y) ; dy.
+\end{aligned}
+$$</p>
+<p>Thus we see</p>
+<p>$$
+p _ X(x) = \int_{-\infty}^\infty p_{X, Y}(x, y) ; dy.
+$$</p>
+<p>This tells us that to get a marginal distribution, we integrate over the variables we do not care about.  This process is often referred to as <em>integrating out</em> or <em>marginalized out</em> the unneeded variables.</p>
+<h3 id="covariance"><a class="header" href="#covariance">Covariance</a></h3>
+<p>When dealing with multiple random variables, there is one additional summary statistic which is helpful to know: the <em>covariance</em>.  This measures the degree that two random variable fluctuate together.</p>
+<p>Suppose that we have two random variables $X$ and $Y$, to begin with, let's suppose they are discrete, taking on values $(x_i, y_j)$ with probability $p_{ij}$.  In this case, the covariance is defined as</p>
+<p>$$\sigma_{XY} = \textrm{Cov}(X, Y) = \sum_{i, j} (x_i - \mu_X) (y_j-\mu_Y) p_{ij}. = E[XY] - E[X]E[Y].$$
+:eqlabel:<code>eq_cov_def</code></p>
+<p>To think about this intuitively: consider the following pair of random variables.  Suppose that $X$ takes the values $1$ and $3$, and $Y$ takes the values $-1$ and $3$.  Suppose that we have the following probabilities</p>
+<p>$$
+\begin{aligned}
+P(X = 1 ; \textrm{and} ; Y = -1) &amp; = \frac{p}{2}, \
+P(X = 1 ; \textrm{and} ; Y = 3) &amp; = \frac{1-p}{2}, \
+P(X = 3 ; \textrm{and} ; Y = -1) &amp; = \frac{1-p}{2}, \
+P(X = 3 ; \textrm{and} ; Y = 3) &amp; = \frac{p}{2},
+\end{aligned}
+$$</p>
+<p>where $p$ is a parameter in $[0,1]$ we get to pick.  Notice that if $p=1$ then they are both always their minimum or maximum values simultaneously, and if $p=0$ they are guaranteed to take their flipped values simultaneously (one is large when the other is small and vice versa).  If $p=1/2$, then the four possibilities are all equally likely, and neither should be related.  Let's compute the covariance.  First, note $\mu_X = 2$ and $\mu_Y = 1$, so we may compute using :eqref:<code>eq_cov_def</code>:</p>
+<p>$$
+\begin{aligned}
+\textrm{Cov}(X, Y) &amp; = \sum_{i, j} (x_i - \mu_X) (y_j-\mu_Y) p_{ij} \
+&amp; = (1-2)(-1-1)\frac{p}{2} + (1-2)(3-1)\frac{1-p}{2} + (3-2)(-1-1)\frac{1-p}{2} + (3-2)(3-1)\frac{p}{2} \
+&amp; = 4p-2.
+\end{aligned}
+$$</p>
+<p>When $p=1$ (the case where they are both maximally positive or negative at the same time) has a covariance of $2$. When $p=0$ (the case where they are flipped) the covariance is $-2$.  Finally, when $p=1/2$ (the case where they are unrelated), the covariance is $0$.  Thus we see that the covariance measures how these two random variables are related.</p>
+<p>A quick note on the covariance is that it only measures these linear relationships.  More complex relationships like $X = Y^2$ where $Y$ is randomly chosen from ${-2, -1, 0, 1, 2}$ with equal probability can be missed.  Indeed a quick computation shows that these random variables have covariance zero, despite one being a deterministic function of the other.</p>
+<p>For continuous random variables, much the same story holds.  At this point, we are pretty comfortable with doing the transition between discrete and continuous, so we will provide the continuous analogue of :eqref:<code>eq_cov_def</code> without any derivation.</p>
+<p>$$
+\sigma_{XY} = \int_{\mathbb{R}^2} (x-\mu_X)(y-\mu_Y)p(x, y) ;dx ;dy.
+$$</p>
+<p>For visualization, let's take a look at a collection of random variables with tunable covariance.</p>
+<pre><code class="language-{.python .input}">#@tab mxnet
+# Plot a few random variables adjustable covariance
+covs = [-0.9, 0.0, 1.2]
+d2l.plt.figure(figsize=(12, 3))
+for i in range(3):
+    X = np.random.normal(0, 1, 500)
+    Y = covs[i]*X + np.random.normal(0, 1, (500))
+
+    d2l.plt.subplot(1, 4, i+1)
+    d2l.plt.scatter(X.asnumpy(), Y.asnumpy())
+    d2l.plt.xlabel('X')
+    d2l.plt.ylabel('Y')
+    d2l.plt.title(f'cov = {covs[i]}')
+d2l.plt.show()
+</code></pre>
+<pre><code class="language-{.python .input}">#@tab pytorch
+# Plot a few random variables adjustable covariance
+covs = [-0.9, 0.0, 1.2]
+d2l.plt.figure(figsize=(12, 3))
+for i in range(3):
+    X = torch.randn(500)
+    Y = covs[i]*X + torch.randn(500)
+
+    d2l.plt.subplot(1, 4, i+1)
+    d2l.plt.scatter(X.numpy(), Y.numpy())
+    d2l.plt.xlabel('X')
+    d2l.plt.ylabel('Y')
+    d2l.plt.title(f'cov = {covs[i]}')
+d2l.plt.show()
+</code></pre>
+<pre><code class="language-{.python .input}">#@tab tensorflow
+# Plot a few random variables adjustable covariance
+covs = [-0.9, 0.0, 1.2]
+d2l.plt.figure(figsize=(12, 3))
+for i in range(3):
+    X = tf.random.normal((500, ))
+    Y = covs[i]*X + tf.random.normal((500, ))
+
+    d2l.plt.subplot(1, 4, i+1)
+    d2l.plt.scatter(X.numpy(), Y.numpy())
+    d2l.plt.xlabel('X')
+    d2l.plt.ylabel('Y')
+    d2l.plt.title(f'cov = {covs[i]}')
+d2l.plt.show()
+</code></pre>
+<p>Let's see some properties of covariances:</p>
+<ul>
+<li>For any random variable $X$, $\textrm{Cov}(X, X) = \textrm{Var}(X)$.</li>
+<li>For any random variables $X, Y$ and numbers $a$ and $b$, $\textrm{Cov}(aX+b, Y) = \textrm{Cov}(X, aY+b) = a\textrm{Cov}(X, Y)$.</li>
+<li>If $X$ and $Y$ are independent then $\textrm{Cov}(X, Y) = 0$.</li>
+</ul>
+<p>In addition, we can use the covariance to expand a relationship we saw before.  Recall that is $X$ and $Y$ are two independent random variables then</p>
+<p>$$
+\textrm{Var}(X+Y) = \textrm{Var}(X) + \textrm{Var}(Y).
+$$</p>
+<p>With knowledge of covariances, we can expand this relationship.  Indeed, some algebra can show that in general,</p>
+<p>$$
+\textrm{Var}(X+Y) = \textrm{Var}(X) + \textrm{Var}(Y) + 2\textrm{Cov}(X, Y).
+$$</p>
+<p>This allows us to generalize the variance summation rule for correlated random variables.</p>
+<h3 id="correlation"><a class="header" href="#correlation">Correlation</a></h3>
+<p>As we did in the case of means and variances, let's now consider units.  If $X$ is measured in one unit (say inches), and $Y$ is measured in another (say dollars), the covariance is measured in the product of these two units $\textrm{inches} \times \textrm{dollars}$.  These units can be hard to interpret.  What we will often want in this case is a unit-less measurement of relatedness.  Indeed, often we do not care about exact quantitative correlation, but rather ask if the correlation is in the same direction, and how strong the relationship is.</p>
+<p>To see what makes sense, let's perform a thought experiment.  Suppose that we convert our random variables in inches and dollars to be in inches and cents.  In this case the random variable $Y$ is multiplied by $100$.  If we work through the definition, this means that $\textrm{Cov}(X, Y)$ will be multiplied by $100$.  Thus we see that in this case a change of units change the covariance by a factor of $100$.  Thus, to find our unit-invariant measure of correlation, we will need to divide by something else that also gets scaled by $100$.  Indeed we have a clear candidate, the standard deviation!  Indeed if we define the <em>correlation coefficient</em> to be</p>
+<p>$$\rho(X, Y) = \frac{\textrm{Cov}(X, Y)}{\sigma_{X}\sigma_{Y}},$$
+:eqlabel:<code>eq_cor_def</code></p>
+<p>we see that this is a unit-less value.  A little mathematics can show that this number is between $-1$ and $1$ with $1$ meaning maximally positively correlated, whereas $-1$ means maximally negatively correlated.</p>
+<p>Returning to our explicit discrete example above, we can see that $\sigma_X = 1$ and $\sigma_Y = 2$, so we can compute the correlation between the two random variables using :eqref:<code>eq_cor_def</code> to see that</p>
+<p>$$
+\rho(X, Y) = \frac{4p-2}{1\cdot 2} = 2p-1.
+$$</p>
+<p>This now ranges between $-1$ and $1$ with the expected behavior of $1$ meaning most correlated, and $-1$ meaning minimally correlated.</p>
+<p>As another example, consider $X$ as any random variable, and $Y=aX+b$ as any linear deterministic function of $X$.  Then, one can compute that</p>
+<p>$$\sigma_{Y} = \sigma_{aX+b} = |a|\sigma_{X},$$</p>
+<p>$$\textrm{Cov}(X, Y) = \textrm{Cov}(X, aX+b) = a\textrm{Cov}(X, X) = a\textrm{Var}(X),$$</p>
+<p>and thus by :eqref:<code>eq_cor_def</code> that</p>
+<p>$$
+\rho(X, Y) = \frac{a\textrm{Var}(X)}{|a|\sigma_{X}^2} = \frac{a}{|a|} = \textrm{sign}(a).
+$$</p>
+<p>Thus we see that the correlation is $+1$ for any $a &gt; 0$, and $-1$ for any $a &lt; 0$ illustrating that correlation measures the degree and directionality the two random variables are related, not the scale that the variation takes.</p>
+<p>Let's again plot a collection of random variables with tunable correlation.</p>
+<pre><code class="language-{.python .input}">#@tab mxnet
+# Plot a few random variables adjustable correlations
+cors = [-0.9, 0.0, 1.0]
+d2l.plt.figure(figsize=(12, 3))
+for i in range(3):
+    X = np.random.normal(0, 1, 500)
+    Y = cors[i] * X + np.sqrt(1 - cors[i]**2) * np.random.normal(0, 1, 500)
+
+    d2l.plt.subplot(1, 4, i + 1)
+    d2l.plt.scatter(X.asnumpy(), Y.asnumpy())
+    d2l.plt.xlabel('X')
+    d2l.plt.ylabel('Y')
+    d2l.plt.title(f'cor = {cors[i]}')
+d2l.plt.show()
+</code></pre>
+<pre><code class="language-{.python .input}">#@tab pytorch
+# Plot a few random variables adjustable correlations
+cors = [-0.9, 0.0, 1.0]
+d2l.plt.figure(figsize=(12, 3))
+for i in range(3):
+    X = torch.randn(500)
+    Y = cors[i] * X + torch.sqrt(torch.tensor(1) -
+                                 cors[i]**2) * torch.randn(500)
+
+    d2l.plt.subplot(1, 4, i + 1)
+    d2l.plt.scatter(X.numpy(), Y.numpy())
+    d2l.plt.xlabel('X')
+    d2l.plt.ylabel('Y')
+    d2l.plt.title(f'cor = {cors[i]}')
+d2l.plt.show()
+</code></pre>
+<pre><code class="language-{.python .input}">#@tab tensorflow
+# Plot a few random variables adjustable correlations
+cors = [-0.9, 0.0, 1.0]
+d2l.plt.figure(figsize=(12, 3))
+for i in range(3):
+    X = tf.random.normal((500, ))
+    Y = cors[i] * X + tf.sqrt(tf.constant(1.) -
+                                 cors[i]**2) * tf.random.normal((500, ))
+
+    d2l.plt.subplot(1, 4, i + 1)
+    d2l.plt.scatter(X.numpy(), Y.numpy())
+    d2l.plt.xlabel('X')
+    d2l.plt.ylabel('Y')
+    d2l.plt.title(f'cor = {cors[i]}')
+d2l.plt.show()
+</code></pre>
+<p>Let's list a few properties of the correlation below.</p>
+<ul>
+<li>For any random variable $X$, $\rho(X, X) = 1$.</li>
+<li>For any random variables $X, Y$ and numbers $a$ and $b$, $\rho(aX+b, Y) = \rho(X, aY+b) = \rho(X, Y)$.</li>
+<li>If $X$ and $Y$ are independent with non-zero variance then $\rho(X, Y) = 0$.</li>
+</ul>
+<p>As a final note, you may feel like some of these formulae are familiar.  Indeed, if we expand everything out assuming that $\mu_X = \mu_Y = 0$, we see that this is</p>
+<p>$$
+\rho(X, Y) = \frac{\sum_{i, j} x_iy_ip_{ij}}{\sqrt{\sum_{i, j}x_i^2 p_{ij}}\sqrt{\sum_{i, j}y_j^2 p_{ij}}}.
+$$</p>
+<p>This looks like a sum of a product of terms divided by the square root of sums of terms.  This is exactly the formula for the cosine of the angle between two vectors $\mathbf{v}, \mathbf{w}$ with the different coordinates weighted by $p_{ij}$:</p>
+<p>$$
+\cos(\theta) = \frac{\mathbf{v}\cdot \mathbf{w}}{|\mathbf{v}||\mathbf{w}|} = \frac{\sum_{i} v_iw_i}{\sqrt{\sum_{i}v_i^2}\sqrt{\sum_{i}w_i^2}}.
+$$</p>
+<p>Indeed if we think of norms as being related to standard deviations, and correlations as being cosines of angles, much of the intuition we have from geometry can be applied to thinking about random variables.</p>
+<h2 id="summary"><a class="header" href="#summary">Summary</a></h2>
+<ul>
+<li>Continuous random variables are random variables that can take on a continuum of values.  They have some technical difficulties that make them more challenging to work with compared to discrete random variables.</li>
+<li>The probability density function allows us to work with continuous random variables by giving a function where the area under the curve on some interval gives the probability of finding a sample point in that interval.</li>
+<li>The cumulative distribution function is the probability of observing the random variable to be less than a given threshold.  It can provide a useful alternate viewpoint which unifies discrete and continuous variables.</li>
+<li>The mean is the average value of a random variable.</li>
+<li>The variance is the expected square of the difference between the random variable and its mean.</li>
+<li>The standard deviation is the square root of the variance.  It can be thought of as measuring the range of values the random variable may take.</li>
+<li>Chebyshev's inequality allows us to make this intuition rigorous by giving an explicit interval that contains the random variable most of the time.</li>
+<li>Joint densities allow us to work with correlated random variables.  We may marginalize joint densities by integrating over unwanted random variables to get the distribution of the desired random variable.</li>
+<li>The covariance and correlation coefficient provide a way to measure any linear relationship between two correlated random variables.</li>
+</ul>
+<h2 id="exercises"><a class="header" href="#exercises">Exercises</a></h2>
+<ol>
+<li>Suppose that we have the random variable with density given by $p(x) = \frac{1}{x^2}$ for $x \ge 1$ and $p(x) = 0$ otherwise.  What is $P(X &gt; 2)$?</li>
+<li>The Laplace distribution is a random variable whose density is given by $p(x = \frac{1}{2}e^{-|x|}$.  What is the mean and the standard deviation of this function?  As a hint, $\int_0^\infty xe^{-x} ; dx = 1$ and $\int_0^\infty x^2e^{-x} ; dx = 2$.</li>
+<li>I walk up to you on the street and say "I have a random variable with mean $1$, standard deviation $2$, and I observed $25%$ of my samples taking a value larger than $9$."  Do you believe me?  Why or why not?</li>
+<li>Suppose that you have two random variables $X, Y$, with joint density given by $p_{XY}(x, y) = 4xy$ for $x, y \in [0,1]$ and $p_{XY}(x, y) = 0$ otherwise.  What is the covariance of $X$ and $Y$?</li>
+</ol>
+<p>:begin_tab:<code>mxnet</code>
+<a href="https://discuss.d2l.ai/t/415">Discussions</a>
+:end_tab:</p>
+<p>:begin_tab:<code>pytorch</code>
+<a href="https://discuss.d2l.ai/t/1094">Discussions</a>
+:end_tab:</p>
+<p>:begin_tab:<code>tensorflow</code>
+<a href="https://discuss.d2l.ai/t/1095">Discussions</a>
+:end_tab:</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../chapter_appendix-mathematics-for-deep-learning/integral-calculus.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../chapter_appendix-mathematics-for-deep-learning/maximum-likelihood.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../chapter_appendix-mathematics-for-deep-learning/integral-calculus.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../chapter_appendix-mathematics-for-deep-learning/maximum-likelihood.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

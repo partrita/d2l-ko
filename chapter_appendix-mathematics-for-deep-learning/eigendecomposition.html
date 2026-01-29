@@ -1,0 +1,801 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Eigendecompositions - Dive into Deep Learning</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../static/d2l.css">
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('light')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../index.html">Deep Learning</a></li><li class="chapter-item expanded "><a href="../chapter_preface/index.html"><strong aria-hidden="true">1.</strong> Preface</a></li><li class="chapter-item expanded "><a href="../chapter_installation/index.html"><strong aria-hidden="true">2.</strong> Installation</a></li><li class="chapter-item expanded "><a href="../chapter_notation/index.html"><strong aria-hidden="true">3.</strong> Notation</a></li><li class="chapter-item expanded "><a href="../chapter_introduction/index.html"><strong aria-hidden="true">4.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="../chapter_preliminaries/index.html"><strong aria-hidden="true">5.</strong> Preliminaries</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_preliminaries/ndarray.html"><strong aria-hidden="true">5.1.</strong> Data Manipulation</a></li><li class="chapter-item "><a href="../chapter_preliminaries/pandas.html"><strong aria-hidden="true">5.2.</strong> Data Preprocessing</a></li><li class="chapter-item "><a href="../chapter_preliminaries/linear-algebra.html"><strong aria-hidden="true">5.3.</strong> Linear Algebra</a></li><li class="chapter-item "><a href="../chapter_preliminaries/calculus.html"><strong aria-hidden="true">5.4.</strong> Calculus</a></li><li class="chapter-item "><a href="../chapter_preliminaries/autograd.html"><strong aria-hidden="true">5.5.</strong> Automatic Differentiation</a></li><li class="chapter-item "><a href="../chapter_preliminaries/probability.html"><strong aria-hidden="true">5.6.</strong> Probability and Statistics</a></li><li class="chapter-item "><a href="../chapter_preliminaries/lookup-api.html"><strong aria-hidden="true">5.7.</strong> Documentation</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_linear-regression/index.html"><strong aria-hidden="true">6.</strong> Linear Neural Networks for Regression</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_linear-regression/linear-regression.html"><strong aria-hidden="true">6.1.</strong> Linear Regression</a></li><li class="chapter-item "><a href="../chapter_linear-regression/oo-design.html"><strong aria-hidden="true">6.2.</strong> Object-Oriented Design for Implementation</a></li><li class="chapter-item "><a href="../chapter_linear-regression/synthetic-regression-data.html"><strong aria-hidden="true">6.3.</strong> Synthetic Regression Data</a></li><li class="chapter-item "><a href="../chapter_linear-regression/linear-regression-scratch.html"><strong aria-hidden="true">6.4.</strong> Linear Regression Implementation from Scratch</a></li><li class="chapter-item "><a href="../chapter_linear-regression/linear-regression-concise.html"><strong aria-hidden="true">6.5.</strong> Concise Implementation of Linear Regression</a></li><li class="chapter-item "><a href="../chapter_linear-regression/generalization.html"><strong aria-hidden="true">6.6.</strong> Generalization</a></li><li class="chapter-item "><a href="../chapter_linear-regression/weight-decay.html"><strong aria-hidden="true">6.7.</strong> Weight Decay</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_linear-classification/index.html"><strong aria-hidden="true">7.</strong> Linear Neural Networks for Classification</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_linear-classification/softmax-regression.html"><strong aria-hidden="true">7.1.</strong> Softmax Regression</a></li><li class="chapter-item "><a href="../chapter_linear-classification/image-classification-dataset.html"><strong aria-hidden="true">7.2.</strong> The Image Classification Dataset</a></li><li class="chapter-item "><a href="../chapter_linear-classification/classification.html"><strong aria-hidden="true">7.3.</strong> The Base Classification Model</a></li><li class="chapter-item "><a href="../chapter_linear-classification/softmax-regression-scratch.html"><strong aria-hidden="true">7.4.</strong> Softmax Regression Implementation from Scratch</a></li><li class="chapter-item "><a href="../chapter_linear-classification/softmax-regression-concise.html"><strong aria-hidden="true">7.5.</strong> Concise Implementation of Softmax Regression</a></li><li class="chapter-item "><a href="../chapter_linear-classification/generalization-classification.html"><strong aria-hidden="true">7.6.</strong> Generalization in Classification</a></li><li class="chapter-item "><a href="../chapter_linear-classification/environment-and-distribution-shift.html"><strong aria-hidden="true">7.7.</strong> Environment and Distribution Shift</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_multilayer-perceptrons/index.html"><strong aria-hidden="true">8.</strong> Multilayer Perceptrons</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/mlp.html"><strong aria-hidden="true">8.1.</strong> Multilayer Perceptrons</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/mlp-implementation.html"><strong aria-hidden="true">8.2.</strong> Implementation of Multilayer Perceptrons</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/backprop.html"><strong aria-hidden="true">8.3.</strong> Forward Propagation, Backward Propagation, and Computational Graphs</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/numerical-stability-and-init.html"><strong aria-hidden="true">8.4.</strong> Numerical Stability and Initialization</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/generalization-deep.html"><strong aria-hidden="true">8.5.</strong> Generalization in Deep Learning</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/dropout.html"><strong aria-hidden="true">8.6.</strong> Dropout</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/kaggle-house-price.html"><strong aria-hidden="true">8.7.</strong> Predicting House Prices on Kaggle</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_builders-guide/index.html"><strong aria-hidden="true">9.</strong> Builders' Guide</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_builders-guide/model-construction.html"><strong aria-hidden="true">9.1.</strong> Layers and Modules</a></li><li class="chapter-item "><a href="../chapter_builders-guide/parameters.html"><strong aria-hidden="true">9.2.</strong> Parameter Management</a></li><li class="chapter-item "><a href="../chapter_builders-guide/init-param.html"><strong aria-hidden="true">9.3.</strong> Parameter Initialization</a></li><li class="chapter-item "><a href="../chapter_builders-guide/lazy-init.html"><strong aria-hidden="true">9.4.</strong> Lazy Initialization</a></li><li class="chapter-item "><a href="../chapter_builders-guide/custom-layer.html"><strong aria-hidden="true">9.5.</strong> Custom Layers</a></li><li class="chapter-item "><a href="../chapter_builders-guide/read-write.html"><strong aria-hidden="true">9.6.</strong> File I/O</a></li><li class="chapter-item "><a href="../chapter_builders-guide/use-gpu.html"><strong aria-hidden="true">9.7.</strong> GPUs</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_convolutional-neural-networks/index.html"><strong aria-hidden="true">10.</strong> Convolutional Neural Networks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/why-conv.html"><strong aria-hidden="true">10.1.</strong> From Fully Connected Layers to Convolutions</a></li><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/conv-layer.html"><strong aria-hidden="true">10.2.</strong> Convolutions for Images</a></li><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/padding-and-strides.html"><strong aria-hidden="true">10.3.</strong> Padding and Stride</a></li><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/channels.html"><strong aria-hidden="true">10.4.</strong> Multiple Input and Multiple Output Channels</a></li><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/pooling.html"><strong aria-hidden="true">10.5.</strong> Pooling</a></li><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/lenet.html"><strong aria-hidden="true">10.6.</strong> Convolutional Neural Networks (LeNet)</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_convolutional-modern/index.html"><strong aria-hidden="true">11.</strong> Modern Convolutional Neural Networks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_convolutional-modern/alexnet.html"><strong aria-hidden="true">11.1.</strong> Deep Convolutional Neural Networks (AlexNet)</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/vgg.html"><strong aria-hidden="true">11.2.</strong> Networks Using Blocks (VGG)</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/nin.html"><strong aria-hidden="true">11.3.</strong> Network in Network (NiN)</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/googlenet.html"><strong aria-hidden="true">11.4.</strong> Multi-Branch Networks  (GoogLeNet)</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/batch-norm.html"><strong aria-hidden="true">11.5.</strong> Batch Normalization</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/resnet.html"><strong aria-hidden="true">11.6.</strong> Residual Networks (ResNet) and ResNeXt</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/densenet.html"><strong aria-hidden="true">11.7.</strong> Densely Connected Networks (DenseNet)</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/cnn-design.html"><strong aria-hidden="true">11.8.</strong> Designing Convolution Network Architectures</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_recurrent-neural-networks/index.html"><strong aria-hidden="true">12.</strong> Recurrent Neural Networks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/sequence.html"><strong aria-hidden="true">12.1.</strong> Working with Sequences</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/text-sequence.html"><strong aria-hidden="true">12.2.</strong> Converting Raw Text into Sequence Data</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/language-model.html"><strong aria-hidden="true">12.3.</strong> Language Models</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/rnn.html"><strong aria-hidden="true">12.4.</strong> Recurrent Neural Networks</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/rnn-scratch.html"><strong aria-hidden="true">12.5.</strong> Recurrent Neural Network Implementation from Scratch</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/rnn-concise.html"><strong aria-hidden="true">12.6.</strong> Concise Implementation of Recurrent Neural Networks</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/bptt.html"><strong aria-hidden="true">12.7.</strong> Backpropagation Through Time</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_recurrent-modern/index.html"><strong aria-hidden="true">13.</strong> Modern Recurrent Neural Networks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_recurrent-modern/lstm.html"><strong aria-hidden="true">13.1.</strong> Long Short-Term Memory (LSTM)</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/gru.html"><strong aria-hidden="true">13.2.</strong> Gated Recurrent Units (GRU)</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/deep-rnn.html"><strong aria-hidden="true">13.3.</strong> Deep Recurrent Neural Networks</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/bi-rnn.html"><strong aria-hidden="true">13.4.</strong> Bidirectional Recurrent Neural Networks</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/machine-translation-and-dataset.html"><strong aria-hidden="true">13.5.</strong> Machine Translation and the Dataset</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/encoder-decoder.html"><strong aria-hidden="true">13.6.</strong> The Encoder--Decoder Architecture</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/seq2seq.html"><strong aria-hidden="true">13.7.</strong> Sequence-to-Sequence Learning for Machine Translation</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/beam-search.html"><strong aria-hidden="true">13.8.</strong> Beam Search</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_attention-mechanisms-and-transformers/index.html"><strong aria-hidden="true">14.</strong> Attention Mechanisms and Transformers</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/queries-keys-values.html"><strong aria-hidden="true">14.1.</strong> Queries, Keys, and Values</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/attention-pooling.html"><strong aria-hidden="true">14.2.</strong> Attention Pooling by Similarity</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/attention-scoring-functions.html"><strong aria-hidden="true">14.3.</strong> Attention Scoring Functions</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/bahdanau-attention.html"><strong aria-hidden="true">14.4.</strong> The Bahdanau Attention Mechanism</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/multihead-attention.html"><strong aria-hidden="true">14.5.</strong> Multi-Head Attention</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/self-attention-and-positional-encoding.html"><strong aria-hidden="true">14.6.</strong> Self-Attention and Positional Encoding</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/transformer.html"><strong aria-hidden="true">14.7.</strong> The Transformer Architecture</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/vision-transformer.html"><strong aria-hidden="true">14.8.</strong> Transformers for Vision</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/large-pretraining-transformers.html"><strong aria-hidden="true">14.9.</strong> Large-Scale Pretraining with Transformers</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_optimization/index.html"><strong aria-hidden="true">15.</strong> Optimization Algorithms</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_optimization/optimization-intro.html"><strong aria-hidden="true">15.1.</strong> Optimization and Deep Learning</a></li><li class="chapter-item "><a href="../chapter_optimization/convexity.html"><strong aria-hidden="true">15.2.</strong> Convexity</a></li><li class="chapter-item "><a href="../chapter_optimization/gd.html"><strong aria-hidden="true">15.3.</strong> Gradient Descent</a></li><li class="chapter-item "><a href="../chapter_optimization/sgd.html"><strong aria-hidden="true">15.4.</strong> Stochastic Gradient Descent</a></li><li class="chapter-item "><a href="../chapter_optimization/minibatch-sgd.html"><strong aria-hidden="true">15.5.</strong> Minibatch Stochastic Gradient Descent</a></li><li class="chapter-item "><a href="../chapter_optimization/momentum.html"><strong aria-hidden="true">15.6.</strong> Momentum</a></li><li class="chapter-item "><a href="../chapter_optimization/adagrad.html"><strong aria-hidden="true">15.7.</strong> Adagrad</a></li><li class="chapter-item "><a href="../chapter_optimization/rmsprop.html"><strong aria-hidden="true">15.8.</strong> RMSProp</a></li><li class="chapter-item "><a href="../chapter_optimization/adadelta.html"><strong aria-hidden="true">15.9.</strong> Adadelta</a></li><li class="chapter-item "><a href="../chapter_optimization/adam.html"><strong aria-hidden="true">15.10.</strong> Adam</a></li><li class="chapter-item "><a href="../chapter_optimization/lr-scheduler.html"><strong aria-hidden="true">15.11.</strong> Learning Rate Scheduling</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_computational-performance/index.html"><strong aria-hidden="true">16.</strong> Computational Performance</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_computational-performance/hybridize.html"><strong aria-hidden="true">16.1.</strong> Compilers and Interpreters</a></li><li class="chapter-item "><a href="../chapter_computational-performance/async-computation.html"><strong aria-hidden="true">16.2.</strong> Asynchronous Computation</a></li><li class="chapter-item "><a href="../chapter_computational-performance/auto-parallelism.html"><strong aria-hidden="true">16.3.</strong> Automatic Parallelism</a></li><li class="chapter-item "><a href="../chapter_computational-performance/hardware.html"><strong aria-hidden="true">16.4.</strong> Hardware</a></li><li class="chapter-item "><a href="../chapter_computational-performance/multiple-gpus.html"><strong aria-hidden="true">16.5.</strong> Training on Multiple GPUs</a></li><li class="chapter-item "><a href="../chapter_computational-performance/multiple-gpus-concise.html"><strong aria-hidden="true">16.6.</strong> Concise Implementation for Multiple GPUs</a></li><li class="chapter-item "><a href="../chapter_computational-performance/parameterserver.html"><strong aria-hidden="true">16.7.</strong> Parameter Servers</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_computer-vision/index.html"><strong aria-hidden="true">17.</strong> Computer Vision</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_computer-vision/image-augmentation.html"><strong aria-hidden="true">17.1.</strong> Image Augmentation</a></li><li class="chapter-item "><a href="../chapter_computer-vision/fine-tuning.html"><strong aria-hidden="true">17.2.</strong> Fine-Tuning</a></li><li class="chapter-item "><a href="../chapter_computer-vision/bounding-box.html"><strong aria-hidden="true">17.3.</strong> Object Detection and Bounding Boxes</a></li><li class="chapter-item "><a href="../chapter_computer-vision/anchor.html"><strong aria-hidden="true">17.4.</strong> Anchor Boxes</a></li><li class="chapter-item "><a href="../chapter_computer-vision/multiscale-object-detection.html"><strong aria-hidden="true">17.5.</strong> Multiscale Object Detection</a></li><li class="chapter-item "><a href="../chapter_computer-vision/object-detection-dataset.html"><strong aria-hidden="true">17.6.</strong> The Object Detection Dataset</a></li><li class="chapter-item "><a href="../chapter_computer-vision/ssd.html"><strong aria-hidden="true">17.7.</strong> Single Shot Multibox Detection</a></li><li class="chapter-item "><a href="../chapter_computer-vision/rcnn.html"><strong aria-hidden="true">17.8.</strong> Region-based CNNs (R-CNNs)</a></li><li class="chapter-item "><a href="../chapter_computer-vision/semantic-segmentation-and-dataset.html"><strong aria-hidden="true">17.9.</strong> Semantic Segmentation and the Dataset</a></li><li class="chapter-item "><a href="../chapter_computer-vision/transposed-conv.html"><strong aria-hidden="true">17.10.</strong> Transposed Convolution</a></li><li class="chapter-item "><a href="../chapter_computer-vision/fcn.html"><strong aria-hidden="true">17.11.</strong> Fully Convolutional Networks</a></li><li class="chapter-item "><a href="../chapter_computer-vision/neural-style.html"><strong aria-hidden="true">17.12.</strong> Neural Style Transfer</a></li><li class="chapter-item "><a href="../chapter_computer-vision/kaggle-cifar10.html"><strong aria-hidden="true">17.13.</strong> Image Classification (CIFAR-10) on Kaggle</a></li><li class="chapter-item "><a href="../chapter_computer-vision/kaggle-dog.html"><strong aria-hidden="true">17.14.</strong> Dog Breed Identification (ImageNet Dogs) on Kaggle</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_natural-language-processing-pretraining/index.html"><strong aria-hidden="true">18.</strong> Natural Language Processing: Pretraining</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/word2vec.html"><strong aria-hidden="true">18.1.</strong> Word Embedding (word2vec)</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/approx-training.html"><strong aria-hidden="true">18.2.</strong> Approximate Training</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/word-embedding-dataset.html"><strong aria-hidden="true">18.3.</strong> The Dataset for Pretraining Word Embeddings</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/word2vec-pretraining.html"><strong aria-hidden="true">18.4.</strong> Pretraining word2vec</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/glove.html"><strong aria-hidden="true">18.5.</strong> Word Embedding with Global Vectors (GloVe)</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/subword-embedding.html"><strong aria-hidden="true">18.6.</strong> Subword Embedding</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/similarity-analogy.html"><strong aria-hidden="true">18.7.</strong> Word Similarity and Analogy</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/bert.html"><strong aria-hidden="true">18.8.</strong> Bidirectional Encoder Representations from Transformers (BERT)</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/bert-dataset.html"><strong aria-hidden="true">18.9.</strong> The Dataset for Pretraining BERT</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/bert-pretraining.html"><strong aria-hidden="true">18.10.</strong> Pretraining BERT</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_natural-language-processing-applications/index.html"><strong aria-hidden="true">19.</strong> Natural Language Processing: Applications</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/sentiment-analysis-and-dataset.html"><strong aria-hidden="true">19.1.</strong> Sentiment Analysis and the Dataset</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/sentiment-analysis-rnn.html"><strong aria-hidden="true">19.2.</strong> Sentiment Analysis: Using Recurrent Neural Networks</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/sentiment-analysis-cnn.html"><strong aria-hidden="true">19.3.</strong> Sentiment Analysis: Using Convolutional Neural Networks</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/natural-language-inference-and-dataset.html"><strong aria-hidden="true">19.4.</strong> Natural Language Inference and the Dataset</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/natural-language-inference-attention.html"><strong aria-hidden="true">19.5.</strong> Natural Language Inference: Using Attention</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/finetuning-bert.html"><strong aria-hidden="true">19.6.</strong> Fine-Tuning BERT for Sequence-Level and Token-Level Applications</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/natural-language-inference-bert.html"><strong aria-hidden="true">19.7.</strong> Natural Language Inference: Fine-Tuning BERT</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_reinforcement-learning/index.html"><strong aria-hidden="true">20.</strong> Reinforcement Learning</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_reinforcement-learning/mdp.html"><strong aria-hidden="true">20.1.</strong> Markov Decision Process (MDP)</a></li><li class="chapter-item "><a href="../chapter_reinforcement-learning/value-iter.html"><strong aria-hidden="true">20.2.</strong> Value Iteration</a></li><li class="chapter-item "><a href="../chapter_reinforcement-learning/qlearning.html"><strong aria-hidden="true">20.3.</strong> Q-Learning</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_gaussian-processes/index.html"><strong aria-hidden="true">21.</strong> Gaussian Processes</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_gaussian-processes/gp-intro.html"><strong aria-hidden="true">21.1.</strong> Introduction to Gaussian Processes</a></li><li class="chapter-item "><a href="../chapter_gaussian-processes/gp-priors.html"><strong aria-hidden="true">21.2.</strong> Gaussian Process Priors</a></li><li class="chapter-item "><a href="../chapter_gaussian-processes/gp-inference.html"><strong aria-hidden="true">21.3.</strong> Gaussian Process Inference</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_hyperparameter-optimization/index.html"><strong aria-hidden="true">22.</strong> Hyperparameter Optimization</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_hyperparameter-optimization/hyperopt-intro.html"><strong aria-hidden="true">22.1.</strong> What Is Hyperparameter Optimization?</a></li><li class="chapter-item "><a href="../chapter_hyperparameter-optimization/hyperopt-api.html"><strong aria-hidden="true">22.2.</strong> Hyperparameter Optimization API</a></li><li class="chapter-item "><a href="../chapter_hyperparameter-optimization/rs-async.html"><strong aria-hidden="true">22.3.</strong> Asynchronous Random Search</a></li><li class="chapter-item "><a href="../chapter_hyperparameter-optimization/sh-intro.html"><strong aria-hidden="true">22.4.</strong> Multi-Fidelity Hyperparameter Optimization</a></li><li class="chapter-item "><a href="../chapter_hyperparameter-optimization/sh-async.html"><strong aria-hidden="true">22.5.</strong> Asynchronous Successive Halving</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_generative-adversarial-networks/index.html"><strong aria-hidden="true">23.</strong> Generative Adversarial Networks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_generative-adversarial-networks/gan.html"><strong aria-hidden="true">23.1.</strong> Generative Adversarial Networks</a></li><li class="chapter-item "><a href="../chapter_generative-adversarial-networks/dcgan.html"><strong aria-hidden="true">23.2.</strong> Deep Convolutional Generative Adversarial Networks</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_recommender-systems/index.html"><strong aria-hidden="true">24.</strong> Recommender Systems</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_recommender-systems/recsys-intro.html"><strong aria-hidden="true">24.1.</strong> Overview of Recommender Systems</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/movielens.html"><strong aria-hidden="true">24.2.</strong> The MovieLens Dataset</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/mf.html"><strong aria-hidden="true">24.3.</strong> Matrix Factorization</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/autorec.html"><strong aria-hidden="true">24.4.</strong> AutoRec: Rating Prediction with Autoencoders</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/ranking.html"><strong aria-hidden="true">24.5.</strong> Personalized Ranking for Recommender Systems</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/neumf.html"><strong aria-hidden="true">24.6.</strong> Neural Collaborative Filtering for Personalized Ranking</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/seqrec.html"><strong aria-hidden="true">24.7.</strong> Sequence-Aware Recommender Systems</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/ctr.html"><strong aria-hidden="true">24.8.</strong> Feature-Rich Recommender Systems</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/fm.html"><strong aria-hidden="true">24.9.</strong> Factorization Machines</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/deepfm.html"><strong aria-hidden="true">24.10.</strong> Deep Factorization Machines</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_appendix-mathematics-for-deep-learning/index.html"><strong aria-hidden="true">25.</strong> Appendix: Mathematics for Deep Learning</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/geometry-linear-algebraic-ops.html"><strong aria-hidden="true">25.1.</strong> Geometry and Linear Algebraic Operations</a></li><li class="chapter-item expanded "><a href="../chapter_appendix-mathematics-for-deep-learning/eigendecomposition.html" class="active"><strong aria-hidden="true">25.2.</strong> Eigendecompositions</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/single-variable-calculus.html"><strong aria-hidden="true">25.3.</strong> Single Variable Calculus</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/multivariable-calculus.html"><strong aria-hidden="true">25.4.</strong> Multivariable Calculus</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/integral-calculus.html"><strong aria-hidden="true">25.5.</strong> Integral Calculus</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/random-variables.html"><strong aria-hidden="true">25.6.</strong> Random Variables</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/maximum-likelihood.html"><strong aria-hidden="true">25.7.</strong> Maximum Likelihood</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/distributions.html"><strong aria-hidden="true">25.8.</strong> Distributions</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/naive-bayes.html"><strong aria-hidden="true">25.9.</strong> Naive Bayes</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/statistics.html"><strong aria-hidden="true">25.10.</strong> Statistics</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/information-theory.html"><strong aria-hidden="true">25.11.</strong> Information Theory</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_appendix-tools-for-deep-learning/index.html"><strong aria-hidden="true">26.</strong> Appendix: Tools for Deep Learning</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/jupyter.html"><strong aria-hidden="true">26.1.</strong> Using Jupyter Notebooks</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/sagemaker.html"><strong aria-hidden="true">26.2.</strong> Using Amazon SageMaker</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/aws.html"><strong aria-hidden="true">26.3.</strong> Using AWS EC2 Instances</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/colab.html"><strong aria-hidden="true">26.4.</strong> Using Google Colab</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/selecting-servers-gpus.html"><strong aria-hidden="true">26.5.</strong> Selecting Servers and GPUs</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/contributing.html"><strong aria-hidden="true">26.6.</strong> Contributing to This Book</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/utils.html"><strong aria-hidden="true">26.7.</strong> Utility Functions and Classes</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/d2l.html"><strong aria-hidden="true">26.8.</strong> The d2l API Document</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_references/zreferences.html"><strong aria-hidden="true">27.</strong> chapter_references/zreferences.md</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Dive into Deep Learning</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/d2l-ai/d2l-en" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="eigendecompositions"><a class="header" href="#eigendecompositions">Eigendecompositions</a></h1>
+<p>:label:<code>sec_eigendecompositions</code></p>
+<p>Eigenvalues are often one of the most useful notions
+we will encounter when studying linear algebra,
+however, as a beginner, it is easy to overlook their importance.
+Below, we introduce eigendecomposition and
+try to convey some sense of just why it is so important.</p>
+<p>Suppose that we have a matrix $A$ with the following entries:</p>
+<p>$$
+\mathbf{A} = \begin{bmatrix}
+2 &amp; 0 \
+0 &amp; -1
+\end{bmatrix}.
+$$</p>
+<p>If we apply $A$ to any vector $\mathbf{v} = [x, y]^\top$,
+we obtain a vector $\mathbf{A}\mathbf{v} = [2x, -y]^\top$.
+This has an intuitive interpretation:
+stretch the vector to be twice as wide in the $x$-direction,
+and then flip it in the $y$-direction.</p>
+<p>However, there are <em>some</em> vectors for which something remains unchanged.
+Namely $[1, 0]^\top$ gets sent to $[2, 0]^\top$
+and $[0, 1]^\top$ gets sent to $[0, -1]^\top$.
+These vectors are still in the same line,
+and the only modification is that the matrix stretches them
+by a factor of $2$ and $-1$ respectively.
+We call such vectors <em>eigenvectors</em>
+and the factor they are stretched by <em>eigenvalues</em>.</p>
+<p>In general, if we can find a number $\lambda$
+and a vector $\mathbf{v}$ such that</p>
+<p>$$
+\mathbf{A}\mathbf{v} = \lambda \mathbf{v}.
+$$</p>
+<p>We say that $\mathbf{v}$ is an eigenvector for $A$ and $\lambda$ is an eigenvalue.</p>
+<h2 id="finding-eigenvalues"><a class="header" href="#finding-eigenvalues">Finding Eigenvalues</a></h2>
+<p>Let's figure out how to find them. By subtracting off the $\lambda \mathbf{v}$ from both sides,
+and then factoring out the vector,
+we see the above is equivalent to:</p>
+<p>$$(\mathbf{A} - \lambda \mathbf{I})\mathbf{v} = 0.$$
+:eqlabel:<code>eq_eigvalue_der</code></p>
+<p>For :eqref:<code>eq_eigvalue_der</code> to happen, we see that $(\mathbf{A} - \lambda \mathbf{I})$
+must compress some direction down to zero,
+hence it is not invertible, and thus the determinant is zero.
+Thus, we can find the <em>eigenvalues</em>
+by finding for what $\lambda$ is $\det(\mathbf{A}-\lambda \mathbf{I}) = 0$.
+Once we find the eigenvalues, we can solve
+$\mathbf{A}\mathbf{v} = \lambda \mathbf{v}$
+to find the associated <em>eigenvector(s)</em>.</p>
+<h3 id="an-example"><a class="header" href="#an-example">An Example</a></h3>
+<p>Let's see this with a more challenging matrix</p>
+<p>$$
+\mathbf{A} = \begin{bmatrix}
+2 &amp; 1\
+2 &amp; 3
+\end{bmatrix}.
+$$</p>
+<p>If we consider $\det(\mathbf{A}-\lambda \mathbf{I}) = 0$,
+we see this is equivalent to the polynomial equation
+$0 = (2-\lambda)(3-\lambda)-2 = (4-\lambda)(1-\lambda)$.
+Thus, two eigenvalues are $4$ and $1$.
+To find the associated vectors, we then need to solve</p>
+<p>$$
+\begin{bmatrix}
+2 &amp; 1\
+2 &amp; 3
+\end{bmatrix}\begin{bmatrix}x \ y\end{bmatrix} = \begin{bmatrix}x \ y\end{bmatrix}  ; \textrm{and} ;
+\begin{bmatrix}
+2 &amp; 1\
+2 &amp; 3
+\end{bmatrix}\begin{bmatrix}x \ y\end{bmatrix}  = \begin{bmatrix}4x \ 4y\end{bmatrix} .
+$$</p>
+<p>We can solve this with the vectors $[1, -1]^\top$ and $[1, 2]^\top$ respectively.</p>
+<p>We can check this in code using the built-in <code>numpy.linalg.eig</code> routine.</p>
+<pre><code class="language-{.python .input}">#@tab mxnet
+%matplotlib inline
+from d2l import mxnet as d2l
+from IPython import display
+import numpy as np
+
+np.linalg.eig(np.array([[2, 1], [2, 3]]))
+</code></pre>
+<pre><code class="language-{.python .input}">#@tab pytorch
+%matplotlib inline
+from d2l import torch as d2l
+from IPython import display
+import torch
+
+torch.linalg.eig(torch.tensor([[2, 1], [2, 3]], dtype=torch.float64))
+</code></pre>
+<pre><code class="language-{.python .input}">#@tab tensorflow
+%matplotlib inline
+from d2l import tensorflow as d2l
+from IPython import display
+import tensorflow as tf
+
+tf.linalg.eig(tf.constant([[2, 1], [2, 3]], dtype=tf.float64))
+</code></pre>
+<p>Note that <code>numpy</code> normalizes the eigenvectors to be of length one,
+whereas we took ours to be of arbitrary length.
+Additionally, the choice of sign is arbitrary.
+However, the vectors computed are parallel
+to the ones we found by hand with the same eigenvalues.</p>
+<h2 id="decomposing-matrices"><a class="header" href="#decomposing-matrices">Decomposing Matrices</a></h2>
+<p>Let's continue the previous example one step further.  Let</p>
+<p>$$
+\mathbf{W} = \begin{bmatrix}
+1 &amp; 1 \
+-1 &amp; 2
+\end{bmatrix},
+$$</p>
+<p>be the matrix where the columns are the eigenvectors of the matrix $\mathbf{A}$. Let</p>
+<p>$$
+\boldsymbol{\Sigma} = \begin{bmatrix}
+1 &amp; 0 \
+0 &amp; 4
+\end{bmatrix},
+$$</p>
+<p>be the matrix with the associated eigenvalues on the diagonal.
+Then the definition of eigenvalues and eigenvectors tells us that</p>
+<p>$$
+\mathbf{A}\mathbf{W} =\mathbf{W} \boldsymbol{\Sigma} .
+$$</p>
+<p>The matrix $W$ is invertible, so we may multiply both sides by $W^{-1}$ on the right,
+we see that we may write</p>
+<p>$$\mathbf{A} = \mathbf{W} \boldsymbol{\Sigma} \mathbf{W}^{-1}.$$
+:eqlabel:<code>eq_eig_decomp</code></p>
+<p>In the next section we will see some nice consequences of this,
+but for now we need only know that such a decomposition
+will exist as long as we can find a full collection
+of linearly independent eigenvectors (so that $W$ is invertible).</p>
+<h2 id="operations-on-eigendecompositions"><a class="header" href="#operations-on-eigendecompositions">Operations on Eigendecompositions</a></h2>
+<p>One nice thing about eigendecompositions :eqref:<code>eq_eig_decomp</code> is that
+we can write many operations we usually encounter cleanly
+in terms of the eigendecomposition. As a first example, consider:</p>
+<p>$$
+\mathbf{A}^n = \overbrace{\mathbf{A}\cdots \mathbf{A}}^{\textrm{$n$ times}} = \overbrace{(\mathbf{W}\boldsymbol{\Sigma} \mathbf{W}^{-1})\cdots(\mathbf{W}\boldsymbol{\Sigma} \mathbf{W}^{-1})}^{\textrm{$n$ times}} =  \mathbf{W}\overbrace{\boldsymbol{\Sigma}\cdots\boldsymbol{\Sigma}}^{\textrm{$n$ times}}\mathbf{W}^{-1} = \mathbf{W}\boldsymbol{\Sigma}^n \mathbf{W}^{-1}.
+$$</p>
+<p>This tells us that for any positive power of a matrix,
+the eigendecomposition is obtained by just raising the eigenvalues to the same power.
+The same can be shown for negative powers,
+so if we want to invert a matrix we need only consider</p>
+<p>$$
+\mathbf{A}^{-1} = \mathbf{W}\boldsymbol{\Sigma}^{-1} \mathbf{W}^{-1},
+$$</p>
+<p>or in other words, just invert each eigenvalue.
+This will work as long as each eigenvalue is non-zero,
+so we see that invertible is the same as having no zero eigenvalues.</p>
+<p>Indeed, additional work can show that if $\lambda_1, \ldots, \lambda_n$
+are the eigenvalues of a matrix, then the determinant of that matrix is</p>
+<p>$$
+\det(\mathbf{A}) = \lambda_1 \cdots \lambda_n,
+$$</p>
+<p>or the product of all the eigenvalues.
+This makes sense intuitively because whatever stretching $\mathbf{W}$ does,
+$W^{-1}$ undoes it, so in the end the only stretching that happens is
+by multiplication by the diagonal matrix $\boldsymbol{\Sigma}$,
+which stretches volumes by the product of the diagonal elements.</p>
+<p>Finally, recall that the rank was the maximum number
+of linearly independent columns of your matrix.
+By examining the eigendecomposition closely,
+we can see that the rank is the same
+as the number of non-zero eigenvalues of $\mathbf{A}$.</p>
+<p>The examples could continue, but hopefully the point is clear:
+eigendecomposition can simplify many linear-algebraic computations
+and is a fundamental operation underlying many numerical algorithms
+and much of the analysis that we do in linear algebra.</p>
+<h2 id="eigendecompositions-of-symmetric-matrices"><a class="header" href="#eigendecompositions-of-symmetric-matrices">Eigendecompositions of Symmetric Matrices</a></h2>
+<p>It is not always possible to find enough linearly independent eigenvectors
+for the above process to work. For instance the matrix</p>
+<p>$$
+\mathbf{A} = \begin{bmatrix}
+1 &amp; 1 \
+0 &amp; 1
+\end{bmatrix},
+$$</p>
+<p>has only a single eigenvector, namely $(1, 0)^\top$.
+To handle such matrices, we require more advanced techniques
+than we can cover (such as the Jordan Normal Form, or Singular Value Decomposition).
+We will often need to restrict our attention to those matrices
+where we can guarantee the existence of a full set of eigenvectors.</p>
+<p>The most commonly encountered family are the <em>symmetric matrices</em>,
+which are those matrices where $\mathbf{A} = \mathbf{A}^\top$.
+In this case, we may take $W$ to be an <em>orthogonal matrix</em>—a matrix whose columns are all length one vectors that are at right angles to one another, where
+$\mathbf{W}^\top = \mathbf{W}^{-1}$—and all the eigenvalues will be real.
+Thus, in this special case, we can write :eqref:<code>eq_eig_decomp</code> as</p>
+<p>$$
+\mathbf{A} = \mathbf{W}\boldsymbol{\Sigma}\mathbf{W}^\top .
+$$</p>
+<h2 id="gershgorin-circle-theorem"><a class="header" href="#gershgorin-circle-theorem">Gershgorin Circle Theorem</a></h2>
+<p>Eigenvalues are often difficult to reason with intuitively.
+If presented an arbitrary matrix, there is little that can be said
+about what the eigenvalues are without computing them.
+There is, however, one theorem that can make it easy to approximate well
+if the largest values are on the diagonal.</p>
+<p>Let $\mathbf{A} = (a_{ij})$ be any square matrix ($n\times n$).
+We will define $r_i = \sum_{j \neq i} |a_{ij}|$.
+Let $\mathcal{D}<em>i$ represent the disc in the complex plane
+with center $a</em>{ii}$ radius $r_i$.
+Then, every eigenvalue of $\mathbf{A}$ is contained in one of the $\mathcal{D}_i$.</p>
+<p>This can be a bit to unpack, so let's look at an example.
+Consider the matrix:</p>
+<p>$$
+\mathbf{A} = \begin{bmatrix}
+1.0 &amp; 0.1 &amp; 0.1 &amp; 0.1 \
+0.1 &amp; 3.0 &amp; 0.2 &amp; 0.3 \
+0.1 &amp; 0.2 &amp; 5.0 &amp; 0.5 \
+0.1 &amp; 0.3 &amp; 0.5 &amp; 9.0
+\end{bmatrix}.
+$$</p>
+<p>We have $r_1 = 0.3$, $r_2 = 0.6$, $r_3 = 0.8$ and $r_4 = 0.9$.
+The matrix is symmetric, so all eigenvalues are real.
+This means that all of our eigenvalues will be in one of the ranges of</p>
+<p>$$[a_{11}-r_1, a_{11}+r_1] = [0.7, 1.3], $$</p>
+<p>$$[a_{22}-r_2, a_{22}+r_2] = [2.4, 3.6], $$</p>
+<p>$$[a_{33}-r_3, a_{33}+r_3] = [4.2, 5.8], $$</p>
+<p>$$[a_{44}-r_4, a_{44}+r_4] = [8.1, 9.9]. $$</p>
+<p>Performing the numerical computation shows
+that the eigenvalues are approximately $0.99$, $2.97$, $4.95$, $9.08$,
+all comfortably inside the ranges provided.</p>
+<pre><code class="language-{.python .input}">#@tab mxnet
+A = np.array([[1.0, 0.1, 0.1, 0.1],
+              [0.1, 3.0, 0.2, 0.3],
+              [0.1, 0.2, 5.0, 0.5],
+              [0.1, 0.3, 0.5, 9.0]])
+
+v, _ = np.linalg.eig(A)
+v
+</code></pre>
+<pre><code class="language-{.python .input}">#@tab pytorch
+A = torch.tensor([[1.0, 0.1, 0.1, 0.1],
+              [0.1, 3.0, 0.2, 0.3],
+              [0.1, 0.2, 5.0, 0.5],
+              [0.1, 0.3, 0.5, 9.0]])
+
+v, _ = torch.linalg.eig(A)
+v
+</code></pre>
+<pre><code class="language-{.python .input}">#@tab tensorflow
+A = tf.constant([[1.0, 0.1, 0.1, 0.1],
+                [0.1, 3.0, 0.2, 0.3],
+                [0.1, 0.2, 5.0, 0.5],
+                [0.1, 0.3, 0.5, 9.0]])
+
+v, _ = tf.linalg.eigh(A)
+v
+</code></pre>
+<p>In this way, eigenvalues can be approximated,
+and the approximations will be fairly accurate
+in the case that the diagonal is
+significantly larger than all the other elements.</p>
+<p>It is a small thing, but with a complex
+and subtle topic like eigendecomposition,
+it is good to get any intuitive grasp we can.</p>
+<h2 id="a-useful-application-the-growth-of-iterated-maps"><a class="header" href="#a-useful-application-the-growth-of-iterated-maps">A Useful Application: The Growth of Iterated Maps</a></h2>
+<p>Now that we understand what eigenvectors are in principle,
+let's see how they can be used to provide a deep understanding
+of a problem central to neural network behavior: proper weight initialization.</p>
+<h3 id="eigenvectors-as-long-term-behavior"><a class="header" href="#eigenvectors-as-long-term-behavior">Eigenvectors as Long Term Behavior</a></h3>
+<p>The full mathematical investigation of the initialization
+of deep neural networks is beyond the scope of the text,
+but we can see a toy version here to understand
+how eigenvalues can help us see how these models work.
+As we know, neural networks operate by interspersing layers
+of linear transformations with non-linear operations.
+For simplicity here, we will assume that there is no non-linearity,
+and that the transformation is a single repeated matrix operation $A$,
+so that the output of our model is</p>
+<p>$$
+\mathbf{v}<em>{out} = \mathbf{A}\cdot \mathbf{A}\cdots \mathbf{A} \mathbf{v}</em>{in} = \mathbf{A}^N \mathbf{v}_{in}.
+$$</p>
+<p>When these models are initialized, $A$ is taken to be
+a random matrix with Gaussian entries, so let's make one of those.
+To be concrete, we start with a mean zero, variance one Gaussian distributed $5 \times 5$ matrix.</p>
+<pre><code class="language-{.python .input}">#@tab mxnet
+np.random.seed(8675309)
+
+k = 5
+A = np.random.randn(k, k)
+A
+</code></pre>
+<pre><code class="language-{.python .input}">#@tab pytorch
+torch.manual_seed(42)
+
+k = 5
+A = torch.randn(k, k, dtype=torch.float64)
+A
+</code></pre>
+<pre><code class="language-{.python .input}">#@tab tensorflow
+k = 5
+A = tf.random.normal((k, k), dtype=tf.float64)
+A
+</code></pre>
+<h3 id="behavior-on-random-data"><a class="header" href="#behavior-on-random-data">Behavior on Random Data</a></h3>
+<p>For simplicity in our toy model,
+we will assume that the data vector we feed in $\mathbf{v}_{in}$
+is a random five dimensional Gaussian vector.
+Let's think about what we want to have happen.
+For context, lets think of a generic ML problem,
+where we are trying to turn input data, like an image, into a prediction,
+like the probability the image is a picture of a cat.
+If repeated application of $\mathbf{A}$
+stretches a random vector out to be very long,
+then small changes in input will be amplified
+into large changes in output---tiny modifications of the input image
+would lead to vastly different predictions.
+This does not seem right!</p>
+<p>On the flip side, if $\mathbf{A}$ shrinks random vectors to be shorter,
+then after running through many layers, the vector will essentially shrink to nothing,
+and the output will not depend on the input. This is also clearly not right either!</p>
+<p>We need to walk the narrow line between growth and decay
+to make sure that our output changes depending on our input, but not much!</p>
+<p>Let's see what happens when we repeatedly multiply our matrix $\mathbf{A}$
+against a random input vector, and keep track of the norm.</p>
+<pre><code class="language-{.python .input}">#@tab mxnet
+# Calculate the sequence of norms after repeatedly applying `A`
+v_in = np.random.randn(k, 1)
+
+norm_list = [np.linalg.norm(v_in)]
+for i in range(1, 100):
+    v_in = A.dot(v_in)
+    norm_list.append(np.linalg.norm(v_in))
+
+d2l.plot(np.arange(0, 100), norm_list, 'Iteration', 'Value')
+</code></pre>
+<pre><code class="language-{.python .input}">#@tab pytorch
+# Calculate the sequence of norms after repeatedly applying `A`
+v_in = torch.randn(k, 1, dtype=torch.float64)
+
+norm_list = [torch.norm(v_in).item()]
+for i in range(1, 100):
+    v_in = A @ v_in
+    norm_list.append(torch.norm(v_in).item())
+
+d2l.plot(torch.arange(0, 100), norm_list, 'Iteration', 'Value')
+</code></pre>
+<pre><code class="language-{.python .input}">#@tab tensorflow
+# Calculate the sequence of norms after repeatedly applying `A`
+v_in = tf.random.normal((k, 1), dtype=tf.float64)
+
+norm_list = [tf.norm(v_in).numpy()]
+for i in range(1, 100):
+    v_in = tf.matmul(A, v_in)
+    norm_list.append(tf.norm(v_in).numpy())
+
+d2l.plot(tf.range(0, 100), norm_list, 'Iteration', 'Value')
+</code></pre>
+<p>The norm is growing uncontrollably!
+Indeed if we take the list of quotients, we will see a pattern.</p>
+<pre><code class="language-{.python .input}">#@tab mxnet
+# Compute the scaling factor of the norms
+norm_ratio_list = []
+for i in range(1, 100):
+    norm_ratio_list.append(norm_list[i]/norm_list[i - 1])
+
+d2l.plot(np.arange(1, 100), norm_ratio_list, 'Iteration', 'Ratio')
+</code></pre>
+<pre><code class="language-{.python .input}">#@tab pytorch
+# Compute the scaling factor of the norms
+norm_ratio_list = []
+for i in range(1, 100):
+    norm_ratio_list.append(norm_list[i]/norm_list[i - 1])
+
+d2l.plot(torch.arange(1, 100), norm_ratio_list, 'Iteration', 'Ratio')
+</code></pre>
+<pre><code class="language-{.python .input}">#@tab tensorflow
+# Compute the scaling factor of the norms
+norm_ratio_list = []
+for i in range(1, 100):
+    norm_ratio_list.append(norm_list[i]/norm_list[i - 1])
+
+d2l.plot(tf.range(1, 100), norm_ratio_list, 'Iteration', 'Ratio')
+</code></pre>
+<p>If we look at the last portion of the above computation,
+we see that the random vector is stretched by a factor of <code>1.974459321485[...]</code>,
+where the portion at the end shifts a little,
+but the stretching factor is stable.</p>
+<h3 id="relating-back-to-eigenvectors"><a class="header" href="#relating-back-to-eigenvectors">Relating Back to Eigenvectors</a></h3>
+<p>We have seen that eigenvectors and eigenvalues correspond
+to the amount something is stretched,
+but that was for specific vectors, and specific stretches.
+Let's take a look at what they are for $\mathbf{A}$.
+A bit of a caveat here: it turns out that to see them all,
+we will need to go to complex numbers.
+You can think of these as stretches and rotations.
+By taking the norm of the complex number
+(square root of the sums of squares of real and imaginary parts)
+we can measure that stretching factor. Let's also sort them.</p>
+<pre><code class="language-{.python .input}">#@tab mxnet
+# Compute the eigenvalues
+eigs = np.linalg.eigvals(A).tolist()
+norm_eigs = [np.absolute(x) for x in eigs]
+norm_eigs.sort()
+print(f'norms of eigenvalues: {norm_eigs}')
+</code></pre>
+<pre><code class="language-{.python .input}">#@tab pytorch
+# Compute the eigenvalues
+eigs = torch.linalg.eig(A).eigenvalues.tolist()
+norm_eigs = [torch.abs(torch.tensor(x)) for x in eigs]
+norm_eigs.sort()
+print(f'norms of eigenvalues: {norm_eigs}')
+</code></pre>
+<pre><code class="language-{.python .input}">#@tab tensorflow
+# Compute the eigenvalues
+eigs = tf.linalg.eigh(A)[0].numpy().tolist()
+norm_eigs = [tf.abs(tf.constant(x, dtype=tf.float64)) for x in eigs]
+norm_eigs.sort()
+print(f'norms of eigenvalues: {norm_eigs}')
+</code></pre>
+<h3 id="an-observation"><a class="header" href="#an-observation">An Observation</a></h3>
+<p>We see something a bit unexpected happening here:
+that number we identified before for the
+long term stretching of our matrix $\mathbf{A}$
+applied to a random vector is <em>exactly</em>
+(accurate to thirteen decimal places!)
+the largest eigenvalue of $\mathbf{A}$.
+This is clearly not a coincidence!</p>
+<p>But, if we now think about what is happening geometrically,
+this starts to make sense. Consider a random vector.
+This random vector points a little in every direction,
+so in particular, it points at least a little bit
+in the same direction as the eigenvector of $\mathbf{A}$
+associated with the largest eigenvalue.
+This is so important that it is called
+the <em>principle eigenvalue</em> and <em>principle eigenvector</em>.
+After applying $\mathbf{A}$, our random vector
+gets stretched in every possible direction,
+as is associated with every possible eigenvector,
+but it is stretched most of all in the direction
+associated with this principle eigenvector.
+What this means is that after apply in $A$,
+our random vector is longer, and points in a direction
+closer to being aligned with the principle eigenvector.
+After applying the matrix many times,
+the alignment with the principle eigenvector becomes closer and closer until,
+for all practical purposes, our random vector has been transformed
+into the principle eigenvector!
+Indeed this algorithm is the basis
+for what is known as the <em>power iteration</em>
+for finding the largest eigenvalue and eigenvector of a matrix. For details see, for example, :cite:<code>Golub.Van-Loan.1996</code>.</p>
+<h3 id="fixing-the-normalization"><a class="header" href="#fixing-the-normalization">Fixing the Normalization</a></h3>
+<p>Now, from above discussions, we concluded
+that we do not want a random vector to be stretched or squished at all,
+we would like random vectors to stay about the same size throughout the entire process.
+To do so, we now rescale our matrix by this principle eigenvalue
+so that the largest eigenvalue is instead now just one.
+Let's see what happens in this case.</p>
+<pre><code class="language-{.python .input}">#@tab mxnet
+# Rescale the matrix `A`
+A /= norm_eigs[-1]
+
+# Do the same experiment again
+v_in = np.random.randn(k, 1)
+
+norm_list = [np.linalg.norm(v_in)]
+for i in range(1, 100):
+    v_in = A.dot(v_in)
+    norm_list.append(np.linalg.norm(v_in))
+
+d2l.plot(np.arange(0, 100), norm_list, 'Iteration', 'Value')
+</code></pre>
+<pre><code class="language-{.python .input}">#@tab pytorch
+# Rescale the matrix `A`
+A /= norm_eigs[-1]
+
+# Do the same experiment again
+v_in = torch.randn(k, 1, dtype=torch.float64)
+
+norm_list = [torch.norm(v_in).item()]
+for i in range(1, 100):
+    v_in = A @ v_in
+    norm_list.append(torch.norm(v_in).item())
+
+d2l.plot(torch.arange(0, 100), norm_list, 'Iteration', 'Value')
+</code></pre>
+<pre><code class="language-{.python .input}">#@tab tensorflow
+# Rescale the matrix `A`
+A /= norm_eigs[-1]
+
+# Do the same experiment again
+v_in = tf.random.normal((k, 1), dtype=tf.float64)
+
+norm_list = [tf.norm(v_in).numpy()]
+for i in range(1, 100):
+    v_in = tf.matmul(A, v_in)
+    norm_list.append(tf.norm(v_in).numpy())
+
+d2l.plot(tf.range(0, 100), norm_list, 'Iteration', 'Value')
+</code></pre>
+<p>We can also plot the ratio between consecutive norms as before and see that indeed it stabilizes.</p>
+<pre><code class="language-{.python .input}">#@tab mxnet
+# Also plot the ratio
+norm_ratio_list = []
+for i in range(1, 100):
+    norm_ratio_list.append(norm_list[i]/norm_list[i-1])
+
+d2l.plot(np.arange(1, 100), norm_ratio_list, 'Iteration', 'Ratio')
+</code></pre>
+<pre><code class="language-{.python .input}">#@tab pytorch
+# Also plot the ratio
+norm_ratio_list = []
+for i in range(1, 100):
+    norm_ratio_list.append(norm_list[i]/norm_list[i-1])
+
+d2l.plot(torch.arange(1, 100), norm_ratio_list, 'Iteration', 'Ratio')
+</code></pre>
+<pre><code class="language-{.python .input}">#@tab tensorflow
+# Also plot the ratio
+norm_ratio_list = []
+for i in range(1, 100):
+    norm_ratio_list.append(norm_list[i]/norm_list[i-1])
+
+d2l.plot(tf.range(1, 100), norm_ratio_list, 'Iteration', 'Ratio')
+</code></pre>
+<h2 id="discussion"><a class="header" href="#discussion">Discussion</a></h2>
+<p>We now see exactly what we hoped for!
+After normalizing the matrices by the principal eigenvalue,
+we see that the random data does not explode as before,
+but rather eventually equilibrates to a specific value.
+It would be nice to be able to do these things from first principles,
+and it turns out that if we look deeply at the mathematics of it,
+we can see that the largest eigenvalue
+of a large random matrix with independent mean zero,
+variance one Gaussian entries is on average about $\sqrt{n}$,
+or in our case $\sqrt{5} \approx 2.2$,
+due to a fascinating fact known as the <em>circular law</em> :cite:<code>Ginibre.1965</code>.
+The relationship between the eigenvalues (and a related object called singular values) of random matrices has been shown to have deep connections to proper initialization of neural networks as was discussed in :citet:<code>Pennington.Schoenholz.Ganguli.2017</code> and subsequent works.</p>
+<h2 id="summary"><a class="header" href="#summary">Summary</a></h2>
+<ul>
+<li>Eigenvectors are vectors which are stretched by a matrix without changing direction.</li>
+<li>Eigenvalues are the amount that the eigenvectors are stretched by the application of the matrix.</li>
+<li>The eigendecomposition of a matrix can allow for many operations to be reduced to operations on the eigenvalues.</li>
+<li>The Gershgorin Circle Theorem can provide approximate values for the eigenvalues of a matrix.</li>
+<li>The behavior of iterated matrix powers depends primarily on the size of the largest eigenvalue.  This understanding has many applications in the theory of neural network initialization.</li>
+</ul>
+<h2 id="exercises"><a class="header" href="#exercises">Exercises</a></h2>
+<ol>
+<li>What are the eigenvalues and eigenvectors of
+$$
+\mathbf{A} = \begin{bmatrix}
+2 &amp; 1 \
+1 &amp; 2
+\end{bmatrix}?
+$$</li>
+<li>What are the eigenvalues and eigenvectors of the following matrix, and what is strange about this example compared to the previous one?
+$$
+\mathbf{A} = \begin{bmatrix}
+2 &amp; 1 \
+0 &amp; 2
+\end{bmatrix}.
+$$</li>
+<li>Without computing the eigenvalues, is it possible that the smallest eigenvalue of the following matrix is less that $0.5$? <em>Note</em>: this problem can be done in your head.
+$$
+\mathbf{A} = \begin{bmatrix}
+3.0 &amp; 0.1 &amp; 0.3 &amp; 1.0 \
+0.1 &amp; 1.0 &amp; 0.1 &amp; 0.2 \
+0.3 &amp; 0.1 &amp; 5.0 &amp; 0.0 \
+1.0 &amp; 0.2 &amp; 0.0 &amp; 1.8
+\end{bmatrix}.
+$$</li>
+</ol>
+<p>:begin_tab:<code>mxnet</code>
+<a href="https://discuss.d2l.ai/t/411">Discussions</a>
+:end_tab:</p>
+<p>:begin_tab:<code>pytorch</code>
+<a href="https://discuss.d2l.ai/t/1086">Discussions</a>
+:end_tab:</p>
+<p>:begin_tab:<code>tensorflow</code>
+<a href="https://discuss.d2l.ai/t/1087">Discussions</a>
+:end_tab:</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../chapter_appendix-mathematics-for-deep-learning/geometry-linear-algebraic-ops.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../chapter_appendix-mathematics-for-deep-learning/single-variable-calculus.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../chapter_appendix-mathematics-for-deep-learning/geometry-linear-algebraic-ops.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../chapter_appendix-mathematics-for-deep-learning/single-variable-calculus.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

@@ -1,0 +1,887 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Linear Regression - Dive into Deep Learning</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../static/d2l.css">
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('light')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../index.html">Deep Learning</a></li><li class="chapter-item expanded "><a href="../chapter_preface/index.html"><strong aria-hidden="true">1.</strong> Preface</a></li><li class="chapter-item expanded "><a href="../chapter_installation/index.html"><strong aria-hidden="true">2.</strong> Installation</a></li><li class="chapter-item expanded "><a href="../chapter_notation/index.html"><strong aria-hidden="true">3.</strong> Notation</a></li><li class="chapter-item expanded "><a href="../chapter_introduction/index.html"><strong aria-hidden="true">4.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="../chapter_preliminaries/index.html"><strong aria-hidden="true">5.</strong> Preliminaries</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_preliminaries/ndarray.html"><strong aria-hidden="true">5.1.</strong> Data Manipulation</a></li><li class="chapter-item "><a href="../chapter_preliminaries/pandas.html"><strong aria-hidden="true">5.2.</strong> Data Preprocessing</a></li><li class="chapter-item "><a href="../chapter_preliminaries/linear-algebra.html"><strong aria-hidden="true">5.3.</strong> Linear Algebra</a></li><li class="chapter-item "><a href="../chapter_preliminaries/calculus.html"><strong aria-hidden="true">5.4.</strong> Calculus</a></li><li class="chapter-item "><a href="../chapter_preliminaries/autograd.html"><strong aria-hidden="true">5.5.</strong> Automatic Differentiation</a></li><li class="chapter-item "><a href="../chapter_preliminaries/probability.html"><strong aria-hidden="true">5.6.</strong> Probability and Statistics</a></li><li class="chapter-item "><a href="../chapter_preliminaries/lookup-api.html"><strong aria-hidden="true">5.7.</strong> Documentation</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_linear-regression/index.html"><strong aria-hidden="true">6.</strong> Linear Neural Networks for Regression</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../chapter_linear-regression/linear-regression.html" class="active"><strong aria-hidden="true">6.1.</strong> Linear Regression</a></li><li class="chapter-item "><a href="../chapter_linear-regression/oo-design.html"><strong aria-hidden="true">6.2.</strong> Object-Oriented Design for Implementation</a></li><li class="chapter-item "><a href="../chapter_linear-regression/synthetic-regression-data.html"><strong aria-hidden="true">6.3.</strong> Synthetic Regression Data</a></li><li class="chapter-item "><a href="../chapter_linear-regression/linear-regression-scratch.html"><strong aria-hidden="true">6.4.</strong> Linear Regression Implementation from Scratch</a></li><li class="chapter-item "><a href="../chapter_linear-regression/linear-regression-concise.html"><strong aria-hidden="true">6.5.</strong> Concise Implementation of Linear Regression</a></li><li class="chapter-item "><a href="../chapter_linear-regression/generalization.html"><strong aria-hidden="true">6.6.</strong> Generalization</a></li><li class="chapter-item "><a href="../chapter_linear-regression/weight-decay.html"><strong aria-hidden="true">6.7.</strong> Weight Decay</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_linear-classification/index.html"><strong aria-hidden="true">7.</strong> Linear Neural Networks for Classification</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_linear-classification/softmax-regression.html"><strong aria-hidden="true">7.1.</strong> Softmax Regression</a></li><li class="chapter-item "><a href="../chapter_linear-classification/image-classification-dataset.html"><strong aria-hidden="true">7.2.</strong> The Image Classification Dataset</a></li><li class="chapter-item "><a href="../chapter_linear-classification/classification.html"><strong aria-hidden="true">7.3.</strong> The Base Classification Model</a></li><li class="chapter-item "><a href="../chapter_linear-classification/softmax-regression-scratch.html"><strong aria-hidden="true">7.4.</strong> Softmax Regression Implementation from Scratch</a></li><li class="chapter-item "><a href="../chapter_linear-classification/softmax-regression-concise.html"><strong aria-hidden="true">7.5.</strong> Concise Implementation of Softmax Regression</a></li><li class="chapter-item "><a href="../chapter_linear-classification/generalization-classification.html"><strong aria-hidden="true">7.6.</strong> Generalization in Classification</a></li><li class="chapter-item "><a href="../chapter_linear-classification/environment-and-distribution-shift.html"><strong aria-hidden="true">7.7.</strong> Environment and Distribution Shift</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_multilayer-perceptrons/index.html"><strong aria-hidden="true">8.</strong> Multilayer Perceptrons</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/mlp.html"><strong aria-hidden="true">8.1.</strong> Multilayer Perceptrons</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/mlp-implementation.html"><strong aria-hidden="true">8.2.</strong> Implementation of Multilayer Perceptrons</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/backprop.html"><strong aria-hidden="true">8.3.</strong> Forward Propagation, Backward Propagation, and Computational Graphs</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/numerical-stability-and-init.html"><strong aria-hidden="true">8.4.</strong> Numerical Stability and Initialization</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/generalization-deep.html"><strong aria-hidden="true">8.5.</strong> Generalization in Deep Learning</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/dropout.html"><strong aria-hidden="true">8.6.</strong> Dropout</a></li><li class="chapter-item "><a href="../chapter_multilayer-perceptrons/kaggle-house-price.html"><strong aria-hidden="true">8.7.</strong> Predicting House Prices on Kaggle</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_builders-guide/index.html"><strong aria-hidden="true">9.</strong> Builders' Guide</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_builders-guide/model-construction.html"><strong aria-hidden="true">9.1.</strong> Layers and Modules</a></li><li class="chapter-item "><a href="../chapter_builders-guide/parameters.html"><strong aria-hidden="true">9.2.</strong> Parameter Management</a></li><li class="chapter-item "><a href="../chapter_builders-guide/init-param.html"><strong aria-hidden="true">9.3.</strong> Parameter Initialization</a></li><li class="chapter-item "><a href="../chapter_builders-guide/lazy-init.html"><strong aria-hidden="true">9.4.</strong> Lazy Initialization</a></li><li class="chapter-item "><a href="../chapter_builders-guide/custom-layer.html"><strong aria-hidden="true">9.5.</strong> Custom Layers</a></li><li class="chapter-item "><a href="../chapter_builders-guide/read-write.html"><strong aria-hidden="true">9.6.</strong> File I/O</a></li><li class="chapter-item "><a href="../chapter_builders-guide/use-gpu.html"><strong aria-hidden="true">9.7.</strong> GPUs</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_convolutional-neural-networks/index.html"><strong aria-hidden="true">10.</strong> Convolutional Neural Networks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/why-conv.html"><strong aria-hidden="true">10.1.</strong> From Fully Connected Layers to Convolutions</a></li><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/conv-layer.html"><strong aria-hidden="true">10.2.</strong> Convolutions for Images</a></li><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/padding-and-strides.html"><strong aria-hidden="true">10.3.</strong> Padding and Stride</a></li><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/channels.html"><strong aria-hidden="true">10.4.</strong> Multiple Input and Multiple Output Channels</a></li><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/pooling.html"><strong aria-hidden="true">10.5.</strong> Pooling</a></li><li class="chapter-item "><a href="../chapter_convolutional-neural-networks/lenet.html"><strong aria-hidden="true">10.6.</strong> Convolutional Neural Networks (LeNet)</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_convolutional-modern/index.html"><strong aria-hidden="true">11.</strong> Modern Convolutional Neural Networks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_convolutional-modern/alexnet.html"><strong aria-hidden="true">11.1.</strong> Deep Convolutional Neural Networks (AlexNet)</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/vgg.html"><strong aria-hidden="true">11.2.</strong> Networks Using Blocks (VGG)</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/nin.html"><strong aria-hidden="true">11.3.</strong> Network in Network (NiN)</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/googlenet.html"><strong aria-hidden="true">11.4.</strong> Multi-Branch Networks  (GoogLeNet)</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/batch-norm.html"><strong aria-hidden="true">11.5.</strong> Batch Normalization</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/resnet.html"><strong aria-hidden="true">11.6.</strong> Residual Networks (ResNet) and ResNeXt</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/densenet.html"><strong aria-hidden="true">11.7.</strong> Densely Connected Networks (DenseNet)</a></li><li class="chapter-item "><a href="../chapter_convolutional-modern/cnn-design.html"><strong aria-hidden="true">11.8.</strong> Designing Convolution Network Architectures</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_recurrent-neural-networks/index.html"><strong aria-hidden="true">12.</strong> Recurrent Neural Networks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/sequence.html"><strong aria-hidden="true">12.1.</strong> Working with Sequences</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/text-sequence.html"><strong aria-hidden="true">12.2.</strong> Converting Raw Text into Sequence Data</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/language-model.html"><strong aria-hidden="true">12.3.</strong> Language Models</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/rnn.html"><strong aria-hidden="true">12.4.</strong> Recurrent Neural Networks</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/rnn-scratch.html"><strong aria-hidden="true">12.5.</strong> Recurrent Neural Network Implementation from Scratch</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/rnn-concise.html"><strong aria-hidden="true">12.6.</strong> Concise Implementation of Recurrent Neural Networks</a></li><li class="chapter-item "><a href="../chapter_recurrent-neural-networks/bptt.html"><strong aria-hidden="true">12.7.</strong> Backpropagation Through Time</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_recurrent-modern/index.html"><strong aria-hidden="true">13.</strong> Modern Recurrent Neural Networks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_recurrent-modern/lstm.html"><strong aria-hidden="true">13.1.</strong> Long Short-Term Memory (LSTM)</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/gru.html"><strong aria-hidden="true">13.2.</strong> Gated Recurrent Units (GRU)</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/deep-rnn.html"><strong aria-hidden="true">13.3.</strong> Deep Recurrent Neural Networks</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/bi-rnn.html"><strong aria-hidden="true">13.4.</strong> Bidirectional Recurrent Neural Networks</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/machine-translation-and-dataset.html"><strong aria-hidden="true">13.5.</strong> Machine Translation and the Dataset</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/encoder-decoder.html"><strong aria-hidden="true">13.6.</strong> The Encoder--Decoder Architecture</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/seq2seq.html"><strong aria-hidden="true">13.7.</strong> Sequence-to-Sequence Learning for Machine Translation</a></li><li class="chapter-item "><a href="../chapter_recurrent-modern/beam-search.html"><strong aria-hidden="true">13.8.</strong> Beam Search</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_attention-mechanisms-and-transformers/index.html"><strong aria-hidden="true">14.</strong> Attention Mechanisms and Transformers</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/queries-keys-values.html"><strong aria-hidden="true">14.1.</strong> Queries, Keys, and Values</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/attention-pooling.html"><strong aria-hidden="true">14.2.</strong> Attention Pooling by Similarity</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/attention-scoring-functions.html"><strong aria-hidden="true">14.3.</strong> Attention Scoring Functions</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/bahdanau-attention.html"><strong aria-hidden="true">14.4.</strong> The Bahdanau Attention Mechanism</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/multihead-attention.html"><strong aria-hidden="true">14.5.</strong> Multi-Head Attention</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/self-attention-and-positional-encoding.html"><strong aria-hidden="true">14.6.</strong> Self-Attention and Positional Encoding</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/transformer.html"><strong aria-hidden="true">14.7.</strong> The Transformer Architecture</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/vision-transformer.html"><strong aria-hidden="true">14.8.</strong> Transformers for Vision</a></li><li class="chapter-item "><a href="../chapter_attention-mechanisms-and-transformers/large-pretraining-transformers.html"><strong aria-hidden="true">14.9.</strong> Large-Scale Pretraining with Transformers</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_optimization/index.html"><strong aria-hidden="true">15.</strong> Optimization Algorithms</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_optimization/optimization-intro.html"><strong aria-hidden="true">15.1.</strong> Optimization and Deep Learning</a></li><li class="chapter-item "><a href="../chapter_optimization/convexity.html"><strong aria-hidden="true">15.2.</strong> Convexity</a></li><li class="chapter-item "><a href="../chapter_optimization/gd.html"><strong aria-hidden="true">15.3.</strong> Gradient Descent</a></li><li class="chapter-item "><a href="../chapter_optimization/sgd.html"><strong aria-hidden="true">15.4.</strong> Stochastic Gradient Descent</a></li><li class="chapter-item "><a href="../chapter_optimization/minibatch-sgd.html"><strong aria-hidden="true">15.5.</strong> Minibatch Stochastic Gradient Descent</a></li><li class="chapter-item "><a href="../chapter_optimization/momentum.html"><strong aria-hidden="true">15.6.</strong> Momentum</a></li><li class="chapter-item "><a href="../chapter_optimization/adagrad.html"><strong aria-hidden="true">15.7.</strong> Adagrad</a></li><li class="chapter-item "><a href="../chapter_optimization/rmsprop.html"><strong aria-hidden="true">15.8.</strong> RMSProp</a></li><li class="chapter-item "><a href="../chapter_optimization/adadelta.html"><strong aria-hidden="true">15.9.</strong> Adadelta</a></li><li class="chapter-item "><a href="../chapter_optimization/adam.html"><strong aria-hidden="true">15.10.</strong> Adam</a></li><li class="chapter-item "><a href="../chapter_optimization/lr-scheduler.html"><strong aria-hidden="true">15.11.</strong> Learning Rate Scheduling</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_computational-performance/index.html"><strong aria-hidden="true">16.</strong> Computational Performance</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_computational-performance/hybridize.html"><strong aria-hidden="true">16.1.</strong> Compilers and Interpreters</a></li><li class="chapter-item "><a href="../chapter_computational-performance/async-computation.html"><strong aria-hidden="true">16.2.</strong> Asynchronous Computation</a></li><li class="chapter-item "><a href="../chapter_computational-performance/auto-parallelism.html"><strong aria-hidden="true">16.3.</strong> Automatic Parallelism</a></li><li class="chapter-item "><a href="../chapter_computational-performance/hardware.html"><strong aria-hidden="true">16.4.</strong> Hardware</a></li><li class="chapter-item "><a href="../chapter_computational-performance/multiple-gpus.html"><strong aria-hidden="true">16.5.</strong> Training on Multiple GPUs</a></li><li class="chapter-item "><a href="../chapter_computational-performance/multiple-gpus-concise.html"><strong aria-hidden="true">16.6.</strong> Concise Implementation for Multiple GPUs</a></li><li class="chapter-item "><a href="../chapter_computational-performance/parameterserver.html"><strong aria-hidden="true">16.7.</strong> Parameter Servers</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_computer-vision/index.html"><strong aria-hidden="true">17.</strong> Computer Vision</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_computer-vision/image-augmentation.html"><strong aria-hidden="true">17.1.</strong> Image Augmentation</a></li><li class="chapter-item "><a href="../chapter_computer-vision/fine-tuning.html"><strong aria-hidden="true">17.2.</strong> Fine-Tuning</a></li><li class="chapter-item "><a href="../chapter_computer-vision/bounding-box.html"><strong aria-hidden="true">17.3.</strong> Object Detection and Bounding Boxes</a></li><li class="chapter-item "><a href="../chapter_computer-vision/anchor.html"><strong aria-hidden="true">17.4.</strong> Anchor Boxes</a></li><li class="chapter-item "><a href="../chapter_computer-vision/multiscale-object-detection.html"><strong aria-hidden="true">17.5.</strong> Multiscale Object Detection</a></li><li class="chapter-item "><a href="../chapter_computer-vision/object-detection-dataset.html"><strong aria-hidden="true">17.6.</strong> The Object Detection Dataset</a></li><li class="chapter-item "><a href="../chapter_computer-vision/ssd.html"><strong aria-hidden="true">17.7.</strong> Single Shot Multibox Detection</a></li><li class="chapter-item "><a href="../chapter_computer-vision/rcnn.html"><strong aria-hidden="true">17.8.</strong> Region-based CNNs (R-CNNs)</a></li><li class="chapter-item "><a href="../chapter_computer-vision/semantic-segmentation-and-dataset.html"><strong aria-hidden="true">17.9.</strong> Semantic Segmentation and the Dataset</a></li><li class="chapter-item "><a href="../chapter_computer-vision/transposed-conv.html"><strong aria-hidden="true">17.10.</strong> Transposed Convolution</a></li><li class="chapter-item "><a href="../chapter_computer-vision/fcn.html"><strong aria-hidden="true">17.11.</strong> Fully Convolutional Networks</a></li><li class="chapter-item "><a href="../chapter_computer-vision/neural-style.html"><strong aria-hidden="true">17.12.</strong> Neural Style Transfer</a></li><li class="chapter-item "><a href="../chapter_computer-vision/kaggle-cifar10.html"><strong aria-hidden="true">17.13.</strong> Image Classification (CIFAR-10) on Kaggle</a></li><li class="chapter-item "><a href="../chapter_computer-vision/kaggle-dog.html"><strong aria-hidden="true">17.14.</strong> Dog Breed Identification (ImageNet Dogs) on Kaggle</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_natural-language-processing-pretraining/index.html"><strong aria-hidden="true">18.</strong> Natural Language Processing: Pretraining</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/word2vec.html"><strong aria-hidden="true">18.1.</strong> Word Embedding (word2vec)</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/approx-training.html"><strong aria-hidden="true">18.2.</strong> Approximate Training</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/word-embedding-dataset.html"><strong aria-hidden="true">18.3.</strong> The Dataset for Pretraining Word Embeddings</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/word2vec-pretraining.html"><strong aria-hidden="true">18.4.</strong> Pretraining word2vec</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/glove.html"><strong aria-hidden="true">18.5.</strong> Word Embedding with Global Vectors (GloVe)</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/subword-embedding.html"><strong aria-hidden="true">18.6.</strong> Subword Embedding</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/similarity-analogy.html"><strong aria-hidden="true">18.7.</strong> Word Similarity and Analogy</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/bert.html"><strong aria-hidden="true">18.8.</strong> Bidirectional Encoder Representations from Transformers (BERT)</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/bert-dataset.html"><strong aria-hidden="true">18.9.</strong> The Dataset for Pretraining BERT</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-pretraining/bert-pretraining.html"><strong aria-hidden="true">18.10.</strong> Pretraining BERT</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_natural-language-processing-applications/index.html"><strong aria-hidden="true">19.</strong> Natural Language Processing: Applications</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/sentiment-analysis-and-dataset.html"><strong aria-hidden="true">19.1.</strong> Sentiment Analysis and the Dataset</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/sentiment-analysis-rnn.html"><strong aria-hidden="true">19.2.</strong> Sentiment Analysis: Using Recurrent Neural Networks</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/sentiment-analysis-cnn.html"><strong aria-hidden="true">19.3.</strong> Sentiment Analysis: Using Convolutional Neural Networks</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/natural-language-inference-and-dataset.html"><strong aria-hidden="true">19.4.</strong> Natural Language Inference and the Dataset</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/natural-language-inference-attention.html"><strong aria-hidden="true">19.5.</strong> Natural Language Inference: Using Attention</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/finetuning-bert.html"><strong aria-hidden="true">19.6.</strong> Fine-Tuning BERT for Sequence-Level and Token-Level Applications</a></li><li class="chapter-item "><a href="../chapter_natural-language-processing-applications/natural-language-inference-bert.html"><strong aria-hidden="true">19.7.</strong> Natural Language Inference: Fine-Tuning BERT</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_reinforcement-learning/index.html"><strong aria-hidden="true">20.</strong> Reinforcement Learning</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_reinforcement-learning/mdp.html"><strong aria-hidden="true">20.1.</strong> Markov Decision Process (MDP)</a></li><li class="chapter-item "><a href="../chapter_reinforcement-learning/value-iter.html"><strong aria-hidden="true">20.2.</strong> Value Iteration</a></li><li class="chapter-item "><a href="../chapter_reinforcement-learning/qlearning.html"><strong aria-hidden="true">20.3.</strong> Q-Learning</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_gaussian-processes/index.html"><strong aria-hidden="true">21.</strong> Gaussian Processes</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_gaussian-processes/gp-intro.html"><strong aria-hidden="true">21.1.</strong> Introduction to Gaussian Processes</a></li><li class="chapter-item "><a href="../chapter_gaussian-processes/gp-priors.html"><strong aria-hidden="true">21.2.</strong> Gaussian Process Priors</a></li><li class="chapter-item "><a href="../chapter_gaussian-processes/gp-inference.html"><strong aria-hidden="true">21.3.</strong> Gaussian Process Inference</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_hyperparameter-optimization/index.html"><strong aria-hidden="true">22.</strong> Hyperparameter Optimization</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_hyperparameter-optimization/hyperopt-intro.html"><strong aria-hidden="true">22.1.</strong> What Is Hyperparameter Optimization?</a></li><li class="chapter-item "><a href="../chapter_hyperparameter-optimization/hyperopt-api.html"><strong aria-hidden="true">22.2.</strong> Hyperparameter Optimization API</a></li><li class="chapter-item "><a href="../chapter_hyperparameter-optimization/rs-async.html"><strong aria-hidden="true">22.3.</strong> Asynchronous Random Search</a></li><li class="chapter-item "><a href="../chapter_hyperparameter-optimization/sh-intro.html"><strong aria-hidden="true">22.4.</strong> Multi-Fidelity Hyperparameter Optimization</a></li><li class="chapter-item "><a href="../chapter_hyperparameter-optimization/sh-async.html"><strong aria-hidden="true">22.5.</strong> Asynchronous Successive Halving</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_generative-adversarial-networks/index.html"><strong aria-hidden="true">23.</strong> Generative Adversarial Networks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_generative-adversarial-networks/gan.html"><strong aria-hidden="true">23.1.</strong> Generative Adversarial Networks</a></li><li class="chapter-item "><a href="../chapter_generative-adversarial-networks/dcgan.html"><strong aria-hidden="true">23.2.</strong> Deep Convolutional Generative Adversarial Networks</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_recommender-systems/index.html"><strong aria-hidden="true">24.</strong> Recommender Systems</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_recommender-systems/recsys-intro.html"><strong aria-hidden="true">24.1.</strong> Overview of Recommender Systems</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/movielens.html"><strong aria-hidden="true">24.2.</strong> The MovieLens Dataset</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/mf.html"><strong aria-hidden="true">24.3.</strong> Matrix Factorization</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/autorec.html"><strong aria-hidden="true">24.4.</strong> AutoRec: Rating Prediction with Autoencoders</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/ranking.html"><strong aria-hidden="true">24.5.</strong> Personalized Ranking for Recommender Systems</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/neumf.html"><strong aria-hidden="true">24.6.</strong> Neural Collaborative Filtering for Personalized Ranking</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/seqrec.html"><strong aria-hidden="true">24.7.</strong> Sequence-Aware Recommender Systems</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/ctr.html"><strong aria-hidden="true">24.8.</strong> Feature-Rich Recommender Systems</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/fm.html"><strong aria-hidden="true">24.9.</strong> Factorization Machines</a></li><li class="chapter-item "><a href="../chapter_recommender-systems/deepfm.html"><strong aria-hidden="true">24.10.</strong> Deep Factorization Machines</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_appendix-mathematics-for-deep-learning/index.html"><strong aria-hidden="true">25.</strong> Appendix: Mathematics for Deep Learning</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/geometry-linear-algebraic-ops.html"><strong aria-hidden="true">25.1.</strong> Geometry and Linear Algebraic Operations</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/eigendecomposition.html"><strong aria-hidden="true">25.2.</strong> Eigendecompositions</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/single-variable-calculus.html"><strong aria-hidden="true">25.3.</strong> Single Variable Calculus</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/multivariable-calculus.html"><strong aria-hidden="true">25.4.</strong> Multivariable Calculus</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/integral-calculus.html"><strong aria-hidden="true">25.5.</strong> Integral Calculus</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/random-variables.html"><strong aria-hidden="true">25.6.</strong> Random Variables</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/maximum-likelihood.html"><strong aria-hidden="true">25.7.</strong> Maximum Likelihood</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/distributions.html"><strong aria-hidden="true">25.8.</strong> Distributions</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/naive-bayes.html"><strong aria-hidden="true">25.9.</strong> Naive Bayes</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/statistics.html"><strong aria-hidden="true">25.10.</strong> Statistics</a></li><li class="chapter-item "><a href="../chapter_appendix-mathematics-for-deep-learning/information-theory.html"><strong aria-hidden="true">25.11.</strong> Information Theory</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_appendix-tools-for-deep-learning/index.html"><strong aria-hidden="true">26.</strong> Appendix: Tools for Deep Learning</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/jupyter.html"><strong aria-hidden="true">26.1.</strong> Using Jupyter Notebooks</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/sagemaker.html"><strong aria-hidden="true">26.2.</strong> Using Amazon SageMaker</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/aws.html"><strong aria-hidden="true">26.3.</strong> Using AWS EC2 Instances</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/colab.html"><strong aria-hidden="true">26.4.</strong> Using Google Colab</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/selecting-servers-gpus.html"><strong aria-hidden="true">26.5.</strong> Selecting Servers and GPUs</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/contributing.html"><strong aria-hidden="true">26.6.</strong> Contributing to This Book</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/utils.html"><strong aria-hidden="true">26.7.</strong> Utility Functions and Classes</a></li><li class="chapter-item "><a href="../chapter_appendix-tools-for-deep-learning/d2l.html"><strong aria-hidden="true">26.8.</strong> The d2l API Document</a></li></ol></li><li class="chapter-item expanded "><a href="../chapter_references/zreferences.html"><strong aria-hidden="true">27.</strong> chapter_references/zreferences.md</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Dive into Deep Learning</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/d2l-ai/d2l-en" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <pre><code class="language-{.python .input}">%load_ext d2lbook.tab
+tab.interact_select(['mxnet', 'pytorch', 'tensorflow', 'jax'])
+</code></pre>
+<h1 id="linear-regression"><a class="header" href="#linear-regression">Linear Regression</a></h1>
+<p>:label:<code>sec_linear_regression</code></p>
+<p><em>Regression</em> problems pop up whenever we want to predict a numerical value.
+Common examples include predicting prices (of homes, stocks, etc.),
+predicting the length of stay (for patients in the hospital),
+forecasting demand (for retail sales), among numerous others.
+Not every prediction problem is one of classical regression.
+Later on, we will introduce classification problems,
+where the goal is to predict membership among a set of categories.</p>
+<p>As a running example, suppose that we wish
+to estimate the prices of houses (in dollars)
+based on their area (in square feet) and age (in years).
+To develop a model for predicting house prices,
+we need to get our hands on data,
+including the sales price, area, and age for each home.
+In the terminology of machine learning,
+the dataset is called a <em>training dataset</em> or <em>training set</em>,
+and each row (containing the data corresponding to one sale)
+is called an <em>example</em> (or <em>data point</em>, <em>instance</em>, <em>sample</em>).
+The thing we are trying to predict (price)
+is called a <em>label</em> (or <em>target</em>).
+The variables (age and area)
+upon which the predictions are based
+are called <em>features</em> (or <em>covariates</em>).</p>
+<pre><code class="language-{.python .input}">%%tab mxnet
+%matplotlib inline
+from d2l import mxnet as d2l
+import math
+from mxnet import np
+import time
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab pytorch
+%matplotlib inline
+from d2l import torch as d2l
+import math
+import torch
+import numpy as np
+import time
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab tensorflow
+%matplotlib inline
+from d2l import tensorflow as d2l
+import math
+import tensorflow as tf
+import numpy as np
+import time
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab jax
+%matplotlib inline
+from d2l import jax as d2l
+from jax import numpy as jnp
+import math
+import time
+</code></pre>
+<h2 id="basics"><a class="header" href="#basics">Basics</a></h2>
+<p><em>Linear regression</em> is both the simplest
+and most popular among the standard tools
+for tackling regression problems.
+Dating back to the dawn of the 19th century :cite:<code>Legendre.1805,Gauss.1809</code>,
+linear regression flows from a few simple assumptions.
+First, we assume that the relationship
+between features $\mathbf{x}$ and target $y$
+is approximately linear,
+i.e., that the conditional mean $E[Y \mid X=\mathbf{x}]$
+can be expressed as a weighted sum
+of the features $\mathbf{x}$.
+This setup allows that the target value
+may still deviate from its expected value
+on account of observation noise.
+Next, we can impose the assumption that any such noise
+is well behaved, following a Gaussian distribution.
+Typically, we will use $n$ to denote
+the number of examples in our dataset.
+We use superscripts to enumerate samples and targets,
+and subscripts to index coordinates.
+More concretely,
+$\mathbf{x}^{(i)}$ denotes the $i^{\textrm{th}}$ sample
+and $x_j^{(i)}$ denotes its $j^{\textrm{th}}$ coordinate.</p>
+<h3 id="model"><a class="header" href="#model">Model</a></h3>
+<p>:label:<code>subsec_linear_model</code></p>
+<p>At the heart of every solution is a model
+that describes how features can be transformed
+into an estimate of the target.
+The assumption of linearity means that
+the expected value of the target (price) can be expressed
+as a weighted sum of the features (area and age):</p>
+<p>$$\textrm{price} = w_{\textrm{area}} \cdot \textrm{area} + w_{\textrm{age}} \cdot \textrm{age} + b.$$
+:eqlabel:<code>eq_price-area</code></p>
+<p>Here $w_{\textrm{area}}$ and $w_{\textrm{age}}$
+are called <em>weights</em>, and $b$ is called a <em>bias</em>
+(or <em>offset</em> or <em>intercept</em>).
+The weights determine the influence of each feature on our prediction.
+The bias determines the value of the estimate when all features are zero.
+Even though we will never see any newly-built homes with precisely zero area,
+we still need the bias because it allows us
+to express all linear functions of our features
+(rather than restricting us to lines that pass through the origin).
+Strictly speaking, :eqref:<code>eq_price-area</code> is an <em>affine transformation</em> of input features, which is characterized by a <em>linear transformation</em> of features via a weighted sum, combined with a <em>translation</em> via the added bias.
+Given a dataset, our goal is to choose
+the weights $\mathbf{w}$ and the bias $b$
+that, on average, make our model's predictions
+fit the true prices observed in the data as closely as possible.</p>
+<p>In disciplines where it is common to focus
+on datasets with just a few features,
+explicitly expressing models long-form,
+as in :eqref:<code>eq_price-area</code>, is common.
+In machine learning, we usually work
+with high-dimensional datasets,
+where it is more convenient to employ
+compact linear algebra notation.
+When our inputs consist of $d$ features,
+we can assign each an index (between $1$ and $d$)
+and express our prediction $\hat{y}$
+(in general the "hat" symbol denotes an estimate) as</p>
+<p>$$\hat{y} = w_1  x_1 + \cdots + w_d  x_d + b.$$</p>
+<p>Collecting all features into a vector $\mathbf{x} \in \mathbb{R}^d$
+and all weights into a vector $\mathbf{w} \in \mathbb{R}^d$,
+we can express our model compactly via the dot product
+between $\mathbf{w}$ and $\mathbf{x}$:</p>
+<p>$$\hat{y} = \mathbf{w}^\top \mathbf{x} + b.$$
+:eqlabel:<code>eq_linreg-y</code></p>
+<p>In :eqref:<code>eq_linreg-y</code>, the vector $\mathbf{x}$
+corresponds to the features of a single example.
+We will often find it convenient
+to refer to features of our entire dataset of $n$ examples
+via the <em>design matrix</em> $\mathbf{X} \in \mathbb{R}^{n \times d}$.
+Here, $\mathbf{X}$ contains one row for every example
+and one column for every feature.
+For a collection of features $\mathbf{X}$,
+the predictions $\hat{\mathbf{y}} \in \mathbb{R}^n$
+can be expressed via the matrix--vector product:</p>
+<p>$${\hat{\mathbf{y}}} = \mathbf{X} \mathbf{w} + b,$$
+:eqlabel:<code>eq_linreg-y-vec</code></p>
+<p>where broadcasting (:numref:<code>subsec_broadcasting</code>) is applied during the summation.
+Given features of a training dataset $\mathbf{X}$
+and corresponding (known) labels $\mathbf{y}$,
+the goal of linear regression is to find
+the weight vector $\mathbf{w}$ and the bias term $b$
+such that, given features of a new data example
+sampled from the same distribution as $\mathbf{X}$,
+the new example's label will (in expectation)
+be predicted with the smallest error.</p>
+<p>Even if we believe that the best model for
+predicting $y$ given $\mathbf{x}$ is linear,
+we would not expect to find a real-world dataset of $n$ examples where
+$y^{(i)}$ exactly equals $\mathbf{w}^\top \mathbf{x}^{(i)}+b$
+for all $1 \leq i \leq n$.
+For example, whatever instruments we use to observe
+the features $\mathbf{X}$ and labels $\mathbf{y}$, there might be a small amount of measurement error.
+Thus, even when we are confident
+that the underlying relationship is linear,
+we will incorporate a noise term to account for such errors.</p>
+<p>Before we can go about searching for the best <em>parameters</em>
+(or <em>model parameters</em>) $\mathbf{w}$ and $b$,
+we will need two more things:
+(i) a measure of the quality of some given model;
+and (ii) a procedure for updating the model to improve its quality.</p>
+<h3 id="loss-function"><a class="header" href="#loss-function">Loss Function</a></h3>
+<p>:label:<code>subsec_linear-regression-loss-function</code></p>
+<p>Naturally, fitting our model to the data requires
+that we agree on some measure of <em>fitness</em>
+(or, equivalently, of <em>unfitness</em>).
+<em>Loss functions</em> quantify the distance
+between the <em>real</em> and <em>predicted</em> values of the target.
+The loss will usually be a nonnegative number
+where smaller values are better
+and perfect predictions incur a loss of 0.
+For regression problems, the most common loss function is the squared error.
+When our prediction for an example $i$ is $\hat{y}^{(i)}$
+and the corresponding true label is $y^{(i)}$,
+the <em>squared error</em> is given by:</p>
+<p>$$l^{(i)}(\mathbf{w}, b) = \frac{1}{2} \left(\hat{y}^{(i)} - y^{(i)}\right)^2.$$
+:eqlabel:<code>eq_mse</code></p>
+<p>The constant $\frac{1}{2}$ makes no real difference
+but proves to be notationally convenient,
+since it cancels out when we take the derivative of the loss.
+Because the training dataset is given to us,
+and thus is out of our control,
+the empirical error is only a function of the model parameters.
+In :numref:<code>fig_fit_linreg</code>, we visualize the fit of a linear regression model
+in a problem with one-dimensional inputs.</p>
+<p><img src="../img/fit-linreg.svg" alt="Fitting a linear regression model to one-dimensional data." />
+:label:<code>fig_fit_linreg</code></p>
+<p>Note that large differences between
+estimates $\hat{y}^{(i)}$ and targets $y^{(i)}$
+lead to even larger contributions to the loss,
+due to its quadratic form
+(this quadraticity can be a double-edge sword; while it encourages the model to avoid large errors
+it can also lead to excessive sensitivity to anomalous data).
+To measure the quality of a model on the entire dataset of $n$ examples,
+we simply average (or equivalently, sum)
+the losses on the training set:</p>
+<p>$$L(\mathbf{w}, b) =\frac{1}{n}\sum_{i=1}^n l^{(i)}(\mathbf{w}, b) =\frac{1}{n} \sum_{i=1}^n \frac{1}{2}\left(\mathbf{w}^\top \mathbf{x}^{(i)} + b - y^{(i)}\right)^2.$$</p>
+<p>When training the model, we seek parameters ($\mathbf{w}^<em>, b^</em>$)
+that minimize the total loss across all training examples:</p>
+<p>$$\mathbf{w}^<em>, b^</em> = \operatorname*{argmin}_{\mathbf{w}, b}\  L(\mathbf{w}, b).$$</p>
+<h3 id="analytic-solution"><a class="header" href="#analytic-solution">Analytic Solution</a></h3>
+<p>Unlike most of the models that we will cover,
+linear regression presents us with
+a surprisingly easy optimization problem.
+In particular, we can find the optimal parameters
+(as assessed on the training data)
+analytically by applying a simple formula as follows.
+First, we can subsume the bias $b$ into the parameter $\mathbf{w}$
+by appending a column to the design matrix consisting of all 1s.
+Then our prediction problem is to minimize $|\mathbf{y} - \mathbf{X}\mathbf{w}|^2$.
+As long as the design matrix $\mathbf{X}$ has full rank
+(no feature is linearly dependent on the others),
+then there will be just one critical point on the loss surface
+and it corresponds to the minimum of the loss over the entire domain.
+Taking the derivative of the loss with respect to $\mathbf{w}$
+and setting it equal to zero yields:</p>
+<p>$$\begin{aligned}
+\partial_{\mathbf{w}} |\mathbf{y} - \mathbf{X}\mathbf{w}|^2 =
+2 \mathbf{X}^\top (\mathbf{X} \mathbf{w} - \mathbf{y}) = 0
+\textrm{ and hence }
+\mathbf{X}^\top \mathbf{y} = \mathbf{X}^\top \mathbf{X} \mathbf{w}.
+\end{aligned}$$</p>
+<p>Solving for $\mathbf{w}$ provides us with the optimal solution
+for the optimization problem.
+Note that this solution</p>
+<p>$$\mathbf{w}^* = (\mathbf X^\top \mathbf X)^{-1}\mathbf X^\top \mathbf{y}$$</p>
+<p>will only be unique
+when the matrix $\mathbf X^\top \mathbf X$ is invertible,
+i.e., when the columns of the design matrix
+are linearly independent :cite:<code>Golub.Van-Loan.1996</code>.</p>
+<p>While simple problems like linear regression
+may admit analytic solutions,
+you should not get used to such good fortune.
+Although analytic solutions allow for nice mathematical analysis,
+the requirement of an analytic solution is so restrictive
+that it would exclude almost all exciting aspects of deep learning.</p>
+<h3 id="minibatch-stochastic-gradient-descent"><a class="header" href="#minibatch-stochastic-gradient-descent">Minibatch Stochastic Gradient Descent</a></h3>
+<p>Fortunately, even in cases where we cannot solve the models analytically,
+we can still often train models effectively in practice.
+Moreover, for many tasks, those hard-to-optimize models
+turn out to be so much better that figuring out how to train them
+ends up being well worth the trouble.</p>
+<p>The key technique for optimizing nearly every deep learning model,
+and which we will call upon throughout this book,
+consists of iteratively reducing the error
+by updating the parameters in the direction
+that incrementally lowers the loss function.
+This algorithm is called <em>gradient descent</em>.</p>
+<p>The most naive application of gradient descent
+consists of taking the derivative of the loss function,
+which is an average of the losses computed
+on every single example in the dataset.
+In practice, this can be extremely slow:
+we must pass over the entire dataset before making a single update,
+even if the update steps might be very powerful :cite:<code>Liu.Nocedal.1989</code>.
+Even worse, if there is a lot of redundancy in the training data,
+the benefit of a full update is limited.</p>
+<p>The other extreme is to consider only a single example at a time and to take
+update steps based on one observation at a time.
+The resulting algorithm, <em>stochastic gradient descent</em> (SGD)
+can be an effective strategy :cite:<code>Bottou.2010</code>, even for large datasets.
+Unfortunately, SGD has drawbacks, both computational and statistical.
+One problem arises from the fact that processors are a lot faster
+multiplying and adding numbers than they are
+at moving data from main memory to processor cache.
+It is up to an order of magnitude more efficient to
+perform a matrix--vector multiplication
+than a corresponding number of vector--vector operations.
+This means that it can take a lot longer to process
+one sample at a time compared to a full batch.
+A second problem is that some of the layers,
+such as batch normalization (to be described in :numref:<code>sec_batch_norm</code>),
+only work well when we have access
+to more than one observation at a time.</p>
+<p>The solution to both problems is to pick an intermediate strategy:
+rather than taking a full batch or only a single sample at a time,
+we take a <em>minibatch</em> of observations :cite:<code>Li.Zhang.Chen.ea.2014</code>.
+The specific choice of the size of the said minibatch depends on many factors,
+such as the amount of memory, the number of accelerators,
+the choice of layers, and the total dataset size.
+Despite all that, a number between 32 and 256,
+preferably a multiple of a large power of $2$, is a good start.
+This leads us to <em>minibatch stochastic gradient descent</em>.</p>
+<p>In its most basic form, in each iteration $t$,
+we first randomly sample a minibatch $\mathcal{B}_t$
+consisting of a fixed number $|\mathcal{B}|$ of training examples.
+We then compute the derivative (gradient) of the average loss
+on the minibatch with respect to the model parameters.
+Finally, we multiply the gradient
+by a predetermined small positive value $\eta$,
+called the <em>learning rate</em>,
+and subtract the resulting term from the current parameter values.
+We can express the update as follows:</p>
+<p>$$(\mathbf{w},b) \leftarrow (\mathbf{w},b) - \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}<em>t} \partial</em>{(\mathbf{w},b)} l^{(i)}(\mathbf{w},b).$$</p>
+<p>In summary, minibatch SGD proceeds as follows:
+(i) initialize the values of the model parameters, typically at random;
+(ii) iteratively sample random minibatches from the data,
+updating the parameters in the direction of the negative gradient.
+For quadratic losses and affine transformations,
+this has a closed-form expansion:</p>
+<p>$$\begin{aligned} \mathbf{w} &amp; \leftarrow \mathbf{w} - \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}<em>t} \partial</em>{\mathbf{w}} l^{(i)}(\mathbf{w}, b) &amp;&amp; = \mathbf{w} - \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}<em>t} \mathbf{x}^{(i)} \left(\mathbf{w}^\top \mathbf{x}^{(i)} + b - y^{(i)}\right)\ b &amp;\leftarrow b -  \frac{\eta}{|\mathcal{B}|} \sum</em>{i \in \mathcal{B}<em>t} \partial_b l^{(i)}(\mathbf{w}, b) &amp;&amp;  = b - \frac{\eta}{|\mathcal{B}|} \sum</em>{i \in \mathcal{B}_t} \left(\mathbf{w}^\top \mathbf{x}^{(i)} + b - y^{(i)}\right). \end{aligned}$$
+:eqlabel:<code>eq_linreg_batch_update</code></p>
+<p>Since we pick a minibatch $\mathcal{B}$
+we need to normalize by its size $|\mathcal{B}|$.
+Frequently minibatch size and learning rate are user-defined.
+Such tunable parameters that are not updated
+in the training loop are called <em>hyperparameters</em>.
+They can be tuned automatically by a number of techniques, such as Bayesian optimization
+:cite:<code>Frazier.2018</code>. In the end, the quality of the solution is
+typically assessed on a separate <em>validation dataset</em> (or <em>validation set</em>).</p>
+<p>After training for some predetermined number of iterations
+(or until some other stopping criterion is met),
+we record the estimated model parameters,
+denoted $\hat{\mathbf{w}}, \hat{b}$.
+Note that even if our function is truly linear and noiseless,
+these parameters will not be the exact minimizers of the loss, nor even deterministic.
+Although the algorithm converges slowly towards the minimizers
+it typically will not find them exactly in a finite number of steps.
+Moreover, the minibatches $\mathcal{B}$
+used for updating the parameters are chosen at random.
+This breaks determinism.</p>
+<p>Linear regression happens to be a learning problem
+with a global minimum
+(whenever $\mathbf{X}$ is full rank, or equivalently,
+whenever $\mathbf{X}^\top \mathbf{X}$ is invertible).
+However, the loss surfaces for deep networks contain many saddle points and minima.
+Fortunately, we typically do not care about finding
+an exact set of parameters but merely any set of parameters
+that leads to accurate predictions (and thus low loss).
+In practice, deep learning practitioners
+seldom struggle to find parameters
+that minimize the loss <em>on training sets</em>
+:cite:<code>Izmailov.Podoprikhin.Garipov.ea.2018,Frankle.Carbin.2018</code>.
+The more formidable task is to find parameters
+that lead to accurate predictions on previously unseen data,
+a challenge called <em>generalization</em>.
+We return to these topics throughout the book.</p>
+<h3 id="predictions"><a class="header" href="#predictions">Predictions</a></h3>
+<p>Given the model $\hat{\mathbf{w}}^\top \mathbf{x} + \hat{b}$,
+we can now make <em>predictions</em> for a new example,
+e.g., predicting the sales price of a previously unseen house
+given its area $x_1$ and age $x_2$.
+Deep learning practitioners have taken to calling the prediction phase <em>inference</em>
+but this is a bit of a misnomer---<em>inference</em> refers broadly
+to any conclusion reached on the basis of evidence,
+including both the values of the parameters
+and the likely label for an unseen instance.
+If anything, in the statistics literature
+<em>inference</em> more often denotes parameter inference
+and this overloading of terminology creates unnecessary confusion
+when deep learning practitioners talk to statisticians.
+In the following we will stick to <em>prediction</em> whenever possible.</p>
+<h2 id="vectorization-for-speed"><a class="header" href="#vectorization-for-speed">Vectorization for Speed</a></h2>
+<p>When training our models, we typically want to process
+whole minibatches of examples simultaneously.
+Doing this efficiently requires that (<strong>we</strong>) (<del>should</del>)
+(<strong>vectorize the calculations and leverage
+fast linear algebra libraries
+rather than writing costly for-loops in Python.</strong>)</p>
+<p>To see why this matters so much,
+let's (<strong>consider two methods for adding vectors.</strong>)
+To start, we instantiate two 10,000-dimensional vectors
+containing all 1s.
+In the first method, we loop over the vectors with a Python for-loop.
+In the second, we rely on a single call to <code>+</code>.</p>
+<pre><code class="language-{.python .input}">%%tab all
+n = 10000
+a = d2l.ones(n)
+b = d2l.ones(n)
+</code></pre>
+<p>Now we can benchmark the workloads.
+First, [<strong>we add them, one coordinate at a time,
+using a for-loop.</strong>]</p>
+<pre><code class="language-{.python .input}">%%tab mxnet, pytorch
+c = d2l.zeros(n)
+t = time.time()
+for i in range(n):
+    c[i] = a[i] + b[i]
+f'{time.time() - t:.5f} sec'
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab tensorflow
+c = tf.Variable(d2l.zeros(n))
+t = time.time()
+for i in range(n):
+    c[i].assign(a[i] + b[i])
+f'{time.time() - t:.5f} sec'
+</code></pre>
+<pre><code class="language-{.python .input}">%%tab jax
+# JAX arrays are immutable, meaning that once created their contents
+# cannot be changed. For updating individual elements, JAX provides
+# an indexed update syntax that returns an updated copy
+c = d2l.zeros(n)
+t = time.time()
+for i in range(n):
+    c = c.at[i].set(a[i] + b[i])
+f'{time.time() - t:.5f} sec'
+</code></pre>
+<p>(<strong>Alternatively, we rely on the reloaded <code>+</code> operator to compute the elementwise sum.</strong>)</p>
+<pre><code class="language-{.python .input}">%%tab all
+t = time.time()
+d = a + b
+f'{time.time() - t:.5f} sec'
+</code></pre>
+<p>The second method is dramatically faster than the first.
+Vectorizing code often yields order-of-magnitude speedups.
+Moreover, we push more of the mathematics to the library
+so we do not have to write as many calculations ourselves,
+reducing the potential for errors and increasing portability of the code.</p>
+<h2 id="the-normal-distribution-and-squared-loss"><a class="header" href="#the-normal-distribution-and-squared-loss">The Normal Distribution and Squared Loss</a></h2>
+<p>:label:<code>subsec_normal_distribution_and_squared_loss</code></p>
+<p>So far we have given a fairly functional motivation
+of the squared loss objective:
+the optimal parameters return the conditional expectation $E[Y\mid X]$
+whenever the underlying pattern is truly linear,
+and the loss assigns large penalties for outliers.
+We can also provide a more formal motivation
+for the squared loss objective
+by making probabilistic assumptions
+about the distribution of noise.</p>
+<p>Linear regression was invented at the turn of the 19th century.
+While it has long been debated whether Gauss or Legendre
+first thought up the idea,
+it was Gauss who also discovered the normal distribution
+(also called the <em>Gaussian</em>).
+It turns out that the normal distribution
+and linear regression with squared loss
+share a deeper connection than common parentage.</p>
+<p>To begin, recall that a normal distribution
+with mean $\mu$ and variance $\sigma^2$ (standard deviation $\sigma$)
+is given as</p>
+<p>$$p(x) = \frac{1}{\sqrt{2 \pi \sigma^2}} \exp\left(-\frac{1}{2 \sigma^2} (x - \mu)^2\right).$$</p>
+<p>Below [<strong>we define a function to compute the normal distribution</strong>].</p>
+<pre><code class="language-{.python .input}">%%tab all
+def normal(x, mu, sigma):
+    p = 1 / math.sqrt(2 * math.pi * sigma**2)
+    if tab.selected('jax'):
+        return p * jnp.exp(-0.5 * (x - mu)**2 / sigma**2)
+    if tab.selected('pytorch', 'mxnet', 'tensorflow'):
+        return p * np.exp(-0.5 * (x - mu)**2 / sigma**2)
+</code></pre>
+<p>We can now (<strong>visualize the normal distributions</strong>).</p>
+<pre><code class="language-{.python .input}">%%tab mxnet
+# Use NumPy again for visualization
+x = np.arange(-7, 7, 0.01)
+
+# Mean and standard deviation pairs
+params = [(0, 1), (0, 2), (3, 1)]
+d2l.plot(x.asnumpy(), [normal(x, mu, sigma).asnumpy() for mu, sigma in params], xlabel='x',
+         ylabel='p(x)', figsize=(4.5, 2.5),
+         legend=[f'mean {mu}, std {sigma}' for mu, sigma in params])
+</code></pre>
+<pre><code class="language-{.python .input}">
+%%tab pytorch, tensorflow, jax
+if tab.selected('jax'):
+    # Use JAX NumPy for visualization
+    x = jnp.arange(-7, 7, 0.01)
+if tab.selected('pytorch', 'mxnet', 'tensorflow'):
+    # Use NumPy again for visualization
+    x = np.arange(-7, 7, 0.01)
+
+# Mean and standard deviation pairs
+params = [(0, 1), (0, 2), (3, 1)]
+d2l.plot(x, [normal(x, mu, sigma) for mu, sigma in params], xlabel='x',
+         ylabel='p(x)', figsize=(4.5, 2.5),
+         legend=[f'mean {mu}, std {sigma}' for mu, sigma in params])
+</code></pre>
+<p>Note that changing the mean corresponds
+to a shift along the $x$-axis,
+and increasing the variance
+spreads the distribution out,
+lowering its peak.</p>
+<p>One way to motivate linear regression with squared loss
+is to assume that observations arise from noisy measurements,
+where the noise $\epsilon$ follows the normal distribution
+$\mathcal{N}(0, \sigma^2)$:</p>
+<p>$$y = \mathbf{w}^\top \mathbf{x} + b + \epsilon \textrm{ where } \epsilon \sim \mathcal{N}(0, \sigma^2).$$</p>
+<p>Thus, we can now write out the <em>likelihood</em>
+of seeing a particular $y$ for a given $\mathbf{x}$ via</p>
+<p>$$P(y \mid \mathbf{x}) = \frac{1}{\sqrt{2 \pi \sigma^2}} \exp\left(-\frac{1}{2 \sigma^2} (y - \mathbf{w}^\top \mathbf{x} - b)^2\right).$$</p>
+<p>As such, the likelihood factorizes.
+According to <em>the principle of maximum likelihood</em>,
+the best values of parameters $\mathbf{w}$ and $b$ are those
+that maximize the <em>likelihood</em> of the entire dataset:</p>
+<p>$$P(\mathbf y \mid \mathbf X) = \prod_{i=1}^{n} p(y^{(i)} \mid \mathbf{x}^{(i)}).$$</p>
+<p>The equality follows since all pairs $(\mathbf{x}^{(i)}, y^{(i)})$
+were drawn independently of each other.
+Estimators chosen according to the principle of maximum likelihood
+are called <em>maximum likelihood estimators</em>.
+While, maximizing the product of many exponential functions,
+might look difficult,
+we can simplify things significantly, without changing the objective,
+by maximizing the logarithm of the likelihood instead.
+For historical reasons, optimizations are more often expressed
+as minimization rather than maximization.
+So, without changing anything,
+we can <em>minimize</em> the <em>negative log-likelihood</em>,
+which we can express as follows:</p>
+<p>$$-\log P(\mathbf y \mid \mathbf X) = \sum_{i=1}^n \frac{1}{2} \log(2 \pi \sigma^2) + \frac{1}{2 \sigma^2} \left(y^{(i)} - \mathbf{w}^\top \mathbf{x}^{(i)} - b\right)^2.$$</p>
+<p>If we assume that $\sigma$ is fixed,
+we can ignore the first term,
+because it does not depend on $\mathbf{w}$ or $b$.
+The second term is identical
+to the squared error loss introduced earlier,
+except for the multiplicative constant $\frac{1}{\sigma^2}$.
+Fortunately, the solution does not depend on $\sigma$ either.
+It follows that minimizing the mean squared error
+is equivalent to the maximum likelihood estimation
+of a linear model under the assumption of additive Gaussian noise.</p>
+<h2 id="linear-regression-as-a-neural-network"><a class="header" href="#linear-regression-as-a-neural-network">Linear Regression as a Neural Network</a></h2>
+<p>While linear models are not sufficiently rich
+to express the many complicated networks
+that we will introduce in this book,
+(artificial) neural networks are rich enough
+to subsume linear models as networks
+in which every feature is represented by an input neuron,
+all of which are connected directly to the output.</p>
+<p>:numref:<code>fig_single_neuron</code> depicts
+linear regression as a neural network.
+The diagram highlights the connectivity pattern,
+such as how each input is connected to the output,
+but not the specific values taken by the weights or biases.</p>
+<p><img src="../img/singleneuron.svg" alt="Linear regression is a single-layer neural network." />
+:label:<code>fig_single_neuron</code></p>
+<p>The inputs are $x_1, \ldots, x_d$.
+We refer to $d$ as the <em>number of inputs</em>
+or the <em>feature dimensionality</em> in the input layer.
+The output of the network is $o_1$.
+Because we are just trying to predict
+a single numerical value,
+we have only one output neuron.
+Note that the input values are all <em>given</em>.
+There is just a single <em>computed</em> neuron.
+In summary, we can think of linear regression
+as a single-layer fully connected neural network.
+We will encounter networks
+with far more layers
+in later chapters.</p>
+<h3 id="biology"><a class="header" href="#biology">Biology</a></h3>
+<p>Because linear regression predates computational neuroscience,
+it might seem anachronistic to describe
+linear regression in terms of neural networks.
+Nonetheless, they were a natural place to start
+when the cyberneticists and neurophysiologists
+Warren McCulloch and Walter Pitts began to develop
+models of artificial neurons.
+Consider the cartoonish picture
+of a biological neuron in :numref:<code>fig_Neuron</code>,
+consisting of <em>dendrites</em> (input terminals),
+the <em>nucleus</em> (CPU), the <em>axon</em> (output wire),
+and the <em>axon terminals</em> (output terminals),
+enabling connections to other neurons via <em>synapses</em>.</p>
+<p><img src="../img/neuron.svg" alt="The real neuron (source: &quot;Anatomy and Physiology&quot; by the US National Cancer Institute&#39;s Surveillance, Epidemiology and End Results (SEER) Program)." />
+:label:<code>fig_Neuron</code></p>
+<p>Information $x_i$ arriving from other neurons
+(or environmental sensors) is received in the dendrites.
+In particular, that information is weighted
+by <em>synaptic weights</em> $w_i$,
+determining the effect of the inputs,
+e.g., activation or inhibition via the product $x_i w_i$.
+The weighted inputs arriving from multiple sources
+are aggregated in the nucleus
+as a weighted sum $y = \sum_i x_i w_i + b$,
+possibly subject to some nonlinear postprocessing via a function $\sigma(y)$.
+This information is then sent via the axon to the axon terminals,
+where it reaches its destination
+(e.g., an actuator such as a muscle)
+or it is fed into another neuron via its dendrites.</p>
+<p>Certainly, the high-level idea that many such units
+could be combined, provided they have the correct connectivity and learning algorithm,
+to produce far more interesting and complex behavior
+than any one neuron alone could express
+arises from our study of real biological neural systems.
+At the same time, most research in deep learning today
+draws inspiration from a much wider source.
+We invoke :citet:<code>Russell.Norvig.2016</code>
+who pointed out that although airplanes might have been <em>inspired</em> by birds,
+ornithology has not been the primary driver
+of aeronautics innovation for some centuries.
+Likewise, inspiration in deep learning these days
+comes in equal or greater measure
+from mathematics, linguistics, psychology,
+statistics, computer science, and many other fields.</p>
+<h2 id="summary"><a class="header" href="#summary">Summary</a></h2>
+<p>In this section, we introduced
+traditional linear regression,
+where the parameters of a linear function
+are chosen to minimize squared loss on the training set.
+We also motivated this choice of objective
+both via some practical considerations
+and through an interpretation
+of linear regression as maximimum likelihood estimation
+under an assumption of linearity and Gaussian noise.
+After discussing both computational considerations
+and connections to statistics,
+we showed how such linear models could be expressed
+as simple neural networks where the inputs
+are directly wired to the output(s).
+While we will soon move past linear models altogether,
+they are sufficient to introduce most of the components
+that all of our models require:
+parametric forms, differentiable objectives,
+optimization via minibatch stochastic gradient descent,
+and ultimately, evaluation on previously unseen data.</p>
+<h2 id="exercises"><a class="header" href="#exercises">Exercises</a></h2>
+<ol>
+<li>Assume that we have some data $x_1, \ldots, x_n \in \mathbb{R}$. Our goal is to find a constant $b$ such that $\sum_i (x_i - b)^2$ is minimized.
+<ol>
+<li>Find an analytic solution for the optimal value of $b$.</li>
+<li>How does this problem and its solution relate to the normal distribution?</li>
+<li>What if we change the loss from $\sum_i (x_i - b)^2$ to $\sum_i |x_i-b|$? Can you find the optimal solution for $b$?</li>
+</ol>
+</li>
+<li>Prove that the affine functions that can be expressed by $\mathbf{x}^\top \mathbf{w} + b$ are equivalent to linear functions on $(\mathbf{x}, 1)$.</li>
+<li>Assume that you want to find quadratic functions of $\mathbf{x}$, i.e., $f(\mathbf{x}) = b + \sum_i w_i x_i + \sum_{j \leq i} w_{ij} x_{i} x_{j}$. How would you formulate this in a deep network?</li>
+<li>Recall that one of the conditions for the linear regression problem to be solvable was that the design matrix $\mathbf{X}^\top \mathbf{X}$ has full rank.
+<ol>
+<li>What happens if this is not the case?</li>
+<li>How could you fix it? What happens if you add a small amount of coordinate-wise independent Gaussian noise to all entries of $\mathbf{X}$?</li>
+<li>What is the expected value of the design matrix $\mathbf{X}^\top \mathbf{X}$ in this case?</li>
+<li>What happens with stochastic gradient descent when $\mathbf{X}^\top \mathbf{X}$ does not have full rank?</li>
+</ol>
+</li>
+<li>Assume that the noise model governing the additive noise $\epsilon$ is the exponential distribution. That is, $p(\epsilon) = \frac{1}{2} \exp(-|\epsilon|)$.
+<ol>
+<li>Write out the negative log-likelihood of the data under the model $-\log P(\mathbf y \mid \mathbf X)$.</li>
+<li>Can you find a closed form solution?</li>
+<li>Suggest a minibatch stochastic gradient descent algorithm to solve this problem. What could possibly go wrong (hint: what happens near the stationary point as we keep on updating the parameters)? Can you fix this?</li>
+</ol>
+</li>
+<li>Assume that we want to design a neural network with two layers by composing two linear layers. That is, the output of the first layer becomes the input of the second layer. Why would such a naive composition not work?</li>
+<li>What happens if you want to use regression for realistic price estimation of houses or stock prices?
+<ol>
+<li>Show that the additive Gaussian noise assumption is not appropriate. Hint: can we have negative prices? What about fluctuations?</li>
+<li>Why would regression to the logarithm of the price be much better, i.e., $y = \log \textrm{price}$?</li>
+<li>What do you need to worry about when dealing with pennystock, i.e., stock with very low prices? Hint: can you trade at all possible prices? Why is this a bigger problem for cheap stock? For more information review the celebrated Black--Scholes model for option pricing :cite:<code>Black.Scholes.1973</code>.</li>
+</ol>
+</li>
+<li>Suppose we want to use regression to estimate the <em>number</em> of apples sold in a grocery store.
+<ol>
+<li>What are the problems with a Gaussian additive noise model? Hint: you are selling apples, not oil.</li>
+<li>The <a href="https://en.wikipedia.org/wiki/Poisson_distribution">Poisson distribution</a> captures distributions over counts. It is given by $p(k \mid \lambda) = \lambda^k e^{-\lambda}/k!$. Here $\lambda$ is the rate function and $k$ is the number of events you see. Prove that $\lambda$ is the expected value of counts $k$.</li>
+<li>Design a loss function associated with the Poisson distribution.</li>
+<li>Design a loss function for estimating $\log \lambda$ instead.</li>
+</ol>
+</li>
+</ol>
+<p>:begin_tab:<code>mxnet</code>
+<a href="https://discuss.d2l.ai/t/40">Discussions</a>
+:end_tab:</p>
+<p>:begin_tab:<code>pytorch</code>
+<a href="https://discuss.d2l.ai/t/258">Discussions</a>
+:end_tab:</p>
+<p>:begin_tab:<code>tensorflow</code>
+<a href="https://discuss.d2l.ai/t/259">Discussions</a>
+:end_tab:</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../chapter_linear-regression/index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../chapter_linear-regression/oo-design.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../chapter_linear-regression/index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../chapter_linear-regression/oo-design.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>
