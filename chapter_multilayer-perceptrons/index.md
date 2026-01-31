@@ -1,28 +1,13 @@
-# Multilayer Perceptrons
+# 다층 퍼셉트론 (Multilayer Perceptrons)
 :label:`chap_perceptrons`
 
-In this chapter, we will introduce your first truly *deep* network.
-The simplest deep networks are called *multilayer perceptrons*,
-and they consist of multiple layers of neurons
-each fully connected to those in the layer below
-(from which they receive input)
-and those above (which they, in turn, influence).
-Although automatic differentiation
-significantly simplifies the implementation of deep learning algorithms,
-we will dive deep into how these gradients
-are calculated in deep networks.
-Then we will
-be ready to
-discuss issues relating to numerical stability and parameter initialization
-that are key to successfully training deep networks.
-When we train such high-capacity models we run the risk of overfitting. Thus, we will
-revisit regularization and generalization
-for deep networks.
-Throughout, we aim
-to give you a firm grasp not just of the concepts but also of the practice of using deep networks.
-At the end of this chapter, we apply what we have introduced so far to a real case: house price
-prediction. We punt matters relating to the computational performance, scalability, and efficiency
-of our models to subsequent chapters.
+이 장에서는 여러분의 첫 번째 진정한 *심층(deep)* 네트워크를 소개할 것입니다. 
+가장 단순한 심층 네트워크는 *다층 퍼셉트론(multilayer perceptrons)*이라고 불리며, 여러 층의 뉴런으로 구성되어 있습니다. 각 층은 아래 층(입력을 받는 층)과 위 층(영향을 주는 층)에 완전히 연결되어 있습니다. 
+자동 미분이 딥러닝 알고리즘의 구현을 상당히 단순화하지만, 우리는 심층 네트워크에서 이러한 기울기가 어떻게 계산되는지 깊이 파고들 것입니다. 
+그런 다음 심층 네트워크를 성공적으로 훈련하는 데 핵심적인 수치적 안정성과 파라미터 초기화에 관한 문제를 논의할 준비가 될 것입니다. 
+이러한 고용량 모델을 훈련할 때 우리는 과대적합의 위험을 감수합니다. 따라서 심층 네트워크를 위한 정규화와 일반화를 다시 살펴볼 것입니다. 
+전체적으로 우리는 개념뿐만 아니라 심층 네트워크 사용의 실제에 대해서도 확실한 이해를 제공하는 것을 목표로 합니다. 
+이 장의 끝에서, 우리는 지금까지 소개한 내용을 실제 사례인 주택 가격 예측에 적용합니다. 모델의 계산 성능, 확장성 및 효율성과 관련된 문제는 후속 장으로 미룹니다.
 
 ```toc
 :maxdepth: 2
@@ -35,4 +20,3 @@ generalization-deep
 dropout
 kaggle-house-price
 ```
-

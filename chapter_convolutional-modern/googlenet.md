@@ -3,18 +3,18 @@
 tab.interact_select(['mxnet', 'pytorch', 'tensorflow', 'jax'])
 ```
 
-# Multi-Branch Networks  (GoogLeNet)
+# 다중 분기 네트워크 (GoogLeNet) (Multi-Branch Networks (GoogLeNet))
 :label:`sec_googlenet`
 
-In 2014, *GoogLeNet*
-won the ImageNet Challenge :cite:`Szegedy.Liu.Jia.ea.2015`, using a structure
-that combined the strengths of NiN :cite:`Lin.Chen.Yan.2013`, repeated blocks :cite:`Simonyan.Zisserman.2014`,
-and a cocktail of convolution kernels. It was arguably also the first network that exhibited a clear distinction among the stem (data ingest), body (data processing), and head (prediction) in a CNN. This design pattern has persisted ever since in the design of deep networks: the *stem* is given by the first two or three convolutions that operate on the image. They extract low-level features from the underlying images. This is followed by a *body* of convolutional blocks. Finally, the *head* maps the features obtained so far to the required classification, segmentation, detection, or tracking problem at hand.
+2014년, *GoogLeNet*은 NiN :cite:`Lin.Chen.Yan.2013`의 강점, 반복 블록 :cite:`Simonyan.Zisserman.2014`, 합성곱 커널의 칵테일을 결합한 구조를 사용하여 ImageNet 챌린지에서 우승했습니다 :cite:`Szegedy.Liu.Jia.ea.2015`. 
+이것은 틀림없이 CNN에서 스템(데이터 수집), 바디(데이터 처리), 헤드(예측) 간의 명확한 구분을 보인 최초의 네트워크이기도 했습니다. 
+이 디자인 패턴은 이후 딥 네트워크 설계에서 지속되었습니다: *스템(stem)*은 이미지에 작동하는 처음 두세 개의 합성곱으로 주어집니다. 그들은 기본 이미지에서 하위 수준 특성을 추출합니다. 그 뒤를 이어 합성곱 블록의 *바디(body)*가 나옵니다. 마지막으로 *헤드(head)*는 지금까지 얻은 특성을 당면한 필수 분류, 분할, 감지 또는 추적 문제로 매핑합니다.
 
-The key contribution in GoogLeNet was the design of the network body. It solved the problem of selecting
-convolution kernels in an ingenious way. While other works tried to identify which convolution, ranging from $1 \times 1$ to $11 \times 11$ would be best, it simply *concatenated* multi-branch convolutions.
-In what follows we introduce a slightly simplified version of GoogLeNet: the original design included a number of tricks for stabilizing training through intermediate loss functions, applied to multiple layers of the network. 
-They are no longer necessary due to the availability of improved training algorithms.
+GoogLeNet의 주요 기여는 네트워크 바디의 설계였습니다. 
+그것은 독창적인 방식으로 합성곱 커널 선택 문제를 해결했습니다. 
+다른 연구들은 $1 \times 1$에서 $11 \times 11$까지 어떤 합성곱이 가장 좋을지 식별하려고 시도했지만, 이것은 단순히 다중 분기 합성곱을 *연결(concatenated)*했습니다. 
+다음에서는 약간 단순화된 버전의 GoogLeNet을 소개합니다: 원래 설계에는 네트워크의 여러 레이어에 적용된 중간 손실 함수를 통해 훈련을 안정화하기 위한 여러 가지 트릭이 포함되어 있었습니다. 
+향상된 훈련 알고리즘의 가용성으로 인해 더 이상 필요하지 않습니다.
 
 ```{.python .input}
 %%tab mxnet
@@ -46,47 +46,38 @@ from jax import numpy as jnp
 import jax
 ```
 
-## (**Inception Blocks**)
+## (**Inception 블록**)
 
-The basic convolutional block in GoogLeNet is called an *Inception block*,
-stemming from the meme "we need to go deeper" from the movie *Inception*.
+GoogLeNet의 기본 합성곱 블록은 영화 *인셉션(Inception)*의 밈 "우리는 더 깊이 들어가야 해(we need to go deeper)"에서 유래한 *Inception 블록*이라고 합니다.
 
-![Structure of the Inception block.](../img/inception.svg)
+![Inception 블록의 구조.](../img/inception.svg)
 :label:`fig_inception`
 
-As depicted in :numref:`fig_inception`,
-the inception block consists of four parallel branches.
-The first three branches use convolutional layers
-with window sizes of $1\times 1$, $3\times 3$, and $5\times 5$
-to extract information from different spatial sizes.
-The middle two branches also add a $1\times 1$ convolution of the input
-to reduce the number of channels, reducing the model's complexity.
-The fourth branch uses a $3\times 3$ max-pooling layer,
-followed by a $1\times 1$ convolutional layer
-to change the number of channels.
-The four branches all use appropriate padding to give the input and output the same height and width.
-Finally, the outputs along each branch are concatenated
-along the channel dimension and comprise the block's output.
-The commonly-tuned hyperparameters of the Inception block
-are the number of output channels per layer, i.e., how to allocate capacity among convolutions of different size.
+:numref:`fig_inception`에 묘사된 것처럼, Inception 블록은 4개의 병렬 분기로 구성됩니다. 
+처음 세 분기는 $1\times 1$, $3\times 3$, $5\times 5$의 윈도우 크기를 가진 합성곱 레이어를 사용하여 다양한 공간 크기에서 정보를 추출합니다. 
+가운데 두 분기는 입력의 $1\times 1$ 합성곱도 추가하여 채널 수를 줄여 모델의 복잡성을 줄입니다. 
+네 번째 분기는 $3\times 3$ 최대 풀링 레이어를 사용하고, 채널 수를 변경하기 위해 $1\times 1$ 합성곱 레이어가 뒤따릅니다. 
+4개의 분기는 모두 입력과 출력의 높이와 너비가 같도록 적절한 패딩을 사용합니다. 
+마지막으로 각 분기의 출력은 채널 차원을 따라 연결되어 블록의 출력을 구성합니다. 
+Inception 블록의 일반적으로 조정되는 하이퍼파라미터는 레이어당 출력 채널 수, 즉 다른 크기의 합성곱 간에 용량을 할당하는 방법입니다.
 
 ```{.python .input}
 %%tab mxnet
 class Inception(nn.Block):
-    # c1--c4 are the number of output channels for each branch
+    # c1--c4는 각 분기의 출력 채널 수입니다
     def __init__(self, c1, c2, c3, c4, **kwargs):
         super(Inception, self).__init__(**kwargs)
-        # Branch 1
+        # 분기 1
         self.b1_1 = nn.Conv2D(c1, kernel_size=1, activation='relu')
-        # Branch 2
+        # 분기 2
         self.b2_1 = nn.Conv2D(c2[0], kernel_size=1, activation='relu')
         self.b2_2 = nn.Conv2D(c2[1], kernel_size=3, padding=1,
                               activation='relu')
-        # Branch 3
+        # 분기 3
         self.b3_1 = nn.Conv2D(c3[0], kernel_size=1, activation='relu')
         self.b3_2 = nn.Conv2D(c3[1], kernel_size=5, padding=2,
                               activation='relu')
-        # Branch 4
+        # 분기 4
         self.b4_1 = nn.MaxPool2D(pool_size=3, strides=1, padding=1)
         self.b4_2 = nn.Conv2D(c4, kernel_size=1, activation='relu')
 
@@ -101,18 +92,18 @@ class Inception(nn.Block):
 ```{.python .input}
 %%tab pytorch
 class Inception(nn.Module):
-    # c1--c4 are the number of output channels for each branch
+    # c1--c4는 각 분기의 출력 채널 수입니다
     def __init__(self, c1, c2, c3, c4, **kwargs):
         super(Inception, self).__init__(**kwargs)
-        # Branch 1
+        # 분기 1
         self.b1_1 = nn.LazyConv2d(c1, kernel_size=1)
-        # Branch 2
+        # 분기 2
         self.b2_1 = nn.LazyConv2d(c2[0], kernel_size=1)
         self.b2_2 = nn.LazyConv2d(c2[1], kernel_size=3, padding=1)
-        # Branch 3
+        # 분기 3
         self.b3_1 = nn.LazyConv2d(c3[0], kernel_size=1)
         self.b3_2 = nn.LazyConv2d(c3[1], kernel_size=5, padding=2)
-        # Branch 4
+        # 분기 4
         self.b4_1 = nn.MaxPool2d(kernel_size=3, stride=1, padding=1)
         self.b4_2 = nn.LazyConv2d(c4, kernel_size=1)
 
@@ -127,7 +118,7 @@ class Inception(nn.Module):
 ```{.python .input}
 %%tab tensorflow
 class Inception(tf.keras.Model):
-    # c1--c4 are the number of output channels for each branch
+    # c1--c4는 각 분기의 출력 채널 수입니다
     def __init__(self, c1, c2, c3, c4):
         super().__init__()
         self.b1_1 = tf.keras.layers.Conv2D(c1, 1, activation='relu')
@@ -151,22 +142,22 @@ class Inception(tf.keras.Model):
 ```{.python .input}
 %%tab jax
 class Inception(nn.Module):
-    # `c1`--`c4` are the number of output channels for each branch
+    # `c1`--`c4`는 각 분기의 출력 채널 수입니다
     c1: int
     c2: tuple
     c3: tuple
     c4: int
 
     def setup(self):
-        # Branch 1
+        # 분기 1
         self.b1_1 = nn.Conv(self.c1, kernel_size=(1, 1))
-        # Branch 2
+        # 분기 2
         self.b2_1 = nn.Conv(self.c2[0], kernel_size=(1, 1))
         self.b2_2 = nn.Conv(self.c2[1], kernel_size=(3, 3), padding='same')
-        # Branch 3
+        # 분기 3
         self.b3_1 = nn.Conv(self.c3[0], kernel_size=(1, 1))
         self.b3_2 = nn.Conv(self.c3[1], kernel_size=(5, 5), padding='same')
-        # Branch 4
+        # 분기 4
         self.b4_1 = lambda x: nn.max_pool(x, window_shape=(3, 3),
                                           strides=(1, 1), padding='same')
         self.b4_2 = nn.Conv(self.c4, kernel_size=(1, 1))
@@ -179,27 +170,23 @@ class Inception(nn.Module):
         return jnp.concatenate((b1, b2, b3, b4), axis=-1)
 ```
 
-To gain some intuition for why this network works so well,
-consider the combination of the filters.
-They explore the image in a variety of filter sizes.
-This means that details at different extents
-can be recognized efficiently by filters of different sizes.
-At the same time, we can allocate different amounts of parameters
-for different filters.
+이 네트워크가 왜 그렇게 잘 작동하는지에 대한 직관을 얻으려면 필터의 조합을 고려하십시오. 
+그들은 다양한 필터 크기에서 이미지를 탐색합니다. 
+이는 다른 범위의 세부 사항이 다른 크기의 필터에 의해 효율적으로 인식될 수 있음을 의미합니다. 
+동시에 우리는 다른 필터에 대해 다른 양의 파라미터를 할당할 수 있습니다.
 
 
-## [**GoogLeNet Model**]
+## [**GoogLeNet 모델**]
 
-As shown in :numref:`fig_inception_full`, GoogLeNet uses a stack of a total of 9 inception blocks, arranged into three groups with max-pooling in between,
-and global average pooling in its head to generate its estimates.
-Max-pooling between inception blocks reduces the dimensionality.
-At its stem, the first module is similar to AlexNet and LeNet.
+:numref:`fig_inception_full`에 표시된 것처럼, GoogLeNet은 총 9개의 Inception 블록 스택을 사용하며, 그 사이에 최대 풀링이 있는 세 그룹으로 배열되고, 추정치를 생성하기 위해 헤드에 전역 평균 풀링이 있습니다. 
+Inception 블록 사이의 최대 풀링은 차원을 줄입니다. 
+스템의 첫 번째 모듈은 AlexNet 및 LeNet과 유사합니다.
 
-![The GoogLeNet architecture.](../img/inception-full-90.svg)
+![GoogLeNet 아키텍처.](../img/inception-full-90.svg)
 :label:`fig_inception_full`
 
-We can now implement GoogLeNet piece by piece. Let's begin with the stem.
-The first module uses a 64-channel $7\times 7$ convolutional layer.
+이제 GoogLeNet을 하나씩 구현할 수 있습니다. 스템부터 시작해 봅시다. 
+첫 번째 모듈은 64채널 $7\times 7$ 합성곱 레이어를 사용합니다.
 
 ```{.python .input}
 %%tab pytorch, mxnet, tensorflow
@@ -241,9 +228,9 @@ class GoogleNet(d2l.Classifier):
                                       padding='same')])
 ```
 
-The second module uses two convolutional layers:
-first, a 64-channel $1\times 1$ convolutional layer,
-followed by a $3\times 3$ convolutional layer that triples the number of channels. This corresponds to the second branch in the Inception block and concludes the design of the body. At this point we have 192 channels.
+두 번째 모듈은 두 개의 합성곱 레이어를 사용합니다: 
+먼저, 64채널 $1\times 1$ 합성곱 레이어, 
+그다음 채널 수를 세 배로 늘리는 $3\times 3$ 합성곱 레이어입니다. 이것은 Inception 블록의 두 번째 분기에 해당하며 바디 설계를 마칩니다. 이 시점에서 우리는 192개의 채널을 갖게 됩니다.
 
 ```{.python .input}
 %%tab all
@@ -275,19 +262,13 @@ def b2(self):
                                                     padding='same')])
 ```
 
-The third module connects two complete Inception blocks in series.
-The number of output channels of the first Inception block is
-$64+128+32+32=256$. This amounts to 
-a ratio of the number of output channels
-among the four branches of $2:4:1:1$. To achieve this, we first reduce the input
-dimensions by $\frac{1}{2}$ and by $\frac{1}{12}$ in the second and third branch respectively
-to arrive at $96 = 192/2$ and $16 = 192/12$ channels respectively.
+세 번째 모듈은 두 개의 완전한 Inception 블록을 직렬로 연결합니다. 
+첫 번째 Inception 블록의 출력 채널 수는 $64+128+32+32=256$입니다. 
+이는 네 분기 간의 출력 채널 수 비율이 $2:4:1:1$임을 의미합니다. 이를 달성하기 위해 두 번째와 세 번째 분기에서 입력 차원을 각각 $rac{1}{2}$과 $rac{1}{12}$로 줄여 각각 $96 = 192/2$ 및 $16 = 192/12$ 채널에 도달합니다.
 
-The number of output channels of the second Inception block
-is increased to $128+192+96+64=480$, yielding a ratio of $128:192:96:64 = 4:6:3:2$. As before,
-we need to reduce the number of intermediate dimensions in the second and third channel. A
-scale of $\frac{1}{2}$ and $\frac{1}{8}$ respectively suffices, yielding $128$ and $32$ channels
-respectively. This is captured by the arguments of the following `Inception` block constructors.
+두 번째 Inception 블록의 출력 채널 수는 $128+192+96+64=480$으로 증가하여 $128:192:96:64 = 4:6:3:2$의 비율을 산출합니다. 이전과 마찬가지로 
+두 번째와 세 번째 채널의 중간 차원 수를 줄여야 합니다. 
+각각 $rac{1}{2}$과 $rac{1}{8}$의 스케일로 충분하며, 각각 $128$과 $32$ 채널을 산출합니다. 이것은 다음 `Inception` 블록 생성자의 인수에 의해 캡처됩니다.
 
 ```{.python .input}
 %%tab all
@@ -316,21 +297,15 @@ def b3(self):
                                                     padding='same')])
 ```
 
-The fourth module is more complicated.
-It connects five Inception blocks in series,
-and they have $192+208+48+64=512$, $160+224+64+64=512$,
-$128+256+64+64=512$, $112+288+64+64=528$,
-and $256+320+128+128=832$ output channels, respectively.
-The number of channels assigned to these branches is similar
-to that in the third module:
-the second branch with the $3\times 3$ convolutional layer
-outputs the largest number of channels,
-followed by the first branch with only the $1\times 1$ convolutional layer,
-the third branch with the $5\times 5$ convolutional layer,
-and the fourth branch with the $3\times 3$ max-pooling layer.
-The second and third branches will first reduce
-the number of channels according to the ratio.
-These ratios are slightly different in different Inception blocks.
+네 번째 모듈은 더 복잡합니다. 
+5개의 Inception 블록을 직렬로 연결하며, 각각 $192+208+48+64=512$, $160+224+64+64=512$, $128+256+64+64=512$, $112+288+64+64=528$, $256+320+128+128=832$ 출력 채널을 갖습니다. 
+이 분기들에 할당된 채널 수는 세 번째 모듈의 것과 유사합니다: 
+$3\times 3$ 합성곱 레이어가 있는 두 번째 분기가 가장 많은 수의 채널을 출력하고, 
+$1\times 1$ 합성곱 레이어만 있는 첫 번째 분기, 
+$5\times 5$ 합성곱 레이어가 있는 세 번째 분기, 
+$3\times 3$ 최대 풀링 레이어가 있는 네 번째 분기가 그 뒤를 따릅니다. 
+두 번째와 세 번째 분기는 비율에 따라 채널 수를 먼저 줄입니다. 
+이 비율은 다른 Inception 블록에서 약간 다릅니다.
 
 ```{.python .input}
 %%tab all
@@ -371,17 +346,11 @@ def b4(self):
                                                     padding='same')])
 ```
 
-The fifth module has two Inception blocks with $256+320+128+128=832$
-and $384+384+128+128=1024$ output channels.
-The number of channels assigned to each branch
-is the same as that in the third and fourth modules,
-but differs in specific values.
-It should be noted that the fifth block is followed by the output layer.
-This block uses the global average pooling layer
-to change the height and width of each channel to 1, just as in NiN.
-Finally, we turn the output into a two-dimensional array
-followed by a fully connected layer
-whose number of outputs is the number of label classes.
+다섯 번째 모듈은 $256+320+128+128=832$ 및 $384+384+128+128=1024$ 출력 채널을 가진 두 개의 Inception 블록을 갖습니다. 
+각 분기에 할당된 채널 수는 세 번째 및 네 번째 모듈의 채널 수와 동일하지만 특정 값은 다릅니다. 
+다섯 번째 블록 뒤에는 출력 레이어가 뒤따른다는 점에 유의해야 합니다. 
+이 블록은 NiN에서와 같이 전역 평균 풀링 레이어를 사용하여 각 채널의 높이와 너비를 1로 변경합니다. 
+마지막으로 우리는 출력을 2차원 배열로 바꾼 다음 출력 수가 레이블 클래스 수인 완전 연결 레이어가 이어집니다.
 
 ```{.python .input}
 %%tab all
@@ -406,7 +375,7 @@ def b5(self):
     if tab.selected('jax'):
         return nn.Sequential([Inception(256, (160, 320), (32, 128), 128),
                               Inception(384, (192, 384), (48, 128), 128),
-                              # Flax does not provide a GlobalAvgPool2D layer
+                              # Flax는 GlobalAvgPool2D 레이어를 제공하지 않습니다
                               lambda x: nn.avg_pool(x,
                                                     window_shape=x.shape[1:3],
                                                     strides=x.shape[1:3],
@@ -414,7 +383,7 @@ def b5(self):
                               lambda x: x.reshape((x.shape[0], -1))])
 ```
 
-Now that we defined all blocks `b1` through `b5`, it is just a matter of assembling them all into a full network.
+이제 모든 블록 `b1`부터 `b5`까지 정의했으므로, 이들을 전체 네트워크로 조립하는 일만 남았습니다.
 
 ```{.python .input}
 %%tab pytorch, mxnet, tensorflow
@@ -437,16 +406,11 @@ def __init__(self, lr=0.1, num_classes=10):
             tf.keras.layers.Dense(num_classes)])
 ```
 
-The GoogLeNet model is computationally complex. Note the large number of
-relatively arbitrary hyperparameters in terms of the number of channels chosen, the number of blocks prior to dimensionality reduction, the relative partitioning of capacity across channels, etc. Much of it is due to the 
-fact that at the time when GoogLeNet was introduced, automatic tools for network definition or design exploration 
-were not yet available. For instance, by now we take it for granted that a competent deep learning framework is capable of inferring dimensionalities of input tensors automatically. At the time, many such configurations had to be specified explicitly by the experimenter, thus often slowing down active experimentation. Moreover, the tools needed for automatic exploration were still in flux and initial experiments largely amounted to costly brute-force exploration, genetic algorithms, and similar strategies. 
+GoogLeNet 모델은 계산적으로 복잡합니다. 
+선택된 채널 수, 차원 축소 전의 블록 수, 채널 전체의 상대적 용량 분할 등의 측면에서 비교적 임의적인 하이퍼파라미터가 많다는 점에 유의하십시오. 대부분은 GoogLeNet이 도입될 당시에는 네트워크 정의나 설계 탐색을 위한 자동 도구를 아직 사용할 수 없었다는 사실 때문입니다. 예를 들어, 이제 우리는 유능한 딥러닝 프레임워크가 입력 텐서의 차원을 자동으로 추론할 수 있다는 것을 당연하게 여깁니다. 당시에는 이러한 많은 구성을 실험자가 명시적으로 지정해야 했기 때문에 활발한 실험이 느려지는 경우가 많았습니다. 더욱이 자동 탐색에 필요한 도구는 여전히 유동적이었고 초기 실험은 주로 비용이 많이 드는 무차별 대입 탐색, 유전 알고리즘 및 유사한 전략에 해당했습니다.
 
-For now the only modification we will carry out is to
-[**reduce the input height and width from 224 to 96
-to have a reasonable training time on Fashion-MNIST.**]
-This simplifies the computation. Let's have a look at the
-changes in the shape of the output between the various modules.
+지금은 [**Fashion-MNIST에서 합리적인 훈련 시간을 갖기 위해 입력 높이와 너비를 224에서 96으로 줄이는**] 수정만 수행할 것입니다. 
+이것은 계산을 단순화합니다. 다양한 모듈 간의 출력 모양 변화를 살펴봅시다.
 
 ```{.python .input}
 %%tab mxnet, pytorch
@@ -458,11 +422,10 @@ model = GoogleNet().layer_summary((1, 1, 96, 96))
 model = GoogleNet().layer_summary((1, 96, 96, 1))
 ```
 
-## [**Training**]
+## [**훈련 (Training)**]
 
-As before, we train our model using the Fashion-MNIST dataset.
- We transform it to $96 \times 96$ pixel resolution
- before invoking the training procedure.
+이전과 마찬가지로 Fashion-MNIST 데이터셋을 사용하여 모델을 훈련합니다. 
+훈련 절차를 호출하기 전에 $96 \times 96$ 픽셀 해상도로 변환합니다.
 
 ```{.python .input}
 %%tab mxnet, pytorch, jax
@@ -483,39 +446,36 @@ with d2l.try_gpu():
     trainer.fit(model, data)
 ```
 
-## Discussion
+## 토론 (Discussion)
 
-A key feature of GoogLeNet is that it is actually *cheaper* to compute than its predecessors
-while simultaneously providing improved accuracy. This marks the beginning of a much more deliberate
-network design that trades off the cost of evaluating a network with a reduction in errors. It also marks the beginning of experimentation at a block level with network design hyperparameters, even though it was entirely manual at the time. We will revisit this topic in :numref:`sec_cnn-design` when discussing strategies for network structure exploration. 
+GoogLeNet의 주요 특징은 이전 모델보다 계산 비용이 *저렴*하면서도 동시에 향상된 정확도를 제공한다는 것입니다. 이것은 오류 감소와 네트워크 평가 비용을 절충하는 훨씬 더 신중한 네트워크 설계의 시작을 알립니다. 또한 당시에는 완전히 수동적이었지만 네트워크 설계 하이퍼파라미터를 사용하여 블록 수준에서 실험을 시작한 것을 의미합니다. 우리는 네트워크 구조 탐색 전략을 논의할 때 :numref:`sec_cnn-design`에서 이 주제를 다시 다룰 것입니다.
 
-Over the following sections we will encounter a number of design choices (e.g., batch normalization, residual connections, and channel grouping) that allow us to improve networks significantly. For now, you can be proud to have implemented what is arguably the first truly modern CNN.
+다음 섹션에서는 네트워크를 크게 개선할 수 있는 여러 가지 설계 선택(예: 배치 정규화, 잔차 연결, 채널 그룹화)을 접하게 될 것입니다. 지금으로서는 틀림없이 최초의 진정한 현대적 CNN을 구현했다는 사실에 자부심을 가질 수 있습니다.
 
-## Exercises
+## 연습 문제 (Exercises)
 
-1. GoogLeNet was so successful that it went through a number of iterations, progressively improving speed and accuracy. Try to implement and run some of them. They include the following:
-    1. Add a batch normalization layer :cite:`Ioffe.Szegedy.2015`, as described later in :numref:`sec_batch_norm`.
-    1. Make adjustments to the Inception block (width, choice and order of convolutions), as described in :citet:`Szegedy.Vanhoucke.Ioffe.ea.2016`.
-    1. Use label smoothing for model regularization, as described in :citet:`Szegedy.Vanhoucke.Ioffe.ea.2016`.
-    1. Make further adjustments to the Inception block by adding residual connection :cite:`Szegedy.Ioffe.Vanhoucke.ea.2017`, as described later in :numref:`sec_resnet`.
-1. What is the minimum image size needed for GoogLeNet to work?
-1. Can you design a variant of GoogLeNet that works on Fashion-MNIST's native resolution of $28 \times 28$ pixels? How would you need to change the stem, the body, and the head of the network, if anything at all?
-1. Compare the model parameter sizes of AlexNet, VGG, NiN, and GoogLeNet. How do the latter two network
-   architectures significantly reduce the model parameter size?
-1. Compare the amount of computation needed in GoogLeNet and AlexNet. How does this affect the design of an accelerator chip, e.g., in terms of memory size, memory bandwidth, cache size, the amount of computation, and the benefit of specialized operations?
+1. GoogLeNet은 매우 성공적이어서 속도와 정확도를 점진적으로 개선하는 여러 번의 반복을 거쳤습니다. 그중 일부를 구현하고 실행해 보십시오. 여기에는 다음이 포함됩니다:
+    1. 나중에 :numref:`sec_batch_norm`에서 설명하는 대로 배치 정규화 레이어 :cite:`Ioffe.Szegedy.2015`를 추가합니다.
+    2. :citet:`Szegedy.Vanhoucke.Ioffe.ea.2016`에 설명된 대로 Inception 블록(너비, 합성곱의 선택 및 순서)을 조정합니다.
+    3. :citet:`Szegedy.Vanhoucke.Ioffe.ea.2016`에 설명된 대로 모델 정규화를 위해 레이블 스무딩(label smoothing)을 사용합니다.
+    4. 나중에 :numref:`sec_resnet`에서 설명하는 대로 잔차 연결 :cite:`Szegedy.Ioffe.Vanhoucke.ea.2017`을 추가하여 Inception 블록을 추가로 조정합니다.
+2. GoogLeNet이 작동하는 데 필요한 최소 이미지 크기는 얼마입니까?
+3. Fashion-MNIST의 기본 해상도인 $28 \times 28$ 픽셀에서 작동하는 GoogLeNet 변형을 설계할 수 있습니까? 네트워크의 스템, 바디, 헤드를 변경해야 한다면 어떻게 변경해야 합니까?
+4. AlexNet, VGG, NiN, GoogLeNet의 모델 파라미터 크기를 비교하십시오. 후자의 두 네트워크 아키텍처는 어떻게 모델 파라미터 크기를 크게 줄입니까?
+5. GoogLeNet과 AlexNet에 필요한 계산량을 비교하십시오. 이것이 가속기 칩 설계(예: 메모리 크기, 메모리 대역폭, 캐시 크기, 계산량, 특수 연산의 이점 측면에서)에 어떤 영향을 미칩니까?
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/81)
+[토론](https://discuss.d2l.ai/t/81)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/82)
+[토론](https://discuss.d2l.ai/t/82)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/316)
+[토론](https://discuss.d2l.ai/t/316)
 :end_tab:
 
 :begin_tab:`jax`
-[Discussions](https://discuss.d2l.ai/t/18004)
+[토론](https://discuss.d2l.ai/t/18004)
 :end_tab:

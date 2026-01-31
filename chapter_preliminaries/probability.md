@@ -3,79 +3,48 @@
 tab.interact_select(['mxnet', 'pytorch', 'tensorflow', 'jax'])
 ```
 
-# Probability and Statistics
+# 확률과 통계 (Probability and Statistics)
 :label:`sec_prob`
 
-One way or another,
-machine learning is all about uncertainty.
-In supervised learning, we want to predict
-something unknown (the *target*)
-given something known (the *features*).
-Depending on our objective,
-we might attempt to predict
-the most likely value of the target.
-Or we might predict the value with the smallest
-expected distance from the target.
-And sometimes we wish not only
-to predict a specific value
-but to *quantify our uncertainty*.
-For example, given some features
-describing a patient,
-we might want to know *how likely* they are
-to suffer a heart attack in the next year.
-In unsupervised learning,
-we often care about uncertainty.
-To determine whether a set of measurements are anomalous,
-it helps to know how likely one is
-to observe values in a population of interest.
-Furthermore, in reinforcement learning,
-we wish to develop agents
-that act intelligently in various environments.
-This requires reasoning about
-how an environment might be expected to change
-and what rewards one might expect to encounter
-in response to each of the available actions.
+어쨌든, 머신러닝은 불확실성에 관한 것입니다.
+지도 학습에서 우리는 알려진 것(*특성*)이 주어졌을 때
+알려지지 않은 것(*타겟*)을 예측하고 싶습니다.
+목표에 따라, 우리는 타겟의 가장 가능성 있는 값을 예측하려고 시도할 수 있습니다.
+또는 타겟과 예상 거리가 가장 작은 값을 예측할 수 있습니다.
+그리고 때때로 우리는 특정 값을 예측할 뿐만 아니라
+*불확실성을 정량화*하고 싶습니다.
+예를 들어 환자를 설명하는 일부 특성이 주어졌을 때,
+우리는 그들이 내년에 심장마비를 겪을 가능성이 *얼마나 되는지* 알고 싶을 수 있습니다.
+비지도 학습에서 우리는 종종 불확실성에 관심을 갖습니다.
+일련의 측정값이 비정상적인지 판단하려면,
+관심 집단에서 값을 관찰할 가능성이 얼마나 되는지 아는 것이 도움이 됩니다.
+또한 강화 학습에서 우리는 다양한 환경에서 지능적으로 행동하는 에이전트를 개발하기를 원합니다.
+이를 위해서는 환경이 어떻게 변할 것으로 예상되는지, 
+그리고 사용 가능한 각 행동에 대한 응답으로 어떤 보상을 기대할 수 있는지에 대한 추론이 필요합니다.
 
-*Probability* is the mathematical field
-concerned with reasoning under uncertainty.
-Given a probabilistic model of some process,
-we can reason about the likelihood of various events.
-The use of probabilities to describe
-the frequencies of repeatable events
-(like coin tosses)
-is fairly uncontroversial.
-In fact, *frequentist* scholars adhere
-to an interpretation of probability
-that applies *only* to such repeatable events.
-By contrast *Bayesian* scholars
-use the language of probability more broadly
-to formalize reasoning under uncertainty.
-Bayesian probability is characterized
-by two unique features:
-(i) assigning degrees of belief
-to non-repeatable events,
-e.g., what is the *probability*
-that a dam will collapse?;
-and (ii) subjectivity. While Bayesian
-probability provides unambiguous rules
-for how one should update their beliefs
-in light of new evidence,
-it allows for different individuals
-to start off with different *prior* beliefs.
-*Statistics* helps us to reason backwards,
-starting off with collection and organization of data
-and backing out to what inferences
-we might draw about the process
-that generated the data.
-Whenever we analyze a dataset, hunting for patterns
-that we hope might characterize a broader population,
-we are employing statistical thinking.
-Many courses, majors, theses, careers, departments,
-companies, and institutions have been devoted
-to the study of probability and statistics.
-While this section only scratches the surface,
-we will provide the foundation
-that you need to begin building models.
+*확률(Probability)*은 불확실성 하에서의 추론을 다루는 수학 분야입니다.
+어떤 프로세스의 확률 모델이 주어지면, 우리는 다양한 사건의 가능성에 대해 추론할 수 있습니다.
+반복 가능한 사건(동전 던지기 등)의 빈도를 설명하기 위해 확률을 사용하는 것은
+상당히 논란의 여지가 없습니다.
+사실, *빈도주의(frequentist)* 학자들은
+그러한 반복 가능한 사건에 *만* 적용되는 확률 해석을 고수합니다.
+반면 *베이지안(Bayesian)* 학자들은
+불확실성 하에서의 추론을 공식화하기 위해 확률 언어를 더 광범위하게 사용합니다.
+베이지안 확률은 두 가지 고유한 특징으로 특징지어집니다:
+(i) 반복 불가능한 사건에 대한 믿음의 정도 할당,
+예: 댐이 무너질 *확률*은 얼마인가?;
+(ii) 주관성. 베이지안 확률은
+새로운 증거에 비추어 믿음을 어떻게 업데이트해야 하는지에 대한 모호하지 않은 규칙을 제공하지만,
+다른 개인이 다른 *사전(prior)* 믿음으로 시작할 수 있도록 허용합니다.
+*통계(Statistics)*는 데이터 수집 및 구성으로 시작하여
+데이터를 생성한 프로세스에 대해 어떤 추론을 도출할 수 있는지로 거슬러 올라가며
+우리가 역으로 추론하도록 돕습니다.
+데이터셋을 분석할 때마다, 더 넓은 집단을 특징지을 수 있는 패턴을 찾고 있다면,
+우리는 통계적 사고를 사용하고 있는 것입니다.
+많은 과정, 전공, 논문, 직업, 학과, 회사 및 기관이
+확률과 통계 연구에 헌신했습니다.
+이 섹션은 겉핥기에 불과하지만,
+우리는 모델 구축을 시작하는 데 필요한 기초를 제공할 것입니다.
 
 ```{.python .input}
 %%tab mxnet
@@ -115,101 +84,56 @@ from jax import numpy as jnp
 import numpy as np
 ```
 
-## A Simple Example: Tossing Coins
+## 간단한 예제: 동전 던지기 (A Simple Example: Tossing Coins)
 
-Imagine that we plan to toss a coin
-and want to quantify how likely
-we are to see heads (vs. tails).
-If the coin is *fair*,
-then both outcomes
-(heads and tails),
-are equally likely.
-Moreover if we plan to toss the coin $n$ times
-then the fraction of heads
-that we *expect* to see
-should exactly match
-the *expected* fraction of tails.
-One intuitive way to see this
-is by symmetry:
-for every possible outcome
-with $n_\textrm{h}$ heads and $n_\textrm{t} = (n - n_\textrm{h})$ tails,
-there is an equally likely outcome
-with $n_\textrm{t}$ heads and $n_\textrm{h}$ tails.
-Note that this is only possible
-if on average we expect to see
-$1/2$ of tosses come up heads
-and $1/2$ come up tails.
-Of course, if you conduct this experiment
-many times with $n=1000000$ tosses each,
-you might never see a trial
-where $n_\textrm{h} = n_\textrm{t}$ exactly.
+우리가 동전을 던질 계획이고 앞면(대 뒷면)이 나올 가능성이 얼마나 되는지
+정량화하고 싶다고 상상해 보십시오.
+동전이 *공정(fair)*하다면, 두 결과(앞면과 뒷면)가 나올 가능성은 동일합니다.
+게다가 동전을 $n$번 던질 계획이라면, 우리가 볼 것으로 *예상*되는 앞면의 비율은
+뒷면의 *예상* 비율과 정확히 일치해야 합니다.
+이것을 보는 직관적인 방법 중 하나는 대칭입니다:
+$n_\textrm{h}$개의 앞면과 $n_\textrm{t} = (n - n_\textrm{h})$개의 뒷면이 있는 모든 가능한 결과에 대해, $n_\textrm{t}$개의 앞면과 $n_\textrm{h}$개의 뒷면이 있는 똑같이 가능한 결과가 있습니다.
+이것은 평균적으로 던지기의 $1/2$이 앞면이 나오고 $1/2$이 뒷면이 나올 것으로 예상하는 경우에만 가능하다는 점에 유의하십시오.
+물론 각각 $n=1000000$번 던지기로 이 실험을 여러 번 수행하더라도,
+$n_\textrm{h} = n_\textrm{t}$가 정확히 일치하는 시행은 결코 보지 못할 수도 있습니다.
 
 
-Formally, the quantity $1/2$ is called a *probability*
-and here it captures the certainty with which
-any given toss will come up heads.
-Probabilities assign scores between $0$ and $1$
-to outcomes of interest, called *events*.
-Here the event of interest is $\textrm{heads}$
-and we denote the corresponding probability $P(\textrm{heads})$.
-A probability of $1$ indicates absolute certainty
-(imagine a trick coin where both sides were heads)
-and a probability of $0$ indicates impossibility
-(e.g., if both sides were tails).
-The frequencies $n_\textrm{h}/n$ and $n_\textrm{t}/n$ are not probabilities
-but rather *statistics*.
-Probabilities are *theoretical* quantities
-that underly the data generating process.
-Here, the probability $1/2$
-is a property of the coin itself.
-By contrast, statistics are *empirical* quantities
-that are computed as functions of the observed data.
-Our interests in probabilistic and statistical quantities
-are inextricably intertwined.
-We often design special statistics called *estimators*
-that, given a dataset, produce *estimates*
-of model parameters such as probabilities.
-Moreover, when those estimators satisfy
-a nice property called *consistency*,
-our estimates will converge
-to the corresponding probability.
-In turn, these inferred probabilities
-tell about the likely statistical properties
-of data from the same population
-that we might encounter in the future.
+공식적으로 양 $1/2$을 *확률*이라고 하며,
+여기서는 주어진 던지기에서 앞면이 나올 확실성을 포착합니다.
+확률은 관심 있는 결과, 즉 *사건(events)*에 $0$과 $1$ 사이의 점수를 할당합니다.
+여기서 관심 있는 사건은 $\textrm{heads}$이며 해당 확률을 $P(\textrm{heads})$로 나타냅니다.
+확률 $1$은 절대적인 확실성을 나타내고(양쪽이 모두 앞면인 속임수 동전을 상상해 보십시오)
+확률 $0$은 불가능함을 나타냅니다(예: 양쪽이 모두 뒷면인 경우).
+빈도 $n_\textrm{h}/n$과 $n_\textrm{t}/n$은 확률이 아니라 *통계*입니다.
+확률은 데이터 생성 프로세스의 기초가 되는 *이론적* 양입니다.
+여기서 확률 $1/2$은 동전 자체의 속성입니다.
+반면 통계는 관찰된 데이터의 함수로 계산되는 *경험적* 양입니다.
+확률적 및 통계적 양에 대한 우리의 관심은 불가분의 관계에 있습니다.
+우리는 종종 데이터셋이 주어졌을 때 확률과 같은 모델 파라미터의 *추정치(estimates)*를 생성하는
+*추정량(estimators)*이라는 특별한 통계를 설계합니다.
+게다가 그 추정량이 *일관성(consistency)*이라는 좋은 속성을 만족할 때,
+우리의 추정치는 해당 확률로 수렴할 것입니다.
+결과적으로 이러한 추론된 확률은
+우리가 미래에 마주칠 수 있는 동일한 모집단의 데이터에 대한
+가능성 있는 통계적 속성에 대해 알려줍니다.
 
-Suppose that we stumbled upon a real coin
-for which we did not know
-the true $P(\textrm{heads})$.
-To investigate this quantity
-with statistical methods,
-we need to (i) collect some data;
-and (ii) design an estimator.
-Data acquisition here is easy;
-we can toss the coin many times
-and record all the outcomes.
-Formally, drawing realizations
-from some underlying random process
-is called *sampling*.
-As you might have guessed,
-one natural estimator
-is the ratio of
-the number of observed *heads*
-to the total number of tosses.
+우리가 실제 $P(\textrm{heads})$를 모르는
+진짜 동전을 우연히 발견했다고 가정해 봅시다.
+이 양을 통계적 방법으로 조사하려면,
+우리는 (i) 데이터를 수집하고; (ii) 추정량을 설계해야 합니다.
+여기서 데이터 획득은 쉽습니다; 동전을 여러 번 던지고 모든 결과를 기록할 수 있습니다.
+공식적으로 기본 확률 프로세스에서 실현(realizations)을 그리는 것을 *샘플링(sampling)*이라고 합니다.
+짐작하셨겠지만, 하나의 자연스러운 추정량은
+관찰된 *앞면*의 수를 총 던지기 횟수로 나눈 비율입니다.
 
-Now, suppose that the coin was in fact fair,
-i.e., $P(\textrm{heads}) = 0.5$.
-To simulate tosses of a fair coin,
-we can invoke any random number generator.
-There are some easy ways to draw samples
-of an event with probability $0.5$.
-For example Python's `random.random`
-yields numbers in the interval $[0,1]$
-where the probability of lying
-in any sub-interval $[a, b] \subset [0,1]$
-is equal to $b-a$.
-Thus we can get out `0` and `1` with probability `0.5` each
-by testing whether the returned float number is greater than `0.5`:
+이제 동전이 실제로 공정하다고 가정해 봅시다.
+즉, $P(\textrm{heads}) = 0.5$.
+공정한 동전 던지기를 시뮬레이션하기 위해 임의의 난수 생성기를 호출할 수 있습니다.
+확률 $0.5$로 사건의 샘플을 그리는 쉬운 방법이 몇 가지 있습니다.
+예를 들어 Python의 `random.random`은 구간 $[0,1]$의 숫자를 산출하며,
+여기서 임의의 하위 구간 $[a, b] \subset [0,1]$에 있을 확률은 $b-a$와 같습니다.
+따라서 반환된 부동 소수점 숫자가 `0.5`보다 큰지 테스트하여
+각각 확률 `0.5`로 `0`과 `1`을 얻을 수 있습니다.
 
 ```{.python .input}
 %%tab all
@@ -219,26 +143,16 @@ tails = num_tosses - heads
 print("heads, tails: ", [heads, tails])
 ```
 
-More generally, we can simulate multiple draws
-from any variable with a finite number
-of possible outcomes
-(like the toss of a coin or roll of a die)
-by calling the multinomial function,
-setting the first argument
-to the number of draws
-and the second as a list of probabilities
-associated with each of the possible outcomes.
-To simulate ten tosses of a fair coin,
-we assign probability vector `[0.5, 0.5]`,
-interpreting index 0 as heads
-and index 1 as tails.
-The function returns a vector
-with length equal to the number
-of possible outcomes (here, 2),
-where the first component tells us
-the number of occurrences of heads
-and the second component tells us
-the number of occurrences of tails.
+일반적으로 다항 함수(multinomial function)를 호출하여
+가능한 결과의 수가 유한한 모든 변수(동전 던지기나 주사위 굴리기 등)에서
+여러 번 그리기를 시뮬레이션할 수 있습니다.
+첫 번째 인수를 그리기 횟수로 설정하고
+두 번째 인수를 각 가능한 결과와 관련된 확률 리스트로 설정합니다.
+공정한 동전 던지기를 10번 시뮬레이션하기 위해 확률 벡터 `[0.5, 0.5]`를 할당하고,
+인덱스 0을 앞면으로, 인덱스 1을 뒷면으로 해석합니다.
+함수는 가능한 결과의 수(여기서는 2)와 동일한 길이를 가진 벡터를 반환하며,
+여기서 첫 번째 성분은 앞면의 발생 횟수를 알려주고
+두 번째 성분은 뒷면의 발생 횟수를 알려줍니다.
 
 ```{.python .input}
 %%tab mxnet
@@ -261,20 +175,14 @@ tfd.Multinomial(100, fair_probs).sample()
 ```{.python .input}
 %%tab jax
 fair_probs = [0.5, 0.5]
-# jax.random does not have multinomial distribution implemented
+# jax.random에는 다항 분포가 구현되어 있지 않습니다
 np.random.multinomial(100, fair_probs)
 ```
 
-Each time you run this sampling process,
-you will receive a new random value
-that may differ from the previous outcome.
-Dividing by the number of tosses
-gives us the *frequency*
-of each outcome in our data.
-Note that these frequencies,
-just like the probabilities
-that they are intended
-to estimate, sum to $1$.
+이 샘플링 과정을 실행할 때마다,
+이전 결과와 다를 수 있는 새로운 무작위 값을 받게 됩니다.
+던진 횟수로 나누면 데이터에서 각 결과의 *빈도*를 얻을 수 있습니다.
+이러한 빈도는 추정하려는 확률과 마찬가지로 합이 $1$이 된다는 점에 유의하십시오.
 
 ```{.python .input}
 %%tab mxnet
@@ -296,16 +204,13 @@ tfd.Multinomial(100, fair_probs).sample() / 100
 np.random.multinomial(100, fair_probs) / 100
 ```
 
-Here, even though our simulated coin is fair
-(we ourselves set the probabilities `[0.5, 0.5]`),
-the counts of heads and tails may not be identical.
-That is because we only drew a relatively small number of samples.
-If we did not implement the simulation ourselves,
-and only saw the outcome,
-how would we know if the coin were slightly unfair
-or if the possible deviation from $1/2$ was
-just an artifact of the small sample size?
-Let's see what happens when we simulate 10,000 tosses.
+여기서 시뮬레이션된 동전이 공정하더라도
+(우리 스스로 확률을 `[0.5, 0.5]`로 설정했음), 앞면과 뒷면의 수가 동일하지 않을 수 있습니다.
+비교적 적은 수의 샘플만 뽑았기 때문입니다.
+시뮬레이션을 직접 구현하지 않고 결과만 보았다면,
+동전이 약간 불공정한지 아니면 $1/2$에서 벗어난 가능성이
+단지 작은 표본 크기의 인공물(artifact)인지 어떻게 알 수 있을까요?
+10,000번 던지기를 시뮬레이션할 때 어떤 일이 일어나는지 봅시다.
 
 ```{.python .input}
 %%tab mxnet
@@ -331,20 +236,14 @@ counts = np.random.multinomial(10000, fair_probs).astype(np.float32)
 counts / 10000
 ```
 
-In general, for averages of repeated events (like coin tosses),
-as the number of repetitions grows,
-our estimates are guaranteed to converge
-to the true underlying probabilities.
-The mathematical formulation of this phenomenon
-is called the *law of large numbers*
-and the *central limit theorem*
-tells us that in many situations,
-as the sample size $n$ grows,
-these errors should go down
-at a rate of $(1/\sqrt{n})$.
-Let's get some more intuition by studying
-how our estimate evolves as we grow
-the number of tosses from 1 to 10,000.
+일반적으로 반복되는 사건(동전 던지기 등)의 평균의 경우,
+반복 횟수가 증가함에 따라 우리의 추정치는
+실제 기본 확률로 수렴하도록 보장됩니다.
+이 현상의 수학적 공식화를 *대수의 법칙(law of large numbers)*이라고 하며,
+*중심 극한 정리(central limit theorem)*는 많은 상황에서
+표본 크기 $n$이 증가함에 따라 이러한 오류가 $(1/\sqrt{n})$의 비율로 줄어들어야 함을 알려줍니다.
+던지기 횟수를 1에서 10,000으로 늘림에 따라 추정치가 어떻게 진화하는지 연구하여
+더 많은 직관을 얻어 봅시다.
 
 ```{.python .input}
 %%tab pytorch
@@ -395,399 +294,270 @@ d2l.plt.gca().set_ylabel('Estimated probability')
 d2l.plt.legend();
 ```
 
-Each solid curve corresponds to one of the two values of the coin
-and gives our estimated probability that the coin turns up that value
-after each group of experiments.
-The dashed black line gives the true underlying probability.
-As we get more data by conducting more experiments,
-the curves converge towards the true probability.
-You might already begin to see the shape
-of some of the more advanced questions
-that preoccupy statisticians:
-How quickly does this convergence happen?
-If we had already tested many coins
-manufactured at the same plant,
-how might we incorporate this information?
+각 실선 곡선은 동전의 두 값 중 하나에 해당하며
+각 실험 그룹 후 동전이 해당 값을 낼 것으로 추정되는 확률을 제공합니다.
+검은색 점선은 실제 기본 확률을 나타냅니다.
+더 많은 실험을 수행하여 더 많은 데이터를 얻으면,
+곡선은 실제 확률로 수렴합니다.
+여러분은 이미 통계학자들을 몰두하게 하는
+더 발전된 질문들의 윤곽을 보기 시작했을 것입니다: 
+이 수렴은 얼마나 빨리 일어나는가?
+동일한 공장에서 제조된 많은 동전을 이미 테스트했다면,
+이 정보를 어떻게 통합할 수 있을까?
 
-##  A More Formal Treatment
+## 더 공식적인 처리 (A More Formal Treatment)
 
-We have already gotten pretty far: posing
-a probabilistic model,
-generating synthetic data,
-running a statistical estimator,
-empirically assessing convergence,
-and reporting error metrics (checking the deviation).
-However, to go much further,
-we will need to be more precise.
+우리는 이미 꽤 멀리 왔습니다: 확률 모델을 제기하고,
+합성 데이터를 생성하고, 통계적 추정량을 실행하고,
+경험적으로 수렴을 평가하고, 오류 지표를 보고(편차 확인)했습니다.
+그러나 훨씬 더 나아가려면 더 정확해야 합니다.
 
 
-When dealing with randomness,
-we denote the set of possible outcomes $\mathcal{S}$
-and call it the *sample space* or *outcome space*.
-Here, each element is a distinct possible *outcome*.
-In the case of rolling a single coin,
-$\mathcal{S} = \{\textrm{heads}, \textrm{tails}\}$.
-For a single die, $\mathcal{S} = \{1, 2, 3, 4, 5, 6\}$.
-When flipping two coins, possible outcomes are
-$\{(\textrm{heads}, \textrm{heads}), (\textrm{heads}, \textrm{tails}), (\textrm{tails}, \textrm{heads}),  (\textrm{tails}, \textrm{tails})\}$.
-*Events* are subsets of the sample space.
-For instance, the event "the first coin toss comes up heads"
-corresponds to the set $\{(\textrm{heads}, \textrm{heads}), (\textrm{heads}, \textrm{tails})\}$.
-Whenever the outcome $z$ of a random experiment satisfies
-$z \in \mathcal{A}$, then event $\mathcal{A}$ has occurred.
-For a single roll of a die, we could define the events
-"seeing a $5$" ($\mathcal{A} = \{5\}$)
-and "seeing an odd number"  ($\mathcal{B} = \{1, 3, 5\}$).
-In this case, if the die came up $5$,
-we would say that both $\mathcal{A}$ and $\mathcal{B}$ occurred.
-On the other hand, if $z = 3$,
-then $\mathcal{A}$ did not occur
-but $\mathcal{B}$ did.
+무작위성을 다룰 때, 우리는 가능한 결과의 집합을 $\mathcal{S}$로 나타내고
+이를 *표본 공간(sample space)* 또는 *결과 공간(outcome space)*이라고 부릅니다.
+여기서 각 요소는 별개의 가능한 *결과(outcome)*입니다.
+단일 동전을 던지는 경우, $\mathcal{S} = \{\textrm{heads}, \textrm{tails}\}$입니다.
+단일 주사위의 경우, $\mathcal{S} = \{1, 2, 3, 4, 5, 6\}$입니다.
+동전 두 개를 던질 때 가능한 결과는
+$\{(\textrm{heads}, \textrm{heads}), (\textrm{heads}, \textrm{tails}), (\textrm{tails}, \textrm{heads}),  (\textrm{tails}, \textrm{tails})\}$입니다.
+*사건(Events)*은 표본 공간의 부분 집합입니다.
+예를 들어, "첫 번째 동전 던지기가 앞면이 나오는" 사건은
+집합 $\{(\textrm{heads}, \textrm{heads}), (\textrm{heads}, \textrm{tails})\}$에 해당합니다.
+무작위 실험의 결과 $z$가 $z \in \mathcal{A}$를 만족할 때마다 사건 $\mathcal{A}$가 발생했습니다.
+주사위를 한 번 굴릴 때, 우리는 "$5$ 보기"($\mathcal{A} = \{5\}$)와
+"홀수 보기"($\mathcal{B} = \{1, 3, 5\}$)라는 사건을 정의할 수 있습니다.
+이 경우, 주사위가 $5$가 나오면 $\mathcal{A}$와 $\mathcal{B}$가 모두 발생했다고 말합니다.
+반면 $z = 3$이면 $\mathcal{A}$는 발생하지 않았지만 $\mathcal{B}$는 발생했습니다.
 
 
-A *probability* function maps events
-onto real values ${P: \mathcal{A} \subseteq \mathcal{S} \rightarrow [0,1]}$.
-The probability, denoted $P(\mathcal{A})$, of an event $\mathcal{A}$
-in the given sample space $\mathcal{S}$,
-has the following properties:
+*확률* 함수는 사건을 실수 값 ${P: \mathcal{A} \subseteq \mathcal{S} \rightarrow [0,1]}$에 매핑합니다.
+주어진 표본 공간 $\mathcal{S}$에서 사건 $\mathcal{A}$의 확률 $P(\mathcal{A})$는
+다음 속성을 갖습니다:
 
-* The probability of any event $\mathcal{A}$ is a nonnegative real number, i.e., $P(\mathcal{A}) \geq 0$;
-* The probability of the entire sample space is $1$, i.e., $P(\mathcal{S}) = 1$;
-* For any countable sequence of events $\mathcal{A}_1, \mathcal{A}_2, \ldots$ that are *mutually exclusive* (i.e., $\mathcal{A}_i \cap \mathcal{A}_j = \emptyset$ for all $i \neq j$), the probability that any of them happens is equal to the sum of their individual probabilities, i.e., $P(\bigcup_{i=1}^{\infty} \mathcal{A}_i) = \sum_{i=1}^{\infty} P(\mathcal{A}_i)$.
+* 모든 사건 $\mathcal{A}$의 확률은 음이 아닌 실수입니다. 즉, $P(\mathcal{A}) \geq 0$;
+* 전체 표본 공간의 확률은 $1$입니다. 즉, $P(\mathcal{S}) = 1$;
+* *상호 배타적(mutually exclusive)*인(즉, 모든 $i \neq j$에 대해 $\mathcal{A}_i \cap \mathcal{A}_j = \emptyset$) 가산 가능한 사건 시퀀스 $\mathcal{A}_1, \mathcal{A}_2, \ldots$에 대해, 그들 중 하나라도 발생할 확률은 개별 확률의 합과 같습니다. 즉, $P(\bigcup_{i=1}^{\infty} \mathcal{A}_i) = \sum_{i=1}^{\infty} P(\mathcal{A}_i)$.
 
-These axioms of probability theory,
-proposed by :citet:`Kolmogorov.1933`,
-can be applied to rapidly derive a number of important consequences.
-For instance, it follows immediately
-that the probability of any event $\mathcal{A}$
-*or* its complement $\mathcal{A}'$ occurring is 1
-(because $\mathcal{A} \cup \mathcal{A}' = \mathcal{S}$).
-We can also prove that $P(\emptyset) = 0$
-because $1 = P(\mathcal{S} \cup \mathcal{S}') = P(\mathcal{S} \cup \emptyset) = P(\mathcal{S}) + P(\emptyset) = 1 + P(\emptyset)$.
-Consequently, the probability of any event $\mathcal{A}$
-*and* its complement $\mathcal{A}'$ occurring simultaneously
-is $P(\mathcal{A} \cap \mathcal{A}') = 0$.
-Informally, this tells us that impossible events
-have zero probability of occurring.
+:citet:`Kolmogorov.1933`이 제안한 이러한 확률 이론의 공리들은
+여러 중요한 결과를 빠르게 도출하는 데 적용될 수 있습니다.
+예를 들어, 사건 $\mathcal{A}$ *또는* 그 여사건 $\mathcal{A}'$가 발생할 확률은 1입니다
+($\mathcal{A} \cup \mathcal{A}' = \mathcal{S}$이기 때문).
+우리는 또한 $P(\emptyset) = 0$임을 증명할 수 있습니다.
+$1 = P(\mathcal{S} \cup \mathcal{S}') = P(\mathcal{S} \cup \emptyset) = P(\mathcal{S}) + P(\emptyset) = 1 + P(\emptyset)$이기 때문입니다.
+결과적으로 사건 $\mathcal{A}$ *와* 그 여사건 $\mathcal{A}'$가 동시에 발생할 확률은
+$P(\mathcal{A} \cap \mathcal{A}') = 0$입니다.
+비공식적으로, 이것은 불가능한 사건이 발생할 확률이 0임을 알려줍니다.
 
 
 
-## Random Variables
+## 확률 변수 (Random Variables)
 
-When we spoke about events like the roll of a die
-coming up odds or the first coin toss coming up heads,
-we were invoking the idea of a *random variable*.
-Formally, random variables are mappings
-from an underlying sample space
-to a set of (possibly many) values.
-You might wonder how a random variable
-is different from the sample space,
-since both are collections of outcomes.
-Importantly, random variables can be much coarser
-than the raw sample space.
-We can define a binary random variable like "greater than 0.5"
-even when the underlying sample space is infinite,
-e.g., points on the line segment between $0$ and $1$.
-Additionally, multiple random variables
-can share the same underlying sample space.
-For example "whether my home alarm goes off"
-and "whether my house was burgled"
-are both binary random variables
-that share an underlying sample space.
-Consequently, knowing the value taken by one random variable
-can tell us something about the likely value of another random variable.
-Knowing that the alarm went off,
-we might suspect that the house was likely burgled.
+동전 던지기나 주사위 굴리기와 같은 사건에 대해 이야기할 때,
+우리는 *확률 변수(random variable)*라는 아이디어를 불러일으키고 있었습니다.
+공식적으로 확률 변수는 기본 표본 공간에서
+(아마도 많은) 값의 집합으로의 매핑입니다.
+확률 변수가 표본 공간과 어떻게 다른지 궁금할 수 있습니다.
+둘 다 결과의 모음이기 때문입니다.
+중요한 점은 확률 변수가 원시 표본 공간보다 훨씬 더 거칠 수(coarser) 있다는 것입니다.
+기본 표본 공간이 무한하더라도(예: $0$과 $1$ 사이의 선분 위의 점), "0.5보다 큼"과 같은 이진 확률 변수를 정의할 수 있습니다.
+또한 여러 확률 변수가 동일한 기본 표본 공간을 공유할 수 있습니다.
+예를 들어 "내 집 경보가 울리는지 여부"와
+"내 집에 도둑이 들었는지 여부"는
+기본 표본 공간을 공유하는 이진 확률 변수입니다.
+결과적으로, 한 확률 변수가 취한 값을 알면
+다른 확률 변수의 가능한 값에 대해 무언가를 알 수 있습니다.
+경보가 울렸다는 것을 알면, 집이 털렸을 가능성이 높다고 의심할 수 있습니다.
 
 
-Every value taken by a random variable corresponds
-to a subset of the underlying sample space.
-Thus the occurrence where the random variable $X$
-takes value $v$, denoted by $X=v$, is an *event*
-and $P(X=v)$ denotes its probability.
-Sometimes this notation can get clunky,
-and we can abuse notation when the context is clear.
-For example, we might use $P(X)$ to refer broadly
-to the *distribution* of $X$, i.e.,
-the function that tells us the probability
-that $X$ takes any given value.
-Other times we write expressions
-like $P(X,Y) = P(X) P(Y)$,
-as a shorthand to express a statement
-that is true for all of the values
-that the random variables $X$ and $Y$ can take, i.e.,
-for all $i,j$ it holds that $P(X=i \textrm{ and } Y=j) = P(X=i)P(Y=j)$.
-Other times, we abuse notation by writing
-$P(v)$ when the random variable is clear from the context.
-Since an event in probability theory is a set of outcomes from the sample space,
-we can specify a range of values for a random variable to take.
-For example, $P(1 \leq X \leq 3)$ denotes the probability of the event $\{1 \leq X \leq 3\}$.
+확률 변수가 취하는 모든 값은 기본 표본 공간의 부분 집합에 해당합니다.
+따라서 확률 변수 $X$가 값 $v$를 취하는 발생($X=v$로 표시)은 *사건*이며,
+$P(X=v)$는 그 확률을 나타냅니다.
+때때로 이 표기법은 투박해질 수 있으며, 문맥이 명확할 때 표기법을 남용할 수 있습니다.
+예를 들어, $P(X)$를 사용하여 $X$의 *분포(distribution)*, 즉 $X$가 주어진 값을 취할 확률을 알려주는 함수를 광범위하게 지칭할 수 있습니다.
+다른 때에는 $P(X,Y) = P(X) P(Y)$와 같은 표현을 사용하여
+확률 변수 $X$와 $Y$가 취할 수 있는 모든 값에 대해 참인 진술을 속기로 표현합니다.
+즉, 모든 $i,j$에 대해 $P(X=i \textrm{ and } Y=j) = P(X=i)P(Y=j)$가 성립합니다.
+다른 때에는 확률 변수가 문맥에서 명확할 때 $P(v)$라고 써서 표기법을 남용합니다.
+확률 이론의 사건은 표본 공간의 결과 집합이므로, 확률 변수가 취할 값의 범위를 지정할 수 있습니다.
+예를 들어, $P(1 \leq X \leq 3)$은 사건 $\{1 \leq X \leq 3\}$의 확률을 나타냅니다.
+
+동전 던지기나 주사위 굴리기와 같은 *이산(discrete)* 확률 변수와
+모집단에서 무작위로 추출한 사람의 체중이나 키와 같은 *연속(continuous)* 확률 변수 사이에는
+미묘한 차이가 있음에 유의하십시오.
+이 경우 우리는 누군가의 정확한 키에 대해 거의 신경 쓰지 않습니다.
+게다가 우리가 충분히 정밀한 측정을 했다면,
+지구상의 어떤 두 사람도 정확히 같은 키를 가지고 있지 않다는 것을 알게 될 것입니다.
+사실 충분히 미세한 측정으로, 여러분은 일어날 때와 잠자리에 들 때
+절대 같은 키를 가질 수 없을 것입니다.
+누군가의 키가 정확히 1.801392782910287192 미터일 정확한 확률을 묻는 것은 의미가 없습니다.
+대신, 우리는 일반적으로 누군가의 키가 주어진 구간, 예를 들어 1.79와 1.81 미터 사이에 속하는지 말할 수 있는 것에 더 관심이 있습니다.
+이러한 경우 우리는 확률 *밀도(densities)*를 다룹니다.
+정확히 1.80 미터의 키는 확률이 없지만 0이 아닌 밀도를 갖습니다.
+구간에 할당된 확률을 알아내려면, 해당 구간에 대해 밀도의 *적분(integral)*을 취해야 합니다.
+
+## 다중 확률 변수 (Multiple Random Variables)
+
+여러 확률 변수 간의 상호 작용과 관련된 진술을 하지 않고는
+이전 섹션을 통과할 수도 없었다는 것을 눈치챘을 것입니다
+($P(X,Y) = P(X) P(Y)$를 상기하십시오).
+머신러닝의 대부분은 이러한 관계와 관련이 있습니다.
+여기서 표본 공간은 관심 있는 모집단, 예를 들어 비즈니스와 거래하는 고객, 인터넷상의 사진, 또는 생물학자에게 알려진 단백질일 수 있습니다.
+각 확률 변수는 서로 다른 속성의 (알려지지 않은) 값을 나타냅니다.
+모집단에서 개인을 샘플링할 때마다, 우리는 각 확률 변수의 실현을 관찰합니다.
+확률 변수가 취하는 값은 겹치거나, 부분적으로 겹치거나, 완전히 분리될 수 있는
+표본 공간의 부분 집합에 해당하기 때문에, 한 확률 변수가 취한 값을 알면
+다른 확률 변수의 어떤 값이 가능성이 있는지에 대한
+믿음을 업데이트할 수 있습니다.
+환자가 병원에 걸어 들어왔는데 그들이 숨 쉬는 데 어려움을 겪고 있고
+후각을 상실했다는 것을 관찰했다면,
+그들이 숨 쉬는 데 문제가 없고 완전히 평범한 후각을 가진 경우보다
+COVID-19에 걸렸을 가능성이 더 높다고 믿습니다.
 
 
-Note that there is a subtle difference
-between *discrete* random variables,
-like flips of a coin or tosses of a die,
-and *continuous* ones,
-like the weight and the height of a person
-sampled at random from the population.
-In this case we seldom really care about
-someone's exact height.
-Moreover, if we took precise enough measurements,
-we would find that no two people on the planet
-have the exact same height.
-In fact, with fine enough measurements,
-you would never have the same height
-when you wake up and when you go to sleep.
-There is little point in asking about
-the exact probability that someone
-is 1.801392782910287192 meters tall.
-Instead, we typically care more about being able to say
-whether someone's height falls into a given interval,
-say between 1.79 and 1.81 meters.
-In these cases we work with probability *densities*.
-The height of exactly 1.80 meters
-has no probability, but nonzero density.
-To work out the probability assigned to an interval,
-we must take an *integral* of the density
-over that interval.
-
-## Multiple Random Variables
-
-You might have noticed that we could not even
-make it through the previous section without
-making statements involving interactions
-among multiple random variables
-(recall that $P(X,Y) = P(X) P(Y)$).
-Most of machine learning
-is concerned with such relationships.
-Here, the sample space would be
-the population of interest,
-say customers who transact with a business,
-photographs on the Internet,
-or proteins known to biologists.
-Each random variable would represent
-the (unknown) value of a different attribute.
-Whenever we sample an individual from the population,
-we observe a realization of each of the random variables.
-Because the values taken by random variables
-correspond to subsets of the sample space
-that could be overlapping, partially overlapping,
-or entirely disjoint,
-knowing the value taken by one random variable
-can cause us to update our beliefs
-about which values of another random variable are likely.
-If a patient walks into a hospital
-and we observe that they
-are having trouble breathing
-and have lost their sense of smell,
-then we believe that they are more likely
-to have COVID-19 than we might
-if they had no trouble breathing
-and a perfectly ordinary sense of smell.
-
-
-When working with multiple random variables,
-we can construct events corresponding
-to every combination of values
-that the variables can jointly take.
-The probability function that assigns
-probabilities to each of these combinations
-(e.g. $A=a$ and $B=b$)
-is called the *joint probability* function
-and simply returns the probability assigned
-to the intersection of the corresponding subsets
-of the sample space.
-The *joint probability* assigned to the event
-where random variables $A$ and $B$
-take values $a$ and $b$, respectively,
-is denoted $P(A = a, B = b)$,
-where the comma indicates "and".
-Note that for any values $a$ and $b$,
-it follows that
+여러 확률 변수로 작업할 때, 우리는 변수들이 공동으로 취할 수 있는 모든 값의 조합에 해당하는
+사건을 구성할 수 있습니다.
+이러한 각 조합(예: $A=a$ 및 $B=b$)에 확률을 할당하는 확률 함수를
+*결합 확률(joint probability)* 함수라고 하며,
+단순히 표본 공간의 해당 부분 집합의 교집합에 할당된 확률을 반환합니다.
+확률 변수 $A$와 $B$가 각각 값 $a$와 $b$를 취하는 사건에 할당된 *결합 확률*은
+$P(A = a, B = b)$로 표시되며, 여기서 쉼표는 "그리고(and)"를 나타냅니다.
+모든 값 $a$와 $b$에 대해 다음이 성립한다는 점에 유의하십시오.
 
 $$P(A=a, B=b) \leq P(A=a) \textrm{ and } P(A=a, B=b) \leq P(B = b),$$
 
-since for $A=a$ and $B=b$ to happen,
-$A=a$ has to happen *and* $B=b$ also has to happen.
-Interestingly, the joint probability
-tells us all that we can know about these
-random variables in a probabilistic sense,
-and can be used to derive many other
-useful quantities, including recovering the
-individual distributions $P(A)$ and $P(B)$.
-To recover $P(A=a)$ we simply sum up
-$P(A=a, B=v)$ over all values $v$
-that the random variable $B$ can take:
+$A=a$와 $B=b$가 발생하려면 $A=a$가 발생해야 *하고* $B=b$도 발생해야 하기 때문입니다.
+흥미롭게도 결합 확률은 이러한 확률 변수에 대해 우리가 알 수 있는 모든 것을
+확률적 의미에서 알려주며, 개별 분포 $P(A)$와 $P(B)$를 복구하는 것을 포함하여
+다른 많은 유용한 양을 도출하는 데 사용할 수 있습니다.
+$P(A=a)$를 복구하려면 확률 변수 $B$가 취할 수 있는 모든 값 $v$에 대해
+$P(A=a, B=v)$를 합산하면 됩니다:
 $P(A=a) = \sum_v P(A=a, B=v)$.
 
 
-The ratio $\frac{P(A=a, B=b)}{P(A=a)} \leq 1$
-turns out to be extremely important.
-It is called the *conditional probability*,
-and is denoted via the "$\mid$" symbol:
+비율 $\frac{P(A=a, B=b)}{P(A=a)} \leq 1$은 매우 중요한 것으로 밝혀졌습니다.
+이것을 *조건부 확률(conditional probability)*이라고 하며 "$\\mid$" 기호를 통해 표시됩니다:
 
-$$P(B=b \mid A=a) = P(A=a,B=b)/P(A=a).$$
+$$P(B=b \mid A=a) = P(A=a,B=b)/P(A=a).$$ 
 
-It tells us the new probability
-associated with the event $B=b$,
-once we condition on the fact $A=a$ took place.
-We can think of this conditional probability
-as restricting attention only to the subset
-of the sample space associated with $A=a$
-and then renormalizing so that
-all probabilities sum to 1.
-Conditional probabilities
-are in fact just ordinary probabilities
-and thus respect all of the axioms,
-as long as we condition all terms
-on the same event and thus
-restrict attention to the same sample space.
-For instance, for disjoint events
-$\mathcal{B}$ and $\mathcal{B}'$, we have that
-$P(\mathcal{B} \cup \mathcal{B}' \mid A = a) = P(\mathcal{B} \mid A = a) + P(\mathcal{B}' \mid A = a)$.
+이것은 $A=a$가 발생했다는 사실을 조건으로 했을 때,
+사건 $B=b$와 관련된 새로운 확률을 알려줍니다.
+이 조건부 확률을 $A=a$와 관련된 표본 공간의 부분 집합에만 관심을 제한한 다음
+모든 확률의 합이 1이 되도록 재정규화하는 것으로 생각할 수 있습니다.
+조건부 확률은 사실 일반적인 확률일 뿐이므로
+모든 항을 동일한 사건에 조건화하여 동일한 표본 공간에 주의를 제한하는 한
+모든 공리를 존중합니다.
+예를 들어, 분리된 사건 $\mathcal{B}$와 $\mathcal{B}'$에 대해
+$P(\mathcal{B} \cup \mathcal{B}' \mid A = a) = P(\mathcal{B} \mid A = a) + P(\mathcal{B}' \mid A = a)$가 성립합니다.
 
 
-Using the definition of conditional probabilities,
-we can derive the famous result called *Bayes' theorem*.
-By construction, we have that $P(A, B) = P(B\mid A) P(A)$
-and $P(A, B) = P(A\mid B) P(B)$.
-Combining both equations yields
-$P(B\mid A) P(A) = P(A\mid B) P(B)$ and hence
+조건부 확률의 정의를 사용하여 *베이즈 정리(Bayes' theorem)*라는 유명한 결과를 도출할 수 있습니다.
+구성에 따라 $P(A, B) = P(B\mid A) P(A)$이고 $P(A, B) = P(A\mid B) P(B)$입니다.
+두 방정식을 결합하면 $P(B\mid A) P(A) = P(A\mid B) P(B)$가 되고 따라서 다음을 얻습니다.
 
-$$P(A \mid B) = \frac{P(B\mid A) P(A)}{P(B)}.$$
+$$P(A \mid B) = \frac{P(B\mid A) P(A)}{P(B)}.$$ 
 
 
 
 
+이 간단한 방정식은 조건화 순서를 뒤집을 수 있게 해주기 때문에 심오한 의미를 갖습니다.
+$P(B\mid A)$, $P(A)$, $P(B)$를 추정하는 방법을 안다면,
+$P(A\mid B)$를 추정할 수 있습니다.
+우리는 종종 한 항을 직접 추정하는 것이 다른 항보다 쉽다는 것을 알게 되는데,
+여기서 베이즈 정리가 구출해 줄 수 있습니다.
+예를 들어, 특정 질병에 대한 증상의 유병률과 질병 및 증상의 전체 유병률을 각각 알고 있다면,
+증상을 바탕으로 누군가가 질병에 걸렸을 가능성을 결정할 수 있습니다.
+어떤 경우에는 증상의 유병률과 같은 $P(B)$에 직접 액세스하지 못할 수도 있습니다.
+이 경우 베이즈 정리의 단순화된 버전이 유용합니다:
+
+$$P(A \mid B) \propto P(B \mid A) P(A).$$ 
+
+$P(A \mid B)$가 $1$로 정규화되어야 함을 알고 있으므로, 즉 $\sum_a P(A=a \mid B) = 1$,
+다음을 계산하는 데 사용할 수 있습니다.
+
+$$P(A \mid B) = \frac{P(B \mid A) P(A)}{\sum_a P(B \mid A=a) P(A = a)}.$$ 
+
+베이지안 통계에서 우리는 관찰자가 *사전 확률(prior)* $P(H)$에 인코딩된
+사용 가능한 가설의 타당성에 대한 일부 (주관적인) 사전 믿음과,
+클래스 $P(E \mid H)$의 각 가설에 대해 수집된 증거의 값을 관찰할 가능성이 얼마나 되는지 말해주는
+*우도 함수(likelihood function)*를 가지고 있다고 생각합니다.
+베이즈 정리는 사용 가능한 증거 $E$에 비추어 초기 *사전 확률* $P(H)$를 업데이트하여
+*사후 확률(posterior)* 믿음 $P(H \mid E) = \frac{P(E \mid H) P(H)}{P(E)}$를 생성하는 방법을
+알려주는 것으로 해석됩니다.
+비공식적으로 이것은 "사후 확률은 사전 확률 곱하기 우도를 증거로 나눈 것과 같다"라고 진술할 수 있습니다.
+이제 증거 $P(E)$는 모든 가설에 대해 동일하므로,
+가설에 대해 단순히 정규화하는 것으로 넘어갈 수 있습니다.
+
+$\\sum_a P(A=a \mid B) = 1$은 또한 확률 변수에 대해 *주변화(marginalize)*할 수 있게 해줍니다.
+즉, $P(A, B)$와 같은 결합 분포에서 변수를 삭제할 수 있습니다.
+결국 다음을 얻습니다.
+
+$$\\sum_a P(B \mid A=a) P(A=a) = \sum_a P(B, A=a) = P(B).$$ 
+
+독립성(Independence)은 통계학의 많은 중요한 아이디어의 중추를 형성하는
+또 다른 근본적으로 중요한 개념입니다.
+간단히 말해서, $A$의 값에 대한 조건화가
+$B$와 관련된 확률 분포에 어떠한 변화도 일으키지 않고 그 반대의 경우도 마찬가지라면,
+두 변수는 *독립*입니다.
+더 공식적으로, $A \perp B$로 표시되는 독립성은
+$P(A \mid B) = P(A)$를 요구하며, 결과적으로
+$P(A,B) = P(A \mid B) P(B) = P(A) P(B)$를 요구합니다.
+독립성은 종종 적절한 가정입니다.
+예를 들어, 확률 변수 $A$가 공정한 동전 하나를 던진 결과를 나타내고
+확률 변수 $B$가 다른 동전을 던진 결과를 나타낸다면,
+$A$가 앞면이 나왔는지 아는 것이 $B$가 앞면이 나올 확률에 영향을 주어서는 안 됩니다.
 
 
-This simple equation has profound implications because
-it allows us to reverse the order of conditioning.
-If we know how to estimate $P(B\mid A)$, $P(A)$, and $P(B)$,
-then we can estimate $P(A\mid B)$.
-We often find it easier to estimate one term directly
-but not the other and Bayes' theorem can come to the rescue here.
-For instance, if we know the prevalence of symptoms for a given disease,
-and the overall prevalences of the disease and symptoms, respectively,
-we can determine how likely someone is
-to have the disease based on their symptoms.
-In some cases we might not have direct access to $P(B)$,
-such as the prevalence of symptoms.
-In this case a simplified version of Bayes' theorem comes in handy:
-
-$$P(A \mid B) \propto P(B \mid A) P(A).$$
-
-Since we know that $P(A \mid B)$ must be normalized to $1$, i.e., $\sum_a P(A=a \mid B) = 1$,
-we can use it to compute
-
-$$P(A \mid B) = \frac{P(B \mid A) P(A)}{\sum_a P(B \mid A=a) P(A = a)}.$$
-
-In Bayesian statistics, we think of an observer
-as possessing some (subjective) prior beliefs
-about the plausibility of the available hypotheses
-encoded in the *prior* $P(H)$,
-and a *likelihood function* that says how likely
-one is to observe any value of the collected evidence
-for each of the hypotheses in the class $P(E \mid H)$.
-Bayes' theorem is then interpreted as telling us
-how to update the initial *prior* $P(H)$
-in light of the available evidence $E$
-to produce *posterior* beliefs
-$P(H \mid E) = \frac{P(E \mid H) P(H)}{P(E)}$.
-Informally, this can be stated as
-"posterior equals prior times likelihood, divided by the evidence".
-Now, because the evidence $P(E)$ is the same for all hypotheses,
-we can get away with simply normalizing over the hypotheses.
-
-Note that $\sum_a P(A=a \mid B) = 1$ also allows us to *marginalize* over random variables. That is, we can drop variables from a joint distribution such as $P(A, B)$. After all, we have that
-
-$$\sum_a P(B \mid A=a) P(A=a) = \sum_a P(B, A=a) = P(B).$$
-
-Independence is another fundamentally important concept
-that forms the backbone of
-many important ideas in statistics.
-In short, two variables are *independent*
-if conditioning on the value of $A$ does not
-cause any change to the probability distribution
-associated with $B$ and vice versa.
-More formally, independence, denoted $A \perp B$,
-requires that $P(A \mid B) = P(A)$ and, consequently,
-that $P(A,B) = P(A \mid B) P(B) = P(A) P(B)$.
-Independence is often an appropriate assumption.
-For example, if the random variable $A$
-represents the outcome from tossing one fair coin
-and the random variable $B$
-represents the outcome from tossing another,
-then knowing whether $A$ came up heads
-should not influence the probability
-of $B$ coming up heads.
+독립성은 기본 분포에서 데이터의 연속적인 추출 사이에 성립할 때(강력한 통계적 결론을 내릴 수 있음)
+또는 데이터의 다양한 변수 사이에 성립할 때 특히 유용하며,
+이 독립성 구조를 인코딩하는 더 간단한 모델로 작업할 수 있게 해줍니다.
+반면에 확률 변수 간의 종속성을 추정하는 것은 종종 학습의 바로 그 목표입니다.
+우리는 질병과 증상이 독립적이지 않다고 믿기 때문에
+증상이 주어졌을 때 질병의 확률을 추정하는 데 관심을 갖습니다.
 
 
-Independence is especially useful when it holds among the successive
-draws of our data from some underlying distribution
-(allowing us to make strong statistical conclusions)
-or when it holds among various variables in our data,
-allowing us to work with simpler models
-that encode this independence structure.
-On the other hand, estimating the dependencies
-among random variables is often the very aim of learning.
-We care to estimate the probability of disease given symptoms
-specifically because we believe
-that diseases and symptoms are *not* independent.
+조건부 확률은 적절한 확률이기 때문에 독립성과 종속성의 개념도 적용된다는 점에 유의하십시오.
+두 확률 변수 $A$와 $B$는 제3의 변수 $C$가 주어졌을 때
+$P(A, B \mid C) = P(A \mid C)P(B \mid C)$인 경우에만 *조건부 독립(conditionally independent)*입니다.
+흥미롭게도 두 변수는 일반적으로 독립적일 수 있지만
+제3의 변수에 대해 조건화할 때 종속적이 될 수 있습니다.
+이것은 두 확률 변수 $A$와 $B$가 제3의 변수 $C$의 원인에 해당할 때 종종 발생합니다.
+예를 들어 골절과 폐암은 일반 모집단에서는 독립적일 수 있지만,
+병원에 입원한 경우를 조건으로 하면 골절이 폐암과 음의 상관관계가 있음을 발견할 수 있습니다.
+골절이 어떤 사람이 병원에 입원한 이유를 *설명해 버리기(explains away)* 때문에
+폐암에 걸려 입원했을 확률을 낮추기 때문입니다.
 
 
-Note that because conditional probabilities are proper probabilities,
-the concepts of independence and dependence also apply to them.
-Two random variables $A$ and $B$ are *conditionally independent*
-given a third variable $C$ if and only if $P(A, B \mid C) = P(A \mid C)P(B \mid C)$.
-Interestingly, two variables can be independent in general
-but become dependent when conditioning on a third.
-This often occurs when the two random variables $A$ and $B$
-correspond to causes of some third variable $C$.
-For example, broken bones and lung cancer might be independent
-in the general population but if we condition on being in the hospital
-then we might find that broken bones are negatively correlated with lung cancer.
-That is because the broken bone *explains away* why some person is in the hospital
-and thus lowers the probability that they are hospitalized because of having lung cancer.
-
-
-And conversely, two dependent random variables
-can become independent upon conditioning on a third.
-This often happens when two otherwise unrelated events
-have a common cause.
-Shoe size and reading level are highly correlated
-among elementary school students,
-but this correlation disappears if we condition on age.
+반대로, 두 종속 확률 변수는 제3의 변수에 대해 조건화할 때 독립적이 될 수 있습니다.
+이것은 그렇지 않으면 관련이 없는 두 사건이 공통 원인을 가질 때 종종 발생합니다.
+신발 사이즈와 독해 수준은 초등학생들 사이에서 높은 상관관계가 있지만,
+나이를 조건으로 하면 이 상관관계는 사라집니다.
 
 
 
-## An Example
+## 예제 (An Example)
 :label:`subsec_probability_hiv_app`
 
-Let's put our skills to the test.
-Assume that a doctor administers an HIV test to a patient.
-This test is fairly accurate and fails only with 1% probability
-if the patient is healthy but reported as diseased,
-i.e., healthy patients test positive in 1% of cases.
-Moreover, it never fails to detect HIV if the patient actually has it.
-We use $D_1 \in \{0, 1\}$ to indicate the diagnosis
-($0$ if negative and $1$ if positive)
-and $H \in \{0, 1\}$ to denote the HIV status.
+우리의 기술을 시험해 봅시다.
+의사가 환자에게 HIV 검사를 시행한다고 가정합니다.
+이 검사는 상당히 정확하며 환자가 건강하지만 질병이 있다고 보고되는 경우,
+즉 건강한 환자가 1%의 경우 양성 반응을 보이는 경우에만 1% 확률로 실패합니다.
+게다가 환자가 실제로 HIV에 걸린 경우 감지하는 데 결코 실패하지 않습니다.
+우리는 $D_1 \in \{0, 1\}$을 사용하여 진단을 나타내고
+($0$이면 음성, $1$이면 양성)
+$H \in \{0, 1\}$을 사용하여 HIV 상태를 나타냅니다.
 
-| Conditional probability | $H=1$ | $H=0$ |
+| 조건부 확률 | $H=1$ | $H=0$ |
 |:------------------------|------:|------:|
 | $P(D_1 = 1 \mid H)$        |     1 |  0.01 |
 | $P(D_1 = 0 \mid H)$        |     0 |  0.99 |
 
-Note that the column sums are all 1 (but the row sums do not),
-since they are conditional probabilities.
-Let's compute the probability of the patient having HIV
-if the test comes back positive, i.e., $P(H = 1 \mid D_1 = 1)$.
-Intuitively this is going to depend on how common the disease is,
-since it affects the number of false alarms.
-Assume that the population is fairly free of the disease, e.g., $P(H=1) = 0.0015$.
-To apply Bayes' theorem, we need to apply marginalization
-to determine
+열의 합은 모두 1입니다(행의 합은 그렇지 않음).
+이들은 조건부 확률이기 때문입니다.
+검사 결과가 양성으로 나오면 환자가 HIV에 걸릴 확률, 즉 $P(H = 1 \mid D_1 = 1)$을 계산해 봅시다.
+직관적으로 이것은 질병이 얼마나 흔한지에 달려 있습니다.
+거짓 경보의 수에 영향을 미치기 때문입니다.
+모집단에 질병이 거의 없다고 가정해 봅시다. 예: $P(H=1) = 0.0015$.
+베이즈 정리를 적용하려면 주변화를 적용하여 다음을 결정해야 합니다.
 
 $$\begin{aligned}
 P(D_1 = 1)
@@ -795,30 +565,25 @@ P(D_1 = 1)
 =& P(D_1=1 \mid H=0) P(H=0) + P(D_1=1 \mid H=1) P(H=1) \\
 =& 0.011485.
 \end{aligned}
-$$
+$$ 
 
-This leads us to
+이것은 다음으로 이어집니다.
 
-$$P(H = 1 \mid D_1 = 1) = \frac{P(D_1=1 \mid H=1) P(H=1)}{P(D_1=1)} = 0.1306.$$
+$$P(H = 1 \mid D_1 = 1) = \frac{P(D_1=1 \mid H=1) P(H=1)}{P(D_1=1)} = 0.1306.$$ 
 
-In other words, there is only a 13.06% chance
-that the patient actually has HIV,
-despite the test being pretty accurate.
-As we can see, probability can be counterintuitive.
-What should a patient do upon receiving such terrifying news?
-Likely, the patient would ask the physician
-to administer another test to get clarity.
-The second test has different characteristics
-and it is not as good as the first one.
+즉, 검사가 꽤 정확함에도 불구하고 환자가 실제로 HIV에 걸렸을 확률은 13.06%에 불과합니다.
+보시다시피 확률은 직관에 반할 수 있습니다.
+그런 무시무시한 소식을 접한 환자는 어떻게 해야 할까요?
+아마도 환자는 의사에게 명확성을 얻기 위해 다른 검사를 시행해 달라고 요청할 것입니다.
+두 번째 검사는 다른 특성을 가지고 있으며 첫 번째 검사만큼 좋지 않습니다.
 
-| Conditional probability | $H=1$ | $H=0$ |
+| 조건부 확률 | $H=1$ | $H=0$ |
 |:------------------------|------:|------:|
 | $P(D_2 = 1 \mid H)$          |  0.98 |  0.03 |
 | $P(D_2 = 0 \mid H)$          |  0.02 |  0.97 |
 
-Unfortunately, the second test comes back positive, too.
-Let's calculate the requisite probabilities to invoke Bayes' theorem
-by assuming conditional independence:
+불행히도 두 번째 검사도 양성으로 나옵니다.
+조건부 독립성을 가정하여 베이즈 정리를 호출하는 데 필요한 확률을 계산해 봅시다.
 
 $$\begin{aligned}
 P(D_1 = 1, D_2 = 1 \mid H = 0)
@@ -828,293 +593,214 @@ P(D_1 = 1, D_2 = 1 \mid H = 1)
 & = P(D_1 = 1 \mid H = 1) P(D_2 = 1 \mid H = 1)
 =& 0.98.
 \end{aligned}
-$$
+$$ 
 
-Now we can apply marginalization to obtain the probability
-that both tests come back positive:
+이제 주변화를 적용하여 두 검사 모두 양성으로 나올 확률을 얻을 수 있습니다.
 
 $$\begin{aligned}
 &P(D_1 = 1, D_2 = 1)\\
-&= P(D_1 = 1, D_2 = 1, H = 0) + P(D_1 = 1, D_2 = 1, H = 1)  \\
+&= P(D_1 = 1, D_2 = 1, H = 0) + P(D_1 = 1, D_2 = 1, H = 1)  \\ 
 &= P(D_1 = 1, D_2 = 1 \mid H = 0)P(H=0) + P(D_1 = 1, D_2 = 1 \mid H = 1)P(H=1)\\
 &= 0.00176955.
 \end{aligned}
-$$
+$$ 
 
-Finally, the probability of the patient having HIV given that both tests are positive is
+마지막으로, 두 검사가 모두 양성일 때 환자가 HIV에 걸렸을 확률은 다음과 같습니다.
 
 $$P(H = 1 \mid D_1 = 1, D_2 = 1)
 = \frac{P(D_1 = 1, D_2 = 1 \mid H=1) P(H=1)}{P(D_1 = 1, D_2 = 1)}
-= 0.8307.$$
+= 0.8307.$$ 
 
-That is, the second test allowed us to gain much higher confidence that not all is well.
-Despite the second test being considerably less accurate than the first one,
-it still significantly improved our estimate.
-The assumption of both tests being conditionally independent of each other
-was crucial for our ability to generate a more accurate estimate.
-Take the extreme case where we run the same test twice.
-In this situation we would expect the same outcome both times,
-hence no additional insight is gained from running the same test again.
-The astute reader might have noticed that the diagnosis behaved
-like a classifier hiding in plain sight
-where our ability to decide whether a patient is healthy
-increases as we obtain more features (test outcomes).
+즉, 두 번째 검사를 통해 모든 것이 좋지 않다는 훨씬 더 높은 확신을 얻을 수 있었습니다.
+두 번째 검사가 첫 번째 검사보다 훨씬 덜 정확했음에도 불구하고,
+여전히 우리의 추정치를 크게 개선했습니다.
+두 검사가 서로 조건부 독립적이라는 가정은 더 정확한 추정치를 생성하는 능력에 결정적이었습니다.
+동일한 검사를 두 번 실행하는 극단적인 경우를 생각해 보십시오.
+이 상황에서는 두 번 모두 같은 결과를 기대하므로 동일한 검사를 다시 실행해도 추가적인 통찰력을 얻을 수 없습니다.
+기민한 독자는 진단이 더 많은 특성(검사 결과)을 얻을수록
+환자가 건강한지 여부를 결정하는 능력이 증가하는
+눈에 잘 띄지 않는 분류기처럼 행동했다는 것을 눈치챘을 수 있습니다.
 
 
-## Expectations
+## 기댓값 (Expectations)
 
-Often, making decisions requires not just looking
-at the probabilities assigned to individual events
-but composing them together into useful aggregates
-that can provide us with guidance.
-For example, when random variables take continuous scalar values,
-we often care about knowing what value to expect *on average*.
-This quantity is formally called an *expectation*.
-If we are making investments,
-the first quantity of interest
-might be the return we can expect,
-averaging over all the possible outcomes
-(and weighting by the appropriate probabilities).
-For instance, say that with 50% probability,
-an investment might fail altogether,
-with 40% probability it might provide a 2$\times$ return,
-and with 10% probability it might provide a 10$\times$ return 10$\times$.
-To calculate the expected return,
-we sum over all returns, multiplying each
-by the probability that they will occur.
-This yields the expectation
-$0.5 \cdot 0 + 0.4 \cdot 2 + 0.1 \cdot 10 = 1.8$.
-Hence the expected return is 1.8$\times$.
+종종 결정을 내리려면 개별 사건에 할당된 확률만 보는 것이 아니라
+지침을 제공할 수 있는 유용한 집계로 구성해야 합니다.
+예를 들어, 확률 변수가 연속적인 스칼라 값을 취할 때, 우리는 종종 *평균적으로* 어떤 값을 기대해야 하는지 아는 데 관심이 있습니다.
+이 양을 공식적으로 *기댓값(expectation)*이라고 합니다.
+투자를 하는 경우, 첫 번째 관심 수량은
+모든 가능한 결과에 대해 평균을 낸(그리고 적절한 확률로 가중치를 둔) 기대 수익일 수 있습니다.
+예를 들어, 50% 확률로 투자가 완전히 실패할 수 있고, 40% 확률로 2배 수익을 제공할 수 있으며, 10% 확률로 10배 수익을 제공할 수 있다고 가정해 봅시다.
+기대 수익을 계산하기 위해, 모든 수익을 합산하고 각 수익이 발생할 확률을 곱합니다.
+이것은 기댓값 $0.5 \cdot 0 + 0.4 \cdot 2 + 0.1 \cdot 10 = 1.8$을 산출합니다.
+따라서 기대 수익은 1.8배입니다.
 
 
-In general, the *expectation* (or average)
-of the random variable $X$ is defined as
+일반적으로 확률 변수 $X$의 *기댓값* (또는 평균)은 다음과 같이 정의됩니다.
 
-$$E[X] = E_{x \sim P}[x] = \sum_{x} x P(X = x).$$
+$$E[X] = E_{x \sim P}[x] = \sum_{x} x P(X = x).$$ 
 
-Likewise, for densities we obtain $E[X] = \int x \;dp(x)$.
-Sometimes we are interested in the expected value
-of some function of $x$.
-We can calculate these expectations as
+마찬가지로 밀도에 대해서는 $E[X] = \int x \;dp(x)$를 얻습니다.
+때때로 우리는 $x$의 어떤 함수의 기댓값에 관심이 있습니다.
+이러한 기댓값은 다음과 같이 계산할 수 있습니다.
 
-$$E_{x \sim P}[f(x)] = \sum_x f(x) P(x) \textrm{ and } E_{x \sim P}[f(x)] = \int f(x) p(x) \;dx$$
+$$E_{x \sim P}[f(x)] = \sum_x f(x) P(x) \textrm{ and } E_{x \sim P}[f(x)] = \int f(x) p(x) \;dx$$ 
 
-for discrete probabilities and densities, respectively.
-Returning to the investment example from above,
-$f$ might be the *utility* (happiness)
-associated with the return.
-Behavior economists have long noted
-that people associate greater disutility
-with losing money than the utility gained
-from earning one dollar relative to their baseline.
-Moreover, the value of money tends to be sub-linear.
-Possessing 100k dollars versus zero dollars
-can make the difference between paying the rent,
-eating well, and enjoying quality healthcare
-versus suffering through homelessness.
-On the other hand, the gains due to possessing
-200k versus 100k are less dramatic.
-Reasoning like this motivates the cliché
-that "the utility of money is logarithmic".
+이산 확률과 밀도에 대해 각각.
+위의 투자 예제로 돌아가서, $f$는 수익과 관련된 *효용(utility)* (행복)일 수 있습니다.
+행동 경제학자들은 오랫동안 사람들이
+기준선 대비 1달러를 벌어서 얻는 효용보다
+돈을 잃는 것에 더 큰 비효용을 연관시킨다는 점에 주목해 왔습니다.
+게다가 돈의 가치는 하위 선형(sub-linear) 경향이 있습니다.
+10만 달러를 소유하는 것과 0달러를 소유하는 것의 차이는
+임대료를 내고, 잘 먹고, 양질의 의료 서비스를 즐기는 것과
+노숙 생활을 겪는 것의 차이를 만들 수 있습니다.
+반면 20만 달러 대 10만 달러 소유로 인한 이득은 덜 극적입니다.
+이와 같은 추론은 "돈의 효용은 로그적이다"라는 진부한 표현의 동기가 됩니다.
 
 
-If  the utility associated with a total loss were $-1$,
-and the utilities associated with returns of $1$, $2$, and $10$
-were $1$, $2$ and $4$, respectively,
-then the expected happiness of investing
-would be $0.5 \cdot (-1) + 0.4 \cdot 2 + 0.1 \cdot 4 = 0.7$
-(an expected loss of utility of 30%).
-If indeed this were your utility function,
-you might be best off keeping the money in the bank.
+만약 총 손실과 관련된 효용이 $-1$이고,
+수익 $1$, $2$, $10$과 관련된 효용이 각각 $1$, $2$, $4$라면, 투자의 기대 행복은 $0.5 \cdot (-1) + 0.4 \cdot 2 + 0.1 \cdot 4 = 0.7$이 됩니다
+(효용의 기대 손실 30%).
+실제로 이것이 당신의 효용 함수라면, 돈을 은행에 보관하는 것이 가장 좋을 수 있습니다.
 
-For financial decisions,
-we might also want to measure
-how *risky* an investment is.
-Here, we care not just about the expected value
-but how much the actual values tend to *vary*
-relative to this value.
-Note that we cannot just take
-the expectation of the difference
-between the actual and expected values.
-This is because the expectation of a difference
-is the difference of the expectations,
-i.e., $E[X - E[X]] = E[X] - E[E[X]] = 0$.
-However, we can look at the expectation
-of any non-negative function of this difference.
-The *variance* of a random variable is calculated by looking
-at the expected value of the *squared* differences:
+재무 결정의 경우, 투자가 얼마나 *위험한지* 측정하고 싶을 수도 있습니다.
+여기서 우리는 기댓값뿐만 아니라 실제 값이 이 값에 비해 얼마나 *변동(vary)*하는 경향이 있는지에 관심을 갖습니다.
+실제 값과 기댓값 차이의 기댓값을 취할 수는 없다는 점에 유의하십시오.
+차이의 기댓값은 기댓값의 차이이기 때문입니다. 즉, $E[X - E[X]] = E[X] - E[E[X]] = 0$.
+그러나 우리는 이 차이의 음이 아닌 함수의 기댓값을 볼 수 있습니다.
+확률 변수의 *분산(variance)*은 *제곱* 차이의 기댓값을 보고 계산됩니다:
 
-$$\textrm{Var}[X] = E\left[(X - E[X])^2\right] = E[X^2] - E[X]^2.$$
+$$\textrm{Var}[X] = E\left[(X - E[X])^2\right] = E[X^2] - E[X]^2.$$ 
 
-Here the equality follows by expanding
-$(X - E[X])^2 = X^2 - 2 X E[X] + E[X]^2$
-and taking expectations for each term.
-The square root of the variance is another
-useful quantity called the *standard deviation*.
-While this and the variance
-convey the same information (either can be calculated from the other),
-the standard deviation has the nice property
-that it is expressed in the same units
-as the original quantity represented
-by the random variable.
+여기서 등식은 $(X - E[X])^2 = X^2 - 2 X E[X] + E[X]^2$를 확장하고
+각 항에 대한 기댓값을 취함으로써 따릅니다.
+분산의 제곱근은 *표준 편차(standard deviation)*라고 하는 또 다른 유용한 양입니다.
+이것과 분산은 동일한 정보를 전달하지만(서로 계산 가능),
+표준 편차는 확률 변수가 나타내는 원래 수량과 동일한 단위로 표현된다는
+좋은 속성을 가지고 있습니다.
 
-Lastly, the variance of a function
-of a random variable
-is defined analogously as
+마지막으로, 확률 변수 함수의 분산은 유사하게 다음과 같이 정의됩니다.
 
-$$\textrm{Var}_{x \sim P}[f(x)] = E_{x \sim P}[f^2(x)] - E_{x \sim P}[f(x)]^2.$$
+$$\textrm{Var}_{x \sim P}[f(x)] = E_{x \sim P}[f^2(x)] - E_{x \sim P}[f(x)]^2.$$ 
 
-Returning to our investment example,
-we can now compute the variance of the investment.
-It is given by $0.5 \cdot 0 + 0.4 \cdot 2^2 + 0.1 \cdot 10^2 - 1.8^2 = 8.36$.
-For all intents and purposes this is a risky investment.
-Note that by mathematical convention mean and variance
-are often referenced as $\mu$ and $\sigma^2$.
-This is particularly the case whenever we use it
-to parametrize a Gaussian distribution.
+투자 예제로 돌아가서, 이제 투자의 분산을 계산할 수 있습니다.
+$0.5 \cdot 0 + 0.4 \cdot 2^2 + 0.1 \cdot 10^2 - 1.8^2 = 8.36$으로 주어집니다.
+모든 의도와 목적에 있어 이것은 위험한 투자입니다.
+수학적 관례에 따라 평균과 분산은 종종 $\mu$와 $\sigma^2$로 참조됩니다.
+이것은 가우스 분포를 파라미터화하기 위해 사용할 때 특히 그렇습니다.
 
-In the same way as we introduced expectations
-and variance for *scalar* random variables,
-we can do so for vector-valued ones.
-Expectations are easy, since we can apply them elementwise.
-For instance, $\boldsymbol{\mu} \stackrel{\textrm{def}}{=} E_{\mathbf{x} \sim P}[\mathbf{x}]$
-has coordinates $\mu_i = E_{\mathbf{x} \sim P}[x_i]$.
-*Covariances* are more complicated.
-We define them by taking expectations of the *outer product*
-of the difference between random variables and their mean:
+*스칼라* 확률 변수에 대해 기댓값과 분산을 도입한 것과 같은 방식으로,
+벡터 값 확률 변수에 대해서도 할 수 있습니다.
+기댓값은 요소별로 적용할 수 있으므로 쉽습니다.
+예를 들어, $\boldsymbol{\mu} \stackrel{\textrm{def}}{=} E_{\mathbf{x} \sim P}[\mathbf{x}]$는
+좌표 $\mu_i = E_{\mathbf{x} \sim P}[x_i]$를 갖습니다.
+*공분산(Covariances)*은 더 복잡합니다.
+우리는 확률 변수와 그 평균의 차이의 *외적(outer product)*의 기댓값을 취하여 정의합니다:
 
-$$\boldsymbol{\Sigma} \stackrel{\textrm{def}}{=} \textrm{Cov}_{\mathbf{x} \sim P}[\mathbf{x}] = E_{\mathbf{x} \sim P}\left[(\mathbf{x} - \boldsymbol{\mu}) (\mathbf{x} - \boldsymbol{\mu})^\top\right].$$
+$$\boldsymbol{\Sigma} \stackrel{\textrm{def}}{=} \textrm{Cov}_{\mathbf{x} \sim P}[\mathbf{x}] = E_{\mathbf{x} \sim P}\left[(\mathbf{x} - \boldsymbol{\mu}) (\mathbf{x} - \boldsymbol{\mu})^\top\right].$$ 
 
-This matrix $\boldsymbol{\Sigma}$ is referred to as the covariance matrix.
-An easy way to see its effect is to consider some vector $\mathbf{v}$
-of the same size as $\mathbf{x}$.
-It follows that
+이 행렬 $\boldsymbol{\Sigma}$를 공분산 행렬이라고 합니다.
+그 효과를 보는 쉬운 방법은 $\mathbf{x}$와 같은 크기의 어떤 벡터 $\mathbf{v}$를 고려하는 것입니다.
+다음과 같습니다.
 
-$$\mathbf{v}^\top \boldsymbol{\Sigma} \mathbf{v} = E_{\mathbf{x} \sim P}\left[\mathbf{v}^\top(\mathbf{x} - \boldsymbol{\mu}) (\mathbf{x} - \boldsymbol{\mu})^\top \mathbf{v}\right] = \textrm{Var}_{x \sim P}[\mathbf{v}^\top \mathbf{x}].$$
+$$\mathbf{v}^\top \boldsymbol{\Sigma} \mathbf{v} = E_{\mathbf{x} \sim P}\left[\mathbf{v}^\top(\mathbf{x} - \boldsymbol{\mu}) (\mathbf{x} - \boldsymbol{\mu})^\top \mathbf{v}\right] = \textrm{Var}_{x \sim P}[\mathbf{v}^\top \mathbf{x}].$$ 
 
-As such, $\boldsymbol{\Sigma}$ allows us to compute the variance
-for any linear function of $\mathbf{x}$
-by a simple matrix multiplication.
-The off-diagonal elements tell us how correlated the coordinates are:
-a value of 0 means no correlation,
-where a larger positive value
-means that they are more strongly correlated.
+따라서 $\boldsymbol{\Sigma}$를 사용하면 간단한 행렬 곱셈으로 $\mathbf{x}$의 모든 선형 함수에 대한 분산을 계산할 수 있습니다.
+비대각선 요소는 좌표가 얼마나 상관되어 있는지 알려줍니다: 0 값은 상관관계가 없음을 의미하며,
+더 큰 양수 값은 더 강하게 상관되어 있음을 의미합니다.
 
 
 
-## Discussion
+## 토론
 
-In machine learning, there are many things to be uncertain about!
-We can be uncertain about the value of a label given an input.
-We can be uncertain about the estimated value of a parameter.
-We can even be uncertain about whether data arriving at deployment
-is even from the same distribution as the training data.
+머신러닝에는 불확실한 것들이 많습니다!
+입력이 주어졌을 때 레이블의 값에 대해 불확실할 수 있습니다.
+파라미터의 추정 값에 대해 불확실할 수 있습니다.
+배포 시 도착하는 데이터가 훈련 데이터와 동일한 분포에서 온 것인지조차 불확실할 수 있습니다.
 
-By *aleatoric uncertainty*, we mean uncertainty
-that is intrinsic to the problem,
-and due to genuine randomness
-unaccounted for by the observed variables.
-By *epistemic uncertainty*, we mean uncertainty
-over a model's parameters, the sort of uncertainty
-that we can hope to reduce by collecting more data.
-We might have epistemic uncertainty
-concerning the probability
-that a coin turns up heads,
-but even once we know this probability,
-we are left with aleatoric uncertainty
-about the outcome of any future toss.
-No matter how long we watch someone tossing a fair coin,
-we will never be more or less than 50% certain
-that the next toss will come up heads.
-These terms come from mechanical modeling,
-(see e.g., :citet:`Der-Kiureghian.Ditlevsen.2009` for a review on this aspect of [uncertainty quantification](https://en.wikipedia.org/wiki/Uncertainty_quantification)).
-It is worth noting, however, that these terms constitute a slight abuse of language.
-The term *epistemic* refers to anything concerning *knowledge*
-and thus, in the philosophical sense, all uncertainty is epistemic.
+*우연적 불확실성(aleatoric uncertainty)*이란 문제에 내재되어 있고
+관찰된 변수로 설명되지 않는 진정한 무작위성으로 인한 불확실성을 의미합니다.
+*인식적 불확실성(epistemic uncertainty)*이란 모델 파라미터에 대한 불확실성, 즉 더 많은 데이터를 수집하여 줄일 수 있기를 바라는 종류의 불확실성을 의미합니다.
+우리는 동전이 앞면이 나올 확률에 관해 인식적 불확실성을 가질 수 있지만,
+이 확률을 알고 나더라도 미래의 던지기 결과에 대한 우연적 불확실성은 남습니다.
+누군가가 공정한 동전을 던지는 것을 아무리 오래 지켜보더라도,
+다음 던지기가 앞면이 될 것이라는 확신은 50% 이상도 이하도 아닐 것입니다.
+이 용어들은 기계적 모델링에서 왔습니다
+([불확실성 정량화](https://en.wikipedia.org/wiki/Uncertainty_quantification)의 이 측면에 대한 검토는 예: :citet:`Der-Kiureghian.Ditlevsen.2009` 참조).
+그러나 이 용어들이 언어를 약간 남용하고 있다는 점에 주목할 가치가 있습니다.
+*인식적*이라는 용어는 *지식*에 관한 모든 것을 지칭하므로, 철학적 의미에서 모든 불확실성은 인식적입니다.
 
 
-We saw that sampling data from some unknown probability distribution
-can provide us with information that can be used to estimate
-the parameters of the data generating distribution.
-That said, the rate at which this is possible can be quite slow.
-In our coin tossing example (and many others)
-we can do no better than to design estimators
-that converge at a rate of $1/\sqrt{n}$,
-where $n$ is the sample size (e.g., the number of tosses).
-This means that by going from 10 to 1000 observations (usually a very achievable task)
-we see a tenfold reduction of uncertainty,
-whereas the next 1000 observations help comparatively little,
-offering only a 1.41 times reduction.
-This is a persistent feature of machine learning:
-while there are often easy gains, it takes a very large amount of data,
-and often with it an enormous amount of computation, to make further gains.
-For an empirical review of this fact for large scale language models see :citet:`Revels.Lubin.Papamarkou.2016`.
+알려지지 않은 확률 분포에서 데이터를 샘플링하면
+데이터 생성 분포의 파라미터를 추정하는 데 사용할 수 있는 정보를 제공할 수 있음을 보았습니다.
+그렇기는 하지만, 이것이 가능한 속도는 꽤 느릴 수 있습니다.
+동전 던지기 예제(및 다른 많은 예제)에서
+$1/\sqrt{n}$의 비율로 수렴하는 추정량을 설계하는 것보다 더 잘할 수는 없습니다.
+여기서 $n$은 표본 크기(예: 던지기 횟수)입니다.
+이는 10개에서 1000개의 관찰로 이동하면(보통 매우 달성 가능한 작업) 불확실성이 10배 감소하는 것을 볼 수 있는 반면,
+다음 1000개의 관찰은 비교적 도움이 거의 안 되며 1.41배 감소만 제공한다는 것을 의미합니다.
+이것은 머신러닝의 지속적인 특징입니다:
+종종 쉬운 이득이 있지만, 추가적인 이득을 얻으려면 매우 많은 양의 데이터와
+종종 그에 따른 엄청난 양의 계산이 필요합니다.
+대규모 언어 모델에 대한 이 사실의 경험적 검토는 :citet:`Revels.Lubin.Papamarkou.2016`을 참조하십시오.
 
-We also sharpened our language and tools for statistical modeling.
-In the process of that we learned about conditional probabilities
-and about one of the most important equations in statistics---Bayes' theorem.
-It is an effective tool for decoupling information conveyed by data
-through a likelihood term $P(B \mid A)$ that addresses
-how well observations $B$ match a choice of parameters $A$,
-and a prior probability $P(A)$ which governs how plausible
-a particular choice of $A$ was in the first place.
-In particular, we saw how this rule can be applied
-to assign probabilities to diagnoses,
-based on the efficacy of the test *and*
-the prevalence of the disease itself (i.e., our prior).
+우리는 또한 통계적 모델링을 위한 언어와 도구를 연마했습니다.
+그 과정에서 우리는 조건부 확률과 통계에서 가장 중요한 방정식 중 하나인 베이즈 정리에 대해 배웠습니다.
+이것은 관찰 $B$가 파라미터 $A$의 선택과 얼마나 잘 일치하는지를 다루는 우도 항 $P(B \mid A)$와
+애초에 $A$의 특정 선택이 얼마나 그럴듯한지를 지배하는 사전 확률 $P(A)$를 통해
+데이터가 전달하는 정보를 분리하는 데 효과적인 도구입니다.
+특히, 검사의 효능 *및* 질병 자체의 유병률(즉, 우리의 사전 확률)을 기반으로
+진단에 확률을 할당하는 데 이 규칙을 어떻게 적용할 수 있는지 보았습니다.
 
-Lastly, we introduced a first set of nontrivial questions
-about the effect of a specific probability distribution,
-namely expectations and variances.
-While there are many more than just linear and quadratic
-expectations for a probability distribution,
-these two already provide a good deal of knowledge
-about the possible behavior of the distribution.
-For instance, [Chebyshev's inequality](https://en.wikipedia.org/wiki/Chebyshev%27s_inequality)
-states that $P(|X - \mu| \geq k \sigma) \leq 1/k^2$,
-where $\mu$ is the expectation, $\sigma^2$ is the variance of the distribution,
-and $k > 1$ is a confidence parameter of our choosing.
-It tells us that draws from a distribution lie
-with at least 50% probability
-within a $[-\sqrt{2} \sigma, \sqrt{2} \sigma]$
-interval centered on the expectation.
+마지막으로, 특정 확률 분포의 효과에 대한 첫 번째 비자명한 질문 세트,
+즉 기댓값과 분산을 소개했습니다.
+확률 분포에 대한 선형 및 2차 기댓값 외에도 더 많은 것이 있지만,
+이 두 가지는 이미 분포의 가능한 동작에 대한 상당한 지식을 제공합니다.
+예를 들어, [체비쇼프 부등식(Chebyshev's inequality)](https://en.wikipedia.org/wiki/Chebyshev%27s_inequality)은
+$P(|X - \mu| \geq k \sigma) \leq 1/k^2$라고 명시합니다.
+여기서 $\mu$는 기댓값, $\sigma^2$는 분포의 분산, $k > 1$은 우리가 선택한 신뢰 파라미터입니다.
+이것은 분포에서 추출한 값이 기댓값을 중심으로 한 $[-\sqrt{2} \sigma, \sqrt{2} \sigma]$ 구간 내에
+적어도 50%의 확률로 존재함을 알려줍니다.
 
 
 
 
-## Exercises
+## 연습 문제
 
-1. Give an example where observing more data can reduce the amount of uncertainty about the outcome to an arbitrarily low level.
-1. Give an example where observing more data will only reduce the amount of uncertainty up to a point and then no further. Explain why this is the case and where you expect this point to occur.
-1. We empirically demonstrated convergence to the mean for the toss of a coin. Calculate the variance of the estimate of the probability that we see a head after drawing $n$ samples.
-    1. How does the variance scale with the number of observations?
-    1. Use Chebyshev's inequality to bound the deviation from the expectation.
-    1. How does it relate to the central limit theorem?
-1. Assume that we draw $m$ samples $x_i$ from a probability distribution with zero mean and unit variance. Compute the averages $z_m \stackrel{\textrm{def}}{=} m^{-1} \sum_{i=1}^m x_i$. Can we apply Chebyshev's inequality for every $z_m$ independently? Why not?
-1. Given two events with probability $P(\mathcal{A})$ and $P(\mathcal{B})$, compute upper and lower bounds on $P(\mathcal{A} \cup \mathcal{B})$ and $P(\mathcal{A} \cap \mathcal{B})$. Hint: graph the situation using a [Venn diagram](https://en.wikipedia.org/wiki/Venn_diagram).
-1. Assume that we have a sequence of random variables, say $A$, $B$, and $C$, where $B$ only depends on $A$, and $C$ only depends on $B$, can you simplify the joint probability $P(A, B, C)$? Hint: this is a [Markov chain](https://en.wikipedia.org/wiki/Markov_chain).
-1. In :numref:`subsec_probability_hiv_app`, assume that the outcomes of the two tests are not independent. In particular assume that either test on its own has a false positive rate of 10% and a false negative rate of 1%. That is, assume that $P(D =1 \mid H=0) = 0.1$ and that $P(D = 0 \mid H=1) = 0.01$. Moreover, assume that for $H = 1$ (infected) the test outcomes are conditionally independent, i.e., that $P(D_1, D_2 \mid H=1) = P(D_1 \mid H=1) P(D_2 \mid H=1)$ but that for healthy patients the outcomes are coupled via $P(D_1 = D_2 = 1 \mid H=0) = 0.02$.
-    1. Work out the joint probability table for $D_1$ and $D_2$, given $H=0$ based on the information you have so far.
-    1. Derive the probability that the patient is diseased ($H=1$) after one test returns positive. You can assume the same baseline probability $P(H=1) = 0.0015$ as before.
-    1. Derive the probability that the patient is diseased ($H=1$) after both tests return positive.
-1. Assume that you are an asset manager for an investment bank and you have a choice of stocks $s_i$ to invest in. Your portfolio needs to add up to $1$ with weights $\alpha_i$ for each stock. The stocks have an average return $\boldsymbol{\mu} = E_{\mathbf{s} \sim P}[\mathbf{s}]$ and covariance $\boldsymbol{\Sigma} = \textrm{Cov}_{\mathbf{s} \sim P}[\mathbf{s}]$.
-    1. Compute the expected return for a given portfolio $\boldsymbol{\alpha}$.
-    1. If you wanted to maximize the return of the portfolio, how should you choose your investment?
-    1. Compute the *variance* of the portfolio.
-    1. Formulate an optimization problem of maximizing the return while keeping the variance constrained to an upper bound. This is the Nobel-Prize winning [Markovitz portfolio](https://en.wikipedia.org/wiki/Markowitz_model) :cite:`Mangram.2013`. To solve it you will need a quadratic programming solver, something way beyond the scope of this book.
+1. 더 많은 데이터를 관찰하면 결과에 대한 불확실성의 양을 임의로 낮은 수준으로 줄일 수 있는 예를 제시하십시오.
+2. 더 많은 데이터를 관찰하면 불확실성의 양이 일정 지점까지만 줄어들고 그 이상은 줄어들지 않는 예를 제시하십시오. 왜 이런 경우가 발생하는지 그리고 이 지점이 어디에서 발생할 것으로 예상하는지 설명하십시오.
+3. 우리는 동전 던지기에 대한 평균으로의 수렴을 경험적으로 입증했습니다. $n$개의 샘플을 추출한 후 앞면을 볼 확률 추정치의 분산을 계산하십시오.
+    1. 분산은 관찰 수에 따라 어떻게 확장됩니까?
+    1. 체비쇼프 부등식을 사용하여 기댓값으로부터의 편차를 제한하십시오.
+    1. 이것은 중심 극한 정리와 어떤 관련이 있습니까?
+4. 평균이 0이고 분산이 1인 확률 분포에서 $m$개의 샘플 $x_i$를 추출한다고 가정합니다. 평균 $z_m \stackrel{\textrm{def}}{=} m^{-1} \sum_{i=1}^m x_i$를 계산합니다. 모든 $z_m$에 대해 독립적으로 체비쇼프 부등식을 적용할 수 있습니까? 왜 안 됩니까?
+5. 확률이 $P(\mathcal{A})$와 $P(\mathcal{B})$인 두 사건이 주어졌을 때, $P(\mathcal{A} \cup \mathcal{B})$와 $P(\mathcal{A} \cap \mathcal{B})$의 상한과 하한을 계산하십시오. 힌트: [벤 다이어그램](https://en.wikipedia.org/wiki/Venn_diagram)을 사용하여 상황을 그래프로 나타내십시오.
+6. 일련의 확률 변수, 예를 들어 $A$, $B$, $C$가 있고, 여기서 $B$는 $A$에만 의존하고 $C$는 $B$에만 의존한다고 가정할 때, 결합 확률 $P(A, B, C)$를 단순화할 수 있습니까? 힌트: 이것은 [마르코프 체인](https://en.wikipedia.org/wiki/Markov_chain)입니다.
+7. :numref:`subsec_probability_hiv_app`에서 두 검사의 결과가 독립적이지 않다고 가정합니다. 특히 두 검사 중 하나라도 10%의 위양성률과 1%의 위음성률을 갖는다고 가정합니다. 즉, $P(D =1 \mid H=0) = 0.1$이고 $P(D = 0 \mid H=1) = 0.01$이라고 가정합니다. 또한 $H = 1$ (감염됨)인 경우 검사 결과는 조건부 독립적, 즉 $P(D_1, D_2 \mid H=1) = P(D_1 \mid H=1) P(D_2 \mid H=1)$이지만 건강한 환자의 경우 결과는 $P(D_1 = D_2 = 1 \mid H=0) = 0.02$를 통해 결합된다고 가정합니다.
+    1. 지금까지 가진 정보를 바탕으로 $H=0$이 주어졌을 때 $D_1$과 $D_2$에 대한 결합 확률 표를 작성하십시오.
+    1. 한 검사가 양성으로 나온 후 환자가 병에 걸렸을($H=1$) 확률을 도출하십시오. 이전과 동일한 기준 확률 $P(H=1) = 0.0015$를 가정할 수 있습니다.
+    1. 두 검사 모두 양성으로 나온 후 환자가 병에 걸렸을($H=1$) 확률을 도출하십시오.
+8. 당신이 투자 은행의 자산 관리자이고 투자할 주식 $s_i$를 선택할 수 있다고 가정합니다. 포트폴리오는 각 주식에 대한 가중치 $\alpha_i$의 합이 $1$이어야 합니다. 주식은 평균 수익 $\boldsymbol{\mu} = E_{\mathbf{s} \sim P}[\mathbf{s}]$과 공분산 $\boldsymbol{\Sigma} = \textrm{Cov}_{\mathbf{s} \sim P}[\mathbf{s}]$을 갖습니다.
+    1. 주어진 포트폴리오 $\boldsymbol{\alpha}$에 대한 기대 수익을 계산하십시오.
+    1. 포트폴리오의 수익을 극대화하고 싶다면 투자를 어떻게 선택해야 합니까?
+    1. 포트폴리오의 *분산*을 계산하십시오.
+    1. 분산을 상한으로 제한하면서 수익을 극대화하는 최적화 문제를 공식화하십시오. 이것은 노벨상을 수상한 [마코비츠 포트폴리오](https://en.wikipedia.org/wiki/Markowitz_model) :cite:`Mangram.2013`입니다. 이를 해결하려면 2차 프로그래밍 솔버가 필요하며, 이는 이 책의 범위를 훨씬 벗어납니다.
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/36)
+[토론](https://discuss.d2l.ai/t/36)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/37)
+[토론](https://discuss.d2l.ai/t/37)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/198)
+[토론](https://discuss.d2l.ai/t/198)
 :end_tab:
 
 :begin_tab:`jax`
-[Discussions](https://discuss.d2l.ai/t/17971)
+[토론](https://discuss.d2l.ai/t/17971)
 :end_tab:
+
+```

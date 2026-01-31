@@ -1,44 +1,20 @@
-# Long Short-Term Memory (LSTM)
+# 장단기 메모리 (LSTM) (Long Short-Term Memory (LSTM))
 :label:`sec_lstm`
 
 
-Shortly after the first Elman-style RNNs were trained using backpropagation 
-:cite:`elman1990finding`, the problems of learning long-term dependencies
-(owing to vanishing and exploding gradients)
-became salient, with Bengio and Hochreiter 
-discussing the problem
-:cite:`bengio1994learning,Hochreiter.Bengio.Frasconi.ea.2001`.
-Hochreiter had articulated this problem as early 
-as 1991 in his Master's thesis, although the results 
-were not widely known because the thesis was written in German.
-While gradient clipping helps with exploding gradients, 
-handling vanishing gradients appears 
-to require a more elaborate solution. 
-One of the first and most successful techniques 
-for addressing vanishing gradients 
-came in the form of the long short-term memory (LSTM) model 
-due to :citet:`Hochreiter.Schmidhuber.1997`. 
-LSTMs resemble standard recurrent neural networks 
-but here each ordinary recurrent node
-is replaced by a *memory cell*.
-Each memory cell contains an *internal state*,
-i.e., a node with a self-connected recurrent edge of fixed weight 1,
-ensuring that the gradient can pass across many time steps 
-without vanishing or exploding.
+역전파를 사용하여 최초의 Elman 스타일 RNN이 훈련된 직후 :cite:`elman1990finding`, 장기 의존성 학습 문제(사라지는 기울기 및 폭발하는 기울기로 인한)가 두드러졌으며, 벤지오(Bengio)와 호크라이터(Hochreiter)가 이 문제를 논의했습니다 :cite:`bengio1994learning,Hochreiter.Bengio.Frasconi.ea.2001`.
+호크라이터는 이미 1991년 석사 학위 논문에서 이 문제를 명확히 기술했지만, 논문이 독일어로 작성되었기 때문에 결과가 널리 알려지지 않았습니다.
+기울기 클리핑이 폭발하는 기울기에는 도움이 되지만, 사라지는 기울기를 처리하는 데는 더 정교한 솔루션이 필요한 것으로 보입니다.
+사라지는 기울기를 해결하기 위한 최초이자 가장 성공적인 기술 중 하나가 :citet:`Hochreiter.Schmidhuber.1997`에 의한 장단기 메모리(long short-term memory, LSTM) 모델의 형태로 등장했습니다.
+LSTM은 표준 순환 신경망과 유사하지만 여기서는 각 일반 순환 노드가 *메모리 셀(memory cell)*로 대체됩니다.
+각 메모리 셀은 *내부 상태*, 즉 고정 가중치 1의 자체 연결된 순환 엣지를 가진 노드를 포함하여 기울기가 사라지거나 폭발하지 않고 많은 타임 스텝을 가로질러 전달될 수 있도록 보장합니다.
 
-The term "long short-term memory" comes from the following intuition.
-Simple recurrent neural networks 
-have *long-term memory* in the form of weights.
-The weights change slowly during training, 
-encoding general knowledge about the data.
-They also have *short-term memory*
-in the form of ephemeral activations,
-which pass from each node to successive nodes.
-The LSTM model introduces an intermediate type of storage via the memory cell.
-A memory cell is a composite unit, 
-built from simpler nodes 
-in a specific connectivity pattern,
-with the novel inclusion of multiplicative nodes.
+"장단기 메모리"라는 용어는 다음과 같은 직관에서 유래했습니다.
+단순 순환 신경망은 가중치 형태의 *장기 메모리*를 가집니다.
+가중치는 훈련 중에 천천히 변하며 데이터에 대한 일반적인 지식을 인코딩합니다.
+또한 각 노드에서 후속 노드로 전달되는 덧없는 활성화 형태의 *단기 메모리*를 가집니다.
+LSTM 모델은 메모리 셀을 통해 중간 유형의 저장을 도입합니다.
+메모리 셀은 특정 연결 패턴의 더 단순한 노드들로 구성된 합성 단위로, 곱셈 노드가 새로 포함되었습니다.
 
 ```{.python .input}
 %load_ext d2lbook.tab
@@ -74,66 +50,39 @@ import jax
 from jax import numpy as jnp
 ```
 
-## Gated Memory Cell
+## 게이트 메모리 셀 (Gated Memory Cell)
 
-Each memory cell is equipped with an *internal state*
-and a number of multiplicative gates that determine whether
-(i) a given input should impact the internal state (the *input gate*),
-(ii) the internal state should be flushed to $0$ (the *forget gate*),
-and (iii) the internal state of a given neuron 
-should be allowed to impact the cell's output (the *output* gate). 
+각 메모리 셀은 *내부 상태*와 (i) 주어진 입력이 내부 상태에 영향을 주어야 하는지(*입력 게이트*), (ii) 내부 상태를 0으로 씻어내야 하는지(*삭제 게이트*), (iii) 주어진 뉴런의 내부 상태가 셀의 출력에 영향을 주도록 허용되어야 하는지(*출력 게이트*)를 결정하는 여러 곱셈 게이트를 갖추고 있습니다.
 
 
-### Gated Hidden State
+### 게이트 은닉 상태 (Gated Hidden State)
 
-The key distinction between vanilla RNNs and LSTMs
-is that the latter support gating of the hidden state.
-This means that we have dedicated mechanisms for
-when a hidden state should be *updated* and
-also for when it should be *reset*.
-These mechanisms are learned and they address the concerns listed above.
-For instance, if the first token is of great importance
-we will learn not to update the hidden state after the first observation.
-Likewise, we will learn to skip irrelevant temporary observations.
-Last, we will learn to reset the latent state whenever needed.
-We discuss this in detail below.
+바닐라 RNN과 LSTM의 주요 차이점은 후자가 은닉 상태의 게이팅을 지원한다는 것입니다.
+이는 은닉 상태가 언제 *업데이트*되어야 하는지, 그리고 언제 *리셋*되어야 하는지에 대한 전용 메커니즘을 가지고 있음을 의미합니다.
+이러한 메커니즘은 학습되며 위에서 나열한 우려 사항을 해결합니다.
+예를 들어 첫 번째 토큰이 매우 중요하다면 첫 번째 관찰 후에 은닉 상태를 업데이트하지 않도록 학습할 것입니다.
+마찬가지로 관련 없는 일시적인 관찰을 건너뛰도록 학습할 것입니다.
+마지막으로 필요할 때마다 잠재 상태를 리셋하도록 학습할 것입니다.
+아래에서 이에 대해 자세히 논의합니다.
 
-### Input Gate, Forget Gate, and Output Gate
+### 입력 게이트, 삭제 게이트, 출력 게이트 (Input Gate, Forget Gate, and Output Gate)
 
-The data feeding into the LSTM gates are
-the input at the current time step and
-the hidden state of the previous time step,
-as illustrated in :numref:`fig_lstm_0`.
-Three fully connected layers with sigmoid activation functions
-compute the values of the input, forget, and output gates.
-As a result of the sigmoid activation,
-all values of the three gates
-are in the range of $(0, 1)$.
-Additionally, we require an *input node*,
-typically computed with a *tanh* activation function. 
-Intuitively, the *input gate* determines how much
-of the input node's value should be added 
-to the current memory cell internal state.
-The *forget gate* determines whether to keep
-the current value of the memory or flush it. 
-And the *output gate* determines whether 
-the memory cell should influence the output
-at the current time step. 
+:numref:`fig_lstm_0`에 설명된 것처럼 LSTM 게이트로 들어가는 데이터는 현재 타임 스텝의 입력과 이전 타임 스텝의 은닉 상태입니다.
+시그모이드 활성화 함수가 있는 세 개의 완전 연결 레이어가 입력, 삭제, 출력 게이트의 값을 계산합니다.
+시그모이드 활성화의 결과로 세 게이트의 모든 값은 $(0, 1)$ 범위에 있습니다.
+또한 일반적으로 *tanh* 활성화 함수로 계산되는 *입력 노드*가 필요합니다.
+직관적으로 *입력 게이트*는 입력 노드의 값 중 얼마만큼을 현재 메모리 셀 내부 상태에 추가해야 하는지를 결정합니다.
+*삭제 게이트*는 메모리의 현재 값을 유지할지 아니면 씻어낼지 결정합니다.
+그리고 *출력 게이트*는 메모리 셀이 현재 타임 스텝의 출력에 영향을 주어야 하는지 결정합니다.
 
 
-![Computing the input gate, the forget gate, and the output gate in an LSTM model.](../img/lstm-0.svg)
+![LSTM 모델에서 입력 게이트, 삭제 게이트, 출력 게이트 계산.](../img/lstm-0.svg)
 :label:`fig_lstm_0`
 
-Mathematically, suppose that there are $h$ hidden units, 
-the batch size is $n$, and the number of inputs is $d$.
-Thus, the input is $\mathbf{X}_t \in \mathbb{R}^{n \times d}$ 
-and the hidden state of the previous time step 
-is $\mathbf{H}_{t-1} \in \mathbb{R}^{n \times h}$. 
-Correspondingly, the gates at time step $t$
-are defined as follows: the input gate is $\mathbf{I}_t \in \mathbb{R}^{n \times h}$, 
-the forget gate is $\mathbf{F}_t \in \mathbb{R}^{n \times h}$, 
-and the output gate is $\mathbf{O}_t \in \mathbb{R}^{n \times h}$. 
-They are calculated as follows:
+수학적으로 은닉 유닛이 $h$개, 배치 크기가 $n$, 입력 수가 $d$라고 가정합니다.
+따라서 입력은 $\mathbf{X}_t \in \mathbb{R}^{n \times d}$이고 이전 타임 스텝의 은닉 상태는 $\mathbf{H}_{t-1} \in \mathbb{R}^{n \times h}$입니다.
+이에 따라 타임 스텝 $t$에서의 게이트는 다음과 같이 정의됩니다: 입력 게이트는 $\mathbf{I}_t \in \mathbb{R}^{n \times h}$, 삭제 게이트는 $\mathbf{F}_t \in \mathbb{R}^{n \times h}$, 출력 게이트는 $\mathbf{O}_t \in \mathbb{R}^{n \times h}$입니다.
+이들은 다음과 같이 계산됩니다:
 
 $$
 \begin{aligned}
@@ -141,114 +90,77 @@ $$
 \mathbf{F}_t &= \sigma(\mathbf{X}_t \mathbf{W}_{\textrm{xf}} + \mathbf{H}_{t-1} \mathbf{W}_{\textrm{hf}} + \mathbf{b}_\textrm{f}),\\
 \mathbf{O}_t &= \sigma(\mathbf{X}_t \mathbf{W}_{\textrm{xo}} + \mathbf{H}_{t-1} \mathbf{W}_{\textrm{ho}} + \mathbf{b}_\textrm{o}),
 \end{aligned}
-$$
+$$ 
 
-where $\mathbf{W}_{\textrm{xi}}, \mathbf{W}_{\textrm{xf}}, \mathbf{W}_{\textrm{xo}} \in \mathbb{R}^{d \times h}$ and $\mathbf{W}_{\textrm{hi}}, \mathbf{W}_{\textrm{hf}}, \mathbf{W}_{\textrm{ho}} \in \mathbb{R}^{h \times h}$ are weight parameters 
-and $\mathbf{b}_\textrm{i}, \mathbf{b}_\textrm{f}, \mathbf{b}_\textrm{o} \in \mathbb{R}^{1 \times h}$ are bias parameters.
-Note that broadcasting 
-(see :numref:`subsec_broadcasting`)
-is triggered during the summation.
-We use sigmoid functions 
-(as introduced in :numref:`sec_mlp`) 
-to map the input values to the interval $(0, 1)$.
+여기서 $\mathbf{W}_{\textrm{xi}}, \mathbf{W}_{\textrm{xf}}, \mathbf{W}_{\textrm{xo}} \in \mathbb{R}^{d \times h}$와 $\mathbf{W}_{\textrm{hi}}, \mathbf{W}_{\textrm{hf}}, \mathbf{W}_{\textrm{ho}} \in \mathbb{R}^{h \times h}$는 가중치 파라미터이고 $\mathbf{b}_\textrm{i}, \mathbf{b}_\textrm{f}, \mathbf{b}_\textrm{o} \in \mathbb{R}^{1 \times h}$는 편향 파라미터입니다.
+합산 중에 브로드캐스팅(:numref:`subsec_broadcasting` 참조)이 트리거됨에 유의하십시오.
+우리는 입력 값을 간격 $(0, 1)$에 매핑하기 위해 시그모이드 함수(:numref:`sec_mlp`에서 소개됨)를 사용합니다.
 
 
-### Input Node
+### 입력 노드 (Input Node)
 
-Next we design the memory cell. 
-Since we have not specified the action of the various gates yet, 
-we first introduce the *input node* 
-$\tilde{\mathbf{C}}_t \in \mathbb{R}^{n \times h}$.
-Its computation is similar to that of the three gates described above, 
-but uses a $\tanh$ function with a value range for $(-1, 1)$ as the activation function. 
-This leads to the following equation at time step $t$:
+다음으로 메모리 셀을 설계합니다.
+아직 다양한 게이트의 동작을 지정하지 않았으므로, 먼저 *입력 노드* $\tilde{\mathbf{C}}_t \in \mathbb{R}^{n \times h}$를 도입합니다.
+그 계산은 위에서 설명한 세 게이트의 계산과 유사하지만 활성화 함수로 $(-1, 1)$ 범위의 값을 갖는 $\tanh$ 함수를 사용합니다.
+이는 타임 스텝 $t$에서 다음과 같은 방정식으로 이어집니다:
 
-$$\tilde{\mathbf{C}}_t = \textrm{tanh}(\mathbf{X}_t \mathbf{W}_{\textrm{xc}} + \mathbf{H}_{t-1} \mathbf{W}_{\textrm{hc}} + \mathbf{b}_\textrm{c}),$$
+$$\tilde{\mathbf{C}}_t = \textrm{tanh}(\mathbf{X}_t \mathbf{W}_{\textrm{xc}} + \mathbf{H}_{t-1} \mathbf{W}_{\textrm{hc}} + \mathbf{b}_\textrm{c}),$$ 
 
-where $\mathbf{W}_{\textrm{xc}} \in \mathbb{R}^{d \times h}$ and $\mathbf{W}_{\textrm{hc}} \in \mathbb{R}^{h \times h}$ are weight parameters and $\mathbf{b}_\textrm{c} \in \mathbb{R}^{1 \times h}$ is a bias parameter.
+여기서 $\mathbf{W}_{\textrm{xc}} \in \mathbb{R}^{d \times h}$와 $\mathbf{W}_{\textrm{hc}} \in \mathbb{R}^{h \times h}$는 가중치 파라미터이고 $\mathbf{b}_\textrm{c} \in \mathbb{R}^{1 \times h}$는 편향 파라미터입니다.
 
-A quick illustration of the input node is shown in :numref:`fig_lstm_1`.
+입력 노드에 대한 간단한 그림은 :numref:`fig_lstm_1`에 나와 있습니다.
 
-![Computing the input node in an LSTM model.](../img/lstm-1.svg)
+![LSTM 모델에서 입력 노드 계산.](../img/lstm-1.svg)
 :label:`fig_lstm_1`
 
 
-### Memory Cell Internal State
+### 메모리 셀 내부 상태 (Memory Cell Internal State)
 
-In LSTMs, the input gate $\mathbf{I}_t$ governs 
-how much we take new data into account via $\tilde{\mathbf{C}}_t$ 
-and the forget gate $\mathbf{F}_t$ addresses 
-how much of the old cell internal state $\mathbf{C}_{t-1} \in \mathbb{R}^{n \times h}$ we retain. 
-Using the Hadamard (elementwise) product operator $\odot$
-we arrive at the following update equation:
+LSTM에서 입력 게이트 $\mathbf{I}_t$는 $\tilde{\mathbf{C}}_t$를 통해 얼마나 많은 새 데이터를 고려할지를 지배하고, 삭제 게이트 $\mathbf{F}_t$는 이전 셀 내부 상태 $\mathbf{C}_{t-1} \in \mathbb{R}^{n \times h}$ 중 얼마만큼을 유지할지를 결정합니다.
+아다마르 곱 연산자 $\odot$를 사용하여 다음과 같은 업데이트 방정식에 도달합니다:
 
-$$\mathbf{C}_t = \mathbf{F}_t \odot \mathbf{C}_{t-1} + \mathbf{I}_t \odot \tilde{\mathbf{C}}_t.$$
+$$\mathbf{C}_t = \mathbf{F}_t \odot \mathbf{C}_{t-1} + \mathbf{I}_t \odot \tilde{\mathbf{C}}_t.$$ 
 
-If the forget gate is always 1 and the input gate is always 0, 
-the memory cell internal state $\mathbf{C}_{t-1}$
-will remain constant forever, 
-passing unchanged to each subsequent time step.
-However, input gates and forget gates
-give the model the flexibility of being able to learn 
-when to keep this value unchanged
-and when to perturb it in response 
-to subsequent inputs. 
-In practice, this design alleviates the vanishing gradient problem,
-resulting in models that are much easier to train,
-especially when facing datasets with long sequence lengths. 
+삭제 게이트가 항상 1이고 입력 게이트가 항상 0이면, 메모리 셀 내부 상태 $\mathbf{C}_{t-1}$은 영원히 일정하게 유지되어 각 후속 타임 스텝으로 변경되지 않고 전달됩니다.
+그러나 입력 게이트와 삭제 게이트는 모델에 이 값을 언제 변경하지 않고 유지할지, 그리고 언제 후속 입력에 대응하여 이를 섭동시킬지 학습할 수 있는 유연성을 제공합니다.
+실제로 이 설계는 기울기 소실 문제를 완화하여 특히 긴 시퀀스 길이를 가진 데이터셋에 직면할 때 훈련하기 훨씬 쉬운 모델로 이어집니다.
 
-We thus arrive at the flow diagram in :numref:`fig_lstm_2`.
+따라서 :numref:`fig_lstm_2`의 흐름도에 도달합니다.
 
-![Computing the memory cell internal state in an LSTM model.](../img/lstm-2.svg)
+![LSTM 모델에서 메모리 셀 내부 상태 계산.](../img/lstm-2.svg)
 
 :label:`fig_lstm_2`
 
 
-### Hidden State
+### 은닉 상태 (Hidden State)
 
-Last, we need to define how to compute the output
-of the memory cell, i.e., the hidden state $\mathbf{H}_t \in \mathbb{R}^{n \times h}$, as seen by other layers. 
-This is where the output gate comes into play.
-In LSTMs, we first apply $\tanh$ to the memory cell internal state
-and then apply another point-wise multiplication,
-this time with the output gate.
-This ensures that the values of $\mathbf{H}_t$ 
-are always in the interval $(-1, 1)$:
+마지막으로 메모리 셀의 출력, 즉 다른 레이어에서 보는 은닉 상태 $\mathbf{H}_t \in \mathbb{R}^{n \times h}$를 계산하는 방법을 정의해야 합니다.
+여기서 출력 게이트가 작동합니다.
+LSTM에서는 먼저 메모리 셀 내부 상태에 $\tanh$를 적용한 다음, 이번에는 출력 게이트와 함께 또 다른 요소별 곱셈을 적용합니다.
+이렇게 하면 $\mathbf{H}_t$의 값이 항상 $(-1, 1)$ 간격에 있게 됩니다:
 
-$$\mathbf{H}_t = \mathbf{O}_t \odot \tanh(\mathbf{C}_t).$$
+$$\mathbf{H}_t = \mathbf{O}_t \odot \tanh(\mathbf{C}_t).$$ 
 
 
-Whenever the output gate is close to 1, 
-we allow the memory cell internal state to impact the subsequent layers uninhibited,
-whereas for output gate values close to 0,
-we prevent the current memory from impacting other layers of the network
-at the current time step. 
-Note that a memory cell can accrue information 
-across many time steps without impacting the rest of the network
-(as long as the output gate takes values close to 0),
-and then suddenly impact the network at a subsequent time step
-as soon as the output gate flips from values close to 0
-to values close to 1. :numref:`fig_lstm_3` has a graphical illustration of the data flow.
+출력 게이트가 1에 가까울 때마다 메모리 셀 내부 상태가 후속 레이어에 억제 없이 영향을 주도록 허용하는 반면, 출력 게이트 값이 0에 가까울 때는 현재 메모리가 현재 타임 스텝에서 네트워크의 다른 레이어에 영향을 주지 않도록 방지합니다.
+메모리 셀은 출력 게이트가 0에 가까운 값을 취하는 동안 네트워크의 나머지 부분에 영향을 주지 않고 많은 타임 스텝에 걸쳐 정보를 축적할 수 있으며,
+출력 게이트가 0에 가까운 값에서 1에 가까운 값으로 뒤집히자마자 후속 타임 스텝에서 갑자기 네트워크에 영향을 줄 수 있음에 유의하십시오. :numref:`fig_lstm_3`에 데이터 흐름의 그래픽 설명이 있습니다.
 
-![Computing the hidden state in an LSTM model.](../img/lstm-3.svg)
+![LSTM 모델에서 은닉 상태 계산.](../img/lstm-3.svg)
 :label:`fig_lstm_3`
 
 
 
-## Implementation from Scratch
+## 밑바닥부터 구현하기 (Implementation from Scratch)
 
-Now let's implement an LSTM from scratch.
-As same as the experiments in :numref:`sec_rnn-scratch`,
-we first load *The Time Machine* dataset.
+이제 LSTM을 밑바닥부터 구현해 봅시다.
+:numref:`sec_rnn-scratch`의 실험과 마찬가지로 먼저 *타임 머신* 데이터셋을 로드합니다.
 
-### [**Initializing Model Parameters**]
+### [**모델 파라미터 초기화**]
 
-Next, we need to define and initialize the model parameters. 
-As previously, the hyperparameter `num_hiddens` 
-dictates the number of hidden units.
-We initialize weights following a Gaussian distribution
-with 0.01 standard deviation, 
-and we set the biases to 0.
+다음으로 모델 파라미터를 정의하고 초기화해야 합니다.
+이전과 마찬가지로 하이퍼파라미터 `num_hiddens`가 은닉 유닛의 수를 결정합니다.
+가중치는 0.01 표준 편차를 갖는 가우스 분포에 따라 초기화하고 편향은 0으로 설정합니다.
 
 ```{.python .input}
 %%tab pytorch, mxnet, tensorflow
@@ -273,10 +185,10 @@ class LSTMScratch(d2l.Module):
                               init_weight(num_hiddens, num_hiddens),
                               tf.Variable(d2l.zeros(num_hiddens)))
 
-        self.W_xi, self.W_hi, self.b_i = triple()  # Input gate
-        self.W_xf, self.W_hf, self.b_f = triple()  # Forget gate
-        self.W_xo, self.W_ho, self.b_o = triple()  # Output gate
-        self.W_xc, self.W_hc, self.b_c = triple()  # Input node
+        self.W_xi, self.W_hi, self.b_i = triple()  # 입력 게이트
+        self.W_xf, self.W_hf, self.b_f = triple()  # 삭제 게이트
+        self.W_xo, self.W_ho, self.b_o = triple()  # 출력 게이트
+        self.W_xc, self.W_hc, self.b_c = triple()  # 입력 노드
 ```
 
 ```{.python .input}
@@ -295,29 +207,22 @@ class LSTMScratch(d2l.Module):
             init_weight(f'W_h{name}', (self.num_hiddens, self.num_hiddens)),
             self.param(f'b_{name}', nn.initializers.zeros, (self.num_hiddens)))
 
-        self.W_xi, self.W_hi, self.b_i = triple('i')  # Input gate
-        self.W_xf, self.W_hf, self.b_f = triple('f')  # Forget gate
-        self.W_xo, self.W_ho, self.b_o = triple('o')  # Output gate
-        self.W_xc, self.W_hc, self.b_c = triple('c')  # Input node
+        self.W_xi, self.W_hi, self.b_i = triple('i')  # 입력 게이트
+        self.W_xf, self.W_hf, self.b_f = triple('f')  # 삭제 게이트
+        self.W_xo, self.W_ho, self.b_o = triple('o')  # 출력 게이트
+        self.W_xc, self.W_hc, self.b_c = triple('c')  # 입력 노드
 ```
 
 :begin_tab:`pytorch, mxnet, tensorflow`
-[**The actual model**] is defined as described above,
-consisting of three gates and an input node. 
-Note that only the hidden state is passed to the output layer.
+[**실제 모델**]은 위에서 설명한 대로 정의되며 세 개의 게이트와 입력 노드로 구성됩니다.
+은닉 상태만 출력 레이어로 전달된다는 점에 유의하십시오.
 :end_tab:
 
 :begin_tab:`jax`
-[**The actual model**] is defined as described above,
-consisting of three gates and an input node. 
-Note that only the hidden state is passed to the output layer.
-A long for-loop in the `forward` method will result in an extremely long
-JIT compilation time for the first run. As a solution to this, instead
-of using a for-loop to update the state with every time step,
-JAX has `jax.lax.scan` utility transformation to achieve the same behavior.
-It takes in an initial state called `carry` and an `inputs` array which
-is scanned on its leading axis. The `scan` transformation ultimately
-returns the final state and the stacked outputs as expected.
+[**실제 모델**]은 위에서 설명한 대로 정의되며 세 개의 게이트와 입력 노드로 구성됩니다.
+은닉 상태만 출력 레이어로 전달된다는 점에 유의하십시오.
+`forward` 메서드에서 긴 for-루프를 사용하면 첫 번째 실행 시 JIT 컴파일 시간이 매우 길어집니다. 이에 대한 해결책으로 매 타임 스텝마다 상태를 업데이트하기 위해 for-루프를 사용하는 대신, JAX에는 동일한 동작을 달성하기 위한 `jax.lax.scan` 유틸리티 변환이 있습니다.
+이는 `carry`라고 불리는 초기 상태와 선행 축에서 스캔되는 `inputs` 배열을 인수로 취합니다. `scan` 변환은 최종적으로 기대하는 대로 최종 상태와 쌓인 출력들을 반환합니다.
 :end_tab:
 
 ```{.python .input}
@@ -325,7 +230,7 @@ returns the final state and the stacked outputs as expected.
 @d2l.add_to_class(LSTMScratch)
 def forward(self, inputs, H_C=None):
     if H_C is None:
-        # Initial state with shape: (batch_size, num_hiddens)
+        # 모양이 (batch_size, num_hiddens)인 초기 상태
         if tab.selected('mxnet'):
             H = d2l.zeros((inputs.shape[1], self.num_hiddens),
                           ctx=inputs.ctx)
@@ -361,8 +266,7 @@ def forward(self, inputs, H_C=None):
 %%tab jax
 @d2l.add_to_class(LSTMScratch)
 def forward(self, inputs, H_C=None):
-    # Use lax.scan primitive instead of looping over the
-    # inputs, since scan saves time in jit compilation.
+    # 입력을 반복하는 대신 lax.scan 프리미티브를 사용하여 jit 컴파일 시간을 절약합니다.
     def scan_fn(carry, X):
         H, C = carry
         I = d2l.sigmoid(d2l.matmul(X, self.W_xi) + (
@@ -375,7 +279,7 @@ def forward(self, inputs, H_C=None):
                            d2l.matmul(H, self.W_hc) + self.b_c)
         C = F * C + I * C_tilde
         H = O * d2l.tanh(C)
-        return (H, C), H  # return carry, y
+        return (H, C), H  # carry, y 반환
 
     if H_C is None:
         batch_size = inputs.shape[1]
@@ -384,14 +288,14 @@ def forward(self, inputs, H_C=None):
     else:
         carry = H_C
 
-    # scan takes the scan_fn, initial carry state, xs with leading axis to be scanned
+    # scan은 scan_fn, 초기 carry 상태, 스캔할 선행 축이 있는 xs를 인수로 취합니다
     carry, outputs = jax.lax.scan(scan_fn, carry, inputs)
     return outputs, carry
 ```
 
-### [**Training**] and Prediction
+### [**훈련 (Training)**] 및 예측
 
-Let's train an LSTM model by instantiating the `RNNLMScratch` class from :numref:`sec_rnn-scratch`.
+:numref:`sec_rnn-scratch`의 `RNNLMScratch` 클래스를 인스턴스화하여 LSTM 모델을 훈련해 봅시다.
 
 ```{.python .input}
 %%tab all
@@ -408,15 +312,11 @@ if tab.selected('tensorflow'):
 trainer.fit(model, data)
 ```
 
-## [**Concise Implementation**]
+## [**간결한 구현 (Concise Implementation)**]
 
-Using high-level APIs,
-we can directly instantiate an LSTM model.
-This encapsulates all the configuration details 
-that we made explicit above. 
-The code is significantly faster as it uses 
-compiled operators rather than Python
-for many details that we spelled out before.
+고수준 API를 사용하여 LSTM 모델을 직접 인스턴스화할 수 있습니다.
+이는 위에서 우리가 명시적으로 만든 모든 구성 세부 사항을 캡슐화합니다.
+앞서 우리가 상세히 설명한 많은 부분에 대해 Python 대신 컴파일된 연산자를 사용하므로 코드가 훨씬 빠릅니다.
 
 ```{.python .input}
 %%tab mxnet
@@ -508,52 +408,46 @@ model.predict('it has', 20, data.vocab)
 model.predict('it has', 20, data.vocab, trainer.state.params)
 ```
 
-LSTMs are the prototypical latent variable autoregressive model with nontrivial state control.
-Many variants thereof have been proposed over the years, e.g., multiple layers, residual connections, different types of regularization. However, training LSTMs and other sequence models (such as GRUs) is quite costly because of the long range dependency of the sequence.
-Later we will encounter alternative models such as Transformers that can be used in some cases.
+LSTM은 의미 있는 상태 제어를 가진 전형적인 잠재 변수 자기회귀 모델입니다.
+다중 레이어, 잔차 연결, 다양한 유형의 정규화 등 수년 동안 많은 변형이 제안되었습니다. 그러나 시퀀스의 장거리 의존성 때문에 LSTM 및 기타 시퀀스 모델(예: GRU)을 훈련하는 것은 비용이 많이 듭니다.
+나중에 우리는 일부 사례에서 사용될 수 있는 Transformer와 같은 대안 모델을 만나게 될 것입니다.
 
 
-## Summary
+## 요약 (Summary)
 
-While LSTMs were published in 1997, 
-they rose to great prominence 
-with some victories in prediction competitions in the mid-2000s,
-and became the dominant models for sequence learning from 2011 
-until the rise of Transformer models, starting in 2017.
-Even Tranformers owe some of their key ideas 
-to architecture design innovations introduced by the LSTM.
+LSTM은 1997년에 발표되었지만, 2000년대 중반 예측 대회에서 여러 차례 승리하면서 큰 주목을 받았고,
+2011년부터 2017년 Transformer 모델이 부상하기 전까지 시퀀스 학습을 위한 지배적인 모델이 되었습니다.
+심지어 Transformer조차도 LSTM이 도입한 아키텍처 설계 혁신에서 몇 가지 핵심 아이디어를 얻었습니다.
 
 
-LSTMs have three types of gates: 
-input gates, forget gates, and output gates 
-that control the flow of information.
-The hidden layer output of LSTM includes the hidden state and the memory cell internal state. 
-Only the hidden state is passed into the output layer while 
-the memory cell internal state remains entirely internal.
-LSTMs can alleviate vanishing and exploding gradients.
+LSTM에는 정보의 흐름을 제어하는 세 가지 유형의 게이트가 있습니다:
+입력 게이트, 삭제 게이트, 출력 게이트입니다.
+LSTM의 은닉층 출력에는 은닉 상태와 메모리 셀 내부 상태가 포함됩니다.
+은닉 상태만 출력 레이어로 전달되는 반면 메모리 셀 내부 상태는 완전히 내부적으로 유지됩니다.
+LSTM은 사라지는 기울기와 폭발하는 기울기를 완화할 수 있습니다.
 
 
 
-## Exercises
+## 연습 문제 (Exercises)
 
-1. Adjust the hyperparameters and analyze their influence on running time, perplexity, and the output sequence.
-1. How would you need to change the model to generate proper words rather than just sequences of characters?
-1. Compare the computational cost for GRUs, LSTMs, and regular RNNs for a given hidden dimension. Pay special attention to the training and inference cost.
-1. Since the candidate memory cell ensures that the value range is between $-1$ and $1$ by  using the $\tanh$ function, why does the hidden state need to use the $\tanh$ function again to ensure that the output value range is between $-1$ and $1$?
-1. Implement an LSTM model for time series prediction rather than character sequence prediction.
+1. 하이퍼파라미터를 조정하고 실행 시간, 퍼플렉서티 및 출력 시퀀스에 미치는 영향을 분석하십시오.
+2. 단순히 문자 시퀀스가 아니라 적절한 단어를 생성하도록 모델을 변경하려면 어떻게 해야 합니까?
+3. 주어진 은닉 차원에 대해 GRU, LSTM 및 일반 RNN의 계산 비용을 비교하십시오. 훈련 및 추론 비용에 특히 주의를 기울이십시오.
+4. 후보 메모리 셀이 $\tanh$ 함수를 사용하여 값 범위를 $-1$과 $1$ 사이로 보장하는데, 왜 은닉 상태가 출력 값 범위를 $-1$과 $1$ 사이로 보장하기 위해 다시 $\tanh$ 함수를 사용해야 합니까?
+5. 문자 시퀀스 예측이 아닌 시계열 예측을 위한 LSTM 모델을 구현하십시오.
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/343)
+[토론](https://discuss.d2l.ai/t/343)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1057)
+[토론](https://discuss.d2l.ai/t/1057)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/3861)
+[토론](https://discuss.d2l.ai/t/3861)
 :end_tab:
 
 :begin_tab:`jax`
-[Discussions](https://discuss.d2l.ai/t/18016)
+[토론](https://discuss.d2l.ai/t/18016)
 :end_tab:

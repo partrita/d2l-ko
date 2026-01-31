@@ -1,21 +1,21 @@
-# Neural Collaborative Filtering for Personalized Ranking
+# 개인화 순위를 위한 신경망 협업 필터링 (Neural Collaborative Filtering for Personalized Ranking)
 
-This section moves beyond explicit feedback, introducing the neural collaborative filtering (NCF) framework for recommendation with implicit feedback. Implicit feedback is pervasive in recommender systems. Actions such as Clicks, buys, and watches are common implicit feedback which are easy to collect and indicative of users' preferences. The model we will introduce, titled NeuMF :cite:`He.Liao.Zhang.ea.2017`, short for neural matrix factorization, aims to address the personalized ranking task with implicit feedback. This model leverages the flexibility and non-linearity of neural networks to replace dot products of matrix factorization, aiming at enhancing the model expressiveness. In specific, this model is structured with two subnetworks including generalized matrix factorization (GMF) and MLP and models the interactions from two pathways instead of simple dot products. The outputs of these two networks are concatenated for the final prediction scores calculation. Unlike the rating prediction task in AutoRec, this model generates a ranked recommendation list to each user based on the implicit feedback. We will use the personalized ranking loss introduced in the last section to train this model.
+이 섹션에서는 명시적 피드백을 넘어 암시적 피드백을 사용한 추천을 위한 신경망 협업 필터링(NCF) 프레임워크를 소개합니다. 암시적 피드백은 추천 시스템에 널리 퍼져 있습니다. 클릭, 구매, 시청과 같은 행동은 수집하기 쉽고 사용자의 선호도를 나타내는 일반적인 암시적 피드백입니다. 우리가 소개할 모델인 NeuMF :cite:`He.Liao.Zhang.ea.2017`는 신경망 행렬 분해(neural matrix factorization)의 줄임말로, 암시적 피드백으로 개인화 순위 작업을 해결하는 것을 목표로 합니다. 이 모델은 신경망의 유연성과 비선형성을 활용하여 행렬 분해의 내적을 대체하여 모델 표현력을 향상시키는 것을 목표로 합니다. 구체적으로, 이 모델은 일반화된 행렬 분해(GMF)와 MLP를 포함한 두 개의 서브 네트워크로 구성되며 단순한 내적 대신 두 경로에서 상호 작용을 모델링합니다. 이 두 네트워크의 출력은 최종 예측 점수 계산을 위해 연결됩니다. AutoRec의 평점 예측 작업과 달리 이 모델은 암시적 피드백을 기반으로 각 사용자에게 순위가 매겨진 추천 목록을 생성합니다. 이전 섹션에서 소개한 개인화 순위 손실을 사용하여 이 모델을 훈련할 것입니다.
 
-## The NeuMF model
+## NeuMF 모델 (The NeuMF model)
 
-As aforementioned, NeuMF fuses two subnetworks. The GMF is a generic neural network version of matrix factorization where the input is the elementwise product of user and item latent factors. It consists of two neural layers:
+앞서 언급했듯이 NeuMF는 두 개의 서브 네트워크를 융합합니다. GMF는 행렬 분해의 일반적인 신경망 버전으로, 입력은 사용자 및 항목 잠재 요인의 요소별 곱입니다. 두 개의 신경망 레이어로 구성됩니다.
 
 $$
 \mathbf{x} = \mathbf{p}_u \odot \mathbf{q}_i \\
 \hat{y}_{ui} = \alpha(\mathbf{h}^\top \mathbf{x}),
-$$
+$$ 
 
-where $\odot$ denotes the Hadamard product of vectors. $\mathbf{P} \in \mathbb{R}^{m \times k}$  and $\mathbf{Q} \in \mathbb{R}^{n \times k}$ correspond to user and item latent matrix respectively. $\mathbf{p}_u \in \mathbb{R}^{ k}$ is the $u^\textrm{th}$ row of $P$ and $\mathbf{q}_i \in \mathbb{R}^{ k}$ is the $i^\textrm{th}$ row of $Q$.  $\alpha$ and $h$ denote the activation function and weight of the output layer. $\hat{y}_{ui}$ is the prediction score of the user $u$ might give to the item $i$.
+여기서 $\odot$은 벡터의 하다마드 곱을 나타냅니다. $\mathbf{P} \in \mathbb{R}^{m \times k}$ 및 $\mathbf{Q} \in \mathbb{R}^{n \times k}$는 각각 사용자 및 항목 잠재 행렬에 해당합니다. $\mathbf{p}_u \in \mathbb{R}^{ k}$는 $P$의 $u^\textrm{th}$ 행이고 $\mathbf{q}_i \in \mathbb{R}^{ k}$는 $Q$의 $i^	extrm{th}$ 행입니다. $\alpha$와 $h$는 출력 레이어의 활성화 함수와 가중치를 나타냅니다. $\hat{y}_{ui}$는 사용자 $u$가 항목 $i$에 대해 부여할 수 있는 예측 점수입니다.
 
-Another component of this model is MLP. To enrich model flexibility, the MLP subnetwork does not share user and item embeddings with GMF. It uses the concatenation of user and item embeddings as input. With the complicated connections and nonlinear transformations, it is capable of estimating the intricate interactions between users and items. More precisely, the MLP subnetwork is defined as:
+이 모델의 또 다른 구성 요소는 MLP입니다. 모델 유연성을 높이기 위해 MLP 서브 네트워크는 GMF와 사용자 및 항목 임베딩을 공유하지 않습니다. 사용자 및 항목 임베딩의 연결을 입력으로 사용합니다. 복잡한 연결과 비선형 변환을 통해 사용자와 항목 간의 복잡한 상호 작용을 추정할 수 있습니다. 더 정확하게는 MLP 서브 네트워크는 다음과 같이 정의됩니다.
 
-$$
+$$ 
 \begin{aligned}
 z^{(1)} &= \phi_1(\mathbf{U}_u, \mathbf{V}_i) = \left[ \mathbf{U}_u, \mathbf{V}_i \right] \\
 \phi^{(2)}(z^{(1)})  &= \alpha^1(\mathbf{W}^{(2)} z^{(1)} + b^{(2)}) \\
@@ -23,18 +23,18 @@ z^{(1)} &= \phi_1(\mathbf{U}_u, \mathbf{V}_i) = \left[ \mathbf{U}_u, \mathbf{V}_
 \phi^{(L)}(z^{(L-1)}) &= \alpha^L(\mathbf{W}^{(L)} z^{(L-1)} + b^{(L)})) \\
 \hat{y}_{ui} &= \alpha(\mathbf{h}^\top\phi^L(z^{(L-1)}))
 \end{aligned}
-$$
+$$ 
 
-where $\mathbf{W}^*, \mathbf{b}^*$ and $\alpha^*$ denote the weight matrix, bias vector, and activation function. $\phi^*$ denotes the function of the corresponding layer. $\mathbf{z}^*$ denotes the output of corresponding layer.
+여기서 $\mathbf{W}^*, \mathbf{b}^*$ 및 $\alpha^*$는 가중치 행렬, 편향 벡터 및 활성화 함수를 나타냅니다. $\phi^*$는 해당 레이어의 함수를 나타냅니다. $\mathbf{z}^*$는 해당 레이어의 출력을 나타냅니다.
 
-To fuse the results of GMF and MLP, instead of simple addition, NeuMF concatenates the second last layers of two subnetworks to create a feature vector which can be passed to the further layers. Afterwards, the outputs are projected with matrix $\mathbf{h}$ and a sigmoid activation function. The prediction layer is formulated as:
-$$
+GMF와 MLP의 결과를 융합하기 위해 단순한 덧셈 대신 NeuMF는 두 서브 네트워크의 마지막 두 번째 레이어를 연결하여 추가 레이어로 전달할 수 있는 특징 벡터를 만듭니다. 그 후 출력은 행렬 $\mathbf{h}$와 시그모이드 활성화 함수로 투영됩니다. 예측 레이어는 다음과 같이 공식화됩니다.
+$$ 
 \hat{y}_{ui} = \sigma(\mathbf{h}^\top[\mathbf{x}, \phi^L(z^{(L-1)})]).
-$$
+$$ 
 
-The following figure illustrates the model architecture of NeuMF.
+다음 그림은 NeuMF의 모델 아키텍처를 보여줍니다.
 
-![Illustration of the NeuMF model](../img/rec-neumf.svg)
+![NeuMF 모델 그림](../img/rec-neumf.svg)
 
 ```{.python .input  n=1}
 #@tab mxnet
@@ -47,8 +47,8 @@ import random
 npx.set_np()
 ```
 
-## Model Implementation
-The following code implements the NeuMF model. It consists of a generalized matrix factorization model and an MLP with different user and item embedding vectors. The structure of the MLP is controlled with the parameter `nums_hiddens`. ReLU is used as the default activation function.
+## 모델 구현 (Model Implementation)
+다음 코드는 NeuMF 모델을 구현합니다. 일반화된 행렬 분해 모델과 서로 다른 사용자 및 항목 임베딩 벡터가 있는 MLP로 구성됩니다. MLP의 구조는 파라미터 `nums_hiddens`로 제어됩니다. ReLU가 기본 활성화 함수로 사용됩니다.
 
 ```{.python .input  n=2}
 #@tab mxnet
@@ -77,9 +77,9 @@ class NeuMF(nn.Block):
         return self.prediction_layer(con_res)
 ```
 
-## Customized Dataset with Negative Sampling
+## 네거티브 샘플링을 사용한 사용자 정의 데이터셋 (Customized Dataset with Negative Sampling) 
 
-For pairwise ranking loss, an important step is negative sampling. For each user, the items that a user has not interacted with are candidate items (unobserved entries). The following function takes users identity and candidate items as input, and samples negative items randomly for each user from the candidate set of that user. During the training stage, the model ensures that the items that a user likes to be ranked higher than items he dislikes or has not interacted with.
+페어와이즈 순위 손실의 경우 중요한 단계는 네거티브 샘플링입니다. 각 사용자에 대해 사용자가 상호 작용하지 않은 항목은 후보 항목(관찰되지 않은 항목)입니다. 다음 함수는 사용자 ID와 후보 항목을 입력으로 받아 각 사용자에 대해 해당 사용자의 후보 집합에서 무작위로 네거티브 항목을 샘플링합니다. 훈련 단계에서 모델은 사용자가 좋아하는 항목이 싫어하거나 상호 작용하지 않은 항목보다 높은 순위에 오르도록 보장합니다.
 
 ```{.python .input  n=3}
 #@tab mxnet
@@ -99,24 +99,24 @@ class PRDataset(gluon.data.Dataset):
         return self.users[idx], self.items[idx], neg_items[indices]
 ```
 
-## Evaluator
-In this section, we adopt the splitting by time strategy to construct the training and test sets. Two evaluation measures including hit rate at given cutting off $\ell$ ($\textrm{Hit}@\ell$) and area under the ROC curve (AUC) are used to assess the model effectiveness.  Hit rate at given position $\ell$ for each user indicates that whether the recommended item is included in the top $\ell$ ranked list. The formal definition is as follows:
+## 평가기 (Evaluator)
+이 섹션에서는 훈련 및 테스트 세트를 구성하기 위해 시간별 분할 전략을 채택합니다. 주어진 컷오프 $\ell$에서의 적중률($\textrm{Hit}@\ell$)과 ROC 곡선 아래 영역(AUC)을 포함한 두 가지 평가 척도를 사용하여 모델 효율성을 평가합니다. 각 사용자에 대한 주어진 위치 $\ell$에서의 적중률은 추천된 항목이 상위 $\ell$ 순위 목록에 포함되는지 여부를 나타냅니다. 공식적인 정의는 다음과 같습니다.
 
-$$
-\textrm{Hit}@\ell = \frac{1}{m} \sum_{u \in \mathcal{U}} \textbf{1}(rank_{u, g_u} <= \ell),
-$$
+$$ 
+\textrm{Hit}@\ell = \frac{1}{m} \sum_{u \in \mathcal{U}} \textbf{1}(rank_{u, g_u} <= \ell), 
+$$ 
 
-where $\textbf{1}$ denotes an indicator function that is equal to one if the ground truth item is ranked in the top $\ell$ list, otherwise it is equal to zero. $rank_{u, g_u}$ denotes the ranking of the ground truth item $g_u$ of the user $u$ in the recommendation list (The ideal ranking is 1). $m$ is the number of users. $\mathcal{U}$ is the user set.
+여기서 $\textbf{1}$은 정답 항목이 상위 $\ell$ 목록에 순위가 매겨지면 1이고 그렇지 않으면 0인 지시 함수를 나타냅니다. $rank_{u, g_u}$는 추천 목록에서 사용자 $u$의 정답 항목 $g_u$의 순위를 나타냅니다(이상적인 순위는 1입니다). $m$은 사용자 수입니다. $\mathcal{U}$는 사용자 집합입니다.
 
-The definition of AUC is as follows:
+AUC의 정의는 다음과 같습니다.
 
-$$
-\textrm{AUC} = \frac{1}{m} \sum_{u \in \mathcal{U}} \frac{1}{|\mathcal{I} \backslash S_u|} \sum_{j \in I \backslash S_u} \textbf{1}(rank_{u, g_u} < rank_{u, j}),
-$$
+$$ 
+\textrm{AUC} = \frac{1}{m} \sum_{u \in \mathcal{U}} \frac{1}{|\mathcal{I} \backslash S_u|} \sum_{j \in I \backslash S_u} \textbf{1}(rank_{u, g_u} < rank_{u, j}), 
+$$ 
 
-where $\mathcal{I}$ is the item set. $S_u$ is the candidate items of user $u$. Note that many other evaluation protocols such as precision, recall and normalized discounted cumulative gain (NDCG) can also be used.
+여기서 $\mathcal{I}$는 항목 집합입니다. $S_u$는 사용자 $u$의 후보 항목입니다. 정밀도, 재현율 및 정규화된 할인 누적 이득(NDCG)과 같은 다른 많은 평가 프로토콜도 사용할 수 있습니다.
 
-The following function calculates the hit counts and AUC for each user.
+다음 함수는 각 사용자의 적중 횟수와 AUC를 계산합니다.
 
 ```{.python .input  n=4}
 #@tab mxnet
@@ -131,7 +131,7 @@ def hit_and_auc(rankedlist, test_matrix, k):
     return len(hits_k), auc
 ```
 
-Then, the overall Hit rate and AUC are calculated as follows.
+그런 다음 전체 적중률과 AUC는 다음과 같이 계산됩니다.
 
 ```{.python .input  n=5}
 #@tab mxnet
@@ -166,9 +166,9 @@ def evaluate_ranking(net, test_input, seq, candidates, num_users, num_items,
     return np.mean(np.array(hit_rate)), np.mean(np.array(auc))
 ```
 
-## Training and Evaluating the Model
+## 모델 훈련 및 평가 (Training and Evaluating the Model) 
 
-The training function is defined below. We train the model in the pairwise manner.
+훈련 함수는 아래와 같이 정의됩니다. 우리는 페어와이즈 방식으로 모델을 훈련합니다.
 
 ```{.python .input  n=6}
 #@tab mxnet
@@ -207,7 +207,7 @@ def train_ranking(net, train_iter, test_iter, loss, trainer, test_seq_iter,
           f'on {str(devices)}')
 ```
 
-Now, we can load the MovieLens 100k dataset and train the model. Since there are only ratings in the MovieLens dataset, with some losses of accuracy, we binarize these ratings to zeros and ones. If a user rated an item, we consider the implicit feedback as one, otherwise as zero. The action of rating an item can be treated as a form of providing implicit feedback.  Here, we split the dataset in the `seq-aware` mode where users' latest interacted items are left out for test.
+이제 MovieLens 100k 데이터셋을 로드하고 모델을 훈련할 수 있습니다. MovieLens 데이터셋에는 평점만 있으므로, 정확도 손실을 감수하고 이 평점을 0과 1로 이진화합니다. 사용자가 항목을 평가한 경우 암시적 피드백을 1로 간주하고 그렇지 않으면 0으로 간주합니다. 항목을 평가하는 행동은 암시적 피드백을 제공하는 형태로 처리될 수 있습니다. 여기서는 사용자가 가장 최근에 상호 작용한 항목이 테스트를 위해 남겨지는 `seq-aware` 모드로 데이터셋을 분할합니다.
 
 ```{.python .input  n=11}
 #@tab mxnet
@@ -224,7 +224,7 @@ train_iter = gluon.data.DataLoader(
     True, last_batch="rollover", num_workers=d2l.get_dataloader_workers())
 ```
 
-We then create and initialize the model. We use a three-layer MLP with constant hidden size 10.
+그런 다음 모델을 생성하고 초기화합니다. 우리는 은닉 크기가 10인 3레이어 MLP를 사용합니다.
 
 ```{.python .input  n=8}
 #@tab mxnet
@@ -233,7 +233,7 @@ net = NeuMF(10, num_users, num_items, nums_hiddens=[10, 10, 10])
 net.initialize(ctx=devices, force_reinit=True, init=mx.init.Normal(0.01))
 ```
 
-The following code trains the model.
+다음 코드는 모델을 훈련합니다.
 
 ```{.python .input  n=12}
 #@tab mxnet
@@ -245,17 +245,17 @@ train_ranking(net, train_iter, test_iter, loss, trainer, None, num_users,
               num_items, num_epochs, devices, evaluate_ranking, candidates)
 ```
 
-## Summary
+## 요약 (Summary)
 
-* Adding nonlinearity to matrix factorization model is beneficial for improving the model capability and effectiveness.
-* NeuMF is a combination of matrix factorization and an MLP. The MLP takes the concatenation of user and item embeddings as input.
+* 행렬 분해 모델에 비선형성을 추가하면 모델 기능과 효율성을 향상시키는 데 도움이 됩니다.
+* NeuMF는 행렬 분해와 MLP의 조합입니다. MLP는 사용자 및 항목 임베딩의 연결을 입력으로 사용합니다.
 
-## Exercises
+## 연습 문제 (Exercises)
 
-* Vary the size of latent factors. How the size of latent factors impact the model performance?
-* Vary the architectures (e.g., number of layers, number of neurons of each layer) of the MLP to check the its impact on the performance.
-* Try different optimizers, learning rate and weight decay rate.
-* Try to use hinge loss defined in the last section to optimize this model.
+* 잠재 요인의 크기를 변경해 보십시오. 잠재 요인의 크기가 모델 성능에 어떤 영향을 줍니까?
+* MLP의 아키텍처(예: 레이어 수, 각 레이어의 뉴런 수)를 변경하여 성능에 미치는 영향을 확인하십시오.
+* 다른 최적화 도구, 학습률 및 가중치 감소율을 시도해 보십시오.
+* 이 모델을 최적화하기 위해 지난 섹션에서 정의한 힌지 손실을 사용해 보십시오.
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/403)

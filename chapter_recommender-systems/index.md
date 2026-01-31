@@ -1,15 +1,15 @@
-# Recommender Systems
+# 추천 시스템 (Recommender Systems)
 :label:`chap_recsys`
 
 
-**Shuai Zhang** (*Amazon*), **Aston Zhang** (*Amazon*), and **Yi Tay** (*Google*)
+**Shuai Zhang** (*Amazon*), **Aston Zhang** (*Amazon*), 및 **Yi Tay** (*Google*)
 
-Recommender systems are widely employed in industry and are ubiquitous in our daily lives. These systems are utilized in a number of areas such as online shopping sites (e.g., amazon.com), music/movie services site (e.g., Netflix and Spotify), mobile application stores (e.g., IOS app store and google play), online advertising, just to name a few. 
+추천 시스템은 산업계에서 널리 채택되고 있으며 우리 일상 생활 어디에나 있습니다. 이러한 시스템은 온라인 쇼핑 사이트(예: amazon.com), 음악/영화 서비스 사이트(예: Netflix 및 Spotify), 모바일 애플리케이션 스토어(예: IOS 앱 스토어 및 구글 플레이), 온라인 광고 등 수많은 분야에서 활용되고 있습니다. 
 
-The major goal of recommender systems is to help users discover relevant items such as movies to watch, text to read or products to buy, so as to create a delightful user experience. Moreover, recommender systems are among the most powerful machine learning systems that online retailers implement in order to drive incremental revenue. Recommender systems are replacements of search engines by reducing the efforts in proactive searches and surprising users with offers they never searched for. Many companies managed to position themselves ahead of their competitors with the help of more effective recommender systems. As such, recommender systems are central to not only our everyday lives but also highly indispensable in some industries.
+추천 시스템의 주요 목표는 사용자가 볼 영화, 읽을 텍스트 또는 구매할 제품과 같은 관련 항목을 발견하도록 도와 즐거운 사용자 경험을 제공하는 것입니다. 또한 추천 시스템은 온라인 소매업체가 증분 수익을 창출하기 위해 구현하는 가장 강력한 머신러닝 시스템 중 하나입니다. 추천 시스템은 사전 검색의 노력을 줄이고 사용자가 검색하지 않은 제안으로 사용자를 놀라게 함으로써 검색 엔진을 대체합니다. 많은 기업들이 더 효과적인 추천 시스템의 도움으로 경쟁사보다 앞서 나갈 수 있었습니다. 따라서 추천 시스템은 우리의 일상 생활뿐만 아니라 일부 산업에서 매우 필수적입니다.
 
 
-In this chapter, we will cover the fundamentals and advancements of recommender systems, along with exploring some common fundamental techniques for building recommender systems with different data sources available and their implementations. Specifically, you will learn how to predict the rating a user might give to a prospective item, how to generate a recommendation list of items and how to predict the click-through rate from abundant features. These tasks are commonplace in real-world applications. By studying this chapter, you will get hands-on experience pertaining to solving real world recommendation problems with not only classical methods but the more advanced deep learning based models as well.
+이 장에서는 추천 시스템의 기초와 발전 사항을 다루고, 다양한 데이터 소스를 사용할 수 있는 추천 시스템을 구축하기 위한 몇 가지 일반적인 기본 기술과 구현을 살펴볼 것입니다. 구체적으로, 사용자가 잠재적 항목에 부여할 수 있는 평점을 예측하는 방법, 항목의 추천 목록을 생성하는 방법, 풍부한 특성으로부터 클릭률을 예측하는 방법을 배울 것입니다. 이러한 작업은 실제 응용 프로그램에서 흔히 볼 수 있습니다. 이 장을 공부함으로써, 고전적인 방법뿐만 아니라 더 발전된 딥러닝 기반 모델을 사용하여 실제 추천 문제를 해결하는 것과 관련된 실무 경험을 얻게 될 것입니다.
 
 ```toc
 :maxdepth: 2
@@ -25,4 +25,3 @@ ctr
 fm
 deepfm
 ```
-

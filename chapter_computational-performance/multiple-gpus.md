@@ -1,85 +1,80 @@
-# Training on Multiple GPUs
+# 다중 GPU 훈련 (Training on Multiple GPUs)
 :label:`sec_multi_gpu`
 
-So far we discussed how to train models efficiently on CPUs and GPUs. We even showed how deep learning frameworks allow one to parallelize computation and communication automatically between them in :numref:`sec_auto_para`. We also showed in :numref:`sec_use_gpu` how to list all the available GPUs on a computer using the `nvidia-smi` command.
-What we did *not* discuss is how to actually parallelize deep learning training.
-Instead, we implied in passing that one would somehow split the data across multiple devices and make it work. The present section fills in the details and shows how to train a network in parallel when starting from scratch. Details on how to take advantage of functionality in high-level APIs is relegated to :numref:`sec_multi_gpu_concise`.
-We assume that you are familiar with minibatch stochastic gradient descent algorithms such as the ones described in :numref:`sec_minibatch_sgd`.
+지금까지 우리는 CPU와 GPU에서 모델을 효율적으로 훈련하는 방법에 대해 논의했습니다. :numref:`sec_auto_para`에서는 딥러닝 프레임워크가 이들 간의 계산 및 통신을 자동으로 병렬화하는 방법까지 보여주었습니다. 또한 :numref:`sec_use_gpu`에서는 `nvidia-smi` 명령을 사용하여 컴퓨터에서 사용 가능한 모든 GPU를 나열하는 방법을 보여주었습니다.
+우리가 논의하지 *않은* 것은 딥러닝 훈련을 실제로 병렬화하는 방법입니다.
+대신 데이터를 여러 장치에 어떻게든 분할하여 작동하게 할 것이라고 암시했습니다. 이 섹션에서는 세부 사항을 채우고 처음부터 시작할 때 병렬로 네트워크를 훈련하는 방법을 보여줍니다. 고수준 API의 기능을 활용하는 방법에 대한 자세한 내용은 :numref:`sec_multi_gpu_concise`로 미룹니다.
+:numref:`sec_minibatch_sgd`에 설명된 것과 같은 미니배치 확률적 경사 하강법 알고리즘에 익숙하다고 가정합니다.
 
 
-## Splitting the Problem
+## 문제 분할 (Splitting the Problem)
 
-Let's start with a simple computer vision problem and a slightly archaic network, e.g., with multiple layers of convolutions, pooling, and possibly a few fully connected layers in the end.
-That is, let's start with a network that looks quite similar to LeNet :cite:`LeCun.Bottou.Bengio.ea.1998` or AlexNet :cite:`Krizhevsky.Sutskever.Hinton.2012`.
-Given multiple GPUs (2 if it is a desktop server, 4 on an AWS g4dn.12xlarge instance, 8 on a p3.16xlarge, or 16 on a p2.16xlarge), we want to partition training in a manner as to achieve good speedup while simultaneously benefitting from simple and reproducible design choices. Multiple GPUs, after all, increase both *memory* and *computation* ability. In a nutshell, we have the following choices, given a minibatch of training data that we want to classify.
+간단한 컴퓨터 비전 문제와 약간 구식인 네트워크, 예를 들어 여러 층의 합성곱, 풀링, 그리고 마지막에 몇 개의 완전 연결 층이 있는 네트워크로 시작해 봅시다.
+즉, LeNet :cite:`LeCun.Bottou.Bengio.ea.1998`이나 AlexNet :cite:`Krizhevsky.Sutskever.Hinton.2012`과 매우 유사해 보이는 네트워크로 시작해 봅시다.
+여러 GPU(데스크탑 서버의 경우 2개, AWS g4dn.12xlarge 인스턴스의 경우 4개, p3.16xlarge의 경우 8개, p2.16xlarge의 경우 16개)가 주어졌을 때, 우리는 간단하고 재현 가능한 설계 선택의 이점을 동시에 누리면서 좋은 속도 향상을 달성하는 방식으로 훈련을 분할하고 싶습니다. 결국 여러 GPU는 *메모리*와 *계산* 능력을 모두 증가시킵니다. 요컨대, 분류하고자 하는 훈련 데이터의 미니배치가 주어졌을 때 다음과 같은 선택지가 있습니다.
 
-First, we could partition the network across multiple GPUs. That is, each GPU takes as input the data flowing into a particular layer, processes data across a number of subsequent layers and then sends the data to the next GPU.
-This allows us to process data with larger networks when compared with what a single GPU could handle.
-Besides,
-memory footprint per GPU can be well controlled (it is a fraction of the total network footprint).
+첫째, 네트워크를 여러 GPU에 걸쳐 분할할 수 있습니다. 즉, 각 GPU는 특정 층으로 들어오는 데이터를 입력으로 받아 여러 후속 층에 걸쳐 데이터를 처리한 다음 데이터를 다음 GPU로 보냅니다.
+이를 통해 단일 GPU가 처리할 수 있는 것보다 더 큰 네트워크로 데이터를 처리할 수 있습니다.
+게다가
+GPU당 메모리 사용량을 잘 제어할 수 있습니다(전체 네트워크 사용량의 일부임).
 
-However, the interface between layers (and thus GPUs) requires tight synchronization. This can be tricky, in particular if the computational workloads are not properly matched between layers. The problem is exacerbated for large numbers of GPUs.
-The interface between layers also
-requires large amounts of data transfer,
-such as activations and gradients.
-This may overwhelm the bandwidth of the GPU buses.
-Moreover, compute-intensive, yet sequential operations are nontrivial to partition. See e.g., :citet:`Mirhoseini.Pham.Le.ea.2017` for a best effort in this regard. It remains a difficult problem and it is unclear whether it is possible to achieve good (linear) scaling on nontrivial problems. We do not recommend it unless there is excellent framework or operating system support for chaining together multiple GPUs.
+그러나 층(따라서 GPU) 간의 인터페이스에는 긴밀한 동기화가 필요합니다. 특히 층 간의 계산 작업 부하가 적절하게 일치하지 않는 경우 까다로울 수 있습니다. 이 문제는 GPU 수가 많을수록 악화됩니다.
+층 간의 인터페이스는 또한 활성화 및 기울기와 같은 대량의 데이터 전송을 필요로 합니다.
+이는 GPU 버스의 대역폭을 압도할 수 있습니다.
+또한 계산 집약적이지만 순차적인 연산은 분할하기가 쉽지 않습니다. 이와 관련하여 최선의 노력에 대해서는 예: :citet:`Mirhoseini.Pham.Le.ea.2017`를 참조하십시오. 이는 여전히 어려운 문제이며 비자명한 문제에서 좋은(선형) 확장을 달성할 수 있는지 불분명합니다. 여러 GPU를 함께 연결하는 것에 대한 훌륭한 프레임워크나 운영 체제 지원이 없다면 권장하지 않습니다.
 
 
-Second, we could split the work layerwise. For instance, rather than computing 64 channels on a single GPU we could split up the problem across 4 GPUs, each of which generates data for 16 channels.
-Likewise, for a fully connected layer we could split the number of output units. :numref:`fig_alexnet_original` (taken from :citet:`Krizhevsky.Sutskever.Hinton.2012`)
-illustrates this design, where this strategy was used to deal with GPUs that had a very small memory footprint (2 GB at the time).
-This allows for good scaling in terms of computation, provided that the number of channels (or units) is not too small.
-Besides,
-multiple GPUs can process increasingly larger networks since the available memory scales linearly.
+둘째, 작업을 층별로 분할할 수 있습니다. 예를 들어 단일 GPU에서 64개 채널을 계산하는 대신 4개의 GPU에 걸쳐 문제를 분할하여 각각 16개 채널에 대한 데이터를 생성하게 할 수 있습니다.
+마찬가지로 완전 연결 층의 경우 출력 유닛 수를 분할할 수 있습니다. :numref:`fig_alexnet_original`(:citet:`Krizhevsky.Sutskever.Hinton.2012`에서 가져옴)은 이 설계를 보여주는데, 이 전략은 메모리 사용량이 매우 작은(당시 2GB) GPU를 처리하는 데 사용되었습니다.
+채널(또는 유닛) 수가 너무 작지 않다면 계산 측면에서 좋은 확장을 허용합니다.
+게다가
+사용 가능한 메모리가 선형적으로 확장되므로 여러 GPU가 점점 더 큰 네트워크를 처리할 수 있습니다.
 
-![Model parallelism in the original AlexNet design due to limited GPU memory.](../img/alexnet-original.svg)
+![제한된 GPU 메모리로 인한 원래 AlexNet 설계의 모델 병렬화.](../img/alexnet-original.svg)
 :label:`fig_alexnet_original`
 
-However,
-we need a *very large* number of synchronization or barrier operations since each layer depends on the results from all the other layers.
-Moreover, the amount of data that needs to be transferred is potentially even larger than when distributing layers across GPUs. Thus, we do not recommend this approach due to its bandwidth cost and complexity.
+그러나
+각 층이 다른 모든 층의 결과에 의존하기 때문에 *매우 많은* 수의 동기화 또는 장벽(barrier) 연산이 필요합니다.
+게다가 전송해야 하는 데이터 양은 층을 GPU에 걸쳐 분산할 때보다 훨씬 더 클 수 있습니다. 따라서 대역폭 비용과 복잡성 때문에 이 접근 방식을 권장하지 않습니다.
 
-Last, we could partition data across multiple GPUs. This way all GPUs perform the same type of work, albeit on different observations. Gradients are aggregated across GPUs after each minibatch of training data.
-This is the simplest approach and it can be applied in any situation.
-We only need to synchronize after each minibatch. That said, it is highly desirable to start exchanging gradients parameters already while others are still being computed.
-Moreover, larger numbers of GPUs lead to larger minibatch sizes, thus increasing training efficiency.
-However, adding more GPUs does not allow us to train larger models.
+마지막으로, 데이터를 여러 GPU에 걸쳐 분할할 수 있습니다. 이렇게 하면 모든 GPU가 서로 다른 관찰에 대해서지만 동일한 유형의 작업을 수행합니다. 기울기는 훈련 데이터의 각 미니배치 후에 GPU 간에 집계됩니다.
+이것은 가장 간단한 접근 방식이며 모든 상황에 적용될 수 있습니다.
+각 미니배치 후에만 동기화하면 됩니다. 그렇긴 하지만 다른 파라미터가 아직 계산되는 동안 이미 계산된 파라미터의 기울기 교환을 시작하는 것이 매우 바람직합니다.
+또한 GPU 수가 많을수록 미니배치 크기가 커져 훈련 효율성이 높아집니다.
+그러나 GPU를 더 추가한다고 해서 더 큰 모델을 훈련할 수 있는 것은 아닙니다.
 
 
-![Parallelization on multiple GPUs. From left to right: original problem, network partitioning, layerwise partitioning, data parallelism.](../img/splitting.svg)
+![여러 GPU에서의 병렬화. 왼쪽에서 오른쪽으로: 원래 문제, 네트워크 분할, 층별 분할, 데이터 병렬화.](../img/splitting.svg)
 :label:`fig_splitting`
 
 
-A comparison of different ways of parallelization on multiple GPUs is depicted in :numref:`fig_splitting`.
-By and large, data parallelism is the most convenient way to proceed, provided that we have access to GPUs with sufficiently large memory. See also :cite:`Li.Andersen.Park.ea.2014` for a detailed description of partitioning for distributed training. GPU memory used to be a problem in the early days of deep learning. By now this issue has been resolved for all but the most unusual cases. We focus on data parallelism in what follows.
+여러 GPU에서의 다양한 병렬화 방법 비교는 :numref:`fig_splitting`에 묘사되어 있습니다.
+대체로 충분히 큰 메모리를 가진 GPU에 액세스할 수 있다면 데이터 병렬화가 진행하기에 가장 편리한 방법입니다. 분산 훈련을 위한 분할에 대한 자세한 설명은 :cite:`Li.Andersen.Park.ea.2014`를 참조하십시오. GPU 메모리는 딥러닝 초기에 문제였지만 지금은 가장 특이한 경우를 제외하고는 이 문제가 해결되었습니다. 다음에서는 데이터 병렬화에 초점을 맞춥니다.
 
-## Data Parallelism
+## 데이터 병렬화 (Data Parallelism)
 
-Assume that there are $k$ GPUs on a machine. Given the model to be trained, each GPU will maintain a complete set of model parameters independently though parameter values across the GPUs are identical and synchronized.
-As an example,
-:numref:`fig_data_parallel` illustrates
-training with
-data parallelism when $k=2$.
+기계에 $k$개의 GPU가 있다고 가정합시다. 훈련할 모델이 주어지면 각 GPU는 파라미터 값이 GPU 간에 동일하고 동기화되지만 독립적으로 전체 모델 파라미터 세트를 유지 관리합니다.
+예를 들어,
+:numref:`fig_data_parallel`은 $k=2$일 때 데이터 병렬화로 훈련하는 것을 보여줍니다.
 
 
-![Calculation of minibatch stochastic gradient descent using data parallelism on two GPUs.](../img/data-parallel.svg)
+![두 개의 GPU에서 데이터 병렬화를 사용한 미니배치 확률적 경사 하강법 계산.](../img/data-parallel.svg)
 :label:`fig_data_parallel`
 
-In general, the training proceeds as follows:
+일반적으로 훈련은 다음과 같이 진행됩니다:
 
-* In any iteration of training, given a random minibatch, we split the examples in the batch into $k$ portions and distribute them evenly across the GPUs.
-* Each GPU calculates loss and gradient of the model parameters based on the minibatch subset it was assigned.
-* The local gradients of each of the $k$ GPUs are aggregated to obtain the current minibatch stochastic gradient.
-* The aggregate gradient is re-distributed to each GPU.
-* Each GPU uses this minibatch stochastic gradient to update the complete set of model parameters that it maintains.
-
-
+* 훈련의 임의의 반복에서 무작위 미니배치가 주어지면, 배치의 예제들을 $k$개 부분으로 나누고 GPU 전체에 균등하게 분배합니다.
+* 각 GPU는 할당된 미니배치 부분 집합을 기반으로 손실과 모델 파라미터의 기울기를 계산합니다.
+* $k$개 GPU 각각의 로컬 기울기를 집계하여 현재 미니배치 확률적 기울기를 얻습니다.
+* 집계된 기울기를 각 GPU에 재분배합니다.
+* 각 GPU는 이 미니배치 확률적 기울기를 사용하여 유지 관리하는 전체 모델 파라미터 세트를 업데이트합니다.
 
 
-Note that in practice we *increase* the minibatch size $k$-fold when training on $k$ GPUs such that each GPU has the same amount of work to do as if we were training on a single GPU only. On a 16-GPU server this can increase the minibatch size considerably and we may have to increase the learning rate accordingly.
-Also note that batch normalization in :numref:`sec_batch_norm` needs to be adjusted, e.g., by keeping a separate batch normalization coefficient per GPU.
-In what follows we will use a toy network to illustrate multi-GPU training.
+
+
+실제로 $k$개의 GPU에서 훈련할 때 미니배치 크기를 $k$배로 *늘려서* 각 GPU가 마치 단일 GPU에서 훈련하는 것처럼 동일한 양의 작업을 수행하도록 합니다. 16-GPU 서버에서 이는 미니배치 크기를 상당히 증가시킬 수 있으며 이에 따라 학습률을 높여야 할 수도 있습니다.
+또한 :numref:`sec_batch_norm`의 배치 정규화는 조정이 필요합니다. 예를 들어 GPU당 별도의 배치 정규화 계수를 유지하는 것입니다.
+다음에서는 장난감 네트워크를 사용하여 다중 GPU 훈련을 설명하겠습니다.
 
 ```{.python .input}
 #@tab mxnet
@@ -98,13 +93,13 @@ from torch import nn
 from torch.nn import functional as F
 ```
 
-## [**A Toy Network**]
+## [**장난감 네트워크 (A Toy Network)**]
 
-We use LeNet as introduced in :numref:`sec_lenet` (with slight modifications). We define it from scratch to illustrate parameter exchange and synchronization in detail.
+:numref:`sec_lenet`에서 소개한 LeNet을 사용합니다(약간 수정됨). 파라미터 교환 및 동기화를 자세히 설명하기 위해 처음부터 정의합니다.
 
 ```{.python .input}
 #@tab mxnet
-# Initialize model parameters
+# 모델 파라미터 초기화
 scale = 0.01
 W1 = np.random.normal(scale=scale, size=(20, 1, 3, 3))
 b1 = np.zeros(20)
@@ -116,7 +111,7 @@ W4 = np.random.normal(scale=scale, size=(128, 10))
 b4 = np.zeros(10)
 params = [W1, b1, W2, b2, W3, b3, W4, b4]
 
-# Define the model
+# 모델 정의
 def lenet(X, params):
     h1_conv = npx.convolution(data=X, weight=params[0], bias=params[1],
                               kernel=(3, 3), num_filter=20)
@@ -134,13 +129,13 @@ def lenet(X, params):
     y_hat = np.dot(h3, params[6]) + params[7]
     return y_hat
 
-# Cross-entropy loss function
+# 교차 엔트로피 손실 함수
 loss = gluon.loss.SoftmaxCrossEntropyLoss()
 ```
 
 ```{.python .input}
 #@tab pytorch
-# Initialize model parameters
+# 모델 파라미터 초기화
 scale = 0.01
 W1 = torch.randn(size=(20, 1, 3, 3)) * scale
 b1 = torch.zeros(20)
@@ -152,7 +147,7 @@ W4 = torch.randn(size=(128, 10)) * scale
 b4 = torch.zeros(10)
 params = [W1, b1, W2, b2, W3, b3, W4, b4]
 
-# Define the model
+# 모델 정의
 def lenet(X, params):
     h1_conv = F.conv2d(input=X, weight=params[0], bias=params[1])
     h1_activation = F.relu(h1_conv)
@@ -166,15 +161,15 @@ def lenet(X, params):
     y_hat = torch.mm(h3, params[6]) + params[7]
     return y_hat
 
-# Cross-entropy loss function
+# 교차 엔트로피 손실 함수
 loss = nn.CrossEntropyLoss(reduction='none')
 ```
 
-## Data Synchronization
+## 데이터 동기화 (Data Synchronization)
 
-For efficient multi-GPU training we need two basic operations.
-First we need to have the ability to [**distribute a list of parameters to multiple devices**] and to attach gradients (`get_params`). Without parameters it is impossible to evaluate the network on a GPU.
-Second, we need the ability to sum parameters across multiple devices, i.e., we need an `allreduce` function.
+효율적인 다중 GPU 훈련을 위해서는 두 가지 기본 연산이 필요합니다.
+첫째, [**파라미터 리스트를 여러 장치에 분배**]하고 기울기를 첨부할 수 있는 기능(`get_params`)이 필요합니다. 파라미터 없이는 GPU에서 네트워크를 평가할 수 없습니다.
+둘째, 여러 장치에 걸쳐 파라미터를 합산하는 기능, 즉 `allreduce` 함수가 필요합니다.
 
 ```{.python .input}
 #@tab mxnet
@@ -194,7 +189,7 @@ def get_params(params, device):
     return new_params
 ```
 
-Let's try it out by copying the model parameters to one GPU.
+모델 파라미터를 하나의 GPU에 복사하여 시도해 봅시다.
 
 ```{.python .input}
 #@tab all
@@ -203,8 +198,8 @@ print('b1 weight:', new_params[1])
 print('b1 grad:', new_params[1].grad)
 ```
 
-Since we did not perform any computation yet, the gradient with regard to the bias parameter is still zero.
-Now let's assume that we have a vector distributed across multiple GPUs. The following [**`allreduce` function adds up all vectors and broadcasts the result back to all GPUs**]. Note that for this to work we need to copy the data to the device accumulating the results.
+아직 계산을 수행하지 않았으므로 편향 파라미터에 대한 기울기는 여전히 0입니다.
+이제 벡터가 여러 GPU에 분산되어 있다고 가정해 봅시다. 다음 [**`allreduce` 함수는 모든 벡터를 더하고 결과를 모든 GPU에 다시 브로드캐스트합니다**]. 이것이 작동하려면 결과를 누적하는 장치에 데이터를 복사해야 한다는 점에 유의하십시오.
 
 ```{.python .input}
 #@tab mxnet
@@ -224,7 +219,7 @@ def allreduce(data):
         data[i][:] = data[0].to(data[i].device)
 ```
 
-Let's test this by creating vectors with different values on different devices and aggregate them.
+서로 다른 장치에 다른 값을 가진 벡터를 만들고 집계하여 이를 테스트해 봅시다.
 
 ```{.python .input}
 #@tab mxnet
@@ -242,10 +237,10 @@ allreduce(data)
 print('after allreduce:\n', data[0], '\n', data[1])
 ```
 
-## Distributing Data
+## 데이터 분배 (Distributing Data)
 
-We need a simple utility function to [**distribute a minibatch evenly across multiple GPUs**]. For instance, on two GPUs we would like to have half of the data to be copied to either of the GPUs.
-Since it is more convenient and more concise, we use the built-in function from the deep learning framework to try it out on a $4 \times 5$ matrix.
+우리는 [**미니배치를 여러 GPU에 균등하게 분배**]하는 간단한 유틸리티 함수가 필요합니다. 예를 들어 두 개의 GPU에서 데이터의 절반이 각 GPU에 복사되기를 원합니다.
+더 편리하고 간결하므로 딥러닝 프레임워크의 내장 함수를 사용하여 $4 	imes 5$ 행렬에서 시도해 봅니다.
 
 ```{.python .input}
 #@tab mxnet
@@ -267,13 +262,13 @@ print('load into', devices)
 print('output:', split)
 ```
 
-For later reuse we define a `split_batch` function that splits both data and labels.
+나중에 재사용하기 위해 데이터와 레이블을 모두 분할하는 `split_batch` 함수를 정의합니다.
 
 ```{.python .input}
 #@tab mxnet
 #@save
 def split_batch(X, y, devices):
-    """Split `X` and `y` into multiple devices."""
+    ""`X`와 `y`를 여러 장치로 분할합니다."""
     assert X.shape[0] == y.shape[0]
     return (gluon.utils.split_and_load(X, devices),
             gluon.utils.split_and_load(y, devices))
@@ -283,62 +278,62 @@ def split_batch(X, y, devices):
 #@tab pytorch
 #@save
 def split_batch(X, y, devices):
-    """Split `X` and `y` into multiple devices."""
+    ""`X`와 `y`를 여러 장치로 분할합니다."""
     assert X.shape[0] == y.shape[0]
     return (nn.parallel.scatter(X, devices),
             nn.parallel.scatter(y, devices))
 ```
 
-## Training
+## 훈련 (Training)
 
-Now we can implement [**multi-GPU training on a single minibatch**]. Its implementation is primarily based on the data parallelism approach described in this section. We will use the auxiliary functions we just discussed, `allreduce` and `split_and_load`, to synchronize the data among multiple GPUs. Note that we do not need to write any specific code to achieve parallelism. Since the computational graph does not have any dependencies across devices within a minibatch, it is executed in parallel *automatically*.
+이제 [**단일 미니배치에 대한 다중 GPU 훈련**]을 구현할 수 있습니다. 그 구현은 주로 이 섹션에서 설명한 데이터 병렬화 접근 방식을 기반으로 합니다. 방금 논의한 보조 함수 `allreduce`와 `split_and_load`를 사용하여 여러 GPU 간에 데이터를 동기화할 것입니다. 병렬화를 달성하기 위해 특정 코드를 작성할 필요가 없다는 점에 유의하십시오. 계산 그래프에는 미니배치 내에서 장치 간의 의존성이 없으므로 *자동으로* 병렬로 실행됩니다.
 
 ```{.python .input}
 #@tab mxnet
 def train_batch(X, y, device_params, devices, lr):
     X_shards, y_shards = split_batch(X, y, devices)
-    with autograd.record():  # Loss is calculated separately on each GPU
+    with autograd.record():  # 손실은 각 GPU에서 별도로 계산됩니다
         ls = [loss(lenet(X_shard, device_W), y_shard)
               for X_shard, y_shard, device_W in zip(
                   X_shards, y_shards, device_params)]
-    for l in ls:  # Backpropagation is performed separately on each GPU
+    for l in ls:  # 역전파는 각 GPU에서 별도로 수행됩니다
         l.backward()
-    # Sum all gradients from each GPU and broadcast them to all GPUs
+    # 각 GPU의 모든 기울기를 합산하여 모든 GPU에 브로드캐스트합니다
     for i in range(len(device_params[0])):
         allreduce([device_params[c][i].grad for c in range(len(devices))])
-    # The model parameters are updated separately on each GPU
+    # 모델 파라미터는 각 GPU에서 별도로 업데이트됩니다
     for param in device_params:
-        d2l.sgd(param, lr, X.shape[0])  # Here, we use a full-size batch
+        d2l.sgd(param, lr, X.shape[0])  # 여기서 전체 크기 배치를 사용합니다
 ```
 
 ```{.python .input}
 #@tab pytorch
 def train_batch(X, y, device_params, devices, lr):
     X_shards, y_shards = split_batch(X, y, devices)
-    # Loss is calculated separately on each GPU
+    # 손실은 각 GPU에서 별도로 계산됩니다
     ls = [loss(lenet(X_shard, device_W), y_shard).sum()
           for X_shard, y_shard, device_W in zip(
               X_shards, y_shards, device_params)]
-    for l in ls:  # Backpropagation is performed separately on each GPU
+    for l in ls:  # 역전파는 각 GPU에서 별도로 수행됩니다
         l.backward()
-    # Sum all gradients from each GPU and broadcast them to all GPUs
+    # 각 GPU의 모든 기울기를 합산하여 모든 GPU에 브로드캐스트합니다
     with torch.no_grad():
         for i in range(len(device_params[0])):
             allreduce([device_params[c][i].grad for c in range(len(devices))])
-    # The model parameters are updated separately on each GPU
+    # 모델 파라미터는 각 GPU에서 별도로 업데이트됩니다
     for param in device_params:
-        d2l.sgd(param, lr, X.shape[0]) # Here, we use a full-size batch
+        d2l.sgd(param, lr, X.shape[0]) # 여기서 전체 크기 배치를 사용합니다
 ```
 
-Now, we can define [**the training function**]. It is slightly different from the ones used in the previous chapters: we need to allocate the GPUs and copy all the model parameters to all the devices.
-Obviously each batch is processed using the `train_batch` function to deal with multiple GPUs. For convenience (and conciseness of code) we compute the accuracy on a single GPU, though this is *inefficient* since the other GPUs are idle.
+이제 [**훈련 함수**]를 정의할 수 있습니다. 이전 장에서 사용한 것과 약간 다릅니다: GPU를 할당하고 모든 모델 파라미터를 모든 장치에 복사해야 합니다.
+분명히 각 배치는 다중 GPU를 처리하기 위해 `train_batch` 함수를 사용하여 처리됩니다. 편의상(그리고 코드의 간결성을 위해) 단일 GPU에서 정확도를 계산하지만, 다른 GPU가 유휴 상태이므로 *비효율적*입니다.
 
 ```{.python .input}
 #@tab mxnet
 def train(num_gpus, batch_size, lr):
     train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size)
     devices = [d2l.try_gpu(i) for i in range(num_gpus)]
-    # Copy model parameters to `num_gpus` GPUs
+    # 모델 파라미터를 `num_gpus`개의 GPU에 복사
     device_params = [get_params(params, d) for d in devices]
     num_epochs = 10
     animator = d2l.Animator('epoch', 'test acc', xlim=[1, num_epochs])
@@ -346,11 +341,11 @@ def train(num_gpus, batch_size, lr):
     for epoch in range(num_epochs):
         timer.start()
         for X, y in train_iter:
-            # Perform multi-GPU training for a single minibatch
+            # 단일 미니배치에 대해 다중 GPU 훈련 수행
             train_batch(X, y, device_params, devices, lr)
             npx.waitall()
         timer.stop()
-        # Evaluate the model on GPU 0
+        # GPU 0에서 모델 평가
         animator.add(epoch + 1, (d2l.evaluate_accuracy_gpu(
             lambda x: lenet(x, device_params[0]), test_iter, devices[0]),))
     print(f'test acc: {animator.Y[0][-1]:.2f}, {timer.avg():.1f} sec/epoch '
@@ -362,7 +357,7 @@ def train(num_gpus, batch_size, lr):
 def train(num_gpus, batch_size, lr):
     train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size)
     devices = [d2l.try_gpu(i) for i in range(num_gpus)]
-    # Copy model parameters to `num_gpus` GPUs
+    # 모델 파라미터를 `num_gpus`개의 GPU에 복사
     device_params = [get_params(params, d) for d in devices]
     num_epochs = 10
     animator = d2l.Animator('epoch', 'test acc', xlim=[1, num_epochs])
@@ -370,48 +365,47 @@ def train(num_gpus, batch_size, lr):
     for epoch in range(num_epochs):
         timer.start()
         for X, y in train_iter:
-            # Perform multi-GPU training for a single minibatch
+            # 단일 미니배치에 대해 다중 GPU 훈련 수행
             train_batch(X, y, device_params, devices, lr)
             torch.cuda.synchronize()
         timer.stop()
-        # Evaluate the model on GPU 0
+        # GPU 0에서 모델 평가
         animator.add(epoch + 1, (d2l.evaluate_accuracy_gpu(
             lambda x: lenet(x, device_params[0]), test_iter, devices[0]),))
     print(f'test acc: {animator.Y[0][-1]:.2f}, {timer.avg():.1f} sec/epoch '
           f'on {str(devices)}')
 ```
 
-Let's see how well this works [**on a single GPU**].
-We first use a batch size of 256 and a learning rate of 0.2.
+이것이 [**단일 GPU에서**] 얼마나 잘 작동하는지 봅시다.
+먼저 배치 크기 256과 학습률 0.2를 사용합니다.
 
 ```{.python .input}
 #@tab all
 train(num_gpus=1, batch_size=256, lr=0.2)
 ```
 
-By keeping the batch size and learning rate unchanged and [**increasing the number of GPUs to 2**], we can see that the test accuracy roughly stays the same compared with
-the previous experiment.
-In terms of the optimization algorithms, they are identical. Unfortunately there is no meaningful speedup to be gained here: the model is simply too small; moreover we only have a small dataset, where our slightly unsophisticated approach to implementing multi-GPU training suffered from significant Python overhead. We will encounter more complex models and more sophisticated ways of parallelization going forward.
-Let's see what happens nonetheless for Fashion-MNIST.
+배치 크기와 학습률을 변경하지 않고 [**GPU 수를 2로 늘리면**], 테스트 정확도가 이전 실험과 대략 동일하게 유지됨을 알 수 있습니다.
+최적화 알고리즘 측면에서 그들은 동일합니다. 불행히도 여기서는 얻을 수 있는 의미 있는 속도 향상이 없습니다. 모델이 너무 작기 때문입니다. 게다가 데이터셋도 작아서 다중 GPU 훈련을 구현하는 우리의 약간 정교하지 못한 접근 방식이 상당한 Python 오버헤드로 인해 어려움을 겪었습니다. 앞으로 더 복잡한 모델과 더 정교한 병렬화 방법을 만나게 될 것입니다.
+그럼에도 불구하고 Fashion-MNIST에서 어떤 일이 일어나는지 봅시다.
 
 ```{.python .input}
 #@tab all
 train(num_gpus=2, batch_size=256, lr=0.2)
 ```
 
-## Summary
+## 요약 (Summary)
 
-* There are multiple ways to split deep network training over multiple GPUs. We could split them between layers, across layers, or across data. The former two require tightly choreographed data transfers. Data parallelism is the simplest strategy.
-* Data parallel training is straightforward. However, it increases the effective minibatch size to be efficient.
-* In data parallelism, data is split across multiple GPUs, where each GPU executes its own forward and backward operation and subsequently gradients are aggregated and results are broadcast back to the GPUs.
-* We may use slightly increased learning rates for larger minibatches.
+* 다중 GPU에 걸쳐 딥 네트워크 훈련을 분할하는 여러 가지 방법이 있습니다. 층 사이, 층 전체, 또는 데이터 전체에 걸쳐 분할할 수 있습니다. 앞의 두 가지는 데이터 전송을 엄격하게 조율해야 합니다. 데이터 병렬화는 가장 간단한 전략입니다.
+* 데이터 병렬 훈련은 간단합니다. 그러나 효율성을 위해서는 유효 미니배치 크기를 늘려야 합니다.
+* 데이터 병렬화에서 데이터는 여러 GPU에 걸쳐 분할되며, 각 GPU는 자체 순전파 및 역전파 연산을 실행하고 이후에 기울기가 집계되고 결과가 다시 GPU로 브로드캐스트됩니다.
+* 더 큰 미니배치에 대해 약간 증가된 학습률을 사용할 수 있습니다.
 
-## Exercises
+## 연습 문제 (Exercises)
 
-1. When training on $k$ GPUs, change the minibatch size from $b$ to $k \cdot b$, i.e., scale it up by the number of GPUs.
-1. Compare accuracy for different learning rates. How does it scale with the number of GPUs?
-1. Implement a more efficient `allreduce` function that aggregates different parameters on different GPUs? Why is it more efficient?
-1. Implement multi-GPU test accuracy computation.
+1. $k$개의 GPU에서 훈련할 때 미니배치 크기를 $b$에서 $k \cdot b$로 변경하십시오. 즉, GPU 수만큼 확장하십시오.
+2. 다양한 학습률에 대한 정확도를 비교하십시오. GPU 수에 따라 어떻게 확장됩니까?
+3. 서로 다른 GPU에서 다른 파라미터를 집계하는 더 효율적인 `allreduce` 함수를 구현하십시오. 왜 더 효율적입니까?
+4. 다중 GPU 테스트 정확도 계산을 구현하십시오.
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/364)

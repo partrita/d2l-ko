@@ -1,27 +1,19 @@
-# Hyperparameter Optimization
+# 하이퍼파라미터 최적화 (Hyperparameter Optimization)
 :label:`chap_hyperopt`
 
-**Aaron Klein** (*Amazon*), **Matthias Seeger** (*Amazon*), and **Cedric Archambeau** (*Amazon*)
+**Aaron Klein** (*Amazon*), **Matthias Seeger** (*Amazon*), 및 **Cedric Archambeau** (*Amazon*)
 
-The performance of every machine learning model depends on its hyperparameters.
-They control the learning algorithm or the structure of the underlying
-statistical model. However, there is no general way to choose hyperparameters
-in practice. Instead, hyperparameters are often set in a trial-and-error manner
-or sometimes left to their default values by practitioners, leading to
-suboptimal generalization.
+모든 머신러닝 모델의 성능은 하이퍼파라미터에 따라 달라집니다.
+하이퍼파라미터는 학습 알고리즘이나 기본 통계 모델의 구조를 제어합니다.
+그러나 실제로 하이퍼파라미터를 선택하는 일반적인 방법은 없습니다.
+대신 하이퍼파라미터는 종종 시행착오 방식으로 설정되거나 때로는 실무자에 의해 기본값으로 남겨져 최적이 아닌 일반화로 이어집니다.
 
-Hyperparameter optimization provides a systematic approach to this problem, by
-casting it as an optimization problem: a good set of hyperparameters should (at
-least) minimize a validation error. Compared to most other optimization problems
-arising in machine learning, hyperparameter optimization is a nested one, where
-each iteration requires training and validating a machine learning model.
+하이퍼파라미터 최적화는 이 문제를 최적화 문제로 캐스팅하여 체계적인 접근 방식을 제공합니다: 좋은 하이퍼파라미터 세트는 (적어도) 검증 오차를 최소화해야 합니다.
+머신러닝에서 발생하는 대부분의 다른 최적화 문제와 비교할 때, 하이퍼파라미터 최적화는 중첩된 문제이며, 각 반복마다 머신러닝 모델을 훈련하고 검증해야 합니다.
 
-In this chapter, we will first introduce the basics of hyperparameter
-optimization. We will also present some recent advancements that improve the
-overall efficiency of hyperparameter optimization by exploiting cheap-to-evaluate
-proxies of the original objective function. At the end of this chapter, you
-should be able to apply state-of-the-art hyperparameter optimization techniques
-to optimize the hyperparameter of your own machine learning algorithm.
+이 장에서는 먼저 하이퍼파라미터 최적화의 기초를 소개합니다.
+또한 원래 목적 함수의 평가하기 저렴한 프록시를 활용하여 하이퍼파라미터 최적화의 전반적인 효율성을 향상시키는 몇 가지 최근 발전 사항을 제시할 것입니다.
+이 장의 끝부분에서는 최첨단 하이퍼파라미터 최적화 기술을 적용하여 자신의 머신러닝 알고리즘의 하이퍼파라미터를 최적화할 수 있어야 합니다.
 
 ```toc
 :maxdepth: 2
@@ -32,4 +24,3 @@ rs-async.md
 sh-intro
 sh-async
 ```
-

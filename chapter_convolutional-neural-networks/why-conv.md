@@ -1,317 +1,186 @@
-# From Fully Connected Layers to Convolutions
+# 완전 연결 레이어에서 합성곱으로 (From Fully Connected Layers to Convolutions)
 :label:`sec_why-conv`
 
-To this day,
-the models that we have discussed so far
-remain appropriate options
-when we are dealing with tabular data.
-By tabular, we mean that the data consist
-of rows corresponding to examples
-and columns corresponding to features.
-With tabular data, we might anticipate
-that the patterns we seek could involve
-interactions among the features,
-but we do not assume any structure *a priori*
-concerning how the features interact.
+오늘날까지도, 지금까지 논의한 모델들은 표 형식 데이터를 다룰 때 여전히 적절한 옵션입니다. 
+표 형식이라 함은 데이터가 예제에 해당하는 행과 특성에 해당하는 열로 구성되어 있음을 의미합니다. 
+표 형식 데이터의 경우, 우리가 찾는 패턴이 특성 간의 상호 작용을 포함할 수 있다고 예상할 수는 있지만, 특성이 어떻게 상호 작용하는지에 대한 어떠한 구조도 *사전적으로* 가정하지 않습니다.
 
-Sometimes, we truly lack the knowledge to be able to guide the construction of fancier architectures.
-In these cases, an MLP
-may be the best that we can do.
-However, for high-dimensional perceptual data,
-such structureless networks can grow unwieldy.
+때로는 더 화려한 아키텍처 구성을 안내할 수 있는 지식이 정말 부족할 때도 있습니다. 
+이러한 경우 MLP가 최선일 수 있습니다. 
+그러나 고차원 지각 데이터의 경우, 그러한 구조 없는 네트워크는 다루기 어려워질 수 있습니다.
 
-For instance, let's return to our running example
-of distinguishing cats from dogs.
-Say that we do a thorough job in data collection,
-collecting an annotated dataset of one-megapixel photographs.
-This means that each input to the network has one million dimensions.
-Even an aggressive reduction to one thousand hidden dimensions
-would require a fully connected layer
-characterized by $10^6 \times 10^3 = 10^9$ parameters.
-Unless we have lots of GPUs, a talent
-for distributed optimization,
-and an extraordinary amount of patience,
-learning the parameters of this network
-may turn out to be infeasible.
+예를 들어, 고양이와 개를 구별하는 실행 예제로 돌아가 봅시다. 
+데이터 수집을 철저히 하여 1메가픽셀 사진으로 구성된 주석이 달린 데이터셋을 수집했다고 가정해 봅시다. 
+이는 네트워크에 대한 각 입력이 100만 차원을 가지고 있음을 의미합니다. 
+은닉 차원을 1,000개로 과감하게 줄이더라도 $10^6 \times 10^3 = 10^9$개의 파라미터로 특징지어지는 완전 연결 레이어가 필요합니다. 
+GPU가 많고 분산 최적화에 재능이 있으며 엄청난 인내심이 없다면, 이 네트워크의 파라미터를 학습하는 것은 불가능할 수 있습니다.
 
-A careful reader might object to this argument
-on the basis that one megapixel resolution may not be necessary.
-However, while we might be able
-to get away with one hundred thousand pixels,
-our hidden layer of size 1000 grossly underestimates
-the number of hidden units that it takes
-to learn good representations of images,
-so a practical system will still require billions of parameters.
-Moreover, learning a classifier by fitting so many parameters
-might require collecting an enormous dataset.
-And yet today both humans and computers are able
-to distinguish cats from dogs quite well,
-seemingly contradicting these intuitions.
-That is because images exhibit rich structure
-that can be exploited by humans
-and machine learning models alike.
-Convolutional neural networks (CNNs) are one creative way
-that machine learning has embraced for exploiting
-some of the known structure in natural images.
+주의 깊은 독자는 1메가픽셀 해상도가 필요하지 않을 수 있다는 근거로 이 주장에 반대할 수 있습니다. 
+그러나 10만 픽셀로 해결할 수 있다 하더라도, 크기 1000의 은닉층은 이미지의 좋은 표현을 학습하는 데 필요한 은닉 유닛의 수를 크게 과소평가하므로, 실용적인 시스템은 여전히 수십억 개의 파라미터를 필요로 할 것입니다. 
+게다가 그렇게 많은 파라미터를 맞춰 분류기를 학습하려면 엄청난 데이터셋을 수집해야 할 수도 있습니다. 
+그럼에도 불구하고 오늘날 인간과 컴퓨터 모두 고양이와 개를 아주 잘 구별할 수 있어, 이러한 직관과 모순되는 것처럼 보입니다. 
+그 이유는 이미지가 풍부한 구조를 보여주며, 인간과 머신러닝 모델 모두 이를 활용할 수 있기 때문입니다. 
+합성곱 신경망(CNN)은 머신러닝이 자연 이미지의 알려진 구조 중 일부를 활용하기 위해 받아들인 창의적인 방법 중 하나입니다.
 
 
-## Invariance
+## 불변성 (Invariance)
 
-Imagine that we want to detect an object in an image.
-It seems reasonable that whatever method
-we use to recognize objects should not be overly concerned
-with the precise location of the object in the image.
-Ideally, our system should exploit this knowledge.
-Pigs usually do not fly and planes usually do not swim.
-Nonetheless, we should still recognize
-a pig were one to appear at the top of the image.
-We can draw some inspiration here
-from the children's game "Where's Waldo"
-(which itself has inspired many real-life imitations, such as that depicted in :numref:`img_waldo`).
-The game consists of a number of chaotic scenes
-bursting with activities.
-Waldo shows up somewhere in each,
-typically lurking in some unlikely location.
-The reader's goal is to locate him.
-Despite his characteristic outfit,
-this can be surprisingly difficult,
-due to the large number of distractions.
-However, *what Waldo looks like*
-does not depend upon *where Waldo is located*.
-We could sweep the image with a Waldo detector
-that could assign a score to each patch,
-indicating the likelihood that the patch contains Waldo. 
-In fact, many object detection and segmentation algorithms 
-are based on this approach :cite:`Long.Shelhamer.Darrell.2015`. 
-CNNs systematize this idea of *spatial invariance*,
-exploiting it to learn useful representations
-with fewer parameters.
+이미지에서 객체를 감지하고 싶다고 상상해 보십시오. 
+우리가 객체를 인식하기 위해 사용하는 방법이 무엇이든 이미지 내 객체의 정확한 위치에 지나치게 신경 쓰지 않는 것이 합리적으로 보입니다. 
+이상적으로는 우리 시스템이 이 지식을 활용해야 합니다. 
+돼지는 보통 날지 않고 비행기는 보통 수영하지 않습니다. 
+그럼에도 불구하고 돼지가 이미지 상단에 나타나더라도 우리는 여전히 돼지를 인식해야 합니다. 
+여기서 어린이 게임 "월리를 찾아라(Where's Waldo)"에서 영감을 얻을 수 있습니다
+(이 게임 자체도 :numref:`img_waldo`에 묘사된 것과 같은 많은 실제 모방작에 영감을 주었습니다). 
+게임은 활동으로 가득 찬 수많은 혼란스러운 장면들로 구성됩니다. 
+월도는 각각의 어딘가에 나타나며, 일반적으로 엉뚱한 위치에 숨어 있습니다. 
+독자의 목표는 그를 찾는 것입니다. 
+그의 특징적인 복장에도 불구하고, 많은 방해 요소들 때문에 이것은 놀랍게도 어려울 수 있습니다. 
+하지만 *월도가 어떻게 생겼는지*는 *월도가 어디에 있는지*에 달려 있지 않습니다. 
+우리는 각 패치에 점수를 할당하여 패치에 월도가 포함될 가능성을 나타내는 월도 감지기로 이미지를 훑을 수 있습니다. 
+실제로 많은 객체 감지 및 분할 알고리즘이 이 접근 방식에 기반을 두고 있습니다 :cite:`Long.Shelhamer.Darrell.2015`. 
+CNN은 *공간 불변성(spatial invariance)*이라는 이 아이디어를 체계화하여 더 적은 파라미터로 유용한 표현을 학습하는 데 활용합니다.
 
-![Can you find Waldo (image courtesy of William Murphy (Infomatique))?](../img/waldo-football.jpg)
+![월도를 찾을 수 있나요 (이미지 제공: William Murphy (Infomatique))?](../img/waldo-football.jpg)
 :width:`400px`
 :label:`img_waldo`
 
-We can now make these intuitions more concrete 
-by enumerating a few desiderata to guide our design
-of a neural network architecture suitable for computer vision:
+우리는 이제 컴퓨터 비전에 적합한 신경망 아키텍처 설계를 안내하기 위해 몇 가지 요구 사항을 열거함으로써 이러한 직관을 더 구체화할 수 있습니다:
 
-1. In the earliest layers, our network
-   should respond similarly to the same patch,
-   regardless of where it appears in the image. This principle is called *translation invariance* (or *translation equivariance*).
-1. The earliest layers of the network should focus on local regions,
-   without regard for the contents of the image in distant regions. This is the *locality* principle.
-   Eventually, these local representations can be aggregated
-   to make predictions at the whole image level.
-1. As we proceed, deeper layers should be able to capture longer-range features of the 
-   image, in a way similar to higher level vision in nature. 
+1. 초기 레이어에서 우리 네트워크는 이미지가 어디에 나타나든 동일한 패치에 유사하게 반응해야 합니다. 이 원리를 *평행 이동 불변성(translation invariance)* (또는 *평행 이동 등변성(translation equivariance)*)이라고 합니다.
+2. 네트워크의 초기 레이어는 먼 영역의 이미지 내용에 관계없이 국소 영역에 초점을 맞춰야 합니다. 이것이 *지역성(locality)* 원칙입니다. 결국 이러한 국소 표현은 전체 이미지 수준에서 예측을 수행하기 위해 집계될 수 있습니다.
+3. 진행함에 따라, 더 깊은 레이어는 자연의 고수준 비전과 유사한 방식으로 이미지의 더 장거리 특징을 포착할 수 있어야 합니다.
 
-Let's see how this translates into mathematics.
+이것이 수학으로 어떻게 변환되는지 살펴봅시다.
 
 
-## Constraining the MLP
+## MLP 제약하기 (Constraining the MLP) 
 
-To start off, we can consider an MLP
-with two-dimensional images $\mathbf{X}$ as inputs
-and their immediate hidden representations
-$\mathbf{H}$ similarly represented as matrices (they are two-dimensional tensors in code), where both $\mathbf{X}$ and $\mathbf{H}$ have the same shape.
-Let that sink in.
-We now imagine that not only the inputs but
-also the hidden representations possess spatial structure.
+시작하기 위해, 2차원 이미지 $\mathbf{X}$를 입력으로 하고 그 즉각적인 은닉 표현 $\mathbf{H}$가 유사하게 행렬로 표현되는(코드에서는 2차원 텐서) MLP를 고려할 수 있습니다. 여기서 $\mathbf{X}$와 $\mathbf{H}$는 동일한 모양을 갖습니다. 
+잠시 생각해 봅시다. 
+우리는 이제 입력뿐만 아니라 은닉 표현도 공간 구조를 가지고 있다고 상상합니다.
 
-Let $[\mathbf{X}]_{i, j}$ and $[\mathbf{H}]_{i, j}$ denote the pixel
-at location $(i,j)$
-in the input image and hidden representation, respectively.
-Consequently, to have each of the hidden units
-receive input from each of the input pixels,
-we would switch from using weight matrices
-(as we did previously in MLPs)
-to representing our parameters
-as fourth-order weight tensors $\mathsf{W}$.
-Suppose that $\mathbf{U}$ contains biases,
-we could formally express the fully connected layer as
+$[⁡\mathbf{X}]_{i, j}$와 $[⁡\mathbf{H}]_{i, j}$가 각각 입력 이미지와 은닉 표현의 위치 $(i,j)$에 있는 픽셀을 나타낸다고 합시다. 
+결과적으로, 각 은닉 유닛이 각 입력 픽셀로부터 입력을 받도록 하려면, (이전에 MLP에서 했던 것처럼) 가중치 행렬을 사용하는 것에서 파라미터를 4차 가중치 텐서 $\mathsf{W}$로 표현하는 것으로 전환해야 합니다. 
+$⁡\mathbf{U}$가 편향을 포함한다고 가정하면, 완전 연결 레이어를 공식적으로 다음과 같이 표현할 수 있습니다.
 
-$$\begin{aligned} \left[\mathbf{H}\right]_{i, j} &= [\mathbf{U}]_{i, j} + \sum_k \sum_l[\mathsf{W}]_{i, j, k, l}  [\mathbf{X}]_{k, l}\\ &=  [\mathbf{U}]_{i, j} +
-\sum_a \sum_b [\mathsf{V}]_{i, j, a, b}  [\mathbf{X}]_{i+a, j+b}.\end{aligned}$$
+$$\begin{aligned} \left[\mathbf{H}\right]_{i, j} &= [\mathbf{U}]_{i, j} + \sum_k \sum_l[\mathsf{W}]_{i, j, k, l}  [\mathbf{X}]_{k, l}\\ &=  [\mathbf{U}]_{i, j} + \\&\quad \sum_a \sum_b [\mathsf{V}]_{i, j, a, b}  [\mathbf{X}]_{i+a, j+b}.\end{aligned}$$ 
 
-The switch from $\mathsf{W}$ to $\mathsf{V}$ is entirely cosmetic for now
-since there is a one-to-one correspondence
-between coefficients in both fourth-order tensors.
-We simply re-index the subscripts $(k, l)$
-such that $k = i+a$ and $l = j+b$.
-In other words, we set $[\mathsf{V}]_{i, j, a, b} = [\mathsf{W}]_{i, j, i+a, j+b}$.
-The indices $a$ and $b$ run over both positive and negative offsets,
-covering the entire image.
-For any given location ($i$, $j$) in the hidden representation $[\mathbf{H}]_{i, j}$,
-we compute its value by summing over pixels in $x$,
-centered around $(i, j)$ and weighted by $[\mathsf{V}]_{i, j, a, b}$. Before we carry on, let's consider the total number of parameters required for a *single* layer in this parametrization: a $1000 \times 1000$ image (1 megapixel) is mapped to a $1000 \times 1000$ hidden representation. This requires $10^{12}$ parameters, far beyond what computers currently can handle.  
+$⁡\mathsf{W}$에서 $⁡\mathsf{V}$로의 전환은 지금으로서는 전적으로 외관상의 변화입니다. 두 4차 텐서의 계수 사이에 일대일 대응이 있기 때문입니다. 
+우리는 단순히 $k = i+a$ 및 $l = j+b$가 되도록 아래첨자 $(k, l)$을 다시 인덱싱합니다. 
+즉, $[⁡\mathsf{V}]_{i, j, a, b} = [\mathsf{W}]_{i, j, i+a, j+b}$로 설정합니다. 
+인덱스 $a$와 $b$는 양수 및 음수 오프셋 모두에 대해 실행되어 전체 이미지를 커버합니다. 
+은닉 표현 $[⁡\mathbf{H}]_{i, j}$의 임의의 주어진 위치 ($i$, $j$)에 대해, 우리는 $(i, j)$를 중심으로 하고 $[⁡\mathsf{V}]_{i, j, a, b}$로 가중치가 부여된 $x$의 픽셀에 대해 합산하여 그 값을 계산합니다. 계속하기 전에, 이 파라미터화에서 *단일* 레이어에 필요한 총 파라미터 수를 고려해 봅시다: $1000 \times 1000$ 이미지(1메가픽셀)가 $1000 \times 1000$ 은닉 표현으로 매핑됩니다. 이를 위해서는 $10^{12}$개의 파라미터가 필요하며, 이는 현재 컴퓨터가 처리할 수 있는 수준을 훨씬 넘어섭니다.
 
-### Translation Invariance
+### 평행 이동 불변성 (Translation Invariance)
 
-Now let's invoke the first principle
-established above: translation invariance :cite:`Zhang.ea.1988`.
-This implies that a shift in the input $\mathbf{X}$
-should simply lead to a shift in the hidden representation $\mathbf{H}$.
-This is only possible if $\mathsf{V}$ and $\mathbf{U}$ do not actually depend on $(i, j)$. As such,
-we have $[\mathsf{V}]_{i, j, a, b} = [\mathbf{V}]_{a, b}$ and $\mathbf{U}$ is a constant, say $u$.
-As a result, we can simplify the definition for $\mathbf{H}$:
+이제 위에서 확립한 첫 번째 원칙인 평행 이동 불변성을 호출해 봅시다 :cite:`Zhang.ea.1988`. 
+이는 입력 $⁡\mathbf{X}$의 이동이 단순히 은닉 표현 $⁡\mathbf{H}$의 이동으로 이어져야 함을 의미합니다. 
+이것은 $⁡\mathsf{V}$와 $⁡\mathbf{U}$가 실제로 $(i, j)$에 의존하지 않는 경우에만 가능합니다. 따라서, 
+우리는 $[⁡\mathsf{V}]_{i, j, a, b} = [\mathbf{V}]_{a, b}$를 갖고 $⁡\mathbf{U}$는 상수, 예를 들어 $u$입니다. 
+결과적으로 $⁡\mathbf{H}$에 대한 정의를 단순화할 수 있습니다:
 
-$$[\mathbf{H}]_{i, j} = u + \sum_a\sum_b [\mathbf{V}]_{a, b}  [\mathbf{X}]_{i+a, j+b}.$$
+$$[\mathbf{H}]_{i, j} = u + \sum_a\sum_b [\mathbf{V}]_{a, b}  [\mathbf{X}]_{i+a, j+b}.$$ 
 
 
-This is a *convolution*!
-We are effectively weighting pixels at $(i+a, j+b)$
-in the vicinity of location $(i, j)$ with coefficients $[\mathbf{V}]_{a, b}$
-to obtain the value $[\mathbf{H}]_{i, j}$.
-Note that $[\mathbf{V}]_{a, b}$ needs many fewer coefficients than $[\mathsf{V}]_{i, j, a, b}$ since it
-no longer depends on the location within the image. Consequently, the number of parameters required is no longer $10^{12}$ but a much more reasonable $4 \times 10^6$: we still have the dependency on $a, b \in (-1000, 1000)$. In short, we have made significant progress. Time-delay neural networks (TDNNs) are some of the first examples to exploit this idea :cite:`Waibel.Hanazawa.Hinton.ea.1989`.
+이것은 *합성곱(convolution)*입니다! 
+우리는 효과적으로 위치 $(i, j)$ 근처의 $(i+a, j+b)$에 있는 픽셀에 계수 $[⁡\mathbf{V}]_{a, b}$로 가중치를 부여하여 값 $[⁡\mathbf{H}]_{i, j}$를 얻습니다. 
+$[⁡\mathbf{V}]_{a, b}$는 더 이상 이미지 내 위치에 의존하지 않기 때문에 $[⁡\mathsf{V}]_{i, j, a, b}$보다 훨씬 적은 계수가 필요하다는 점에 유의하십시오. 결과적으로 필요한 파라미터 수는 더 이상 $10^{12}$가 아니라 훨씬 더 합리적인 $4 \times 10^6$입니다: 우리는 여전히 $a, b \in (-1000, 1000)$에 대한 의존성을 가지고 있습니다. 요컨대 우리는 상당한 진전을 이루었습니다. 시간 지연 신경망(TDNN)은 이 아이디어를 활용한 첫 번째 예 중 일부입니다 :cite:`Waibel.Hanazawa.Hinton.ea.1989`.
 
-###  Locality
+### 지역성 (Locality)
 
-Now let's invoke the second principle: locality.
-As motivated above, we believe that we should not have
-to look very far away from location $(i, j)$
-in order to glean relevant information
-to assess what is going on at $[\mathbf{H}]_{i, j}$.
-This means that outside some range $|a|> \Delta$ or $|b| > \Delta$,
-we should set $[\mathbf{V}]_{a, b} = 0$.
-Equivalently, we can rewrite $[\mathbf{H}]_{i, j}$ as
+이제 두 번째 원칙인 지역성을 호출해 봅시다. 
+위에서 동기 부여된 바와 같이, 우리는 $[⁡\mathbf{H}]_{i, j}$에서 무슨 일이 일어나고 있는지 평가하기 위해 관련 정보를 수집하기 위해 위치 $(i, j)$에서 아주 멀리 볼 필요가 없다고 믿습니다. 
+이는 어떤 범위 $|a|> \Delta$ 또는 $|b| > \Delta$ 밖에서는 $[⁡\mathbf{V}]_{a, b} = 0$으로 설정해야 함을 의미합니다. 
+동등하게, 우리는 $[⁡\mathbf{H}]_{i, j}$를 다음과 같이 다시 쓸 수 있습니다.
 
-$$[\mathbf{H}]_{i, j} = u + \sum_{a = -\Delta}^{\Delta} \sum_{b = -\Delta}^{\Delta} [\mathbf{V}]_{a, b}  [\mathbf{X}]_{i+a, j+b}.$$
+$$[\mathbf{H}]_{i, j} = u + \sum_{a = -\Delta}^{\Delta} \sum_{b = -\Delta}^{\Delta} [\mathbf{V}]_{a, b}  [\mathbf{X}]_{i+a, j+b}.$$ 
 :eqlabel:`eq_conv-layer`
 
-This reduces the number of parameters from $4 \times 10^6$ to $4 \Delta^2$, where $\Delta$ is typically smaller than $10$. As such, we reduced the number of parameters by another four orders of magnitude. Note that :eqref:`eq_conv-layer`, is what is called, in a nutshell, a *convolutional layer*. 
-*Convolutional neural networks* (CNNs)
-are a special family of neural networks that contain convolutional layers.
-In the deep learning research community,
-$\mathbf{V}$ is referred to as a *convolution kernel*,
-a *filter*, or simply the layer's *weights* that are learnable parameters.
+이로써 파라미터 수는 $4 \times 10^6$에서 $4 \Delta^2$로 줄어듭니다. 여기서 $\Delta$는 일반적으로 10보다 작습니다. 따라서 파라미터 수를 또다시 4자리수만큼 줄였습니다. :eqref:`eq_conv-layer`는 간단히 말해서 *합성곱 레이어(convolutional layer)*라고 불리는 것입니다. 
+*합성곱 신경망(Convolutional neural networks, CNN)*은 합성곱 레이어를 포함하는 신경망의 특수 제품군입니다. 
+딥러닝 연구 커뮤니티에서 $⁡\mathbf{V}$는 *합성곱 커널(convolution kernel)*, *필터(filter)*, 또는 단순히 학습 가능한 파라미터인 레이어의 *가중치(weights)*라고 합니다.
 
-While previously, we might have required billions of parameters
-to represent just a single layer in an image-processing network,
-we now typically need just a few hundred, without
-altering the dimensionality of either
-the inputs or the hidden representations.
-The price paid for this drastic reduction in parameters
-is that our features are now translation invariant
-and that our layer can only incorporate local information,
-when determining the value of each hidden activation.
-All learning depends on imposing inductive bias.
-When that bias agrees with reality,
-we get sample-efficient models
-that generalize well to unseen data.
-But of course, if those biases do not agree with reality,
-e.g., if images turned out not to be translation invariant,
-our models might struggle even to fit our training data.
+이전에는 이미지 처리 네트워크의 단일 레이어만 표현하는 데 수십억 개의 파라미터가 필요했을 수 있지만, 이제는 입력이나 은닉 표현의 차원을 변경하지 않고도 일반적으로 수백 개만 있으면 됩니다. 
+파라미터의 이러한 급격한 감소에 대해 치러야 할 대가는 우리의 특성이 이제 평행 이동 불변이며, 각 은닉 활성화의 값을 결정할 때 우리 레이어가 지역 정보만 통합할 수 있다는 것입니다. 
+모든 학습은 귀납적 편향을 부과하는 것에 달려 있습니다. 
+그 편향이 현실과 일치할 때, 우리는 보지 못한 데이터에 잘 일반화되는 샘플 효율적인 모델을 얻습니다. 
+물론 그러한 편향이 현실과 일치하지 않는다면, 예를 들어 이미지가 평행 이동 불변이 아닌 것으로 판명된다면, 우리 모델은 훈련 데이터를 맞추는 데에도 어려움을 겪을 수 있습니다.
 
-This dramatic reduction in parameters brings us to our last desideratum, 
-namely that deeper layers should represent larger and more complex aspects 
-of an image. This can be achieved by interleaving nonlinearities and convolutional 
-layers repeatedly. 
+파라미터의 이러한 극적인 감소는 우리의 마지막 요구 사항, 즉 더 깊은 레이어가 이미지의 더 크고 복잡한 측면을 나타내야 한다는 점으로 우리를 이끕니다. 이는 비선형성과 합성곱 레이어를 반복적으로 인터리빙하여 달성할 수 있습니다. 
 
-## Convolutions
+## 합성곱 (Convolutions) 
 
-Let's briefly review why :eqref:`eq_conv-layer` is called a convolution. 
-In mathematics, the *convolution* between two functions :cite:`Rudin.1973`,
-say $f, g: \mathbb{R}^d \to \mathbb{R}$ is defined as
+:eqref:`eq_conv-layer`가 왜 합성곱이라고 불리는지 간단히 검토해 봅시다. 
+수학에서 두 함수 사이의 *합성곱* :cite:`Rudin.1973`, 예를 들어 $f, g: \mathbb{R}^d \to \mathbb{R}$은 다음과 같이 정의됩니다.
 
-$$(f * g)(\mathbf{x}) = \int f(\mathbf{z}) g(\mathbf{x}-\mathbf{z}) d\mathbf{z}.$$
+$$(f * g)(\mathbf{x}) = \int f(\mathbf{z}) g(\mathbf{x}-\mathbf{z}) d\mathbf{z}.$$ 
 
-That is, we measure the overlap between $f$ and $g$
-when one function is "flipped" and shifted by $\mathbf{x}$.
-Whenever we have discrete objects, the integral turns into a sum.
-For instance, for vectors from
-the set of square-summable infinite-dimensional vectors
-with index running over $\mathbb{Z}$ we obtain the following definition:
+즉, 우리는 한 함수가 "뒤집히고" $\mathbf{x}$만큼 이동할 때 $f$와 $g$ 사이의 겹침을 측정합니다. 
+이산 객체가 있을 때마다 적분은 합으로 바뀝니다. 
+예를 들어, 인덱스가 $\mathbb{Z}$에 걸쳐 실행되는 제곱 합 가능한 무한 차원 벡터 집합의 벡터에 대해 다음 정의를 얻습니다:
 
-$$(f * g)(i) = \sum_a f(a) g(i-a).$$
+$$(f * g)(i) = \sum_a f(a) g(i-a).$$ 
 
-For two-dimensional tensors, we have a corresponding sum
-with indices $(a, b)$ for $f$ and $(i-a, j-b)$ for $g$, respectively:
+2차원 텐서의 경우, $f$에 대해서는 인덱스 $(a, b)$, $g$에 대해서는 $(i-a, j-b)$를 갖는 해당 합을 얻습니다:
 
-$$(f * g)(i, j) = \sum_a\sum_b f(a, b) g(i-a, j-b).$$
+$$(f * g)(i, j) = \sum_a\sum_b f(a, b) g(i-a, j-b).$$ 
 :eqlabel:`eq_2d-conv-discrete`
 
-This looks similar to :eqref:`eq_conv-layer`, with one major difference.
-Rather than using $(i+a, j+b)$, we are using the difference instead.
-Note, though, that this distinction is mostly cosmetic
-since we can always match the notation between
-:eqref:`eq_conv-layer` and :eqref:`eq_2d-conv-discrete`.
-Our original definition in :eqref:`eq_conv-layer` more properly
-describes a *cross-correlation*.
-We will come back to this in the following section.
+이것은 :eqref:`eq_conv-layer`와 유사해 보이지만 한 가지 주요 차이점이 있습니다. 
+$(i+a, j+b)$를 사용하는 대신 차이를 사용하고 있습니다. 
+하지만 우리는 언제나 :eqref:`eq_conv-layer`와 :eqref:`eq_2d-conv-discrete` 사이의 표기법을 일치시킬 수 있으므로 이 구분은 대부분 외관상의 문제입니다. 
+:eqref:`eq_conv-layer`의 원래 정의는 *상호 상관(cross-correlation)*을 더 적절하게 설명합니다. 
+우리는 다음 섹션에서 이 문제로 돌아올 것입니다.
 
 
-## Channels
+## 채널 (Channels)
 :label:`subsec_why-conv-channels`
 
-Returning to our Waldo detector, let's see what this looks like.
-The convolutional layer picks windows of a given size
-and weighs intensities according to the filter $\mathsf{V}$, as demonstrated in :numref:`fig_waldo_mask`.
-We might aim to learn a model so that
-wherever the "waldoness" is highest,
-we should find a peak in the hidden layer representations.
+월도 감지기로 돌아가서 이것이 어떻게 생겼는지 봅시다. 
+합성곱 레이어는 주어진 크기의 윈도우를 선택하고 :numref:`fig_waldo_mask`에 시연된 것처럼 필터 $⁡\mathsf{V}$에 따라 강도에 가중치를 부여합니다. 
+우리는 "월도스러움(waldoness)"이 가장 높은 곳마다 은닉층 표현에서 피크를 찾아야 하도록 모델을 학습하는 것을 목표로 할 수 있습니다.
 
-![Detect Waldo (image courtesy of William Murphy (Infomatique)).](../img/waldo-mask.jpg)
+![월도 감지하기 (이미지 제공: William Murphy (Infomatique)).](../img/waldo-mask.jpg)
 :width:`400px`
 :label:`fig_waldo_mask`
 
-There is just one problem with this approach.
-So far, we blissfully ignored that images consist
-of three channels: red, green, and blue. 
-In sum, images are not two-dimensional objects
-but rather third-order tensors,
-characterized by a height, width, and channel,
-e.g., with shape $1024 \times 1024 \times 3$ pixels. 
-While the first two of these axes concern spatial relationships,
-the third can be regarded as assigning
-a multidimensional representation to each pixel location.
-We thus index $\mathsf{X}$ as $[\mathsf{X}]_{i, j, k}$.
-The convolutional filter has to adapt accordingly.
-Instead of $[\mathbf{V}]_{a,b}$, we now have $[\mathsf{V}]_{a,b,c}$.
+이 접근 방식에는 한 가지 문제만 있습니다. 
+지금까지 우리는 이미지가 빨강, 초록, 파랑의 3개 채널로 구성되어 있다는 사실을 행복하게 무시했습니다. 
+요컨대 이미지는 2차원 객체가 아니라 높이, 너비, 채널, 예: $1024 \times 1024 \times 3$ 픽셀 모양으로 특징지어지는 3차 텐서입니다. 
+이 축 중 처음 두 개는 공간 관계와 관련이 있지만, 세 번째 축은 각 픽셀 위치에 다차원 표현을 할당하는 것으로 간주될 수 있습니다. 
+따라서 우리는 $⁡\mathsf{X}$를 $[⁡\mathsf{X}]_{i, j, k}$로 인덱싱합니다. 
+합성곱 필터는 그에 따라 적응해야 합니다. 
+$[⁡\mathbf{V}]_{a,b}$ 대신 이제 $[⁡\mathsf{V}]_{a,b,c}$를 갖습니다.
 
-Moreover, just as our input consists of a third-order tensor,
-it turns out to be a good idea to similarly formulate
-our hidden representations as third-order tensors $\mathsf{H}$.
-In other words, rather than just having a single hidden representation
-corresponding to each spatial location,
-we want an entire vector of hidden representations
-corresponding to each spatial location.
-We could think of the hidden representations as comprising
-a number of two-dimensional grids stacked on top of each other.
-As in the inputs, these are sometimes called *channels*.
-They are also sometimes called *feature maps*,
-as each provides a spatialized set
-of learned features for the subsequent layer.
-Intuitively, you might imagine that at lower layers that are closer to inputs,
-some channels could become specialized to recognize edges while
-others could recognize textures.
+더욱이 입력이 3차 텐서로 구성된 것과 마찬가지로, 은닉 표현도 비슷하게 3차 텐서 $⁡\mathsf{H}$로 공식화하는 것이 좋은 아이디어라는 것이 밝혀졌습니다. 
+다시 말해, 각 공간 위치에 해당하는 단일 은닉 표현만 갖는 것이 아니라, 각 공간 위치에 해당하는 전체 은닉 표현 벡터를 원합니다. 
+은닉 표현을 서로 위에 쌓인 2차원 그리드 수로 생각할 수 있습니다. 
+입력과 마찬가지로 이들은 때때로 *채널(channels)*이라고 불립니다. 
+각각이 후속 레이어를 위한 공간화된 학습된 특성 세트를 제공하기 때문에 *특성 맵(feature maps)*이라고도 불립니다. 
+직관적으로 입력에 더 가까운 하위 레이어에서 일부 채널은 가장자리를 인식하도록 전문화되고 다른 채널은 텍스처를 인식할 수 있다고 상상할 수 있습니다.
 
-To support multiple channels in both inputs ($\mathsf{X}$) and hidden representations ($\mathsf{H}$),
-we can add a fourth coordinate to $\mathsf{V}$: $[\mathsf{V}]_{a, b, c, d}$.
-Putting everything together we have:
+입력($⁡\mathsf{X}$)과 은닉 표현($⁡\mathsf{H}$) 모두에서 다중 채널을 지원하기 위해, 우리는 $⁡\mathsf{V}$에 네 번째 좌표를 추가할 수 있습니다: $[⁡\mathsf{V}]_{a, b, c, d}$. 
+모든 것을 합치면 다음과 같습니다:
 
-$$[\mathsf{H}]_{i,j,d} = \sum_{a = -\Delta}^{\Delta} \sum_{b = -\Delta}^{\Delta} \sum_c [\mathsf{V}]_{a, b, c, d} [\mathsf{X}]_{i+a, j+b, c},$$
+$$[\mathsf{H}]_{i,j,d} = \sum_{a = -\Delta}^{\Delta} \sum_{b = -\Delta}^{\Delta} \sum_c [\mathsf{V}]_{a, b, c, d} [\mathsf{X}]_{i+a, j+b, c},$$ 
 :eqlabel:`eq_conv-layer-channels`
 
-where $d$ indexes the output channels in the hidden representations $\mathsf{H}$. The subsequent convolutional layer will go on to take a third-order tensor, $\mathsf{H}$, as input.
-We take
-:eqref:`eq_conv-layer-channels`,
-because of its generality, as
-the definition of a convolutional layer for multiple channels, where $\mathsf{V}$ is a kernel or filter of the layer.
+여기서 $d$는 은닉 표현 $⁡\mathsf{H}$의 출력 채널을 인덱싱합니다. 후속 합성곱 레이어는 3차 텐서 $⁡\mathsf{H}$를 입력으로 취하게 됩니다. 
+우리는 일반성 때문에 :eqref:`eq_conv-layer-channels`를 다중 채널에 대한 합성곱 레이어의 정의로 취합니다. 여기서 $⁡\mathsf{V}$는 레이어의 커널 또는 필터입니다.
 
-There are still many operations that we need to address.
-For instance, we need to figure out how to combine all the hidden representations
-to a single output, e.g., whether there is a Waldo *anywhere* in the image.
-We also need to decide how to compute things efficiently,
-how to combine multiple layers,
-appropriate activation functions,
-and how to make reasonable design choices
-to yield networks that are effective in practice.
-We turn to these issues in the remainder of the chapter.
+우리가 다루어야 할 연산이 아직 많이 남아 있습니다. 
+예를 들어 모든 은닉 표현을 단일 출력으로 결합하는 방법, 예: 이미지 *어딘가에* 월도가 있는지 여부를 알아내야 합니다. 
+또한 효율적으로 계산하는 방법, 다중 레이어를 결합하는 방법, 적절한 활성화 함수, 그리고 실제로 효과적인 네트워크를 산출하기 위한 합리적인 설계 선택을 하는 방법을 결정해야 합니다. 
+우리는 이 장의 나머지 부분에서 이러한 문제들을 다룹니다.
 
-## Summary and Discussion
+## 요약 및 토론 (Summary and Discussion) 
 
-In this section we derived the structure of convolutional neural networks from first principles. While it is unclear whether this was the route taken to the invention of CNNs, it is satisfying to know that they are the *right* choice when applying reasonable principles to how image processing and computer vision algorithms should operate, at least at lower levels. In particular, translation invariance in images implies that all patches of an image will be treated in the same manner. Locality means that only a small neighborhood of pixels will be used to compute the corresponding hidden representations. Some of the earliest references to CNNs are in the form of the Neocognitron :cite:`Fukushima.1982`. 
+이 섹션에서 우리는 첫 번째 원칙에서 합성곱 신경망의 구조를 도출했습니다. 
+이것이 CNN의 발명으로 이어진 경로인지는 불분명하지만, 이미지 처리 및 컴퓨터 비전 알고리즘이 적어도 하위 수준에서 어떻게 작동해야 하는지에 대한 합리적인 원칙을 적용할 때 이것이 *올바른* 선택임을 아는 것은 만족스럽습니다. 
+특히 이미지의 평행 이동 불변성은 이미지의 모든 패치가 동일한 방식으로 처리될 것임을 의미합니다. 
+지역성은 픽셀의 작은 이웃만 해당 은닉 표현을 계산하는 데 사용됨을 의미합니다. 
+CNN에 대한 초기 언급 중 일부는 Neocognitron 형태입니다 :cite:`Fukushima.1982`. 
 
 A second principle that we encountered in our reasoning is how to reduce the number of parameters in a function class without limiting its expressive power, at least, whenever certain assumptions on the model hold. We saw a dramatic reduction of complexity as a result of this restriction, turning computationally and statistically infeasible problems into tractable models. 
 
@@ -319,20 +188,18 @@ Adding channels allowed us to bring back some of the complexity that was lost du
 images, in particular for agriculture and meteorology, have tens to hundreds of channels, 
 generating hyperspectral images instead. They report data on many different wavelengths. In the following we will see how to use convolutions effectively to manipulate the dimensionality of the images they operate on, how to move from location-based to channel-based representations, and how to deal with large numbers of categories efficiently. 
 
-## Exercises
+## 연습 문제 (Exercises) 
 
-1. Assume that the size of the convolution kernel is $\Delta = 0$.
-   Show that in this case the convolution kernel
-   implements an MLP independently for each set of channels. This leads to the Network in Network 
-   architectures :cite:`Lin.Chen.Yan.2013`. 
-1. Audio data is often represented as a one-dimensional sequence. 
-    1. When might you want to impose locality and translation invariance for audio? 
-    1. Derive the convolution operations for audio.
-    1. Can you treat audio using the same tools as computer vision? Hint: use the spectrogram.
-1. Why might translation invariance not be a good idea after all? Give an example. 
-1. Do you think that convolutional layers might also be applicable for text data?
-   Which problems might you encounter with language?
-1. What happens with convolutions when an object is at the boundary of an image?
-1. Prove that the convolution is symmetric, i.e., $f * g = g * f$.
+1. 합성곱 커널의 크기가 $\Delta = 0$이라고 가정합니다.
+   이 경우 합성곱 커널이 각 채널 세트에 대해 독립적으로 MLP를 구현함을 보이십시오. 
+   이것은 Network in Network 아키텍처로 이어집니다 :cite:`Lin.Chen.Yan.2013`.
+2. 오디오 데이터는 종종 1차원 시퀀스로 표현됩니다.
+    1. 언제 오디오에 대해 지역성과 평행 이동 불변성을 부과하고 싶을까요?
+    2. 오디오에 대한 합성곱 연산을 유도하십시오.
+    3. 컴퓨터 비전과 동일한 도구를 사용하여 오디오를 처리할 수 있습니까? 힌트: 스펙트로그램을 사용하십시오.
+3. 평행 이동 불변성이 결국 좋은 아이디어가 아닌 이유는 무엇일까요? 예를 들어 보십시오.
+4. 합성곱 레이어가 텍스트 데이터에도 적용될 수 있다고 생각하십니까? 언어에서 어떤 문제에 부딪힐 수 있습니까?
+5. 객체가 이미지 경계에 있을 때 합성곱은 어떻게 됩니까?
+6. 합성곱이 대칭임을 증명하십시오. 즉, $f * g = g * f$. 
 
-[Discussions](https://discuss.d2l.ai/t/64)
+[토론](https://discuss.d2l.ai/t/64)

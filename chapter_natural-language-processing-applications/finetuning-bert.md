@@ -1,194 +1,72 @@
-# Fine-Tuning BERT for Sequence-Level and Token-Level Applications
+# 시퀀스 수준 및 토큰 수준 응용을 위한 BERT 미세 조정 (Fine-Tuning BERT for Sequence-Level and Token-Level Applications)
 :label:`sec_finetuning-bert`
 
 
-In the previous sections of this chapter,
-we have designed different models for natural language processing applications,
-such as based on RNNs, CNNs, attention, and MLPs.
-These models are helpful when there is space or time constraint,
-however,
-crafting a specific model for every natural language processing task
-is practically infeasible.
-In :numref:`sec_bert`,
-we introduced a pretraining model, BERT,
-that requires minimal architecture changes
-for a wide range of natural language processing tasks.
-On the one hand,
-at the time of its proposal,
-BERT improved the state of the art on various natural language processing tasks.
-On the other hand,
-as noted in :numref:`sec_bert-pretraining`,
-the two versions of the original BERT model
-come with 110 million and 340 million parameters.
-Thus, when there are sufficient computational resources,
-we may consider
-fine-tuning BERT for downstream natural language processing applications.
+이 장의 이전 섹션들에서, 우리는 RNN, CNN, 어텐션 및 MLP를 기반으로 한 다양한 자연어 처리 응용 모델을 설계했습니다. 이러한 모델은 공간이나 시간 제약이 있을 때 유용하지만, 모든 자연어 처리 작업에 대해 특정 모델을 만드는 것은 실제로 불가능합니다. :numref:`sec_bert`에서 우리는 광범위한 자연어 처리 작업을 위해 최소한의 아키텍처 변경만 요구하는 사전 훈련 모델인 BERT를 소개했습니다. 한편으로, 제안 당시 BERT는 다양한 자연어 처리 작업에서 최첨단 기술을 향상시켰습니다. 다른 한편으로, :numref:`sec_bert-pretraining`에서 언급했듯이 원래 BERT 모델의 두 버전은 1억 1천만 개와 3억 4천만 개의 파라미터를 가지고 있습니다. 따라서 계산 리소스가 충분할 때, 우리는 다운스트림 자연어 처리 응용 프로그램을 위해 BERT를 미세 조정하는 것을 고려할 수 있습니다.
 
-In the following,
-we generalize a subset of natural language processing applications
-as sequence-level and token-level.
-On the sequence level,
-we introduce how to transform the BERT representation of the text input
-to the output label
-in single text classification
-and text pair classification or regression.
-On the token level, we will briefly introduce new applications
-such as text tagging and question answering
-and shed light on how BERT can represent their inputs and get transformed into output labels.
-During fine-tuning,
-the "minimal architecture changes" required by BERT across different applications
-are the extra fully connected layers.
-During supervised learning of a downstream application,
-parameters of the extra layers are learned from scratch while
-all the parameters in the pretrained BERT model are fine-tuned.
+다음에서, 우리는 자연어 처리 응용 프로그램의 하위 집합을 시퀀스 수준과 토큰 수준으로 일반화합니다. 시퀀스 수준에서는 텍스트 입력의 BERT 표현을 단일 텍스트 분류와 텍스트 쌍 분류 또는 회귀에서 출력 레이블로 변환하는 방법을 소개합니다. 토큰 수준에서는 텍스트 태깅 및 질문 응답과 같은 새로운 응용 프로그램을 간략하게 소개하고, BERT가 어떻게 그들의 입력을 표현하고 출력 레이블로 변환되는지 설명합니다. 미세 조정 중에, 서로 다른 응용 프로그램에서 BERT가 요구하는 "최소한의 아키텍처 변경"은 추가적인 완전 연결 레이어입니다. 다운스트림 응용 프로그램의 지도 학습 중에, 추가 레이어의 파라미터는 처음부터 학습되는 반면 사전 훈련된 BERT 모델의 모든 파라미터는 미세 조정됩니다.
 
 
-## Single Text Classification
+## 단일 텍스트 분류 (Single Text Classification)
 
-*Single text classification* takes a single text sequence as input and outputs its classification result.
-Besides sentiment analysis that we have studied in this chapter,
-the Corpus of Linguistic Acceptability (CoLA)
-is also a dataset for single text classification,
-judging whether a given sentence is grammatically acceptable or not :cite:`Warstadt.Singh.Bowman.2019`.
-For instance, "I should study." is acceptable but "I should studying." is not.
+*단일 텍스트 분류*는 단일 텍스트 시퀀스를 입력으로 받아 그 분류 결과를 출력합니다. 이 장에서 공부한 감정 분석 외에도, 언어적 용납 가능성 코퍼스(Corpus of Linguistic Acceptability, CoLA)도 주어진 문장이 문법적으로 용납 가능한지 여부를 판단하는 단일 텍스트 분류 데이터셋입니다 :cite:`Warstadt.Singh.Bowman.2019`. 예를 들어, "I should study."는 용납 가능하지만 "I should studying."은 그렇지 않습니다.
 
-![Fine-tuning BERT for single text classification applications, such as sentiment analysis and testing linguistic acceptability. Suppose that the input single text has six tokens.](../img/bert-one-seq.svg)
+![감정 분석 및 언어적 용납 가능성 테스트와 같은 단일 텍스트 분류 응용 프로그램을 위한 BERT 미세 조정. 입력 단일 텍스트에 6개의 토큰이 있다고 가정합니다.](../img/bert-one-seq.svg)
 :label:`fig_bert-one-seq`
 
-:numref:`sec_bert` describes the input representation of BERT.
-The BERT input sequence unambiguously represents both single text and text pairs,
-where the special classification token 
-“&lt;cls&gt;” is used for sequence classification and 
-the special classification token 
-“&lt;sep&gt;” marks the end of single text or separates a pair of text.
-As shown in :numref:`fig_bert-one-seq`,
-in single text classification applications,
-the BERT representation of the special classification token 
-“&lt;cls&gt;” encodes the information of the entire input text sequence.
-As the representation of the input single text,
-it will be fed into a small MLP consisting of fully connected (dense) layers
-to output the distribution of all the discrete label values.
+:numref:`sec_bert`는 BERT의 입력 표현을 설명합니다. BERT 입력 시퀀스는 단일 텍스트와 텍스트 쌍을 명확하게 나타내며, 여기서 특수 분류 토큰 “<cls>”는 시퀀스 분류에 사용되고 특수 분류 토큰 “<sep>”는 단일 텍스트의 끝을 표시하거나 텍스트 쌍을 구분합니다. :numref:`fig_bert-one-seq`에 표시된 것처럼, 단일 텍스트 분류 응용 프로그램에서 특수 분류 토큰 “<cls>”의 BERT 표현은 전체 입력 텍스트 시퀀스의 정보를 인코딩합니다. 입력 단일 텍스트의 표현으로서, 이는 완전 연결(밀집) 레이어로 구성된 작은 MLP에 공급되어 모든 이산 레이블 값의 분포를 출력합니다.
 
 
-## Text Pair Classification or Regression
+## 텍스트 쌍 분류 또는 회귀 (Text Pair Classification or Regression)
 
-We have also examined natural language inference in this chapter.
-It belongs to *text pair classification*,
-a type of application classifying a pair of text.
+우리는 또한 이 장에서 자연어 추론을 살펴보았습니다. 이는 텍스트 쌍을 분류하는 응용 프로그램 유형인 *텍스트 쌍 분류*에 속합니다.
 
-Taking a pair of text as input but outputting a continuous value,
-*semantic textual similarity* is a popular *text pair regression* task.
-This task measures semantic similarity of sentences.
-For instance, in the Semantic Textual Similarity Benchmark dataset,
-the similarity score of a pair of sentences
-is an ordinal scale ranging from 0 (no meaning overlap) to 5 (meaning equivalence) :cite:`Cer.Diab.Agirre.ea.2017`.
-The goal is to predict these scores.
-Examples from the Semantic Textual Similarity Benchmark dataset include (sentence 1, sentence 2, similarity score):
+텍스트 쌍을 입력으로 받지만 연속적인 값을 출력하는 *의미적 텍스트 유사성(semantic textual similarity)*은 인기 있는 *텍스트 쌍 회귀* 작업입니다. 이 작업은 문장의 의미적 유사성을 측정합니다. 예를 들어, 의미적 텍스트 유사성 벤치마크 데이터셋에서 한 쌍의 문장의 유사성 점수는 0(의미 중첩 없음)에서 5(의미 동일)까지의 서순 척도입니다 :cite:`Cer.Diab.Agirre.ea.2017`. 목표는 이러한 점수를 예측하는 것입니다. 의미적 텍스트 유사성 벤치마크 데이터셋의 예(문장 1, 문장 2, 유사성 점수)는 다음과 같습니다:
 
 * "A plane is taking off.", "An air plane is taking off.", 5.000;
 * "A woman is eating something.", "A woman is eating meat.", 3.000;
 * "A woman is dancing.", "A man is talking.", 0.000.
 
 
-![Fine-tuning BERT for text pair classification or regression applications, such as natural language inference and semantic textual similarity. Suppose that the input text pair has two and three tokens.](../img/bert-two-seqs.svg)
+![자연어 추론 및 의미적 텍스트 유사성과 같은 텍스트 쌍 분류 또는 회귀 응용 프로그램을 위한 BERT 미세 조정. 입력 텍스트 쌍에 2개와 3개의 토큰이 있다고 가정합니다.](../img/bert-two-seqs.svg)
 :label:`fig_bert-two-seqs`
 
-Comparing with single text classification in :numref:`fig_bert-one-seq`,
-fine-tuning BERT for text pair classification in :numref:`fig_bert-two-seqs` 
-is different in the input representation.
-For text pair regression tasks such as semantic textual similarity,
-trivial changes can be applied such as outputting a continuous label value
-and using the mean squared loss: they are common for regression.
+:numref:`fig_bert-one-seq`의 단일 텍스트 분류와 비교할 때, :numref:`fig_bert-two-seqs`의 텍스트 쌍 분류를 위한 BERT 미세 조정은 입력 표현에서 다릅니다. 의미적 텍스트 유사성과 같은 텍스트 쌍 회귀 작업의 경우, 연속적인 레이블 값을 출력하고 평균 제곱 손실을 사용하는 것과 같은 사소한 변경이 적용될 수 있습니다: 이는 회귀에서 흔한 일입니다.
 
 
-## Text Tagging
+## 텍스트 태깅 (Text Tagging)
 
-Now let's consider token-level tasks, such as *text tagging*,
-where each token is assigned a label.
-Among text tagging tasks,
-*part-of-speech tagging* assigns each word a part-of-speech tag (e.g., adjective and determiner)
-according to the role of the word in the sentence.
-For example,
-according to the Penn Treebank II tag set,
-the sentence "John Smith 's car is new"
-should be tagged as
-"NNP (noun, proper singular) NNP POS (possessive ending) NN (noun, singular or mass) VB (verb, base form) JJ (adjective)".
+이제 각 토큰에 레이블이 할당되는 *텍스트 태깅*과 같은 토큰 수준 작업을 고려해 봅시다. 텍스트 태깅 작업 중에서, *품사 태깅(part-of-speech tagging)*은 문장에서 단어의 역할에 따라 각 단어에 품사 태그(예: 형용사 및 한정사)를 할당합니다. 예를 들어, Penn Treebank II 태그 세트에 따르면 문장 "John Smith 's car is new"는 "NNP(고유 명사, 단수) NNP POS(소유격 어미) NN(명사, 단수 또는 질량) VB(동사, 기본형) JJ(형용사)"로 태깅되어야 합니다.
 
-![Fine-tuning BERT for text tagging applications, such as part-of-speech tagging. Suppose that the input single text has six tokens.](../img/bert-tagging.svg)
+![품사 태깅과 같은 텍스트 태깅 응용 프로그램을 위한 BERT 미세 조정. 입력 단일 텍스트에 6개의 토큰이 있다고 가정합니다.](../img/bert-tagging.svg)
 :label:`fig_bert-tagging`
 
-Fine-tuning BERT for text tagging applications
-is illustrated in :numref:`fig_bert-tagging`.
-Comparing with :numref:`fig_bert-one-seq`,
-the only distinction lies in that
-in text tagging, the BERT representation of *every token* of the input text
-is fed into the same extra fully connected layers to output the label of the token,
-such as a part-of-speech tag.
+텍스트 태깅 응용 프로그램을 위한 BERT 미세 조정은 :numref:`fig_bert-tagging`에 설명되어 있습니다. :numref:`fig_bert-one-seq`와의 유일한 차이점은 텍스트 태깅에서 입력 텍스트의 *모든 토큰*의 BERT 표현이 동일한 추가 완전 연결 레이어에 공급되어 품사 태그와 같은 토큰의 레이블을 출력한다는 점입니다.
 
 
 
-## Question Answering
+## 질문 응답 (Question Answering)
 
-As another token-level application,
-*question answering* reflects capabilities of reading comprehension.
-For example,
-the Stanford Question Answering Dataset (SQuAD v1.1)
-consists of reading passages and questions,
-where the answer to every question
-is just a segment of text (text span) from the passage that the question is about :cite:`Rajpurkar.Zhang.Lopyrev.ea.2016`.
-To explain,
-consider a passage
-"Some experts report that a mask's efficacy is inconclusive. However, mask makers insist that their products, such as N95 respirator masks, can guard against the virus."
-and a question "Who say that N95 respirator masks can guard against the virus?".
-The answer should be the text span "mask makers" in the passage.
-Thus, the goal in SQuAD v1.1 is to predict the start and end of the text span in the passage given a pair of question and passage.
+또 다른 토큰 수준 응용 프로그램으로서, *질문 응답(question answering)*은 독해 능력을 반영합니다. 예를 들어, 스탠포드 질문 응답 데이터셋(SQuAD v1.1)은 읽기 지문과 질문으로 구성되며, 모든 질문에 대한 답은 질문이 다루는 지문의 텍스트 세그먼트(텍스트 스팬, text span)입니다 :cite:`Rajpurkar.Zhang.Lopyrev.ea.2016`. 설명하자면, 지문 "Some experts report that a mask's efficacy is inconclusive. However, mask makers insist that their products, such as N95 respirator masks, can guard against the virus."와 질문 "Who say that N95 respirator masks can guard against the virus?"를 고려해 보십시오. 답은 지문의 텍스트 스팬인 "mask makers"여야 합니다. 따라서 SQuAD v1.1의 목표는 질문과 지문 쌍이 주어졌을 때 지문에서 텍스트 스팬의 시작과 끝을 예측하는 것입니다.
 
-![Fine-tuning BERT for question answering. Suppose that the input text pair has two and three tokens.](../img/bert-qa.svg)
+![질문 응답을 위한 BERT 미세 조정. 입력 텍스트 쌍에 2개와 3개의 토큰이 있다고 가정합니다.](../img/bert-qa.svg)
 :label:`fig_bert-qa`
 
-To fine-tune BERT for question answering,
-the question and passage are packed as
-the first and second text sequence, respectively,
-in the input of BERT.
-To predict the position of the start of the text span,
-the same additional fully connected layer will transform
-the BERT representation of any token from the passage of position $i$
-into a scalar score $s_i$.
-Such scores of all the passage tokens
-are further transformed by the softmax operation
-into a probability distribution,
-so that each token position $i$ in the passage is assigned
-a probability $p_i$ of being the start of the text span.
-Predicting the end of the text span
-is the same as above, except that
-parameters in its additional fully connected layer
-are independent from those for predicting the start.
-When predicting the end,
-any passage token of position $i$
-is transformed by the same fully connected layer
-into a scalar score $e_i$.
-:numref:`fig_bert-qa`
-depicts fine-tuning BERT for question answering.
+질문 응답을 위해 BERT를 미세 조정하기 위해, 질문과 지문은 BERT 입력의 첫 번째와 두 번째 텍스트 시퀀스로 각각 패킹됩니다. 텍스트 스팬 시작 위치를 예측하기 위해, 동일한 추가 완전 연결 레이어가 위치 $i$의 지문 토큰의 BERT 표현을 스칼라 점수 $s_i$로 변환합니다. 모든 지문 토큰의 이러한 점수는 소프트맥스 연산에 의해 확률 분포로 추가 변환되어, 지문의 각 토큰 위치 $i$에 텍스트 스팬의 시작일 확률 $p_i$가 할당됩니다. 텍스트 스팬 끝을 예측하는 것도 위와 동일하지만, 추가 완전 연결 레이어의 파라미터는 시작 예측을 위한 파라미터와 독립적입니다. 끝을 예측할 때, 위치 $i$의 지문 토큰은 동일한 완전 연결 레이어에 의해 스칼라 점수 $e_i$로 변환됩니다. :numref:`fig_bert-qa`는 질문 응답을 위한 BERT 미세 조정을 묘사합니다.
 
-For question answering,
-the supervised learning's training objective is as straightforward as
-maximizing the log-likelihoods of the ground-truth start and end positions.
-When predicting the span,
-we can compute the score $s_i + e_j$ for a valid span
-from position $i$ to position $j$ ($i \leq j$),
-and output the span with the highest score.
+질문 응답의 경우, 지도 학습의 훈련 목표는 실제 시작 및 끝 위치의 로그 우도를 최대화하는 것만큼 간단합니다. 스팬을 예측할 때, 우리는 위치 $i$에서 위치 $j$ ($i \leq j$)까지의 유효한 스팬에 대해 점수 $s_i + e_j$를 계산하고 가장 높은 점수를 가진 스팬을 출력할 수 있습니다.
 
 
-## Summary
+## 요약 (Summary)
 
-* BERT requires minimal architecture changes (extra fully connected layers) for sequence-level and token-level natural language processing applications, such as single text classification (e.g., sentiment analysis and testing linguistic acceptability), text pair classification or regression (e.g., natural language inference and semantic textual similarity), text tagging (e.g., part-of-speech tagging), and question answering.
-* During supervised learning of a downstream application, parameters of the extra layers are learned from scratch while all the parameters in the pretrained BERT model are fine-tuned.
+* BERT는 단일 텍스트 분류(예: 감정 분석 및 언어적 용납 가능성 테스트), 텍스트 쌍 분류 또는 회귀(예: 자연어 추론 및 의미적 텍스트 유사성), 텍스트 태깅(예: 품사 태깅), 질문 응답과 같은 시퀀스 수준 및 토큰 수준 자연어 처리 응용 프로그램을 위해 최소한의 아키텍처 변경(추가 완전 연결 레이어)만 요구합니다.
+* 다운스트림 응용 프로그램의 지도 학습 중에, 추가 레이어의 파라미터는 처음부터 학습되는 반면 사전 훈련된 BERT 모델의 모든 파라미터는 미세 조정됩니다.
 
 
-## Exercises
+## 연습 문제 (Exercises)
 
-1. Let's design a search engine algorithm for news articles. When the system receives an query (e.g., "oil industry during the coronavirus outbreak"), it should return a ranked list of news articles that are most relevant to the query. Suppose that we have a huge pool of news articles and a large number of queries. To simplify the problem, suppose that the most relevant article has been labeled for each query. How can we apply negative sampling (see :numref:`subsec_negative-sampling`) and BERT in the algorithm design?
-1. How can we leverage BERT in training language models?
-1. Can we leverage BERT in machine translation?
+1. 뉴스 기사를 위한 검색 엔진 알고리즘을 설계해 봅시다. 시스템이 쿼리(예: "코로나바이러스 발생 중 석유 산업")를 받으면 쿼리와 가장 관련성이 높은 뉴스 기사의 순위 목록을 반환해야 합니다. 뉴스 기사 풀이 거대하고 쿼리 수가 많다고 가정해 봅시다. 문제를 단순화하기 위해 각 쿼리에 대해 가장 관련성이 높은 기사가 라벨링되었다고 가정합니다. 알고리즘 설계에 음성 샘플링(:numref:`subsec_negative-sampling` 참조)과 BERT를 어떻게 적용할 수 있습니까?
+2. 언어 모델 훈련에 BERT를 어떻게 활용할 수 있습니까?
+3. 기계 번역에 BERT를 활용할 수 있습니까?
 
-[Discussions](https://discuss.d2l.ai/t/396)
+[토론](https://discuss.d2l.ai/t/396)

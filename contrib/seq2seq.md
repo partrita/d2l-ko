@@ -1,17 +1,17 @@
-#  Sequence to Sequence
+# 시퀀스-투-시퀀스 (Sequence to Sequence)
 :label:`sec_seq2seq`
 
-The sequence to sequence (seq2seq) model is based on the encoder-decoder architecture to generate a sequence output for a sequence input, as demonstrated in :numref:`fig_seq2seq`. Both the encoder and the decoder use recurrent neural networks (RNNs) to handle sequence inputs of variable length. The hidden state of the encoder is used directly to initialize the decoder hidden state to pass information from the encoder to the decoder.
+시퀀스-투-시퀀스(seq2seq) 모델은 :numref:`fig_seq2seq`에서 시연된 것처럼, 시퀀스 입력을 받아 시퀀스 출력을 생성하기 위해 인코더-디코더 아키텍처를 기반으로 합니다. 인코더와 디코더 모두 가변 길이의 시퀀스 입력을 처리하기 위해 순환 신경망(RNN)을 사용합니다. 인코더의 은닉 상태는 인코더에서 디코더로 정보를 전달하기 위해 디코더의 은닉 상태를 초기화하는 데 직접 사용됩니다.
 
-![The sequence to sequence model architecture.](../img/seq2seq.svg)
+![시퀀스-투-시퀀스 모델 아키텍처.](../img/seq2seq.svg)
 :label:`fig_seq2seq`
 
-The layers in the encoder and the decoder are illustrated in :numref:`fig_seq2seq_details`.
+인코더와 디코더의 레이어들은 :numref:`fig_seq2seq_details`에 설명되어 있습니다.
 
-![Layers in the encoder and the decoder.](../img/seq2seq-details.svg)
+![인코더와 디코더의 레이어들.](../img/seq2seq-details.svg)
 :label:`fig_seq2seq_details`
 
-In this section we will explain and implement the seq2seq model to train on the machine translation dataset.
+이 섹션에서는 기계 번역 데이터셋에서 훈련하기 위한 seq2seq 모델을 설명하고 구현할 것입니다.
 
 ```{.python .input  n=1}
 #@tab mxnet
@@ -23,26 +23,22 @@ from queue import PriorityQueue
 npx.set_np()
 ```
 
-## Encoder
+## 인코더 (Encoder)
 
-Recall that the encoder of seq2seq can transform the inputs of variable length to a fixed-length context vector $\mathbf{c}$ by encoding the sequence information into $\mathbf{c}$. We usually use RNN layers within the encoder.
-Suppose that we have an input sequence $x_1, \ldots, x_T$, where $x_t$ is the $t^\mathrm{th}$ word. At timestep $t$, the RNN will have two vectors as the input: the feature vector $\mathbf{x}_t$ of $x_t$ and the hidden state of the last timestep $\mathbf{h}_{t-1}$. Let us denote the transformation of the RNN's hidden states by a function $f$:
+seq2seq의 인코더는 시퀀스 정보를 $\mathbf{c}$에 인코딩하여 가변 길이의 입력을 고정 길이의 문맥 벡터(context vector) $\mathbf{c}$로 변환할 수 있음을 상기하십시오. 우리는 대개 인코더 내에 RNN 레이어를 사용합니다.
+입력 시퀀스 $x_1, \ldots, x_T$가 있고, 여기서 $x_t$가 $t^\mathrm{th}$번째 단어라고 가정합시다. 타임스텝 $t$에서 RNN은 두 개의 벡터를 입력으로 받습니다: $x_t$의 특성 벡터 $\mathbf{x}_t$와 이전 타임스텝의 은닉 상태 $\mathbf{h}_{t-1}$입니다. RNN의 은닉 상태 변환을 함수 $f$로 표시해 봅시다:
 
 $$\mathbf{h}_t = f (\mathbf{x}_t, \mathbf{h}_{t-1}).$$
 
-Next, the encoder captures information of all the hidden states and encodes it into the context vector $\mathbf{c}$ with a function $q$:
+다음으로, 인코더는 모든 은닉 상태의 정보를 캡처하여 함수 $q$를 통해 문맥 벡터 $\mathbf{c}$에 인코딩합니다:
 
 $$\mathbf{c} = q (\mathbf{h}_1, \ldots, \mathbf{h}_T).$$
 
-For example, if we choose $q$ as $q (\mathbf{h}_1, \ldots, \mathbf{h}_T) = \mathbf{h}_T$, then the context vector will be the final hidden state $\mathbf{h}_T$.
+예를 들어, $q$를 $q (\mathbf{h}_1, \ldots, \mathbf{h}_T) = \mathbf{h}_T$로 선택하면 문맥 벡터는 최종 은닉 상태 $\mathbf{h}_T$가 됩니다.
 
-So far what we describe above is a unidirectional RNN, where each timestep's hidden state depends only on the previous timesteps'. We can also use other forms of RNNs such as GRUs, LSTMs, and bidirectional RNNs to encode the sequential input.
+지금까지 위에서 설명한 것은 각 타임스텝의 은닉 상태가 이전 타임스텝들에만 의존하는 단방향 RNN입니다. 우리는 또한 순차적 입력을 인코딩하기 위해 GRU, LSTM 및 양방향 RNN과 같은 다른 형태의 RNN을 사용할 수도 있습니다.
 
-Now let us implement the seq2seq's encoder.
-Here we use the word embedding layer to obtain the feature vector
-according to the word index of the input language.
-Those feature vectors will be fed to a multi-layer LSTM.
-The input for the encoder is a batch of sequences, which is 2-D tensor with shape (batch size, sequence length). The encoder returns both the LSTM outputs, i.e., hidden states of all the timesteps, as well as the hidden state and the memory cell of the final timestep.
+이제 seq2seq의 인코더를 구현해 봅시다. 여기서는 입력 언어의 단어 인덱스에 따라 특성 벡터를 얻기 위해 단어 임베딩 레이어를 사용합니다. 이러한 특성 벡터들은 다층 LSTM에 공급될 것입니다. 인코더의 입력은 시퀀스들의 배치이며, 이는 (배치 크기, 시퀀스 길이) 모양의 2차원 텐서입니다. 인코더는 LSTM 출력(즉, 모든 타임스텝의 은닉 상태)뿐만 아니라 최종 타임스텝의 은닉 상태와 메모리 셀을 모두 반환합니다.
 
 ```{.python .input  n=2}
 #@tab mxnet
@@ -55,18 +51,18 @@ class Seq2SeqEncoder(d2l.Encoder):
         self.rnn = rnn.LSTM(num_hiddens, num_layers, dropout=dropout)
 
     def forward(self, X, *args):
-        X = self.embedding(X)  # X shape: (batch_size, seq_len, embed_size)
-        # RNN needs first axes to be timestep, i.e., seq_len
+        X = self.embedding(X)  # X 모양: (batch_size, seq_len, embed_size)
+        # RNN은 첫 번째 축이 타임스텝(즉, seq_len)이어야 합니다
         X = X.swapaxes(0, 1)
         state = self.rnn.begin_state(batch_size=X.shape[1], ctx=X.ctx)
         out, state = self.rnn(X, state)
-        # out shape: (seq_len, batch_size, num_hiddens)
-        # state shape: (num_layers, batch_size, num_hiddens),
-        # where "state" contains the hidden state and the memory cell
+        # out 모양: (seq_len, batch_size, num_hiddens)
+        # state 모양: (num_layers, batch_size, num_hiddens),
+        # 여기서 "state"는 은닉 상태와 메모리 셀을 포함합니다
         return out, state
 ```
 
-Next, we will create a minibatch sequence input with a batch size of 4 and 7 timesteps. We assume the number of hidden layers of the LSTM unit is 2 and the number of hidden units is 16. The output shape returned by the encoder after performing forward calculation on the input is (number of timesteps, batch size, number of hidden units). The shape of the multi-layer hidden state of the gated recurrent unit in the final timestep is (number of hidden layers, batch size, number of hidden units). For the gated recurrent unit, the `state` list contains only one element, which is the hidden state. If long short-term memory is used, the `state` list will also contain another element, which is the memory cell.
+다음으로, 배치 크기가 4이고 타임스텝이 7인 미니배치 시퀀스 입력을 생성할 것입니다. LSTM 유닛의 은닉층 수는 2이고 은닉 유닛 수는 16이라고 가정합니다. 입력에 대해 순전파 계산을 수행한 후 인코더가 반환하는 출력 모양은 (타임스텝 수, 배치 크기, 은닉 유닛 수)입니다. 최종 타임스텝에서 게이트 순환 유닛의 다층 은닉 상태 모양은 (은닉층 수, 배치 크기, 은닉 유닛 수)입니다. 게이트 순환 유닛의 경우, `state` 리스트는 은닉 상태인 단 하나의 요소만 포함합니다. 장단기 메모리(LSTM)가 사용되는 경우, `state` 리스트는 메모리 셀이라는 또 다른 요소도 포함합니다.
 
 ```{.python .input  n=3}
 #@tab mxnet
@@ -78,27 +74,26 @@ output, state = encoder(X)
 output.shape
 ```
 
-Since an LSTM is used, the `state` list will contain both the hidden state and the memory cell with same shape (number of hidden layers, batch size, number of hidden units). However, if a GRU is used, the `state` list will contain only one element---the hidden state in the final timestep with shape (number of hidden layers, batch size, number of hidden units).
+LSTM이 사용되므로, `state` 리스트는 동일한 모양(은닉층 수, 배치 크기, 은닉 유닛 수)을 가진 은닉 상태와 메모리 셀을 모두 포함합니다. 그러나 GRU가 사용되는 경우, `state` 리스트는 최종 타임스텝에서의 은닉 상태(모양: (은닉층 수, 배치 크기, 은닉 유닛 수))라는 단 하나의 요소만 포함하게 됩니다.
 
 ```{.python .input  n=4}
 #@tab mxnet
 len(state), state[0].shape, state[1].shape
 ```
 
-## Decoder
+## 디코더 (Decoder)
 :label:`sec_seq2seq_decoder`
 
-As we just introduced, the context vector $\mathbf{c}$ encodes the information from the whole input sequence $x_1, \ldots, x_T$. Suppose that the given outputs in the training set are $y_1, \ldots, y_{T'}$. At each timestep $t'$, the conditional probability of output $y_{t'}$ will depend on the previous output sequence $y_1, \ldots, y_{t'-1}$ and the context vector $\mathbf{c}$, i.e.,
+방금 소개했듯이, 문맥 벡터 $\mathbf{c}$는 전체 입력 시퀀스 $x_1, \ldots, x_T$의 정보를 인코딩합니다. 훈련 세트에 주어진 출력이 $y_1, \ldots, y_{T'}$라고 가정합시다. 각 타임스텝 $t'$에서 출력 $y_{t'}$의 조건부 확률은 이전 출력 시퀀스 $y_1, \ldots, y_{t'-1}$와 문맥 벡터 $\mathbf{c}$에 의존합니다. 즉,
 
 $$P(y_{t'} \mid y_1, \ldots, y_{t'-1}, \mathbf{c}).$$
 
-Hence, we can use another RNN as the decoder. At timestep $t'$, the decoder will update its hidden state $\mathbf{s}_{t'}$ using three inputs: the feature vector $\mathbf{y}_{t'-1}$ of $y_{t'-1}$, the context vector $\mathbf{c}$, and the hidden state of the last timestep $\mathbf{s}_{t'-1}$. Let us denote the transformation of the RNN's hidden states within the decoder by a function $g$:
+따라서 우리는 디코더로 또 다른 RNN을 사용할 수 있습니다. 타임스텝 $t'$에서 디코더는 세 개의 입력, 즉 $y_{t'-1}$의 특성 벡터 $\mathbf{y}_{t'-1}$, 문맥 벡터 $\mathbf{c}$, 그리고 이전 타임스텝의 은닉 상태 $\mathbf{s}_{t'-1}$를 사용하여 은닉 상태 $\mathbf{s}_{t'}$를 업데이트합니다. 디코더 내의 RNN의 은닉 상태 변환을 함수 $g$로 표시해 봅시다:
 
 $$\mathbf{s}_{t'} = g(\mathbf{y}_{t'-1}, \mathbf{c}, \mathbf{s}_{t'-1}).$$
 
 
-When implementing the decoder, we directly use the hidden state of the encoder in the final timestep as the initial hidden state of the decoder. This requires that the encoder and decoder RNNs have the same numbers of layers and hidden units.
-The LSTM forward calculation of the decoder is similar to that of the encoder. The only difference is that we add a dense layer after the LSTM layers, where the hidden size is the vocabulary size. The dense layer will predict the confidence score for each word.
+디코더를 구현할 때, 인코더의 최종 타임스텝 은닉 상태를 디코더의 초기 은닉 상태로 직접 사용합니다. 이는 인코더와 디코더 RNN이 동일한 수의 레이어와 은닉 유닛을 가질 것을 요구합니다. 디코더의 LSTM 순전파 계산은 인코더의 것과 유사합니다. 유일한 차이점은 LSTM 레이어 뒤에 은닉 크기가 어휘 크기인 밀집(dense) 레이어를 추가한다는 것입니다. 밀집 레이어는 각 단어에 대한 신뢰도 점수를 예측합니다.
 
 ```{.python .input  n=5}
 #@tab mxnet
@@ -117,13 +112,12 @@ class Seq2SeqDecoder(d2l.Decoder):
     def forward(self, X, state):
         X = self.embedding(X).swapaxes(0, 1)
         out, state = self.rnn(X, state)
-        # Make the batch to be the first dimension to simplify loss
-        # computation
+        # 손실 계산을 단순화하기 위해 배치를 첫 번째 차원으로 만듭니다
         out = self.dense(out).swapaxes(0, 1)
         return out, state
 ```
 
-We create a decoder with the same hyper-parameters as the encoder. As we can see, the output shape is changed to (batch size, the sequence length, vocabulary size).
+인코더와 동일한 하이퍼파라미터로 디코더를 생성합니다. 보시다시피 출력 모양이 (배치 크기, 시퀀스 길이, 어휘 크기)로 변경되었습니다.
 
 ```{.python .input  n=6}
 #@tab mxnet
@@ -135,11 +129,11 @@ out, state = decoder(X, state)
 out.shape, len(state), state[0].shape, state[1].shape
 ```
 
-## The Loss Function
+## 손실 함수 (The Loss Function)
 
-For each timestep, the decoder outputs a vocabulary-size confidence score vector to predict words. Similar to language modeling, we can apply softmax to obtain the probabilities and then use cross-entropy loss to calculate the loss. Note that we padded the target sentences to make them have the same length, but we do not need to compute the loss on the padding symbols.
+각 타임스텝마다 디코더는 단어를 예측하기 위해 어휘 크기의 신뢰도 점수 벡터를 출력합니다. 언어 모델링과 유사하게, 소프트맥스를 적용하여 확률을 얻은 다음 크로스 엔트로피 손실을 사용하여 손실을 계산할 수 있습니다. 타겟 문장들이 동일한 길이를 갖도록 패딩을 추가했지만, 패딩 기호에 대해서는 손실을 계산할 필요가 없음에 유의하십시오.
 
-To implement the loss function that filters out some entries, we will use an operator called `SequenceMask`. It can specify to mask the first dimension (`axis=0`) or the second one (`axis=1`). If the second one is chosen, given a valid length vector `len` and 2-dim input `X`, this operator sets `X[i, len[i]:] = 0` for all $i$'s.
+일부 항목을 필터링하는 손실 함수를 구현하기 위해, `SequenceMask`라는 연산자를 사용합니다. 이는 첫 번째 차원(`axis=0`) 또는 두 번째 차원(`axis=1`)을 마스킹하도록 지정할 수 있습니다. 두 번째 차원이 선택되면, 유효 길이 벡터 `len`과 2차원 입력 `X`가 주어졌을 때 이 연산자는 모든 $i$에 대해 `X[i, len[i]:] = 0`으로 설정합니다.
 
 ```{.python .input  n=7}
 #@tab mxnet
@@ -147,7 +141,7 @@ X = np.array([[1, 2, 3], [4, 5, 6]])
 npx.sequence_mask(X, np.array([1, 2]), True, axis=1)
 ```
 
-Apply to $n$-dim tensor $X$, it sets `X[i, len[i]:, :, ..., :] = 0`. In addition, we can specify the filling value such as $-1$ as shown below.
+$n$차원 텐서 $X$에 적용하면 `X[i, len[i]:, :, ..., :] = 0`으로 설정합니다. 또한 아래와 같이 $-1$과 같은 채우기 값을 지정할 수 있습니다.
 
 ```{.python .input  n=8}
 #@tab mxnet
@@ -155,23 +149,23 @@ X = np.ones((2, 3, 4))
 npx.sequence_mask(X, np.array([1, 2]), True, value=-1, axis=1)
 ```
 
-Now we can implement the masked version of the softmax cross-entropy loss. Note that each Gluon loss function allows to specify per-example weights, in default they are 1s. Then we can just use a zero weight for each example we would like to remove. So our customized loss function accepts an additional `valid_len` argument to ignore some failing elements in each sequence.
+이제 마스킹된 버전의 소프트맥스 크로스 엔트로피 손실을 구현할 수 있습니다. 각 Gluon 손실 함수는 예제별 가중치를 지정할 수 있으며 기본값은 1입니다. 그러면 제거하고 싶은 각 예제에 대해 단순히 가중치 0을 사용할 수 있습니다. 따라서 우리의 사용자 정의 손실 함수는 각 시퀀스에서 일부 실패한 요소를 무시하기 위해 추가적인 `valid_len` 인수를 받습니다.
 
 ```{.python .input  n=9}
 #@tab mxnet
 #@save
 class MaskedSoftmaxCELoss(gluon.loss.SoftmaxCELoss):
-    # pred shape: (batch_size, seq_len, vocab_size)
-    # label shape: (batch_size, seq_len)
-    # valid_len shape: (batch_size, )
+    # pred 모양: (batch_size, seq_len, vocab_size)
+    # label 모양: (batch_size, seq_len)
+    # valid_len 모양: (batch_size, )
     def forward(self, pred, label, valid_len):
-        # weights shape: (batch_size, seq_len, 1)
+        # weights 모양: (batch_size, seq_len, 1)
         weights = np.expand_dims(np.ones_like(label), axis=-1)
         weights = npx.sequence_mask(weights, valid_len, True, axis=1)
         return super(MaskedSoftmaxCELoss, self).forward(pred, label, weights)
 ```
 
-For a sanity check, we create identical three sequences, keep 4 elements for the first sequence, 2 elements for the second sequence, and none for the last one. Then the first example loss should be 2 times larger than the second one, and the last loss should be 0.
+정상성 확인을 위해, 동일한 세 개의 시퀀스를 생성하고 첫 번째 시퀀스는 4개 요소를 유지하고, 두 번째는 2개, 마지막은 하나도 유지하지 않습니다. 그러면 첫 번째 예제 손실은 두 번째보다 2배 커야 하고, 마지막 손실은 0이어야 합니다.
 
 ```{.python .input  n=10}
 #@tab mxnet
@@ -179,10 +173,10 @@ loss = MaskedSoftmaxCELoss()
 loss(np.ones((3, 4, 10)), np.ones((3, 4)), np.array([4, 2, 0]))
 ```
 
-## Training
+## 훈련 (Training)
 :label:`sec_seq2seq_training`
 
-During training, if the target sequence has length $n$, we feed the first $n-1$ tokens into the decoder as inputs, and the last $n-1$ tokens are used as ground truth label.
+훈련 중에 타겟 시퀀스의 길이가 $n$이라면, 처음 $n-1$개의 토큰을 디코더의 입력으로 공급하고, 마지막 $n-1$개의 토큰은 정답 레이블로 사용됩니다.
 
 ```{.python .input  n=11}
 #@tab mxnet
@@ -214,7 +208,7 @@ def train_s2s_ch9(model, data_iter, lr, num_epochs, ctx):
         metric[0]/metric[1], metric[1]/timer.stop(), ctx))
 ```
 
-Next, we create a model instance and set hyper-parameters. Then, we can train the model.
+다음으로, 모델 인스턴스를 생성하고 하이퍼파라미터를 설정합니다. 그런 다음 모델을 훈련할 수 있습니다.
 
 ```{.python .input  n=12}
 #@tab mxnet
@@ -231,12 +225,11 @@ model = d2l.EncoderDecoder(encoder, decoder)
 train_s2s_ch9(model, train_iter, lr, num_epochs, ctx)
 ```
 
-## Predicting
+## 예측 (Predicting)
 
-Here we implement the simplest method, greedy search, to generate an output
-sequence. As illustrated in :numref:`fig_seq2seq_predict`, during predicting, we feed the same "&lt;bos&gt;" token to the decoder as training at timestep 0. But the input token for a later timestep is the predicted token from the previous timestep.
+여기서는 출력 시퀀스를 생성하기 위해 가장 간단한 방법인 그리디 검색(greedy search)을 구현합니다. :numref:`fig_seq2seq_predict`에서 설명한 것처럼, 예측 중에 타임스텝 0에서 훈련 때와 동일한 "<bos>" 토큰을 디코더에 공급합니다. 그러나 이후 타임스텝의 입력 토큰은 이전 타임스텝의 예측된 토큰입니다.
 
-![Sequence to sequence model predicting with greedy search](../img/seq2seq_predict.svg)
+![그리디 검색으로 예측하는 시퀀스-투-시퀀스 모델](../img/seq2seq_predict.svg)
 :label:`fig_seq2seq_predict`
 
 ```{.python .input  n=16}
@@ -260,7 +253,7 @@ def predict_s2s_ch9_beam(model, src_sentence, src_vocab, tgt_vocab, num_steps,
     enc_valid_len = np.array([len(src_tokens)], ctx=ctx)
     src_tokens = d2l.truncate_pad(src_tokens, num_steps, src_vocab['<pad>'])
     enc_X = np.array(src_tokens, ctx=ctx)
-    # Add the batch_size dimension
+    # batch_size 차원 추가
     enc_outputs = model.encoder(np.expand_dims(enc_X, axis=0),
                                 enc_valid_len)
     dec_state = model.decoder.init_state(enc_outputs, enc_valid_len)
@@ -272,7 +265,7 @@ def predict_s2s_ch9_beam(model, src_sentence, src_vocab, tgt_vocab, num_steps,
     nodes.put((-node.eval(), node))
     #while True:
     for _ in range(num_steps):
-        # give up when decoding takes too long
+        # 디코딩이 너무 오래 걸리면 포기함
         score, n = nodes.get()
         dec_X = n.wordid
         dec_state = n.h
@@ -298,7 +291,7 @@ def predict_s2s_ch9_beam(model, src_sentence, src_vocab, tgt_vocab, num_steps,
     predict_tokens = []
     if int(n.wordid) != tgt_vocab['<eos>']:
         predict_tokens.append(int(n.wordid))
-    # back trace
+    # 역추적
     while n.prevNode != None:
         n = n.prevNode
         if int(n.wordid) != tgt_vocab['<bos>']:
@@ -307,7 +300,7 @@ def predict_s2s_ch9_beam(model, src_sentence, src_vocab, tgt_vocab, num_steps,
     return ' '.join(tgt_vocab.to_tokens(predict_tokens))
 ```
 
-Try several examples:
+몇 가지 예제를 시도해 봅니다:
 
 ```{.python .input  n=204}
 #@tab mxnet
@@ -316,19 +309,19 @@ for sentence in ['Go .', 'Wow !', "I'm OK .", 'I won !']:
         model, sentence, src_vocab, tgt_vocab, num_steps, 3, ctx))
 ```
 
-## Summary
+## 요약 (Summary)
 
-* The sequence to sequence (seq2seq) model is based on the encoder-decoder architecture to generate a sequence output from a sequence input.
-* We use multiple LSTM layers for both the encoder and the decoder.
-
-
-## Exercises
-
-1. Can you think of other use cases of seq2seq besides neural machine translation?
-1. What if the input sequence in the example of this section is longer?
-1. If we do not use the `SequenceMask` in the loss function, what may happen?
+* 시퀀스-투-시퀀스(seq2seq) 모델은 시퀀스 입력을 받아 시퀀스 출력을 생성하기 위해 인코더-디코더 아키텍처를 기반으로 합니다.
+* 인코더와 디코더 모두에 대해 여러 LSTM 레이어를 사용합니다.
 
 
-## [Discussions](https://discuss.mxnet.io/t/4357)
+## 연습 문제 (Exercises)
+
+1. 신경 기계 번역 외에 seq2seq의 다른 사용 사례를 생각할 수 있습니까?
+2. 이 섹션의 예제에서 입력 시퀀스가 더 길어지면 어떻게 될까요?
+3. 손실 함수에서 `SequenceMask`를 사용하지 않으면 어떤 일이 발생할 수 있습니까?
+
+
+## [토론](https://discuss.mxnet.io/t/4357)
 
 ![](../img/qr_seq2seq.svg)

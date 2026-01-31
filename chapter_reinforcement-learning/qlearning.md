@@ -1,79 +1,4 @@
 ```{.python .input}
-%load_ext d2lbook.tab
-tab.interact_select(["pytorch"])
-#required_libs("setuptools==66", "wheel==0.38.4", "gym==0.21.0")
-```
-
-# Q-Learning
-:label:`sec_qlearning`
-
-In the previous section, we discussed the Value Iteration algorithm which requires accessing the complete Markov decision process (MDP), e.g., the transition and reward functions. In this section, we will look at Q-Learning :cite:`Watkins.Dayan.1992` which is an algorithm to learn the value function without necessarily knowing the MDP. This algorithm embodies the central idea behind reinforcement learning: it will enable the robot to obtain its own data.
-<!-- , instead of relying upon the expert. -->
-
-## The Q-Learning Algorithm
-
-Recall that value iteration for the action-value function in :ref:`sec_valueiter` corresponds to the update
-
-$$Q_{k+1}(s, a) = r(s, a) + \gamma \sum_{s' \in \mathcal{S}} P(s' \mid s, a) \max_{a' \in \mathcal{A}} Q_k (s', a'); \ \textrm{for all } s \in \mathcal{S} \textrm{ and } a \in \mathcal{A}.$$
-
-As we discussed, implementing this algorithm requires knowing the MDP, specifically the transition function $P(s' \mid s, a)$. The key idea behind Q-Learning is to replace the summation over all $s' \in \mathcal{S}$ in the above expression by a summation over the states visited by the robot. This allows us to subvert the need to know the transition function.
-
-## An Optimization Problem Underlying Q-Learning
-
-Let us imagine that the robot uses a policy $\pi_e(a \mid s)$ to take actions. Just like the previous chapter, it collects a dataset of $n$ trajectories of $T$ timesteps each $\{ (s_t^i, a_t^i)_{t=0,\ldots,T-1}\}_{i=1,\ldots, n}$. Recall that value iteration is really a set of constraints that ties together the action-value $Q^*(s, a)$ of different states and actions to each other. We can implement an approximate version of value iteration using the data that the robot has collected using $\pi_e$ as
-
-$$\hat{Q} = \min_Q \underbrace{\frac{1}{nT} \sum_{i=1}^n \sum_{t=0}^{T-1} (Q(s_t^i, a_t^i) - r(s_t^i, a_t^i) - \gamma \max_{a'} Q(s_{t+1}^i, a'))^2}_{\stackrel{\textrm{def}}{=} \ell(Q)}.$$
-:eqlabel:`q_learning_optimization_problem`
-
-Let us first observe the similarities and differences between this expression and value iteration above. If the robot's policy $\pi_e$ were equal to the optimal policy $\pi^*$, and if it collected an infinite amount of data, then this optimization problem would be identical to the optimization problem underlying value iteration. But while value iteration requires us to know $P(s' \mid s, a)$, the optimization objective does not have this term. We have not cheated: as the robot uses the policy $\pi_e$ to take an action $a_t^i$ at state $s_t^i$, the next state $s_{t+1}^i$ is a sample drawn from the transition function. So the optimization objective also has access to the transition function, but implicitly in terms of the data collected by the robot.
-
-The variables of our optimization problem are $Q(s, a)$ for all $s \in \mathcal{S}$ and $a \in \mathcal{A}$. We can minimize the objective using gradient descent. For every pair $(s_t^i, a_t^i)$ in our dataset, we can write
-
-$$\begin{aligned}Q(s_t^i, a_t^i) &\leftarrow Q(s_t^i, a_t^i) - \alpha \nabla_{Q(s_t^i,a_t^i)} \ell(Q) \\&=(1 - \alpha) Q(s_t^i,a_t^i) - \alpha \Big( r(s_t^i, a_t^i) + \gamma \max_{a'} Q(s_{t+1}^i, a') \Big),\end{aligned}$$
-:eqlabel:`q_learning`
-
-where $\alpha$ is the learning rate. Typically in real problems, when the robot reaches the goal location, the trajectories end. The value of such a terminal state is zero because the robot does not take any further actions beyond this state. We should modify our update to handle such states as
-
-$$Q(s_t^i, a_t^i) =(1 - \alpha) Q(s_t^i,a_t^i) - \alpha \Big( r(s_t^i, a_t^i) + \gamma (1 - \mathbb{1}_{s_{t+1}^i \textrm{ is terminal}} )\max_{a'} Q(s_{t+1}^i, a') \Big).$$
-
-where $\mathbb{1}_{s_{t+1}^i \textrm{ is terminal}}$ is an indicator variable that is one if $s_{t+1}^i$ is a terminal state and zero otherwise. The value of state-action tuples $(s, a)$ that are not a part of the dataset is set to $-\infty$. This algorithm is known as Q-Learning.
-
-Given the solution of these updates $\hat{Q}$, which is an approximation of the optimal value function $Q^*$, we can obtain the optimal deterministic policy corresponding to this value function easily using
-
-$$\hat{\pi}(s) = \mathrm{argmax}_{a} \hat{Q}(s, a).$$
-
-There can be situations when there are multiple deterministic policies that correspond to the same optimal value function; such ties can be broken arbitrarily because they have the same value function.
-
-## Exploration in Q-Learning
-
-The policy used by the robot to collect data $\pi_e$ is critical to ensure that Q-Learning works well. Afterall, we have replaced the expectation over $s'$ using the transition function $P(s' \mid s, a)$ using the data collected by the robot. If the policy $\pi_e$ does not reach diverse parts of the state-action space, then it is easy to imagine our estimate $\hat{Q}$ will be a poor approximation of the optimal $Q^*$. It is also important to note that in such a situation, the estimate of $Q^*$ at *all states* $s \in \mathcal{S}$ will be bad, not just the ones visited by $\pi_e$. This is because the Q-Learning objective (or value iteration) is a constraint that ties together the value of all state-action pairs. It is therefore critical to pick the correct policy $\pi_e$ to collect data.
-
-We can mitigate this concern by picking a completely random policy $\pi_e$ that samples actions uniformly randomly from $\mathcal{A}$. Such a policy would visit all states, but it will take a large number of trajectories before it does so.
-
-We thus arrive at the second key idea in Q-Learning, namely exploration. Typical implementations of Q-Learning tie together the current estimate of $Q$ and the policy $\pi_e$ to set
-
-$$\pi_e(a \mid s) = \begin{cases}\mathrm{argmax}_{a'} \hat{Q}(s, a') & \textrm{with prob. } 1-\epsilon \\ \textrm{uniform}(\mathcal{A}) & \textrm{with prob. } \epsilon,\end{cases}$$
-:eqlabel:`epsilon_greedy`
-
-where $\epsilon$ is called the "exploration parameter" and is chosen by the user. The policy $\pi_e$ is called an exploration policy. This particular $\pi_e$ is called an $\epsilon$-greedy exploration policy because it chooses the optimal action (under the current estimate $\hat{Q}$) with probability $1-\epsilon$ but explores randomly with the remainder probability $\epsilon$. We can also use the so-called softmax exploration policy
-
-$$\pi_e(a \mid s) = \frac{e^{\hat{Q}(s, a)/T}}{\sum_{a'} e^{\hat{Q}(s, a')/T}};$$
-
-where the hyper-parameter $T$ is called temperature. A large value of $\epsilon$ in $\epsilon$-greedy policy functions similarly to a large value of temperature $T$ for the softmax policy.
-
-It is important to note that when we pick an exploration that depends upon the current estimate of the action-value function $\hat{Q}$, we need to resolve the optimization problem periodically. Typical implementations of Q-Learning make one mini-batch update using a few state-action pairs in the collected dataset (typically the ones collected from the previous timestep of the robot) after taking every action using $\pi_e$.
-
-## The "Self-correcting" Property of Q-Learning
-
-The dataset collected by the robot during Q-Learning grows with time. Both the exploration policy $\pi_e$ and the estimate $\hat{Q}$ evolve as the robot collects more data. This gives us a key insight into why Q-Learning works well. Consider a state $s$: if a particular action $a$ has a large value under the current estimate $\hat{Q}(s,a)$, then both the $\epsilon$-greedy and the softmax exploration policies have a larger probability of picking this action. If this action actually is *not* the ideal action, then the future states that arise from this action will have poor rewards. The next update of the Q-Learning objective will therefore reduce the value $\hat{Q}(s,a)$, which will reduce the probability of picking this action the next time the robot visits state $s$. Bad actions, e.g., ones whose value is overestimated in $\hat{Q}(s,a)$, are explored by the robot but their value is correct in the next update of the Q-Learning objective. Good actions, e.g., whose value $\hat{Q}(s, a)$ is large, are explored more often by the robot and thereby reinforced. This property can be used to show that Q-Learning can converge to the optimal policy even if it begins with a random policy $\pi_e$ :cite:`Watkins.Dayan.1992`.
-
-This ability to not only collect new data but also collect the right kind of data is the central feature of reinforcement learning algorithms, and this is what distinguishes them from supervised learning. Q-Learning, using deep neural networks (which we will see in the DQN chapeter later), is responsible for the resurgence of reinforcement learning :cite:`mnih2013playing`.
-
-## Implementation of Q-Learning
-
-We now show how to implement Q-Learning on FrozenLake from [Open AI Gym](https://gym.openai.com). Note this is the same setup as we consider in :ref:`sec_valueiter` experiment.
-
-```{.python .input}
 %%tab all
 
 %matplotlib inline
@@ -81,21 +6,26 @@ import numpy as np
 import random
 from d2l import torch as d2l
 
-seed = 0  # Random number generator seed
-gamma = 0.95  # Discount factor
-num_iters = 256  # Number of iterations
-alpha   = 0.9  # Learing rate
-epsilon = 0.9  # Epsilon in epsilion gready algorithm
-random.seed(seed)  # Set the random seed
+seed = 0  # 난수 생성기 시드
+gamma = 0.95  # 할인율
+num_iters = 256  # 반복 횟수
+alpha   = 0.9  # 학습률
+epsilon = 0.9  # 엡실론 탐욕적 알고리즘의 엡실론
+random.seed(seed)  # 랜덤 시드 설정
 np.random.seed(seed)
 
-# Now set up the environment
+# 이제 환경 설정
 env_info = d2l.make_env('FrozenLake-v1', seed=seed)
 ```
 
-In the FrozenLake environment, the robot moves on a $4 \times 4$ grid (these are the states) with actions that are "up" ($\uparrow$), "down" ($\rightarrow$), "left" ($\leftarrow$), and "right" ($\rightarrow$). The environment contains a number of holes (H) cells and frozen (F) cells as well as a goal cell (G), all of which are unknown to the robot. To keep the problem simple, we assume the robot has reliable actions, i.e. $P(s' \mid s, a) = 1$ for all $s \in \mathcal{S}, a \in \mathcal{A}$. If the robot reaches the goal, the trial ends and the robot receives a reward of $1$ irrespective of the action; the reward at any other state is $0$ for all actions. The objective of the robot is to learn a policy that reaches the goal location (G) from a given start location (S) (this is $s_0$) to maximize the *return*.
+# Q-러닝 (Q-Learning)
+:label:`sec_qlearning`
 
-We first implement $\epsilon$-greedy method as follows:
+이 섹션에서는 가장 인기 있고 널리 사용되는 강화 학습 알고리즘 중 하나인 Q-러닝(Q-Learning)을 소개합니다. Q-러닝은 모델 없이 동작하는(model-free) 강화 학습 알고리즘으로, 에이전트가 환경에 대한 사전 지식 없이도 최적의 정책을 학습할 수 있게 해줍니다.
+
+FrozenLake 환경에서 로봇은 "위"($\uparrow$), "아래"($\rightarrow$), "왼쪽"($\leftarrow$), "오른쪽"($\rightarrow$) 행동으로 $4 \times 4$ 그리드(상태) 위를 이동합니다. 환경에는 로봇에게 알려지지 않은 여러 구멍(H) 셀과 얼어붙은(F) 셀, 목표 셀(G)이 포함되어 있습니다. 문제를 간단하게 유지하기 위해 로봇이 신뢰할 수 있는 행동을 한다고 가정합니다. 즉, 모든 $s \in \mathcal{S}, a \in \mathcal{A}$에 대해 $P(s' \mid s, a) = 1$입니다. 로봇이 목표에 도달하면 시도가 종료되고 행동에 관계없이 $1$의 보상을 받습니다. 다른 상태에서의 보상은 모든 행동에 대해 $0$입니다. 로봇의 목표는 주어진 시작 위치(S)($s_0$)에서 목표 위치(G)에 도달하여 *반환값*을 최대화하는 정책을 학습하는 것입니다.
+
+먼저 $\epsilon$-탐욕적 방법을 다음과 같이 구현합니다.
 
 ```{.python .input}
 %%tab all
@@ -109,14 +39,14 @@ def e_greedy(env, Q, s, epsilon):
 
 ```
 
-We are now ready to implement Q-learning:
+이제 Q-러닝을 구현할 준비가 되었습니다.
 
 ```{.python .input}
 %%tab all
 
 def q_learning(env_info, gamma, num_iters, alpha, epsilon):
-    env_desc = env_info['desc']  # 2D array specifying what each grid item means
-    env = env_info['env']  # 2D array specifying what each grid item means
+    env_desc = env_info['desc']  # 각 그리드 항목이 의미하는 바를 지정하는 2D 배열
+    env = env_info['env']  # 각 그리드 항목이 의미하는 바를 지정하는 2D 배열
     num_states = env_info['num_states']
     num_actions = env_info['num_actions']
 
@@ -125,20 +55,20 @@ def q_learning(env_info, gamma, num_iters, alpha, epsilon):
     pi = np.zeros((num_iters + 1, num_states))
 
     for k in range(1, num_iters + 1):
-        # Reset environment
+        # 환경 재설정
         state, done = env.reset(), False
         while not done:
-            # Select an action for a given state and acts in env based on selected action
+            # 주어진 상태에 대한 행동을 선택하고 선택된 행동에 따라 환경에서 행동
             action = e_greedy(env, Q, state, epsilon)
             next_state, reward, done, _ = env.step(action)
 
-            # Q-update:
+            # Q-업데이트:
             y = reward + gamma * np.max(Q[next_state,:])
             Q[state, action] = Q[state, action] + alpha * (y - Q[state, action])
 
-            # Move to the next state
+            # 다음 상태로 이동
             state = next_state
-        # Record max value and max action for visualization purpose only
+        # 시각화 목적으로만 최대 가치와 최대 행동 기록
         for s in range(num_states):
             V[k,s]  = np.max(Q[s,:])
             pi[k,s] = np.argmax(Q[s,:])
@@ -148,18 +78,20 @@ q_learning(env_info=env_info, gamma=gamma, num_iters=num_iters, alpha=alpha, eps
 
 ```
 
-This result shows that Q-learning can find the optimal solution for this problem roughly after 250 iterations. However, when we compare this result with the Value Iteration algorithm's result (see :ref:`subsec_valueitercode`), we can see that the Value Iteration algorithm needs way fewer iterations to find the optimal solution for this problem. This happens because the Value Iteration algorithm has access to the full MDP whereas Q-learning does not.
+이 결과는 Q-러닝이 대략 250번의 반복 후에 이 문제에 대한 최적의 해결책을 찾을 수 있음을 보여줍니다. 그러나 이 결과를 가치 반복 알고리즘의 결과(:ref:`subsec_valueitercode` 참조)와 비교할 때, 가치 반복 알고리즘이 이 문제에 대한 최적의 해결책을 찾는 데 훨씬 더 적은 반복이 필요함을 알 수 있습니다. 이는 가치 반복 알고리즘이 전체 MDP에 접근할 수 있는 반면 Q-러닝은 그렇지 않기 때문에 발생합니다.
 
 
-## Summary
-Q-learning is one of the most fundamental reinforcement-learning algorithms. It has been at the epicenter of the recent success of reinforcement learning, most notably in learning to play video games :cite:`mnih2013playing`. Implementing Q-learning does not require that we know the Markov decision process (MDP), e.g., the transition and reward functions, completely.
+## 요약
+Q-러닝은 가장 기본적인 강화 학습 알고리즘 중 하나입니다. 그것은 최근 강화 학습의 성공, 특히 비디오 게임 플레이 학습의 진원지에 있었습니다 :cite:`mnih2013playing`. Q-러닝을 구현하기 위해 마르코프 결정 과정(MDP), 예를 들어 전이 및 보상 함수를 완전히 알 필요는 없습니다.
 
-## Exercises
+## 연습 문제
 
-1. Try increasing the grid size to $8 \times 8$. Compared with $4 \times 4$ grid, how many iterations does it take to find the optimal value function?
-1. Run the Q-learning algorithm again with $\gamma$ (i.e. "gamma" in the above code) when it equals to $0$, $0.5$, and $1$ and analyze its results.
-1. Run the Q-learning algorithm again with $\epsilon$ (i.e. "epsilon" in the above code) when it equals to $0$, $0.5$, and $1$ and analyze its results.
+1. 그리드 크기를 $8 \times 8$로 늘려보십시오. $4 \times 4$ 그리드와 비교하여 최적 가치 함수를 찾는 데 몇 번의 반복이 걸립니까?
+2. $\gamma$(즉, 위 코드의 "gamma")가 $0$, $0.5$, $1$일 때 Q-러닝 알고리즘을 다시 실행하고 결과를 분석하십시오.
+3. $\epsilon$(즉, 위 코드의 "epsilon")이 $0$, $0.5$, $1$일 때 Q-러닝 알고리즘을 다시 실행하고 결과를 분석하십시오.
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/12103)
+[토론](https://discuss.d2l.ai/t/12103)
 :end_tab:
+
+```

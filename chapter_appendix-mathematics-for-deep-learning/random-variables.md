@@ -1,44 +1,37 @@
-# Random Variables
+# 확률 변수 (Random Variables)
 :label:`sec_random_variables`
 
-In :numref:`sec_prob` we saw the basics of how to work with discrete random variables, which in our case refer to those random variables which take either a finite set of possible values, or the integers.  In this section, we develop the theory of *continuous random variables*, which are random variables which  can take on any real value.
+:numref:`sec_prob`에서 우리는 이산 확률 변수를 다루는 방법에 대한 기초를 보았습니다. 우리의 경우 이산 확률 변수는 유한한 가능한 값의 집합 또는 정수를 취하는 확률 변수를 지칭합니다. 이 섹션에서는 임의의 실수 값을 취할 수 있는 확률 변수인 *연속 확률 변수(continuous random variables)* 이론을 전개합니다.
 
-## Continuous Random Variables
+## 연속 확률 변수 (Continuous Random Variables)
 
-Continuous random variables are a significantly more subtle topic than discrete random variables.  A fair analogy to make is that the technical jump is comparable to the jump between adding lists of numbers and integrating functions.  As such, we will need to take some time to develop the theory.
+연속 확률 변수는 이산 확률 변수보다 현저히 더 미묘한 주제입니다. 적절한 비유를 들자면, 기술적인 도약은 숫자 목록을 더하는 것과 함수를 적분하는 것 사이의 도약에 필적합니다. 따라서 이론을 전개하는 데 시간을 좀 들여야 합니다.
 
-### From Discrete to Continuous
+### 이산에서 연속으로 (From Discrete to Continuous)
 
-To understand the additional technical challenges encountered when working with continuous random variables, let's perform a thought experiment.  Suppose that we are throwing a dart at the dart board, and we want to know the probability that it hits exactly $2 \textrm{cm}$ from the center of the board.
+연속 확률 변수로 작업할 때 마주치는 추가적인 기술적 과제를 이해하기 위해 사고 실험을 하나 해봅시다. 우리가 다트판에 다트를 던지고 있고, 판의 중심으로부터 정확히 $2 \textrm{cm}$ 떨어진 곳에 맞을 확률을 알고 싶다고 가정해 봅시다. 우선, 한 자리 정도의 정확도로 측정하는 것을 상상해 봅니다. 즉, $0 \textrm{cm}$, $1 \textrm{cm}$, $2 \textrm{cm}$ 등의 칸(bins)이 있는 것입니다. 우리는 다트판에 가령 100개의 다트를 던지고, 그중 20개가 $2\textrm{cm}$ 칸에 떨어진다면 던진 다트의 $20\%$가 중심에서 $2 \textrm{cm}$ 떨어진 판에 맞았다고 결론을 내립니다.
 
-To start with, we imagine measuring a single digit of accuracy, that is to say with bins for $0 \textrm{cm}$, $1 \textrm{cm}$, $2 \textrm{cm}$, and so on.  We throw say $100$ darts at the dart board, and if $20$ of them fall into the bin for $2\textrm{cm}$ we conclude that $20\%$ of the darts we throw hit the board $2 \textrm{cm}$ away from the center.
+하지만 자세히 살펴보면, 이것은 우리의 질문과 맞지 않습니다! 우리는 정확한 일치를 원했지만, 이 칸들은 가령 $1.5\textrm{cm}$와 $2.5\textrm{cm}$ 사이에 떨어진 모든 것을 담고 있습니다.
 
-However, when we look closer, this does not match our question!  We wanted exact equality, whereas these bins hold all that fell between say $1.5\textrm{cm}$ and $2.5\textrm{cm}$.
+굴하지 않고 더 진행해 봅니다. 더 정밀하게 측정합니다. 가령 $1.9\textrm{cm}$, $2.0\textrm{cm}$, $2.1\textrm{cm}$로 측정하고, 이제 아마도 100개의 다트 중 3개가 $2.0\textrm{cm}$ 양동이에 맞았음을 봅니다. 따라서 우리는 확률이 $3\%$라고 결론짓습니다.
 
-Undeterred, we continue further.  We measure even more precisely, say $1.9\textrm{cm}$, $2.0\textrm{cm}$, $2.1\textrm{cm}$, and now see that perhaps $3$ of the $100$ darts hit the board in the $2.0\textrm{cm}$ bucket.  Thus we conclude the probability is $3\%$.
+하지만 이것은 아무것도 해결하지 못합니다! 단지 문제를 한 자리 더 아래로 밀어냈을 뿐입니다. 조금 추상화해 봅시다. 처음 $k$자리가 $2.00000\ldots$와 일치할 확률을 알고 있고, 처음 $k+1$자리가 일치할 확률을 알고 싶다고 상상해 봅시다. $k+1$번째 자리가 본질적으로 {0, 1, 2, \ldots, 9} 집합에서의 무작위 선택이라고 가정하는 것은 꽤 합리적입니다. 적어도, 중심으로부터 떨어진 마이크로미터 수가 $3$보다 $7$로 끝나는 것을 선호하게 만드는 물리적으로 의미 있는 과정을 상상할 수 없습니다.
 
-However, this does not solve anything!  We have just pushed the issue down one digit further.  Let's abstract a bit. Imagine we know the probability that the first $k$ digits match with $2.00000\ldots$ and we want to know the probability it matches for the first $k+1$ digits. It is fairly reasonable to assume that the ${k+1}^{\textrm{th}}$ digit is essentially a random choice from the set $\{0, 1, 2, \ldots, 9\}$.  At least, we cannot conceive of a physically meaningful process which would force the number of micrometers away form the center to prefer to end in a $7$ vs a $3$.
+이것이 의미하는 바는 본질적으로 우리가 요구하는 정확도가 한 자리 늘어날 때마다 일치할 확률이 10분의 1로 줄어들어야 한다는 것입니다. 또는 다른 방식으로 표현하면 다음과 같이 기대할 것입니다.
 
-What this means is that in essence each additional digit of accuracy we require should decrease probability of matching by a factor of $10$.  Or put another way, we would expect that
+$$ P(\textrm{거리가}\; 2.00\ldots \textrm{이며,}\; k \;\textrm{자리까지 일치함} ) \approx p\cdot10^{-k}. $$
 
-$$
-P(\textrm{distance is}\; 2.00\ldots, \;\textrm{to}\; k \;\textrm{digits} ) \approx p\cdot10^{-k}.
-$$
+값 $p$는 본질적으로 처음 몇 자리에서 일어나는 일을 인코딩하고, $10^{-k}$가 나머지를 처리합니다.
 
-The value $p$ essentially encodes what happens with the first few digits, and the $10^{-k}$ handles the rest.
+소수점 이하 $k=4$자리까지 정확한 위치를 안다면, 이는 값이 가령 $[1.99995, 2.00005]$ 구간 내에 떨어진다는 것을 의미하며, 이 구간의 길이는 $2.00005-1.99995 = 10^{-4}$입니다. 따라서 이 구간의 길이를 $\epsilon$이라고 부르면 다음과 같이 말할 수 있습니다.
 
-Notice that if we know the position accurate to $k=4$ digits after the decimal, that means we know the value falls within the interval say $[1.99995,2.00005]$ which is an interval of length $2.00005-1.99995 = 10^{-4}$.  Thus, if we call the length of this interval $\epsilon$, we can say
+$$ P(\textrm{거리가}\; 2 \;\textrm{근처의}\; \epsilon \;\textrm{크기 구간 내에 있음} ) \approx \epsilon \cdot p. $$
 
-$$
-P(\textrm{distance is in an}\; \epsilon\textrm{-sized interval around}\; 2 ) \approx \epsilon \cdot p.
-$$
+이것을 마지막으로 한 단계 더 진행해 봅시다. 우리는 줄곧 점 $2$에 대해서만 생각해 왔지만, 다른 점들에 대해서는 생각하지 않았습니다. 근본적으로 다른 점은 없지만, 값 $p$는 아마도 다를 것입니다. 우리는 적어도 다트 던지는 사람이 $20\textrm{cm}$보다는 $2\textrm{cm}$와 같은 중심 근처의 점에 맞힐 가능성이 더 높기를 바랄 것입니다. 따라서 값 $p$는 고정된 것이 아니라 점 $x$에 의존해야 합니다. 이는 우리가 다음을 기대해야 함을 알려줍니다.
 
-Let's take this one final step further.  We have been thinking about the point $2$ the entire time, but never thinking about other points.  Nothing is different there fundamentally, but it is the case that the value $p$ will likely be different.  We would at least hope that a dart thrower was more likely to hit a point near the center, like $2\textrm{cm}$ rather than $20\textrm{cm}$.  Thus, the value $p$ is not fixed, but rather should depend on the point $x$.  This tells us that we should expect
+$$P(\textrm{거리가}\; x \;\textrm{근처의}\; \epsilon \;\textrm{크기 구간 내에 있음} ) \approx \epsilon \cdot p(x).$$ :eqlabel:`eq_pdf_deriv`
 
-$$P(\textrm{distance is in an}\; \epsilon \textrm{-sized interval around}\; x ) \approx \epsilon \cdot p(x).$$
-:eqlabel:`eq_pdf_deriv`
-
-Indeed, :eqref:`eq_pdf_deriv` precisely defines the *probability density function*.  It is a function $p(x)$ which encodes the relative probability of hitting near one point vs. another.  Let's visualize what such a function might look like.
+실제로 :eqref:`eq_pdf_deriv`는 *확률 밀도 함수(probability density function)*를 정확하게 정의합니다. 이는 한 점 근처에 맞을 상대적 확률을 다른 점과 비교하여 인코딩하는 함수 $p(x)$입니다. 그러한 함수가 어떻게 생겼을지 시각화해 봅시다.
 
 ```{.python .input}
 #@tab mxnet
@@ -48,7 +41,7 @@ from IPython import display
 from mxnet import np, npx
 npx.set_np()
 
-# Plot the probability density function for some random variable
+# 어떤 확률 변수에 대한 확률 밀도 함수 플롯
 x = np.arange(-5, 5, 0.01)
 p = 0.2*np.exp(-(x - 3)**2 / 2)/np.sqrt(2 * np.pi) + \
     0.8*np.exp(-(x + 1)**2 / 2)/np.sqrt(2 * np.pi)
@@ -62,9 +55,9 @@ d2l.plot(x, p, 'x', 'Density')
 from d2l import torch as d2l
 from IPython import display
 import torch
-torch.pi = torch.acos(torch.zeros(1)).item() * 2  # Define pi in torch
+torch.pi = torch.acos(torch.zeros(1)).item() * 2  # torch에서 pi 정의
 
-# Plot the probability density function for some random variable
+# 어떤 확률 변수에 대한 확률 밀도 함수 플롯
 x = torch.arange(-5, 5, 0.01)
 p = 0.2*torch.exp(-(x - 3)**2 / 2)/torch.sqrt(2 * torch.tensor(torch.pi)) + \
     0.8*torch.exp(-(x + 1)**2 / 2)/torch.sqrt(2 * torch.tensor(torch.pi))
@@ -78,9 +71,9 @@ d2l.plot(x, p, 'x', 'Density')
 from d2l import tensorflow as d2l
 from IPython import display
 import tensorflow as tf
-tf.pi = tf.acos(tf.zeros(1)).numpy() * 2  # Define pi in TensorFlow
+tf.pi = tf.acos(tf.zeros(1)).numpy() * 2  # TensorFlow에서 pi 정의
 
-# Plot the probability density function for some random variable
+# 어떤 확률 변수에 대한 확률 밀도 함수 플롯
 x = tf.range(-5, 5, 0.01)
 p = 0.2*tf.exp(-(x - 3)**2 / 2)/tf.sqrt(2 * tf.constant(tf.pi)) + \
     0.8*tf.exp(-(x + 1)**2 / 2)/tf.sqrt(2 * tf.constant(tf.pi))
@@ -88,54 +81,43 @@ p = 0.2*tf.exp(-(x - 3)**2 / 2)/tf.sqrt(2 * tf.constant(tf.pi)) + \
 d2l.plot(x, p, 'x', 'Density')
 ```
 
-The locations where the function value is large indicates regions where we are more likely to find the random value.  The low portions are areas where we are unlikely to find the random value.
+함수 값이 큰 위치는 우리가 무작위 값을 찾을 가능성이 더 높은 영역을 나타냅니다. 낮은 부분은 무작위 값을 찾을 가능성이 낮은 영역입니다.
 
-### Probability Density Functions
+### 확률 밀도 함수 (Probability Density Functions)
 
-Let's now investigate this further.  We have already seen what a probability density function is intuitively for a random variable $X$, namely the density function is a function $p(x)$ so that
+이제 이를 더 조사해 봅시다. 우리는 확률 변수 $X$에 대해 확률 밀도 함수가 직관적으로 무엇인지 이미 보았습니다. 즉, 밀도 함수는 다음을 만족하는 함수 $p(x)$입니다.
 
-$$P(X \; \textrm{is in an}\; \epsilon \textrm{-sized interval around}\; x ) \approx \epsilon \cdot p(x).$$
-:eqlabel:`eq_pdf_def`
+$$P(X \;\textrm{가}\; x \;\textrm{근처의}\; \epsilon \;\textrm{크기 구간 내에 있음} ) \approx \epsilon \cdot p(x).$$ :eqlabel:`eq_pdf_def`
 
-But what does this imply for the properties of $p(x)$?
+그렇다면 이것이 $p(x)$의 속성에 대해 무엇을 의미할까요?
 
-First, probabilities are never negative, thus we should expect that $p(x) \ge 0$ as well.
+먼저, 확률은 결코 음수가 아니므로 $p(x) \ge 0$일 것으로 기대해야 합니다.
 
-Second, let's imagine that we slice up the $\mathbb{R}$ into an infinite number of slices which are $\epsilon$ wide, say with slices $(\epsilon\cdot i, \epsilon \cdot (i+1)]$.  For each of these, we know from :eqref:`eq_pdf_def` the probability is approximately
+둘째, $\mathbb{R}$을 $(\epsilon\cdot i, \epsilon \cdot (i+1)]$로 주어지는 $\epsilon$ 너비의 무한한 수의 슬라이스로 쪼갠다고 상상해 봅시다. 이들 각각에 대해, 우리는 :eqref:`eq_pdf_def`로부터 확률이 대략 다음과 같음을 압니다.
 
-$$
-P(X \; \textrm{is in an}\; \epsilon\textrm{-sized interval around}\; x ) \approx \epsilon \cdot p(\epsilon \cdot i),
-$$
+$$ P(X \;\textrm{가}\; x \;\textrm{근처의}\; \epsilon \;\textrm{크기 구간 내에 있음} ) \approx \epsilon \cdot p(\epsilon \cdot i), $$
 
-so summed over all of them it should be
+따라서 이들 모두에 대해 합산하면 다음과 같아야 합니다.
 
-$$
-P(X\in\mathbb{R}) \approx \sum_i \epsilon \cdot p(\epsilon\cdot i).
-$$
+$$ P(X\in\mathbb{R}) \approx \sum_i \epsilon \cdot p(\epsilon\cdot i). $$
 
-This is nothing more than the approximation of an integral discussed in :numref:`sec_integral_calculus`, thus we can say that
+이것은 :numref:`sec_integral_calculus`에서 논의된 적분의 근사에 지나지 않으므로 다음과 같이 말할 수 있습니다.
 
-$$
-P(X\in\mathbb{R}) = \int_{-\infty}^{\infty} p(x) \; dx.
-$$
+$$ P(X\in\mathbb{R}) = \int_{-\infty}^{\infty} p(x) \; dx. $$
 
-We know that $P(X\in\mathbb{R}) = 1$, since the random variable must take on *some* number, we can conclude that for any density
+확률 변수는 *어떤* 숫자를 반드시 가져야 하므로 $P(X\in\mathbb{R}) = 1$임을 압니다. 따라서 임의의 밀도에 대해 다음과 같이 결론지을 수 있습니다.
 
-$$
-\int_{-\infty}^{\infty} p(x) \; dx = 1.
-$$
+$$ \int_{-\infty}^{\infty} p(x) \; dx = 1. $$
 
-Indeed, digging into this further shows that for any $a$, and $b$, we see that
+실제로 이를 더 파고들면 임의의 $a$와 $b$에 대해 다음을 보게 됩니다.
 
-$$
-P(X\in(a, b]) = \int _ {a}^{b} p(x) \; dx.
-$$
+$$ P(X\in(a, b]) = \int _ {a}^{b} p(x) \; dx. $$
 
-We may approximate this in code by using the same discrete approximation methods as before.  In this case we can approximate the probability of falling in the blue region.
+우리는 이전과 동일한 이산 근사 방법을 사용하여 코드에서 이를 근사할 수 있습니다. 이 경우 파란색 영역에 떨어질 확률을 근사할 수 있습니다.
 
 ```{.python .input}
 #@tab mxnet
-# Approximate probability using numerical integration
+# 수치 적분을 사용하여 확률 근사
 epsilon = 0.01
 x = np.arange(-5, 5, 0.01)
 p = 0.2*np.exp(-(x - 3)**2 / 2) / np.sqrt(2 * np.pi) + \
@@ -146,15 +128,15 @@ d2l.plt.plot(x, p, color='black')
 d2l.plt.fill_between(x.tolist()[300:800], p.tolist()[300:800])
 d2l.plt.show()
 
-f'approximate Probability: {np.sum(epsilon*p[300:800])}'
+f'근사 확률: {np.sum(epsilon*p[300:800])}'
 ```
 
 ```{.python .input}
 #@tab pytorch
-# Approximate probability using numerical integration
+# 수치 적분을 사용하여 확률 근사
 epsilon = 0.01
 x = torch.arange(-5, 5, 0.01)
-p = 0.2*torch.exp(-(x - 3)**2 / 2) / torch.sqrt(2 * torch.tensor(torch.pi)) +\
+p = 0.2*torch.exp(-(x - 3)**2 / 2) / torch.sqrt(2 * torch.tensor(torch.pi)) + \
     0.8*torch.exp(-(x + 1)**2 / 2) / torch.sqrt(2 * torch.tensor(torch.pi))
 
 d2l.set_figsize()
@@ -162,15 +144,15 @@ d2l.plt.plot(x, p, color='black')
 d2l.plt.fill_between(x.tolist()[300:800], p.tolist()[300:800])
 d2l.plt.show()
 
-f'approximate Probability: {torch.sum(epsilon*p[300:800])}'
+f'근사 확률: {torch.sum(epsilon*p[300:800])}'
 ```
 
 ```{.python .input}
 #@tab tensorflow
-# Approximate probability using numerical integration
+# 수치 적분을 사용하여 확률 근사
 epsilon = 0.01
 x = tf.range(-5, 5, 0.01)
-p = 0.2*tf.exp(-(x - 3)**2 / 2) / tf.sqrt(2 * tf.constant(tf.pi)) +\
+p = 0.2*tf.exp(-(x - 3)**2 / 2) / tf.sqrt(2 * tf.constant(tf.pi)) + \
     0.8*tf.exp(-(x + 1)**2 / 2) / tf.sqrt(2 * tf.constant(tf.pi))
 
 d2l.set_figsize()
@@ -178,700 +160,105 @@ d2l.plt.plot(x, p, color='black')
 d2l.plt.fill_between(x.numpy().tolist()[300:800], p.numpy().tolist()[300:800])
 d2l.plt.show()
 
-f'approximate Probability: {tf.reduce_sum(epsilon*p[300:800])}'
+f'근사 확률: {tf.reduce_sum(epsilon*p[300:800])}'
 ```
 
-It turns out that these two properties describe exactly the space of possible probability density functions (or *p.d.f.*'s for the commonly encountered abbreviation).  They are non-negative functions $p(x) \ge 0$ such that
+이러한 두 가지 속성이 가능한 확률 밀도 함수(줄여서 *p.d.f.*)의 공간을 정확하게 설명한다는 것이 밝혀졌습니다. 이들은 다음을 만족하는 비음수 함수 $p(x) \ge 0$입니다.
 
-$$\int_{-\infty}^{\infty} p(x) \; dx = 1.$$
-:eqlabel:`eq_pdf_int_one`
+$$\int_{-\infty}^{\infty} p(x) \; dx = 1.$$ :eqlabel:`eq_pdf_int_one`
 
-We interpret this function by using integration to obtain the probability our random variable is in a specific interval:
+우리는 적분을 사용하여 확률 변수가 특정 구간에 있을 확률을 얻음으로써 이 함수를 해석합니다.
 
-$$P(X\in(a, b]) = \int _ {a}^{b} p(x) \; dx.$$
-:eqlabel:`eq_pdf_int_int`
+$$P(X\in(a, b]) = \int _ {a}^{b} p(x) \; dx.$$ :eqlabel:`eq_pdf_int_int`
 
-In :numref:`sec_distributions` we will see a number of common distributions, but let's continue working in the abstract.
+:numref:`sec_distributions`에서 여러 일반적인 분포를 보겠지만, 계속해서 추상적으로 작업해 봅시다.
 
-### Cumulative Distribution Functions
+### 누적 분포 함수 (Cumulative Distribution Functions)
 
-In the previous section, we saw the notion of the p.d.f.  In practice, this is a commonly encountered method to discuss continuous random variables, but it has one significant pitfall: that the values of the p.d.f. are not themselves probabilities, but rather a function that we must integrate to yield probabilities.  There is nothing wrong with a density being larger than $10$, as long as it is not larger than $10$ for more than an interval of length $1/10$.  This can be counter-intuitive, so people often also think in terms of the *cumulative distribution function*, or c.d.f., which *is* a probability.
+이전 섹션에서 우리는 p.d.f.의 개념을 보았습니다. 실전에서 이는 연속 확률 변수를 논의하기 위해 흔히 마주치는 방법이지만, 한 가지 중요한 함정이 있습니다: p.d.f.의 값 자체가 확률이 아니라, 확률을 산출하기 위해 우리가 적분해야 하는 함수라는 점입니다. 밀도가 10보다 크더라도, 그것이 $1/10$보다 긴 구간에 대해 10보다 크지 않은 한 아무런 문제가 없습니다. 이는 직관에 반할 수 있으므로, 사람들은 종종 그 자체로 *확률*인 *누적 분포 함수(cumulative distribution function)* 또는 c.d.f.의 관점에서도 생각합니다.
 
-In particular, by using :eqref:`eq_pdf_int_int`, we define the c.d.f. for a random variable $X$ with density $p(x)$ by
+특히 :eqref:`eq_pdf_int_int`를 사용하여, 밀도 $p(x)$를 갖는 확률 변수 $X$에 대한 c.d.f.를 다음과 같이 정의합니다.
 
-$$
-F(x) = \int _ {-\infty}^{x} p(x) \; dx = P(X \le x).
-$$
+$$ F(x) = \int _ {-\infty}^{x} p(x) \; dx = P(X \le x). $$
 
-Let's observe a few properties.
+몇 가지 속성을 관찰해 봅시다.
 
-* $F(x) \rightarrow 0$ as $x\rightarrow -\infty$.
-* $F(x) \rightarrow 1$ as $x\rightarrow \infty$.
-* $F(x)$ is non-decreasing ($y > x \implies F(y) \ge F(x)$).
-* $F(x)$ is continuous (has no jumps) if $X$ is a continuous random variable.
+* $x\rightarrow -\infty$에 따라 $F(x) \rightarrow 0$.
+* $x\rightarrow \infty$에 따라 $F(x) \rightarrow 1$.
+* $F(x)$는 비감소 함수입니다 ($y > x \implies F(y) \ge F(x)$).
+* $X$가 연속 확률 변수라면 $F(x)$는 연속적입니다 (도약이 없음).
 
-With the fourth bullet point, note that this would not be true if $X$ were discrete, say taking the values $0$ and $1$ both with probability $1/2$.  In that case
+네 번째 불렛 포인트와 관련하여, 가령 확률 $1/2$로 $0$과 $1$ 값을 취하는 이산 확률 변수 $X$라면 이것이 참이 아님에 유의하십시오. 그 경우 다음과 같습니다.
 
-$$
-F(x) = \begin{cases}
-0 & x < 0, \\
-\frac{1}{2} & x < 1, \\
-1 & x \ge 1.
-\end{cases}
-$$
+$$ F(x) = \begin{cases} 0 & x < 0, \\ \frac{1}{2} & x < 1, \\ 1 & x \ge 1. \end{cases} $$
 
-In this example, we see one of the benefits of working with the c.d.f., the ability to deal with continuous or discrete random variables in the same framework, or indeed mixtures of the two (flip a coin: if heads return the roll of a die, if tails return the distance of a dart throw from the center of a dart board).
+이 예제에서 우리는 c.d.f.로 작업할 때의 이점 중 하나를 봅니다. 즉, 동일한 프레임워크 내에서 연속 또는 이산 확률 변수, 또는 실제로 두 가지의 혼합(동전을 던져 앞면이면 주사위 굴리기 결과를 반환하고, 뒷면이면 다트 던지기 거리를 반환함)을 다룰 수 있다는 능력입니다.
 
-### Means
+### 평균 (Means)
 
-Suppose that we are dealing with a random variables $X$.  The distribution itself can be hard to interpret.  It is often useful to be able to summarize the behavior of a random variable concisely.  Numbers that help us capture the behavior of a random variable are called *summary statistics*.  The most commonly encountered ones are the *mean*, the *variance*, and the *standard deviation*.
+확률 변수 $X$를 다루고 있다고 가정합시다. 분포 자체는 해석하기 어려울 수 있습니다. 확률 변수의 행동을 간결하게 요약할 수 있는 것이 종종 유용합니다. 확률 변수의 행동을 포착하는 데 도움이 되는 숫자를 *요약 통계량(summary statistics)*이라고 합니다. 가장 흔히 마주치는 것들은 *평균(mean)*, *분산(variance)*, 그리고 *표준 편차(standard deviation)*입니다.
 
-The *mean* encodes the average value of a random variable.  If we have a discrete random variable $X$, which takes the values $x_i$ with probabilities $p_i$, then the mean is given by the weighted average: sum the values times the probability that the random variable takes on that value:
+*평균*은 확률 변수의 평균적인 값을 인코딩합니다. 확률 $p_i$로 값 $x_i$를 취하는 이산 확률 변수 $X$가 있다면, 평균은 가중 평균에 의해 주어집니다: 값들에 확률 변수가 그 값을 취할 확률을 곱한 합계입니다.
 
-$$\mu_X = E[X] = \sum_i x_i p_i.$$
-:eqlabel:`eq_exp_def`
+$$\mu_X = E[X] = \sum_i x_i p_i.$$ :eqlabel:`eq_exp_def`
 
-The way we should interpret the mean (albeit with caution) is that it tells us essentially where the random variable tends to be located.
+우리가 평균을 해석해야 할 방식은(비록 주의가 필요하지만) 본질적으로 확률 변수가 위치하려는 경향이 있는 곳을 알려준다는 것입니다.
 
-As a minimalistic example that we will examine throughout this section, let's take $X$ to be the random variable which takes the value $a-2$ with probability $p$, $a+2$ with probability $p$ and $a$ with probability $1-2p$.  We can compute using :eqref:`eq_exp_def` that, for any possible choice of $a$ and $p$, the mean is
+이 섹션 전체에서 살펴볼 미니멀한 예제로서, 확률 $p$로 $a-2$ 값을, 확률 $p$로 $a+2$ 값을, 그리고 확률 $1-2p$로 $a$ 값을 취하는 확률 변수 $X$를 들어봅시다. 우리는 임의의 가능한 $a$와 $p$ 선택에 대해 :eqref:`eq_exp_def`를 사용하여 평균이 다음과 같음을 계산할 수 있습니다.
 
-$$
-\mu_X = E[X] = \sum_i x_i p_i = (a-2)p + a(1-2p) + (a+2)p = a.
-$$
+$$ \mu_X = E[X] = \sum_i x_i p_i = (a-2)p + a(1-2p) + (a+2)p = a. $$
 
-Thus we see that the mean is $a$.  This matches the intuition since $a$ is the location around which we centered our random variable.
+따라서 평균이 $a$임을 알 수 있습니다. 이는 $a$가 우리가 확률 변수를 중심으로 한 위치이므로 직관과 일치합니다.
 
-Because they are helpful, let's summarize a few properties.
+도움이 되므로 몇 가지 속성을 요약해 봅시다.
 
-* For any random variable $X$ and numbers $a$ and $b$, we have that $\mu_{aX+b} = a\mu_X + b$.
-* If we have two random variables $X$ and $Y$, we have $\mu_{X+Y} = \mu_X+\mu_Y$.
+* 임의의 확률 변수 $X$와 숫자 $a, b$에 대해, $\mu_{aX+b} = a\mu_X + b$가 성립합니다.
+* 두 확률 변수 $X$와 $Y$가 있다면, $\mu_{X+Y} = \mu_X+\mu_Y$입니다.
 
-Means are useful for understanding the average behavior of a random variable, however the mean is not sufficient to even have a full intuitive understanding.  Making a profit of $\$10 \pm \$1$ per sale is very different from making $\$10 \pm \$15$ per sale despite having the same average value.  The second one has a much larger degree of fluctuation, and thus represents a much larger risk.  Thus, to understand the behavior of a random variable, we will need at minimum one more measure: some measure of how widely a random variable fluctuates.
+평균은 확률 변수의 평균적인 행동을 이해하는 데 유용하지만, 충분하고 완전한 직관적 이해를 갖기에는 평균만으로는 부족합니다. 판매당 $10 \pm \$1의 이익을 내는 것과 판매당 $10 \pm \$15의 이익을 내는 것은 동일한 평균 값을 가짐에도 불구하고 매우 다릅니다. 두 번째 것은 훨씬 더 큰 변동 정도를 가지며, 따라서 훨씬 더 큰 위험을 나타냅니다. 따라서 확률 변수의 행동을 이해하려면 최소한 하나의 척도가 더 필요할 것입니다: 확률 변수가 얼마나 넓게 요동치는지를 측정하는 척도입니다.
 
-### Variances
+### 분산 (Variances)
 
-This leads us to consider the *variance* of a random variable.  This is a quantitative measure of how far a random variable deviates from the mean.  Consider the expression $X - \mu_X$.  This is the deviation of the random variable from its mean.  This value can be positive or negative, so we need to do something to make it positive so that we are measuring the magnitude of the deviation.
+이는 우리로 하여금 확률 변수의 *분산(variance)*을 고려하게 합니다. 이는 확률 변수가 평균으로부터 얼마나 멀리 벗어나는지에 대한 정량적 측정입니다. 식 $X - \mu_X$를 고려해 보십시오. 이것은 확률 변수의 평균으로부터의 편차입니다. 이 값은 양수일 수도 음수일 수도 있으므로, 우리가 편차의 크기를 측정하도록 양수로 만들기 위해 무언가를 해야 합니다.
 
-A reasonable thing to try is to look at $\left|X-\mu_X\right|$, and indeed this leads to a useful quantity called the *mean absolute deviation*, however due to connections with other areas of mathematics and statistics, people often use a different solution.
+시도해 볼 수 있는 합리적인 방법은 $|X-\mu_X|$를 살펴보는 것이며, 실제로 이는 *평균 절대 편차(mean absolute deviation)*라고 불리는 유용한 양으로 이어지지만, 수학 및 통계의 다른 분야와의 연결 때문에 사람들은 종종 다른 해결책을 사용합니다.
 
-In particular, they look at $(X-\mu_X)^2.$  If we look at the typical size of this quantity by taking the mean, we arrive at the variance
+특히, 그들은 $(X-\mu_X)^2$을 살펴봅니다. 평균을 취하여 이 양의 전형적인 크기를 본다면 분산에 도달하게 됩니다.
 
-$$\sigma_X^2 = \textrm{Var}(X) = E\left[(X-\mu_X)^2\right] = E[X^2] - \mu_X^2.$$
-:eqlabel:`eq_var_def`
+$$\sigma_X^2 = \textrm{Var}(X) = E\left[(X-\mu_X)^2\right] = E[X^2] - \mu_X^2.$$ :eqlabel:`eq_var_def`
 
-The last equality in :eqref:`eq_var_def` holds by expanding out the definition in the middle, and applying the properties of expectation.
+:eqref:`eq_var_def`의 마지막 등식은 중간의 정의를 확장하고 기댓값의 속성을 적용함으로써 성립합니다.
 
-Let's look at our example where $X$ is the random variable which takes the value $a-2$ with probability $p$, $a+2$ with probability $p$ and $a$ with probability $1-2p$.  In this case $\mu_X = a$, so all we need to compute is $E\left[X^2\right]$.  This can readily be done:
+확률 $p$로 $a-2$ 값을, 확률 $p$로 $a+2$ 값을, 그리고 확률 $1-2p$로 $a$ 값을 취하는 우리 예제를 살펴봅시다. 이 경우 $\mu_X = a$이므로, $E[X^2]$만 계산하면 됩니다. 이는 쉽게 수행될 수 있습니다.
 
-$$
-E\left[X^2\right] = (a-2)^2p + a^2(1-2p) + (a+2)^2p = a^2 + 8p.
-$$
+$$ E\left[X^2\right] = (a-2)^2p + a^2(1-2p) + (a+2)^2p = a^2 + 8p. $$
 
-Thus, we see that by :eqref:`eq_var_def` our variance is
+따라서 :eqref:`eq_var_def`에 의해 우리의 분산은 다음과 같음을 알 수 있습니다.
 
-$$
-\sigma_X^2 = \textrm{Var}(X) = E[X^2] - \mu_X^2 = a^2 + 8p - a^2 = 8p.
-$$
+$$ \sigma_X^2 = \textrm{Var}(X) = E[X^2] - \mu_X^2 = a^2 + 8p - a^2 = 8p. $$
 
-This result again makes sense.  The largest $p$ can be is $1/2$ which corresponds to picking $a-2$ or $a+2$ with a coin flip.  The variance of this being $4$ corresponds to the fact that both $a-2$ and $a+2$ are $2$ units away from the mean, and $2^2 = 4$.  On the other end of the spectrum, if $p=0$, this random variable always takes the value $0$ and so it has no variance at all.
+이 결과 또한 말이 됩니다. $p$가 가질 수 있는 최대값은 $1/2$이며, 이는 동전 던지기로 $a-2$ 또는 $a+2$를 선택하는 것에 해당합니다. 이것의 분산이 $4$인 것은 $a-2$와 $a+2$가 모두 평균에서 $2$ 단위 떨어져 있고 $2^2 = 4$라는 사실에 대응합니다. 스펙트럼의 다른 쪽 끝에서 $p=0$이면, 이 확률 변수는 항상 $a$ 값을 취하므로 분산이 전혀 없습니다.
 
-We will list a few properties of variance below:
+아래에 분산의 몇 가지 속성을 나열합니다.
 
-* For any random variable $X$, $\textrm{Var}(X) \ge 0$, with $\textrm{Var}(X) = 0$ if and only if $X$ is a constant.
-* For any random variable $X$ and numbers $a$ and $b$, we have that $\textrm{Var}(aX+b) = a^2\textrm{Var}(X)$.
-* If we have two *independent* random variables $X$ and $Y$, we have $\textrm{Var}(X+Y) = \textrm{Var}(X) + \textrm{Var}(Y)$.
+* 임의의 확률 변수 $X$에 대해 $\textrm{Var}(X) \ge 0$이며, $\textrm{Var}(X) = 0$인 것은 $X$가 상수인 것과 동등합니다.
+* 임의의 확률 변수 $X$와 숫자 $a, b$에 대해, $\textrm{Var}(aX+b) = a^2\textrm{Var}(X)$가 성립합니다.
+* 두 개의 *독립* 확률 변수 $X$와 $Y$가 있다면, $\textrm{Var}(X+Y) = \textrm{Var}(X) + \textrm{Var}(Y)$입니다.
 
-When interpreting these values, there can be a bit of a hiccup.  In particular, let's try imagining what happens if we keep track of units through this computation.  Suppose that we are working with the star rating assigned to a product on the web page.  Then $a$, $a-2$, and $a+2$ are all measured in units of stars.  Similarly, the mean $\mu_X$ is then also measured in stars (being a weighted average).  However, if we get to the variance, we immediately encounter an issue, which is we want to look at $(X-\mu_X)^2$, which is in units of *squared stars*.  This means that the variance itself is not comparable to the original measurements.  To make it interpretable, we will need to return to our original units.
+이러한 값들을 해석할 때 약간의 걸림돌이 있을 수 있습니다. 특히, 이 계산 과정에서 단위를 추적한다고 상상해 봅시다. 웹페이지의 제품에 할당된 별점 평점을 다루고 있다고 가정해 봅시다. 그러면 $a, a-2, a+2$는 모두 별 단위로 측정됩니다. 마찬가지로 평균 $\mu_X$도 별 단위로 측정됩니다(가중 평균이므로). 그러나 분산에 이르면 즉시 문제에 직면하는데, 우리가 $(X-\mu_X)^2$을 보고 싶어 하며 이는 *제곱된 별* 단위이기 때문입니다. 이는 분산 자체가 원래의 측정값과 비교 가능하지 않음을 의미합니다. 이를 해석 가능하게 만들려면 원래의 단위로 돌아가야 할 것입니다.
 
-### Standard Deviations
+### 표준 편차 (Standard Deviations)
 
-This summary statistics can always be deduced from the variance by taking the square root!  Thus we define the *standard deviation* to be
+이 요약 통계량은 항상 분산의 제곱근을 취함으로써 유도될 수 있습니다! 따라서 우리는 *표준 편차(standard deviation)*를 다음과 같이 정의합니다.
 
-$$
-\sigma_X = \sqrt{\textrm{Var}(X)}.
-$$
+$$ \sigma_X = \sqrt{\textrm{Var}(X)}. $$
 
-In our example, this means we now have the standard deviation is $\sigma_X = 2\sqrt{2p}$.  If we are dealing with units of stars for our review example, $\sigma_X$ is again in units of stars.
+우리 예제에서 이는 이제 표준 편차가 $\sigma_X = 2\sqrt{2p}$임을 의미합니다. 별점 리뷰 예제에 대해 단위를 다루고 있다면, $\sigma_X$는 다시 별 단위입니다.
 
-The properties we had for the variance can be restated for the standard deviation.
-
-* For any random variable $X$, $\sigma_{X} \ge 0$.
-* For any random variable $X$ and numbers $a$ and $b$, we have that $\sigma_{aX+b} = |a|\sigma_{X}$
-* If we have two *independent* random variables $X$ and $Y$, we have $\sigma_{X+Y} = \sqrt{\sigma_{X}^2 + \sigma_{Y}^2}$.
-
-It is natural at this moment to ask, "If the standard deviation is in the units of our original random variable, does it represent something we can draw with regards to that random variable?"  The answer is a resounding yes!  Indeed much like the mean told us the typical location of our random variable, the standard deviation gives the typical range of variation of that random variable.  We can make this rigorous with what is known as Chebyshev's inequality:
-
-$$P\left(X \not\in [\mu_X - \alpha\sigma_X, \mu_X + \alpha\sigma_X]\right) \le \frac{1}{\alpha^2}.$$
-:eqlabel:`eq_chebyshev`
-
-Or to state it verbally in the case of $\alpha=10$, $99\%$ of the samples from any random variable fall within $10$ standard deviations of the mean.  This gives an immediate interpretation to our standard summary statistics.
+분산에 대해 가졌던 속성들은 표준 편차에 대해서도 다시 기술될 수 있습니다.
 
-To see how this statement is rather subtle, let's take a look at our running example again where  $X$ is the random variable which takes the value $a-2$ with probability $p$, $a+2$ with probability $p$ and $a$ with probability $1-2p$.  We saw that the mean was $a$ and the standard deviation was $2\sqrt{2p}$.  This means, if we take Chebyshev's inequality :eqref:`eq_chebyshev` with $\alpha = 2$, we see that the expression is
-
-$$
-P\left(X \not\in [a - 4\sqrt{2p}, a + 4\sqrt{2p}]\right) \le \frac{1}{4}.
-$$
-
-This means that $75\%$ of the time, this random variable will fall within this interval for any value of $p$.  Now, notice that as $p \rightarrow 0$, this interval also converges to the single point $a$.  But we know that our random variable takes the values $a-2, a$, and $a+2$ only so eventually we can be certain $a-2$ and $a+2$ will fall outside the interval!  The question is, at what $p$ does that happen.  So we want to solve: for what $p$ does $a+4\sqrt{2p} = a+2$, which is solved when $p=1/8$, which is *exactly* the first $p$ where it could possibly happen without violating our claim that no more than $1/4$ of samples from the distribution would fall outside the interval ($1/8$ to the left, and $1/8$ to the right).
-
-Let's visualize this.  We will show the probability of getting the three values as three vertical bars with height proportional to the probability.  The interval will be drawn as a horizontal line in the middle.  The first plot shows what happens for $p > 1/8$ where the interval safely contains all points.
-
-```{.python .input}
-#@tab mxnet
-# Define a helper to plot these figures
-def plot_chebyshev(a, p):
-    d2l.set_figsize()
-    d2l.plt.stem([a-2, a, a+2], [p, 1-2*p, p], use_line_collection=True)
-    d2l.plt.xlim([-4, 4])
-    d2l.plt.xlabel('x')
-    d2l.plt.ylabel('p.m.f.')
-
-    d2l.plt.hlines(0.5, a - 4 * np.sqrt(2 * p),
-                   a + 4 * np.sqrt(2 * p), 'black', lw=4)
-    d2l.plt.vlines(a - 4 * np.sqrt(2 * p), 0.53, 0.47, 'black', lw=1)
-    d2l.plt.vlines(a + 4 * np.sqrt(2 * p), 0.53, 0.47, 'black', lw=1)
-    d2l.plt.title(f'p = {p:.3f}')
-
-    d2l.plt.show()
-
-# Plot interval when p > 1/8
-plot_chebyshev(0.0, 0.2)
-```
-
-```{.python .input}
-#@tab pytorch
-# Define a helper to plot these figures
-def plot_chebyshev(a, p):
-    d2l.set_figsize()
-    d2l.plt.stem([a-2, a, a+2], [p, 1-2*p, p], use_line_collection=True)
-    d2l.plt.xlim([-4, 4])
-    d2l.plt.xlabel('x')
-    d2l.plt.ylabel('p.m.f.')
+* 임의의 확률 변수 $X$에 대해 $\sigma_{X} \ge 0$입니다.
+* 임의의 확률 변수 $X$와 숫자 $a, b$에 대해, $\sigma_{aX+b} = |a|\sigma_{X}$입니다.
+* 두 개의 *독립* 확률 변수 $X$와 $Y$가 있다면, $\sigma_{X+Y} = \sqrt{\sigma_{X}^2 + \sigma_{Y}^2}$입니다.
 
-    d2l.plt.hlines(0.5, a - 4 * torch.sqrt(2 * p),
-                   a + 4 * torch.sqrt(2 * p), 'black', lw=4)
-    d2l.plt.vlines(a - 4 * torch.sqrt(2 * p), 0.53, 0.47, 'black', lw=1)
-    d2l.plt.vlines(a + 4 * torch.sqrt(2 * p), 0.53, 0.47, 'black', lw=1)
-    d2l.plt.title(f'p = {p:.3f}')
-
-    d2l.plt.show()
-
-# Plot interval when p > 1/8
-plot_chebyshev(0.0, torch.tensor(0.2))
-```
-
-```{.python .input}
-#@tab tensorflow
-# Define a helper to plot these figures
-def plot_chebyshev(a, p):
-    d2l.set_figsize()
-    d2l.plt.stem([a-2, a, a+2], [p, 1-2*p, p], use_line_collection=True)
-    d2l.plt.xlim([-4, 4])
-    d2l.plt.xlabel('x')
-    d2l.plt.ylabel('p.m.f.')
-
-    d2l.plt.hlines(0.5, a - 4 * tf.sqrt(2 * p),
-                   a + 4 * tf.sqrt(2 * p), 'black', lw=4)
-    d2l.plt.vlines(a - 4 * tf.sqrt(2 * p), 0.53, 0.47, 'black', lw=1)
-    d2l.plt.vlines(a + 4 * tf.sqrt(2 * p), 0.53, 0.47, 'black', lw=1)
-    d2l.plt.title(f'p = {p:.3f}')
-
-    d2l.plt.show()
-
-# Plot interval when p > 1/8
-plot_chebyshev(0.0, tf.constant(0.2))
-```
-
-The second shows that at $p = 1/8$, the interval exactly touches the two points.  This shows that the inequality is *sharp*, since no smaller interval could be taken while keeping the inequality true.
-
-```{.python .input}
-#@tab mxnet
-# Plot interval when p = 1/8
-plot_chebyshev(0.0, 0.125)
-```
-
-```{.python .input}
-#@tab pytorch
-# Plot interval when p = 1/8
-plot_chebyshev(0.0, torch.tensor(0.125))
-```
-
-```{.python .input}
-#@tab tensorflow
-# Plot interval when p = 1/8
-plot_chebyshev(0.0, tf.constant(0.125))
-```
-
-The third shows that for $p < 1/8$ the interval only contains the center.  This does not invalidate the inequality since we only needed to ensure that no more than $1/4$ of the probability falls outside the interval, which means that once $p < 1/8$, the two points at $a-2$ and $a+2$ can be discarded.
-
-```{.python .input}
-#@tab mxnet
-# Plot interval when p < 1/8
-plot_chebyshev(0.0, 0.05)
-```
-
-```{.python .input}
-#@tab pytorch
-# Plot interval when p < 1/8
-plot_chebyshev(0.0, torch.tensor(0.05))
-```
-
-```{.python .input}
-#@tab tensorflow
-# Plot interval when p < 1/8
-plot_chebyshev(0.0, tf.constant(0.05))
-```
-
-### Means and Variances in the Continuum
-
-This has all been in terms of discrete random variables, but the case of continuous random variables is similar.  To intuitively understand how this works, imagine that we split the real number line into intervals of length $\epsilon$ given by $(\epsilon i, \epsilon (i+1)]$.  Once we do this, our continuous random variable has been made discrete and we can use :eqref:`eq_exp_def` say that
-
-$$
-\begin{aligned}
-\mu_X & \approx \sum_{i} (\epsilon i)P(X \in (\epsilon i, \epsilon (i+1)]) \\
-& \approx \sum_{i} (\epsilon i)p_X(\epsilon i)\epsilon, \\
-\end{aligned}
-$$
-
-where $p_X$ is the density of $X$.  This is an approximation to the integral of $xp_X(x)$, so we can conclude that
-
-$$
-\mu_X = \int_{-\infty}^\infty xp_X(x) \; dx.
-$$
-
-Similarly, using :eqref:`eq_var_def` the variance can be written as
-
-$$
-\sigma^2_X = E[X^2] - \mu_X^2 = \int_{-\infty}^\infty x^2p_X(x) \; dx - \left(\int_{-\infty}^\infty xp_X(x) \; dx\right)^2.
-$$
-
-Everything stated above about the mean, the variance, and the standard deviation still applies in this case.  For instance, if we consider the random variable with density
-
-$$
-p(x) = \begin{cases}
-1 & x \in [0,1], \\
-0 & \textrm{otherwise}.
-\end{cases}
-$$
-
-we can compute
-
-$$
-\mu_X = \int_{-\infty}^\infty xp(x) \; dx = \int_0^1 x \; dx = \frac{1}{2}.
-$$
-
-and
-
-$$
-\sigma_X^2 = \int_{-\infty}^\infty x^2p(x) \; dx - \left(\frac{1}{2}\right)^2 = \frac{1}{3} - \frac{1}{4} = \frac{1}{12}.
-$$
-
-As a warning, let's examine one more example, known as the *Cauchy distribution*.  This is the distribution with p.d.f. given by
-
-$$
-p(x) = \frac{1}{1+x^2}.
-$$
-
-```{.python .input}
-#@tab mxnet
-# Plot the Cauchy distribution p.d.f.
-x = np.arange(-5, 5, 0.01)
-p = 1 / (1 + x**2)
-
-d2l.plot(x, p, 'x', 'p.d.f.')
-```
-
-```{.python .input}
-#@tab pytorch
-# Plot the Cauchy distribution p.d.f.
-x = torch.arange(-5, 5, 0.01)
-p = 1 / (1 + x**2)
-
-d2l.plot(x, p, 'x', 'p.d.f.')
-```
-
-```{.python .input}
-#@tab tensorflow
-# Plot the Cauchy distribution p.d.f.
-x = tf.range(-5, 5, 0.01)
-p = 1 / (1 + x**2)
-
-d2l.plot(x, p, 'x', 'p.d.f.')
-```
-
-This function looks innocent, and indeed consulting a table of integrals will show it has area one under it, and thus it defines a continuous random variable.
-
-To see what goes astray, let's try to compute the variance of this.  This would involve using :eqref:`eq_var_def` computing
-
-$$
-\int_{-\infty}^\infty \frac{x^2}{1+x^2}\; dx.
-$$
-
-The function on the inside looks like this:
-
-```{.python .input}
-#@tab mxnet
-# Plot the integrand needed to compute the variance
-x = np.arange(-20, 20, 0.01)
-p = x**2 / (1 + x**2)
-
-d2l.plot(x, p, 'x', 'integrand')
-```
-
-```{.python .input}
-#@tab pytorch
-# Plot the integrand needed to compute the variance
-x = torch.arange(-20, 20, 0.01)
-p = x**2 / (1 + x**2)
-
-d2l.plot(x, p, 'x', 'integrand')
-```
-
-```{.python .input}
-#@tab tensorflow
-# Plot the integrand needed to compute the variance
-x = tf.range(-20, 20, 0.01)
-p = x**2 / (1 + x**2)
-
-d2l.plot(x, p, 'x', 'integrand')
-```
-
-This function clearly has infinite area under it since it is essentially the constant one with a small dip near zero, and indeed we could show that
-
-$$
-\int_{-\infty}^\infty \frac{x^2}{1+x^2}\; dx = \infty.
-$$
-
-This means it does not have a well-defined finite variance.
-
-However, looking deeper shows an even more disturbing result.  Let's try to compute the mean using :eqref:`eq_exp_def`.  Using the change of variables formula, we see
-
-$$
-\mu_X = \int_{-\infty}^{\infty} \frac{x}{1+x^2} \; dx = \frac{1}{2}\int_1^\infty \frac{1}{u} \; du.
-$$
-
-The integral inside is the definition of the logarithm, so this is in essence $\log(\infty) = \infty$, so there is no well-defined average value either!
-
-Machine learning scientists define their models so that we most often do not need to deal with these issues, and will in the vast majority of cases deal with random variables with well-defined means and variances.  However, every so often random variables with *heavy tails* (that is those random variables where the probabilities of getting large values are large enough to make things like the mean or variance undefined) are helpful in modeling physical systems, thus it is worth knowing that they exist.
-
-### Joint Density Functions
-
-The above work all assumes we are working with a single real valued random variable.  But what if we are dealing with two or more potentially highly correlated random variables?  This circumstance is the norm in machine learning: imagine random variables like $R_{i, j}$ which encode the red value of the pixel at the $(i, j)$ coordinate in an image, or $P_t$ which is a random variable given by a stock price at time $t$.  Nearby pixels tend to have similar color, and nearby times tend to have similar prices.  We cannot treat them as separate random variables, and expect to create a successful model (we will see in :numref:`sec_naive_bayes` a model that under-performs due to such an assumption).  We need to develop the mathematical language to handle these correlated continuous random variables.
-
-Thankfully, with the multiple integrals in :numref:`sec_integral_calculus` we can develop such a language.  Suppose that we have, for simplicity, two random variables $X, Y$ which can be correlated.  Then, similar to the case of a single variable, we can ask the question:
-
-$$
-P(X \;\textrm{is in an}\; \epsilon \textrm{-sized interval around}\; x \; \textrm{and} \;Y \;\textrm{is in an}\; \epsilon \textrm{-sized interval around}\; y ).
-$$
-
-Similar reasoning to the single variable case shows that this should be approximately
-
-$$
-P(X \;\textrm{is in an}\; \epsilon \textrm{-sized interval around}\; x \; \textrm{and} \;Y \;\textrm{is in an}\; \epsilon \textrm{-sized interval around}\; y ) \approx \epsilon^{2}p(x, y),
-$$
-
-for some function $p(x, y)$.  This is referred to as the joint density of $X$ and $Y$.  Similar properties are true for this as we saw in the single variable case. Namely:
-
-* $p(x, y) \ge 0$;
-* $\int _ {\mathbb{R}^2} p(x, y) \;dx \;dy = 1$;
-* $P((X, Y) \in \mathcal{D}) = \int _ {\mathcal{D}} p(x, y) \;dx \;dy$.
-
-In this way, we can deal with multiple, potentially correlated random variables.  If we wish to work with more than two random variables, we can extend the multivariate density to as many coordinates as desired by considering $p(\mathbf{x}) = p(x_1, \ldots, x_n)$.  The same properties of being non-negative, and having total integral of one still hold.
-
-### Marginal Distributions
-When dealing with multiple variables, we oftentimes want to be able to ignore the relationships and ask, "how is this one variable distributed?"  Such a distribution is called a *marginal distribution*.
-
-To be concrete, let's suppose that we have two random variables $X, Y$ with joint density given by $p _ {X, Y}(x, y)$.  We will be using the subscript to indicate what random variables the density is for.  The question of finding the marginal distribution is taking this function, and using it to find $p _ X(x)$.
-
-As with most things, it is best to return to the intuitive picture to figure out what should be true.  Recall that the density is the function $p _ X$ so that
-
-$$
-P(X \in [x, x+\epsilon]) \approx \epsilon \cdot p _ X(x).
-$$
-
-There is no mention of $Y$, but if all we are given is $p _{X, Y}$, we need to include $Y$ somehow. We can first observe that this is the same as
-
-$$
-P(X \in [x, x+\epsilon] \textrm{, and } Y \in \mathbb{R}) \approx \epsilon \cdot p _ X(x).
-$$
-
-Our density does not directly tell us about what happens in this case, we need to split into small intervals in $y$ as well, so we can write this as
-
-$$
-\begin{aligned}
-\epsilon \cdot p _ X(x) & \approx \sum _ {i} P(X \in [x, x+\epsilon] \textrm{, and } Y \in [\epsilon \cdot i, \epsilon \cdot (i+1)]) \\
-& \approx \sum _ {i} \epsilon^{2} p _ {X, Y}(x, \epsilon\cdot i).
-\end{aligned}
-$$
-
-![By summing along the columns of our array of probabilities, we are able to obtain the marginal distribution for just the random variable represented along the $\mathit{x}$-axis.](../img/marginal.svg)
-:label:`fig_marginal`
-
-This tells us to add up the value of the density along a series of squares in a line as is shown in :numref:`fig_marginal`.  Indeed, after canceling one factor of epsilon from both sides, and recognizing the sum on the right is the integral over $y$, we can conclude that
-
-$$
-\begin{aligned}
- p _ X(x) &  \approx \sum _ {i} \epsilon p _ {X, Y}(x, \epsilon\cdot i) \\
- & \approx \int_{-\infty}^\infty p_{X, Y}(x, y) \; dy.
-\end{aligned}
-$$
-
-Thus we see
-
-$$
-p _ X(x) = \int_{-\infty}^\infty p_{X, Y}(x, y) \; dy.
-$$
-
-This tells us that to get a marginal distribution, we integrate over the variables we do not care about.  This process is often referred to as *integrating out* or *marginalized out* the unneeded variables.
-
-### Covariance
-
-When dealing with multiple random variables, there is one additional summary statistic which is helpful to know: the *covariance*.  This measures the degree that two random variable fluctuate together.
-
-Suppose that we have two random variables $X$ and $Y$, to begin with, let's suppose they are discrete, taking on values $(x_i, y_j)$ with probability $p_{ij}$.  In this case, the covariance is defined as
-
-$$\sigma_{XY} = \textrm{Cov}(X, Y) = \sum_{i, j} (x_i - \mu_X) (y_j-\mu_Y) p_{ij}. = E[XY] - E[X]E[Y].$$
-:eqlabel:`eq_cov_def`
-
-To think about this intuitively: consider the following pair of random variables.  Suppose that $X$ takes the values $1$ and $3$, and $Y$ takes the values $-1$ and $3$.  Suppose that we have the following probabilities
-
-$$
-\begin{aligned}
-P(X = 1 \; \textrm{and} \; Y = -1) & = \frac{p}{2}, \\
-P(X = 1 \; \textrm{and} \; Y = 3) & = \frac{1-p}{2}, \\
-P(X = 3 \; \textrm{and} \; Y = -1) & = \frac{1-p}{2}, \\
-P(X = 3 \; \textrm{and} \; Y = 3) & = \frac{p}{2},
-\end{aligned}
-$$
-
-where $p$ is a parameter in $[0,1]$ we get to pick.  Notice that if $p=1$ then they are both always their minimum or maximum values simultaneously, and if $p=0$ they are guaranteed to take their flipped values simultaneously (one is large when the other is small and vice versa).  If $p=1/2$, then the four possibilities are all equally likely, and neither should be related.  Let's compute the covariance.  First, note $\mu_X = 2$ and $\mu_Y = 1$, so we may compute using :eqref:`eq_cov_def`:
-
-$$
-\begin{aligned}
-\textrm{Cov}(X, Y) & = \sum_{i, j} (x_i - \mu_X) (y_j-\mu_Y) p_{ij} \\
-& = (1-2)(-1-1)\frac{p}{2} + (1-2)(3-1)\frac{1-p}{2} + (3-2)(-1-1)\frac{1-p}{2} + (3-2)(3-1)\frac{p}{2} \\
-& = 4p-2.
-\end{aligned}
-$$
-
-When $p=1$ (the case where they are both maximally positive or negative at the same time) has a covariance of $2$. When $p=0$ (the case where they are flipped) the covariance is $-2$.  Finally, when $p=1/2$ (the case where they are unrelated), the covariance is $0$.  Thus we see that the covariance measures how these two random variables are related.
-
-A quick note on the covariance is that it only measures these linear relationships.  More complex relationships like $X = Y^2$ where $Y$ is randomly chosen from $\{-2, -1, 0, 1, 2\}$ with equal probability can be missed.  Indeed a quick computation shows that these random variables have covariance zero, despite one being a deterministic function of the other.
-
-For continuous random variables, much the same story holds.  At this point, we are pretty comfortable with doing the transition between discrete and continuous, so we will provide the continuous analogue of :eqref:`eq_cov_def` without any derivation.
-
-$$
-\sigma_{XY} = \int_{\mathbb{R}^2} (x-\mu_X)(y-\mu_Y)p(x, y) \;dx \;dy.
-$$
-
-For visualization, let's take a look at a collection of random variables with tunable covariance.
-
-```{.python .input}
-#@tab mxnet
-# Plot a few random variables adjustable covariance
-covs = [-0.9, 0.0, 1.2]
-d2l.plt.figure(figsize=(12, 3))
-for i in range(3):
-    X = np.random.normal(0, 1, 500)
-    Y = covs[i]*X + np.random.normal(0, 1, (500))
-
-    d2l.plt.subplot(1, 4, i+1)
-    d2l.plt.scatter(X.asnumpy(), Y.asnumpy())
-    d2l.plt.xlabel('X')
-    d2l.plt.ylabel('Y')
-    d2l.plt.title(f'cov = {covs[i]}')
-d2l.plt.show()
-```
-
-```{.python .input}
-#@tab pytorch
-# Plot a few random variables adjustable covariance
-covs = [-0.9, 0.0, 1.2]
-d2l.plt.figure(figsize=(12, 3))
-for i in range(3):
-    X = torch.randn(500)
-    Y = covs[i]*X + torch.randn(500)
-
-    d2l.plt.subplot(1, 4, i+1)
-    d2l.plt.scatter(X.numpy(), Y.numpy())
-    d2l.plt.xlabel('X')
-    d2l.plt.ylabel('Y')
-    d2l.plt.title(f'cov = {covs[i]}')
-d2l.plt.show()
-```
-
-```{.python .input}
-#@tab tensorflow
-# Plot a few random variables adjustable covariance
-covs = [-0.9, 0.0, 1.2]
-d2l.plt.figure(figsize=(12, 3))
-for i in range(3):
-    X = tf.random.normal((500, ))
-    Y = covs[i]*X + tf.random.normal((500, ))
-
-    d2l.plt.subplot(1, 4, i+1)
-    d2l.plt.scatter(X.numpy(), Y.numpy())
-    d2l.plt.xlabel('X')
-    d2l.plt.ylabel('Y')
-    d2l.plt.title(f'cov = {covs[i]}')
-d2l.plt.show()
-```
-
-Let's see some properties of covariances:
-
-* For any random variable $X$, $\textrm{Cov}(X, X) = \textrm{Var}(X)$.
-* For any random variables $X, Y$ and numbers $a$ and $b$, $\textrm{Cov}(aX+b, Y) = \textrm{Cov}(X, aY+b) = a\textrm{Cov}(X, Y)$.
-* If $X$ and $Y$ are independent then $\textrm{Cov}(X, Y) = 0$.
-
-In addition, we can use the covariance to expand a relationship we saw before.  Recall that is $X$ and $Y$ are two independent random variables then
-
-$$
-\textrm{Var}(X+Y) = \textrm{Var}(X) + \textrm{Var}(Y).
-$$
-
-With knowledge of covariances, we can expand this relationship.  Indeed, some algebra can show that in general,
-
-$$
-\textrm{Var}(X+Y) = \textrm{Var}(X) + \textrm{Var}(Y) + 2\textrm{Cov}(X, Y).
-$$
-
-This allows us to generalize the variance summation rule for correlated random variables.
-
-### Correlation
-
-As we did in the case of means and variances, let's now consider units.  If $X$ is measured in one unit (say inches), and $Y$ is measured in another (say dollars), the covariance is measured in the product of these two units $\textrm{inches} \times \textrm{dollars}$.  These units can be hard to interpret.  What we will often want in this case is a unit-less measurement of relatedness.  Indeed, often we do not care about exact quantitative correlation, but rather ask if the correlation is in the same direction, and how strong the relationship is.
-
-To see what makes sense, let's perform a thought experiment.  Suppose that we convert our random variables in inches and dollars to be in inches and cents.  In this case the random variable $Y$ is multiplied by $100$.  If we work through the definition, this means that $\textrm{Cov}(X, Y)$ will be multiplied by $100$.  Thus we see that in this case a change of units change the covariance by a factor of $100$.  Thus, to find our unit-invariant measure of correlation, we will need to divide by something else that also gets scaled by $100$.  Indeed we have a clear candidate, the standard deviation!  Indeed if we define the *correlation coefficient* to be
-
-$$\rho(X, Y) = \frac{\textrm{Cov}(X, Y)}{\sigma_{X}\sigma_{Y}},$$
-:eqlabel:`eq_cor_def`
-
-we see that this is a unit-less value.  A little mathematics can show that this number is between $-1$ and $1$ with $1$ meaning maximally positively correlated, whereas $-1$ means maximally negatively correlated.
-
-Returning to our explicit discrete example above, we can see that $\sigma_X = 1$ and $\sigma_Y = 2$, so we can compute the correlation between the two random variables using :eqref:`eq_cor_def` to see that
-
-$$
-\rho(X, Y) = \frac{4p-2}{1\cdot 2} = 2p-1.
-$$
-
-This now ranges between $-1$ and $1$ with the expected behavior of $1$ meaning most correlated, and $-1$ meaning minimally correlated.
-
-As another example, consider $X$ as any random variable, and $Y=aX+b$ as any linear deterministic function of $X$.  Then, one can compute that
-
-$$\sigma_{Y} = \sigma_{aX+b} = |a|\sigma_{X},$$
-
-$$\textrm{Cov}(X, Y) = \textrm{Cov}(X, aX+b) = a\textrm{Cov}(X, X) = a\textrm{Var}(X),$$
-
-and thus by :eqref:`eq_cor_def` that
-
-$$
-\rho(X, Y) = \frac{a\textrm{Var}(X)}{|a|\sigma_{X}^2} = \frac{a}{|a|} = \textrm{sign}(a).
-$$
-
-Thus we see that the correlation is $+1$ for any $a > 0$, and $-1$ for any $a < 0$ illustrating that correlation measures the degree and directionality the two random variables are related, not the scale that the variation takes.
-
-Let's again plot a collection of random variables with tunable correlation.
-
-```{.python .input}
-#@tab mxnet
-# Plot a few random variables adjustable correlations
-cors = [-0.9, 0.0, 1.0]
-d2l.plt.figure(figsize=(12, 3))
-for i in range(3):
-    X = np.random.normal(0, 1, 500)
-    Y = cors[i] * X + np.sqrt(1 - cors[i]**2) * np.random.normal(0, 1, 500)
-
-    d2l.plt.subplot(1, 4, i + 1)
-    d2l.plt.scatter(X.asnumpy(), Y.asnumpy())
-    d2l.plt.xlabel('X')
-    d2l.plt.ylabel('Y')
-    d2l.plt.title(f'cor = {cors[i]}')
-d2l.plt.show()
-```
-
-```{.python .input}
-#@tab pytorch
-# Plot a few random variables adjustable correlations
-cors = [-0.9, 0.0, 1.0]
-d2l.plt.figure(figsize=(12, 3))
-for i in range(3):
-    X = torch.randn(500)
-    Y = cors[i] * X + torch.sqrt(torch.tensor(1) -
-                                 cors[i]**2) * torch.randn(500)
-
-    d2l.plt.subplot(1, 4, i + 1)
-    d2l.plt.scatter(X.numpy(), Y.numpy())
-    d2l.plt.xlabel('X')
-    d2l.plt.ylabel('Y')
-    d2l.plt.title(f'cor = {cors[i]}')
-d2l.plt.show()
-```
-
-```{.python .input}
-#@tab tensorflow
-# Plot a few random variables adjustable correlations
-cors = [-0.9, 0.0, 1.0]
-d2l.plt.figure(figsize=(12, 3))
-for i in range(3):
-    X = tf.random.normal((500, ))
-    Y = cors[i] * X + tf.sqrt(tf.constant(1.) -
-                                 cors[i]**2) * tf.random.normal((500, ))
-
-    d2l.plt.subplot(1, 4, i + 1)
-    d2l.plt.scatter(X.numpy(), Y.numpy())
-    d2l.plt.xlabel('X')
-    d2l.plt.ylabel('Y')
-    d2l.plt.title(f'cor = {cors[i]}')
-d2l.plt.show()
-```
-
-Let's list a few properties of the correlation below.
-
-* For any random variable $X$, $\rho(X, X) = 1$.
-* For any random variables $X, Y$ and numbers $a$ and $b$, $\rho(aX+b, Y) = \rho(X, aY+b) = \rho(X, Y)$.
-* If $X$ and $Y$ are independent with non-zero variance then $\rho(X, Y) = 0$.
-
-As a final note, you may feel like some of these formulae are familiar.  Indeed, if we expand everything out assuming that $\mu_X = \mu_Y = 0$, we see that this is
-
-$$
-\rho(X, Y) = \frac{\sum_{i, j} x_iy_ip_{ij}}{\sqrt{\sum_{i, j}x_i^2 p_{ij}}\sqrt{\sum_{i, j}y_j^2 p_{ij}}}.
-$$
-
-This looks like a sum of a product of terms divided by the square root of sums of terms.  This is exactly the formula for the cosine of the angle between two vectors $\mathbf{v}, \mathbf{w}$ with the different coordinates weighted by $p_{ij}$:
-
-$$
-\cos(\theta) = \frac{\mathbf{v}\cdot \mathbf{w}}{\|\mathbf{v}\|\|\mathbf{w}\|} = \frac{\sum_{i} v_iw_i}{\sqrt{\sum_{i}v_i^2}\sqrt{\sum_{i}w_i^2}}.
-$$
-
-Indeed if we think of norms as being related to standard deviations, and correlations as being cosines of angles, much of the intuition we have from geometry can be applied to thinking about random variables.
-
-## Summary
-* Continuous random variables are random variables that can take on a continuum of values.  They have some technical difficulties that make them more challenging to work with compared to discrete random variables.
-* The probability density function allows us to work with continuous random variables by giving a function where the area under the curve on some interval gives the probability of finding a sample point in that interval.
-* The cumulative distribution function is the probability of observing the random variable to be less than a given threshold.  It can provide a useful alternate viewpoint which unifies discrete and continuous variables.
-* The mean is the average value of a random variable.
-* The variance is the expected square of the difference between the random variable and its mean.
-* The standard deviation is the square root of the variance.  It can be thought of as measuring the range of values the random variable may take.
-* Chebyshev's inequality allows us to make this intuition rigorous by giving an explicit interval that contains the random variable most of the time.
-* Joint densities allow us to work with correlated random variables.  We may marginalize joint densities by integrating over unwanted random variables to get the distribution of the desired random variable.
-* The covariance and correlation coefficient provide a way to measure any linear relationship between two correlated random variables.
-
-## Exercises
-1. Suppose that we have the random variable with density given by $p(x) = \frac{1}{x^2}$ for $x \ge 1$ and $p(x) = 0$ otherwise.  What is $P(X > 2)$?
-2. The Laplace distribution is a random variable whose density is given by $p(x = \frac{1}{2}e^{-|x|}$.  What is the mean and the standard deviation of this function?  As a hint, $\int_0^\infty xe^{-x} \; dx = 1$ and $\int_0^\infty x^2e^{-x} \; dx = 2$.
-3. I walk up to you on the street and say "I have a random variable with mean $1$, standard deviation $2$, and I observed $25\%$ of my samples taking a value larger than $9$."  Do you believe me?  Why or why not?
-4. Suppose that you have two random variables $X, Y$, with joint density given by $p_{XY}(x, y) = 4xy$ for $x, y \in [0,1]$ and $p_{XY}(x, y) = 0$ otherwise.  What is the covariance of $X$ and $Y$?
-
-
-:begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/415)
-:end_tab:
-
-:begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1094)
-:end_tab:
-
-
-:begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/1095)
-:end_tab:
+이 시점에서

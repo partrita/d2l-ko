@@ -1,372 +1,138 @@
-# Generalization in Deep Learning
+# 딥러닝에서의 일반화 (Generalization in Deep Learning)
 
 
-In :numref:`chap_regression` and :numref:`chap_classification`,
-we tackled regression and classification problems
-by fitting linear models to training data.
-In both cases, we provided practical algorithms
-for finding the parameters that maximized
-the likelihood of the observed training labels.
-And then, towards the end of each chapter,
-we recalled that fitting the training data
-was only an intermediate goal.
-Our real quest all along was to discover *general patterns*
-on the basis of which we can make accurate predictions
-even on new examples drawn from the same underlying population.
-Machine learning researchers are *consumers* of optimization algorithms.
-Sometimes, we must even develop new optimization algorithms.
-But at the end of the day, optimization is merely a means to an end.
-At its core, machine learning is a statistical discipline
-and we wish to optimize training loss only insofar
-as some statistical principle (known or unknown)
-leads the resulting models to generalize beyond the training set.
+:numref:`chap_regression`과 :numref:`chap_classification`에서, 우리는 선형 모델을 훈련 데이터에 맞춤으로써 회귀 및 분류 문제를 다루었습니다. 
+두 경우 모두 관찰된 훈련 레이블의 우도를 최대화하는 파라미터를 찾기 위한 실용적인 알고리즘을 제공했습니다. 
+그리고 각 장의 끝부분에서, 우리는 훈련 데이터를 맞추는 것이 중간 목표일 뿐임을 상기했습니다. 
+우리의 진짜 탐구는 내내 동일한 기저 모집단에서 추출된 새로운 예제에서도 정확한 예측을 할 수 있는 기반이 되는 *일반적인 패턴*을 발견하는 것이었습니다. 
+머신러닝 연구자들은 최적화 알고리즘의 *소비자*입니다. 
+때때로 우리는 새로운 최적화 알고리즘을 개발해야 합니다. 
+하지만 결국 최적화는 목적을 위한 수단일 뿐입니다. 
+핵심적으로 머신러닝은 통계적 학문이며, 우리는 어떤 통계적 원리(알려지거나 알려지지 않은)가 결과 모델을 훈련 세트 너머로 일반화하도록 이끄는 한에서만 훈련 손실을 최적화하기를 원합니다.
 
 
-On the bright side, it turns out that deep neural networks
-trained by stochastic gradient descent generalize remarkably well
-across myriad prediction problems, spanning computer vision;
-natural language processing; time series data; recommender systems;
-electronic health records; protein folding;
-value function approximation in video games
-and board games; and numerous other domains.
-On the downside, if you were looking
-for a straightforward account
-of either the optimization story
-(why we can fit them to training data)
-or the generalization story
-(why the resulting models generalize to unseen examples),
-then you might want to pour yourself a drink.
-While our procedures for optimizing linear models
-and the statistical properties of the solutions
-are both described well by a comprehensive body of theory,
-our understanding of deep learning
-still resembles the wild west on both fronts.
+긍정적인 측면에서, 확률적 경사 하강법으로 훈련된 심층 신경망은 컴퓨터 비전, 자연어 처리, 시계열 데이터, 추천 시스템, 전자 건강 기록, 단백질 접힘, 비디오 게임 및 보드게임의 가치 함수 근사화, 그리고 수많은 다른 도메인에 걸친 무수한 예측 문제에서 놀라울 정도로 잘 일반화되는 것으로 밝혀졌습니다. 
+부정적인 측면에서, 최적화 이야기(왜 우리가 훈련 데이터에 맞출 수 있는지)나 일반화 이야기(왜 결과 모델이 보지 못한 예제로 일반화되는지)에 대한 직접적인 설명을 찾고 있다면 실망할지도 모릅니다. 
+선형 모델을 최적화하는 절차와 솔루션의 통계적 속성은 포괄적인 이론 체계에 의해 잘 설명되지만, 딥러닝에 대한 우리의 이해는 두 전선 모두에서 여전히 서부 개척 시대와 비슷합니다.
 
-Both the theory and practice of deep learning
-are rapidly evolving,
-with theorists adopting new strategies
-to explain what's going on,
-even as practitioners continue
-to innovate at a blistering pace,
-building arsenals of heuristics for training deep networks
-and a body of intuitions and folk knowledge
-that provide guidance for deciding
-which techniques to apply in which situations.
+딥러닝의 이론과 실제는 빠르게 진화하고 있습니다. 
+이론가들은 무슨 일이 일어나고 있는지 설명하기 위해 새로운 전략을 채택하고 있으며, 실무자들은 맹렬한 속도로 혁신을 계속하며 심층 네트워크 훈련을 위한 휴리스틱의 무기고와 어떤 상황에 어떤 기술을 적용할지 결정하기 위한 지침을 제공하는 직관 및 민간 지식 체계를 구축하고 있습니다.
 
-The summary of the present moment is that the theory of deep learning
-has produced promising lines of attack and scattered fascinating results,
-but still appears far from a comprehensive account
-of both (i) why we are able to optimize neural networks
-and (ii) how models learned by gradient descent
-manage to generalize so well, even on high-dimensional tasks.
-However, in practice, (i) is seldom a problem
-(we can always find parameters that will fit all of our training data)
-and thus understanding generalization is far the bigger problem.
-On the other hand, even absent the comfort of a coherent scientific theory,
-practitioners have developed a large collection of techniques
-that may help you to produce models that generalize well in practice.
-While no pithy summary can possibly do justice
-to the vast topic of generalization in deep learning,
-and while the overall state of research is far from resolved,
-we hope, in this section, to present a broad overview
-of the state of research and practice.
+현 시점의 요약은 딥러닝 이론이 유망한 공격 라인과 흩어진 매혹적인 결과들을 낳았지만, (i) 왜 신경망을 최적화할 수 있는지, (ii) 경사 하강법으로 학습된 모델이 고차원 작업에서도 어떻게 그렇게 잘 일반화되는지에 대한 포괄적인 설명과는 여전히 거리가 멀어 보인다는 것입니다. 
+하지만 실제로는 (i)이 거의 문제가 되지 않으며(우리는 항상 모든 훈련 데이터에 맞는 파라미터를 찾을 수 있음), 따라서 일반화를 이해하는 것이 훨씬 더 큰 문제입니다. 
+반면에 일관된 과학적 이론의 위안이 없더라도, 실무자들은 실제 상황에서 잘 일반화되는 모델을 생성하는 데 도움이 될 수 있는 방대한 기술 컬렉션을 개발했습니다. 
+어떤 간결한 요약도 딥러닝의 일반화라는 방대한 주제를 제대로 다룰 수 없으며 전반적인 연구 상태가 해결된 것과는 거리가 멀지만, 우리는 이 섹션에서 연구 및 실제 상태에 대한 광범위한 개요를 제시하고자 합니다.
 
 
-## Revisiting Overfitting and Regularization
+## 과대적합 및 정규화 다시 보기 (Revisiting Overfitting and Regularization)
 
-According to the "no free lunch" theorem of :citet:`wolpert1995no`,
-any learning algorithm generalizes better on data with certain distributions, and worse with other distributions.
-Thus, given a finite training set,
-a model relies on certain assumptions: 
-to achieve human-level performance
-it may be useful to identify *inductive biases* 
-that reflect how humans think about the world.
-Such inductive biases show preferences 
-for solutions with certain properties.
-For example,
-a deep MLP has an inductive bias
-towards building up a complicated function by the composition of simpler functions.
+:citet:`wolpert1995no`의 "공짜 점심은 없다(no free lunch)" 정리에 따르면, 어떤 학습 알고리즘은 특정 분포를 가진 데이터에서는 더 잘 일반화하고 다른 분포에서는 더 나쁘게 일반화합니다. 
+따라서 유한한 훈련 세트가 주어졌을 때, 모델은 특정 가정에 의존합니다: 인간 수준의 성능을 달성하려면 인간이 세상을 생각하는 방식을 반영하는 *귀납적 편향(inductive biases)*을 식별하는 것이 유용할 수 있습니다. 
+그러한 귀납적 편향은 특정 속성을 가진 솔루션에 대한 선호도를 보여줍니다. 
+예를 들어 심층 MLP는 더 단순한 함수들의 합성으로 복잡한 함수를 구축하는 것에 대한 귀납적 편향을 가지고 있습니다.
 
-With machine learning models encoding inductive biases,
-our approach to training them
-typically consists of two phases: (i) fit the training data;
-and (ii) estimate the *generalization error*
-(the true error on the underlying population)
-by evaluating the model on holdout data.
-The difference between our fit on the training data
-and our fit on the test data is called the *generalization gap* and when this is large,
-we say that our models *overfit* to the training data.
-In extreme cases of overfitting,
-we might exactly fit the training data,
-even when the test error remains significant.
-And in the classical view,
-the interpretation is that our models are too complex,
-requiring that we either shrink the number of features,
-the number of nonzero parameters learned,
-or the size of the parameters as quantified.
-Recall the plot of model complexity compared with loss
-(:numref:`fig_capacity_vs_error`)
-from :numref:`sec_generalization_basics`.
+귀납적 편향을 인코딩하는 머신러닝 모델을 사용하여 훈련하는 접근 방식은 일반적으로 두 단계로 구성됩니다: (i) 훈련 데이터를 맞춤; (ii) 홀드아웃 데이터에서 모델을 평가하여 *일반화 오차*(기저 모집단에 대한 실제 오차)를 추정함. 
+훈련 데이터에 대한 적합도와 테스트 데이터에 대한 적합도의 차이를 *일반화 갭(generalization gap)*이라고 하며, 이것이 클 때 우리는 모델이 훈련 데이터에 *과대적합(overfit)*되었다고 말합니다. 
+과대적합의 극단적인 경우, 테스트 오차가 여전히 상당한데도 훈련 데이터에 정확히 맞출 수 있습니다. 
+고전적인 관점에서 해석하자면 우리 모델이 너무 복잡하여 특성 수, 학습된 0이 아닌 파라미터 수, 또는 정량화된 파라미터 크기를 줄여야 한다는 것입니다. 
+:numref:`sec_generalization_basics`의 모델 복잡도 대 손실 플롯(:numref:`fig_capacity_vs_error`)을 상기해 보십시오.
 
 
-However deep learning complicates this picture in counterintuitive ways.
-First, for classification problems,
-our models are typically expressive enough
-to perfectly fit every training example,
-even in datasets consisting of millions
-:cite:`zhang2021understanding`.
-In the classical picture, we might think
-that this setting lies on the far right extreme
-of the model complexity axis,
-and that any improvements in generalization error
-must come by way of regularization,
-either by reducing the complexity of the model class,
-or by applying a penalty, severely constraining
-the set of values that our parameters might take.
-But that is where things start to get weird.
+그러나 딥러닝은 직관에 반하는 방식으로 이 그림을 복잡하게 만듭니다. 
+첫째, 분류 문제의 경우 우리 모델은 일반적으로 수백만 개로 구성된 데이터셋에서도 모든 훈련 예제를 완벽하게 맞출 수 있을 만큼 표현력이 뛰어납니다 :cite:`zhang2021understanding`. 
+고전적인 그림에서 우리는 이 설정이 모델 복잡도 축의 맨 오른쪽 끝에 있으며, 일반화 오차의 개선은 모델 클래스의 복잡도를 줄이거나 파라미터가 취할 수 있는 값 집합을 엄격하게 제한하는 페널티를 적용하는 등 정규화를 통해서만 이루어져야 한다고 생각할 수 있습니다. 
+하지만 여기서부터 이상해지기 시작합니다.
 
-Strangely, for many deep learning tasks
-(e.g., image recognition and text classification)
-we are typically choosing among model architectures,
-all of which can achieve arbitrarily low training loss
-(and zero training error).
-Because all models under consideration achieve zero training error,
-*the only avenue for further gains is to reduce overfitting*.
-Even stranger, it is often the case that
-despite fitting the training data perfectly,
-we can actually *reduce the generalization error*
-further by making the model *even more expressive*,
-e.g., adding layers, nodes, or training
-for a larger number of epochs.
-Stranger yet, the pattern relating the generalization gap
-to the *complexity* of the model (as captured, for example, in the depth or width of the networks)
-can be non-monotonic,
-with greater complexity hurting at first
-but subsequently helping in a so-called "double-descent" pattern
-:cite:`nakkiran2021deep`.
-Thus the deep learning practitioner possesses a bag of tricks,
-some of which seemingly restrict the model in some fashion
-and others that seemingly make it even more expressive,
-and all of which, in some sense, are applied to mitigate overfitting.
+이상하게도 많은 딥러닝 작업(예: 이미지 인식 및 텍스트 분류)에서 우리는 일반적으로 모델 아키텍처 중에서 선택하는데, 그들 모두가 임의로 낮은 훈련 손실(및 0의 훈련 오차)을 달성할 수 있습니다. 
+고려 중인 모든 모델이 0의 훈련 오차를 달성하기 때문에, *추가적인 이득을 위한 유일한 길은 과대적합을 줄이는 것입니다*. 
+더욱 이상한 점은 훈련 데이터를 완벽하게 맞추었음에도 불구하고, 레이어나 노드를 추가하거나 더 많은 에폭 동안 훈련하는 등 모델을 *더욱 표현력 있게* 만듦으로써 실제로 *일반화 오차를 줄일* 수 있는 경우가 많다는 것입니다. 
+더욱 이상한 것은 일반화 갭과 (예를 들어 네트워크의 깊이나 너비로 포착되는) 모델의 *복잡도* 사이의 관계 패턴이 비단조적일 수 있다는 것입니다. 더 큰 복잡도가 처음에는 해를 끼치지만 이후에는 소위 "이중 하강(double-descent)" 패턴으로 도움을 줍니다 :cite:`nakkiran2021deep`. 
+따라서 딥러닝 실무자는 몇 가지는 모델을 어떤 식으로든 제한하는 것처럼 보이고 다른 몇 가지는 모델을 더 표현력 있게 만드는 것처럼 보이는, 하지만 어떤 의미에서는 모두 과대적합을 완화하기 위해 적용되는 요령 꾸러미를 가지고 있습니다.
 
-Complicating things even further,
-while the guarantees provided by classical learning theory
-can be conservative even for classical models,
-they appear powerless to explain why it is
-that deep neural networks generalize in the first place.
-Because deep neural networks are capable of fitting
-arbitrary labels even for large datasets,
-and despite the use of familiar methods such as $\ell_2$ regularization,
-traditional complexity-based generalization bounds,
-e.g., those based on the VC dimension
-or Rademacher complexity of a hypothesis class
-cannot explain why neural networks generalize.
+상황을 더욱 복잡하게 만드는 것은, 고전적인 학습 이론이 제공하는 보장이 고전적인 모델에 대해서도 보수적일 수 있는 반면, 심층 신경망이 애초에 왜 일반화되는지 설명하는 데는 무력해 보인다는 것입니다. 
+심층 신경망은 대규모 데이터셋에 대해서도 임의의 레이블을 맞출 수 있으며 $\ell_2$ 정규화와 같은 익숙한 방법을 사용함에도 불구하고, VC 차원이나 가설 클래스의 라데마허(Rademacher) 복잡도에 기반한 것과 같은 전통적인 복잡도 기반 일반화 경계는 신경망이 왜 일반화되는지 설명할 수 없습니다.
 
-## Inspiration from Nonparametrics
+## 비모수(Nonparametrics)로부터의 영감 (Inspiration from Nonparametrics)
 
-Approaching deep learning for the first time,
-it is tempting to think of them as parametric models.
-After all, the models *do* have millions of parameters.
-When we update the models, we update their parameters.
-When we save the models, we write their parameters to disk.
-However, mathematics and computer science are riddled
-with counterintuitive changes of perspective,
-and surprising isomorphisms between seemingly different problems.
-While neural networks clearly *have* parameters,
-in some ways it can be more fruitful
-to think of them as behaving like nonparametric models.
-So what precisely makes a model nonparametric?
-While the name covers a diverse set of approaches,
-one common theme is that nonparametric methods
-tend to have a level of complexity that grows
-as the amount of available data grows.
+딥러닝에 처음 접근할 때, 이들을 파라메트릭 모델로 생각하고 싶어집니다. 
+결국 모델에는 수백만 개의 파라미터가 *있습니다*. 
+모델을 업데이트할 때 파라미터를 업데이트합니다. 
+모델을 저장할 때 파라미터를 디스크에 씁니다. 
+하지만 수학과 컴퓨터 과학은 직관에 반하는 관점의 변화와 겉보기에 다른 문제들 사이의 놀라운 동형성(isomorphisms)으로 가득 차 있습니다. 
+신경망이 분명히 파라미터를 *가지고* 있지만, 어떤 면에서는 비모수 모델처럼 행동한다고 생각하는 것이 더 유익할 수 있습니다. 
+그렇다면 모델을 비모수적으로 만드는 것은 정확히 무엇입니까? 
+이 이름이 다양한 접근 방식을 포괄하지만, 공통된 주제 하나는 비모수 방법이 사용 가능한 데이터 양이 증가함에 따라 복잡도 수준이 증가하는 경향이 있다는 것입니다.
 
-Perhaps the simplest example of a nonparametric model
-is the $k$-nearest neighbor algorithm (we will cover more nonparametric models later, for example in :numref:`sec_attention-pooling`).
-Here, at training time,
-the learner simply memorizes the dataset.
-Then, at prediction time,
-when confronted with a new point $\mathbf{x}$,
-the learner looks up the $k$ nearest neighbors
-(the $k$ points $\mathbf{x}_i'$ that minimize
-some distance $d(\mathbf{x}, \mathbf{x}_i')$).
-When $k=1$, this algorithm is called $1$-nearest neighbors,
-and the algorithm will always achieve a training error of zero.
-That however, does not mean that the algorithm will not generalize.
-In fact, it turns out that under some mild conditions,
-the 1-nearest neighbor algorithm is consistent
-(eventually converging to the optimal predictor).
+아마도 비모수 모델의 가장 간단한 예는 $k$-최근접 이웃 알고리즘일 것입니다(나중에 예를 들어 :numref:`sec_attention-pooling`에서 더 많은 비모수 모델을 다룰 것입니다). 
+여기서 학습자는 훈련 시 단순히 데이터셋을 암기합니다. 
+그런 다음 예측 시 새로운 점 $\mathbf{x}$에 직면했을 때, 학습자는 $k$개의 가장 가까운 이웃(어떤 거리 $d(\mathbf{x}, \mathbf{x}_i')$를 최소화하는 $k$개의 점 $\mathbf{x}_i'$)을 찾습니다. 
+$k=1$일 때 이 알고리즘을 1-최근접 이웃이라고 하며, 알고리즘은 항상 0의 훈련 오차를 달성할 것입니다. 
+그렇다고 해서 알고리즘이 일반화되지 않는다는 의미는 아닙니다. 
+사실 몇 가지 완만한 조건 하에서 1-최근접 이웃 알고리즘은 일관성이 있음(결국 최적의 예측기로 수렴함)이 밝혀졌습니다.
 
 
-Note that $1$-nearest neighbor requires that we specify
-some distance function $d$, or equivalently,
-that we specify some vector-valued basis function $\phi(\mathbf{x})$
-for featurizing our data.
-For any choice of the distance metric,
-we will achieve zero training error
-and eventually reach an optimal predictor,
-but different distance metrics $d$
-encode different inductive biases
-and with a finite amount of available data
-will yield different predictors.
-Different choices of the distance metric $d$
-represent different assumptions about the underlying patterns
-and the performance of the different predictors
-will depend on how compatible the assumptions
-are with the observed data.
+1-최근접 이웃은 거리 함수 $d$를 지정하거나 동등하게 데이터를 특성 화하기 위한 벡터 값 기저 함수 $\phi(\mathbf{x})$를 지정해야 한다는 점에 유의하십시오. 
+거리 지표의 어떤 선택에 대해서도 0의 훈련 오차를 달성하고 결국 최적의 예측기에 도달하겠지만, 서로 다른 거리 지표 $d$는 서로 다른 귀납적 편향을 인코딩하며 유한한 양의 데이터로는 서로 다른 예측기를 산출할 것입니다. 
+거리 지표 $d$의 다른 선택은 기저 패턴에 대한 다른 가정을 나타내며, 다른 예측기의 성능은 가정이 관찰된 데이터와 얼마나 호환되는지에 달려 있습니다.
 
-In a sense, because neural networks are over-parametrized,
-possessing many more parameters than are needed to fit the training data,
-they tend to *interpolate* the training data (fitting it perfectly)
-and thus behave, in some ways, more like nonparametric models.
-More recent theoretical research has established
-deep connection between large neural networks
-and nonparametric methods, notably kernel methods.
-In particular, :citet:`Jacot.Grabriel.Hongler.2018`
-demonstrated that in the limit, as multilayer perceptrons
-with randomly initialized weights grow infinitely wide,
-they become equivalent to (nonparametric) kernel methods
-for a specific choice of the kernel function
-(essentially, a distance function),
-which they call the neural tangent kernel.
-While current neural tangent kernel models may not fully explain
-the behavior of modern deep networks,
-their success as an analytical tool
-underscores the usefulness of nonparametric modeling
-for understanding the behavior of over-parametrized deep networks.
+어떤 의미에서 신경망은 훈련 데이터를 맞추는 데 필요한 것보다 훨씬 더 많은 파라미터를 보유하고 있어 과도하게 파라미터화(over-parametrized)되어 있기 때문에, 훈련 데이터를 *보간(interpolate)*하는(완벽하게 맞추는) 경향이 있으며 따라서 어떤 면에서는 비모수 모델처럼 행동합니다. 
+보다 최근의 이론적 연구는 대규모 신경망과 비모수 방법, 특히 커널 방법 사이의 깊은 연결을 확립했습니다. 
+특히 :citet:`Jacot.Grabriel.Hongler.2018`는 무작위로 초기화된 가중치를 가진 다층 퍼셉트론이 무한히 넓어짐에 따라 극한에서 특정 커널 함수(본질적으로 거리 함수) 선택에 대한 (비모수) 커널 방법과 동일해짐을 입증했습니다. 그들은 이를 신경 탄젠트 커널(neural tangent kernel)이라고 부릅니다. 
+현재의 신경 탄젠트 커널 모델이 현대 심층 네트워크의 동작을 완전히 설명하지 못할 수도 있지만, 분석 도구로서의 성공은 과도하게 파라미터화된 심층 네트워크의 동작을 이해하는 데 있어 비모수 모델링의 유용성을 강조합니다.
 
 
-## Early Stopping
+## 조기 종료 (Early Stopping)
 
-While deep neural networks are capable of fitting arbitrary labels,
-even when labels are assigned incorrectly or randomly
-:cite:`zhang2021understanding`,
-this capability only emerges over many iterations of training.
-A new line of work :cite:`Rolnick.Veit.Belongie.Shavit.2017`
-has revealed that in the setting of label noise,
-neural networks tend to fit cleanly labeled data first
-and only subsequently to interpolate the mislabeled data.
-Moreover, it has been established that this phenomenon
-translates directly into a guarantee on generalization:
-whenever a model has fitted the cleanly labeled data
-but not randomly labeled examples included in the training set,
-it has in fact generalized :cite:`Garg.Balakrishnan.Kolter.Lipton.2021`.
+심층 신경망은 레이블이 잘못되거나 무작위로 할당된 경우에도 임의의 레이블을 맞출 수 있지만 :cite:`zhang2021understanding`, 이 능력은 훈련의 많은 반복에 걸쳐서만 나타납니다. 
+새로운 연구 라인 :cite:`Rolnick.Veit.Belongie.Shavit.2017`은 레이블 노이즈 설정에서 신경망이 깨끗하게 레이블이 지정된 데이터를 먼저 맞추고 나중에야 잘못 레이블이 지정된 데이터를 보간하는 경향이 있음을 밝혔습니다. 
+더욱이 이 현상은 일반화에 대한 보장으로 직접 변환됨이 확립되었습니다: 모델이 깨끗하게 레이블이 지정된 데이터를 맞추었지만 훈련 세트에 포함된 무작위로 레이블이 지정된 예제는 맞추지 않은 경우, 실제로 일반화된 것입니다 :cite:`Garg.Balakrishnan.Kolter.Lipton.2021`.
 
-Together these findings help to motivate *early stopping*,
-a classic technique for regularizing deep neural networks.
-Here, rather than directly constraining the values of the weights,
-one constrains the number of epochs of training.
-The most common way to determine the stopping criterion
-is to monitor validation error throughout training
-(typically by checking once after each epoch)
-and to cut off training when the validation error
-has not decreased by more than some small amount $\epsilon$
-for some number of epochs.
-This is sometimes called a *patience criterion*.
-As well as the potential to lead to better generalization
-in the setting of noisy labels,
-another benefit of early stopping is the time saved.
-Once the patience criterion is met, one can terminate training.
-For large models that might require days of training
-simultaneously across eight or more GPUs,
-well-tuned early stopping can save researchers days of time
-and can save their employers many thousands of dollars.
+이러한 발견들은 함께 심층 신경망을 정규화하는 고전적인 기술인 *조기 종료(early stopping)*에 동기를 부여하는 데 도움이 됩니다. 
+여기서 가중치 값을 직접 제한하는 대신 훈련 에폭 수를 제한합니다. 
+종료 기준을 결정하는 가장 일반적인 방법은 훈련 내내 검증 오차를 모니터링하고(일반적으로 각 에폭 후 한 번씩 확인), 검증 오차가 일정 에폭 수 동안 어떤 작은 양 $\epsilon$ 이상 감소하지 않으면 훈련을 중단하는 것입니다. 
+이를 때때로 *인내 기준(patience criterion)*이라고 합니다. 
+노이즈가 섞인 레이블 설정에서 더 나은 일반화로 이어질 수 있는 잠재력 외에도, 조기 종료의 또 다른 이점은 절약된 시간입니다. 
+인내 기준이 충족되면 훈련을 종료할 수 있습니다. 
+8개 이상의 GPU에서 동시에 며칠 동안 훈련해야 할 수도 있는 대형 모델의 경우, 잘 튜닝된 조기 종료는 연구자의 시간을 며칠 절약하고 고용주에게 수천 달러를 절약해 줄 수 있습니다.
 
-Notably, when there is no label noise and datasets are *realizable*
-(the classes are truly separable, e.g., distinguishing cats from dogs),
-early stopping tends not to lead to significant improvements in generalization.
-On the other hand, when there is label noise,
-or intrinsic variability in the label
-(e.g., predicting mortality among patients),
-early stopping is crucial.
-Training models until they interpolate noisy data is typically a bad idea.
+특히 레이블 노이즈가 없고 데이터셋이 *실현 가능(realizable)*할 때(클래스가 진정으로 분리 가능할 때, 예: 고양이와 개 구별), 조기 종료는 일반화에 큰 개선을 가져오지 않는 경향이 있습니다. 
+반면에 레이블 노이즈가 있거나 레이블에 내재적 변동성이 있는 경우(예: 환자의 사망률 예측), 조기 종료는 중요합니다. 
+노이즈가 섞인 데이터를 보간할 때까지 모델을 훈련하는 것은 일반적으로 나쁜 생각입니다.
 
 
-## Classical Regularization Methods for Deep Networks
+## 심층 네트워크를 위한 고전적 정규화 방법 (Classical Regularization Methods for Deep Networks)
 
-In :numref:`chap_regression`, we described
-several  classical regularization techniques
-for constraining the complexity of our models.
-In particular, :numref:`sec_weight_decay`
-introduced a method called weight decay,
-which consists of adding a regularization term to the loss function
-in order to penalize large values of the weights.
-Depending on which weight norm is penalized
-this technique is known either as ridge regularization (for $\ell_2$ penalty)
-or lasso regularization (for an $\ell_1$ penalty).
-In the classical analysis of these regularizers,
-they are considered as sufficiently restrictive on the values
-that the weights can take to prevent the model from fitting arbitrary labels.
+:numref:`chap_regression`에서 우리는 모델의 복잡도를 제한하기 위한 몇 가지 고전적인 정규화 기술을 설명했습니다. 
+특히 :numref:`sec_weight_decay`는 가중치의 큰 값에 페널티를 주기 위해 손실 함수에 정규화 항을 추가하는 가중치 감쇠라는 방법을 소개했습니다. 
+어떤 가중치 노름이 페널티를 받느냐에 따라 이 기술은 릿지 정규화($\ell_2$ 페널티) 또는 라소 정규화($\ell_1$ 페널티)로 알려져 있습니다. 
+이러한 정규화 기법에 대한 고전적 분석에서는 가중치가 취할 수 있는 값에 대해 모델이 임의의 레이블을 맞추지 못하게 할 만큼 충분히 제한적인 것으로 간주됩니다.
 
-In deep learning implementations,
-weight decay remains a popular tool.
-However, researchers have noted
-that typical strengths of $\ell_2$ regularization
-are insufficient to prevent the networks
-from interpolating the data :cite:`zhang2021understanding` and thus the benefits if interpreted
-as regularization might only make sense
-in combination with the early stopping criterion.
-Absent early stopping, it is possible
-that just like the number of layers
-or number of nodes (in deep learning)
-or the distance metric (in 1-nearest neighbor),
-these methods may lead to better generalization
-not because they meaningfully constrain
-the power of the neural network
-but rather because they somehow encode inductive biases
-that are better compatible with the patterns
-found in datasets of interests.
-Thus, classical regularizers remain popular
-in deep learning implementations,
-even if the theoretical rationale
-for their efficacy may be radically different.
+딥러닝 구현에서 가중치 감쇠는 여전히 인기 있는 도구입니다. 
+하지만 연구자들은 $\ell_2$ 정규화의 일반적인 강도가 네트워크가 데이터를 보간하는 것을 방지하기에 불충분하다는 점에 주목했습니다 :cite:`zhang2021understanding`. 따라서 정규화로 해석될 경우 그 이점은 조기 종료 기준과 결합될 때만 의미가 있을 수 있습니다. 
+조기 종료가 없다면, 레이어 수나 노드 수(딥러닝에서) 또는 거리 지표(1-최근접 이웃에서)와 마찬가지로, 이러한 방법들이 신경망의 힘을 의미 있게 제한하기 때문이 아니라 오히려 관심 있는 데이터셋에서 발견되는 패턴과 더 잘 호환되는 귀납적 편향을 인코딩하기 때문에 더 나은 일반화로 이어질 가능성이 있습니다. 
+따라서 고전적인 정규화 기법은 효능에 대한 이론적 근거가 근본적으로 다를 수 있더라도 딥러닝 구현에서 여전히 인기가 있습니다.
 
-Notably, deep learning researchers have also built
-on techniques first popularized
-in classical regularization contexts,
-such as adding noise to model inputs.
-In the next section we will introduce
-the famous dropout technique
-(invented by :citet:`Srivastava.Hinton.Krizhevsky.ea.2014`),
-which has become a mainstay of deep learning,
-even as the theoretical basis for its efficacy
-remains similarly mysterious.
+특히 딥러닝 연구자들은 모델 입력에 노이즈를 추가하는 것과 같이 고전적인 정규화 맥락에서 처음 대중화된 기술을 기반으로 구축해 왔습니다. 
+다음 섹션에서는 (:citet:`Srivastava.Hinton.Krizhevsky.ea.2014`에 의해 발명된) 유명한 드롭아웃(dropout) 기술을 소개할 것입니다. 이 기술은 효능에 대한 이론적 근거가 비슷하게 미스터리함에도 불구하고 딥러닝의 주류가 되었습니다.
 
 
-## Summary
+## 요약 (Summary)
 
-Unlike classical linear models,
-which tend to have fewer parameters than examples,
-deep networks tend to be over-parametrized,
-and for most tasks are capable
-of perfectly fitting the training set.
-This *interpolation regime* challenges
-many hard fast-held intuitions.
-Functionally, neural networks look like parametric models.
-But thinking of them as nonparametric models
-can sometimes be a more reliable source of intuition.
-Because it is often the case that all deep networks under consideration
-are capable of fitting all of the training labels,
-nearly all gains must come by mitigating overfitting
-(closing the *generalization gap*).
-Paradoxically, the interventions
-that reduce the generalization gap
-sometimes appear to increase model complexity
-and at other times appear to decrease complexity.
-However, these methods seldom decrease complexity
-sufficiently for classical theory
-to explain the generalization of deep networks,
-and *why certain choices lead to improved generalization*
-remains for the most part a massive open question
-despite the concerted efforts of many brilliant researchers.
+예제보다 파라미터가 적은 경향이 있는 고전적인 선형 모델과 달리, 심층 네트워크는 과도하게 파라미터화되는 경향이 있으며 대부분의 작업에서 훈련 세트를 완벽하게 맞출 수 있습니다. 
+이 *보간 체제(interpolation regime)*는 많은 굳건한 직관에 도전합니다. 
+기능적으로 신경망은 파라메트릭 모델처럼 보입니다. 
+하지만 비모수 모델로 생각하는 것이 때로는 더 신뢰할 수 있는 직관의 원천이 될 수 있습니다. 
+고려 중인 모든 심층 네트워크가 모든 훈련 레이블을 맞출 수 있는 경우가 많기 때문에, 거의 모든 이득은 과대적합을 완화( *일반화 갭* 줄이기)함으로써 와야 합니다. 
+역설적이게도 일반화 갭을 줄이는 개입은 때로는 모델 복잡도를 증가시키는 것처럼 보이고 다른 때에는 복잡도를 감소시키는 것처럼 보입니다. 
+그러나 이러한 방법들이 고전 이론이 심층 네트워크의 일반화를 설명할 수 있을 만큼 복잡도를 충분히 감소시키는 경우는 드물며, *왜 특정 선택이 향상된 일반화로 이어지는지*는 많은 뛰어난 연구자들의 헌신적인 노력에도 불구하고 대부분 거대한 미해결 문제로 남아 있습니다.
 
 
-## Exercises
+## 연습 문제 (Exercises)
 
-1. In what sense do traditional complexity-based measures fail to account for generalization of deep neural networks?
-1. Why might *early stopping* be considered a regularization technique?
-1. How do researchers typically determine the stopping criterion?
-1. What important factor seems to differentiate cases when early stopping leads to big improvements in generalization?
-1. Beyond generalization, describe another benefit of early stopping.
+1. 전통적인 복잡도 기반 측정은 어떤 의미에서 심층 신경망의 일반화를 설명하지 못합니까?
+2. *조기 종료*가 정규화 기술로 간주될 수 있는 이유는 무엇입니까?
+3. 연구자들은 일반적으로 종료 기준을 어떻게 결정합니까?
+4. 조기 종료가 일반화에 큰 개선을 가져오는 경우를 구별하는 중요한 요인은 무엇입니까?
+5. 일반화 외에 조기 종료의 다른 이점을 설명하십시오.
 
-[Discussions](https://discuss.d2l.ai/t/7473)
+[토론](https://discuss.d2l.ai/t/7473)

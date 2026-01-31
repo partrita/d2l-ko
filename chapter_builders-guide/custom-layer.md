@@ -3,22 +3,13 @@
 tab.interact_select(['mxnet', 'pytorch', 'tensorflow', 'jax'])
 ```
 
-# Custom Layers
+# 사용자 정의 레이어 (Custom Layers)
 
-One factor behind deep learning's success
-is the availability of a wide range of layers
-that can be composed in creative ways
-to design architectures suitable
-for a wide variety of tasks.
-For instance, researchers have invented layers
-specifically for handling images, text,
-looping over sequential data,
-and
-performing dynamic programming.
-Sooner or later, you will need
-a layer that does not exist yet in the deep learning framework.
-In these cases, you must build a custom layer.
-In this section, we show you how.
+딥러닝의 성공 요인 중 하나는 다양한 작업에 적합한 아키텍처를 설계하기 위해 창의적인 방식으로 구성할 수 있는 광범위한 레이어를 사용할 수 있다는 점입니다. 
+예를 들어 연구자들은 이미지, 텍스트를 처리하고 순차 데이터를 반복하며 동적 프로그래밍을 수행하기 위한 레이어를 발명했습니다. 
+조만간 딥러닝 프레임워크에 아직 존재하지 않는 레이어가 필요하게 될 것입니다. 
+이러한 경우 사용자 정의 레이어를 구축해야 합니다. 
+이 섹션에서는 그 방법을 보여드립니다.
 
 ```{.python .input}
 %%tab mxnet
@@ -50,16 +41,12 @@ import jax
 from jax import numpy as jnp
 ```
 
-## (**Layers without Parameters**)
+## (**파라미터 없는 레이어 (Layers without Parameters)**)
 
-To start, we construct a custom layer
-that does not have any parameters of its own.
-This should look familiar if you recall our
-introduction to modules in :numref:`sec_model_construction`.
-The following `CenteredLayer` class simply
-subtracts the mean from its input.
-To build it, we simply need to inherit
-from the base layer class and implement the forward propagation function.
+시작하기 위해 자체 파라미터가 없는 사용자 정의 레이어를 구성해 보겠습니다. 
+:numref:`sec_model_construction`의 모듈 소개를 기억한다면 익숙해 보일 것입니다. 
+다음 `CenteredLayer` 클래스는 단순히 입력에서 평균을 뺍니다. 
+이를 구축하려면 기본 레이어 클래스를 상속하고 순전파 함수를 구현하기만 하면 됩니다.
 
 ```{.python .input}
 %%tab mxnet
@@ -98,7 +85,7 @@ class CenteredLayer(nn.Module):
         return X - X.mean()
 ```
 
-Let's verify that our layer works as intended by feeding some data through it.
+데이터를 공급하여 레이어가 의도한 대로 작동하는지 확인해 봅시다.
 
 ```{.python .input}
 %%tab all
@@ -106,8 +93,7 @@ layer = CenteredLayer()
 layer(d2l.tensor([1.0, 2, 3, 4, 5]))
 ```
 
-We can now [**incorporate our layer as a component
-in constructing more complex models.**]
+이제 [**더 복잡한 모델을 구성하는 데 우리 레이어를 구성 요소로 통합**]할 수 있습니다.
 
 ```{.python .input}
 %%tab mxnet
@@ -131,16 +117,11 @@ net = tf.keras.Sequential([tf.keras.layers.Dense(128), CenteredLayer()])
 net = nn.Sequential([nn.Dense(128), CenteredLayer()])
 ```
 
-As an extra sanity check, we can send random data
-through the network and check that the mean is in fact 0.
-Because we are dealing with floating point numbers,
-we may still see a very small nonzero number
-due to quantization.
+추가적인 정상성 확인으로, 네트워크를 통해 무작위 데이터를 보내고 평균이 실제로 0인지 확인할 수 있습니다. 
+부동 소수점 숫자를 다루고 있기 때문에 양자화로 인해 매우 작은 0이 아닌 숫자가 보일 수 있습니다.
 
 :begin_tab:`jax`
-Here we utilize the `init_with_output` method which returns both the output of
-the network as well as the parameters. In this case we only focus on the
-output.
+여기서는 네트워크의 출력과 파라미터를 모두 반환하는 `init_with_output` 메서드를 활용합니다. 이 경우 우리는 출력에만 집중합니다.
 :end_tab:
 
 ```{.python .input}
@@ -162,24 +143,17 @@ Y, _ = net.init_with_output(d2l.get_key(), jax.random.uniform(d2l.get_key(),
 Y.mean()
 ```
 
-## [**Layers with Parameters**]
+## [**파라미터가 있는 레이어 (Layers with Parameters)**]
 
-Now that we know how to define simple layers,
-let's move on to defining layers with parameters
-that can be adjusted through training.
-We can use built-in functions to create parameters, which
-provide some basic housekeeping functionality.
-In particular, they govern access, initialization,
-sharing, saving, and loading model parameters.
-This way, among other benefits, we will not need to write
-custom serialization routines for every custom layer.
+이제 단순한 레이어를 정의하는 방법을 알았으니, 훈련을 통해 조정할 수 있는 파라미터가 있는 레이어를 정의하는 것으로 넘어가겠습니다. 
+기본적인 관리 기능을 제공하는 내장 함수를 사용하여 파라미터를 생성할 수 있습니다. 
+특히 모델 파라미터의 액세스, 초기화, 공유, 저장 및 로드를 관리합니다. 
+이렇게 하면 다른 이점들 중에서도 모든 사용자 정의 레이어에 대해 사용자 정의 직렬화 루틴을 작성할 필요가 없습니다.
 
-Now let's implement our own version of the  fully connected layer.
-Recall that this layer requires two parameters,
-one to represent the weight and the other for the bias.
-In this implementation, we bake in the ReLU activation as a default.
-This layer requires two input arguments: `in_units` and `units`, which
-denote the number of inputs and outputs, respectively.
+이제 완전 연결 레이어의 자체 버전을 구현해 봅시다. 
+이 레이어에는 가중치를 나타내는 파라미터 하나와 편향을 위한 파라미터 하나, 총 두 개의 파라미터가 필요합니다. 
+이 구현에서는 기본적으로 ReLU 활성화를 포함합니다. 
+이 레이어는 `in_units`와 `units`라는 두 개의 입력 인수가 필요하며, 각각 입력 및 출력 수를 나타냅니다.
 
 ```{.python .input}
 %%tab mxnet
@@ -245,13 +219,11 @@ class MyDense(nn.Module):
 ```
 
 :begin_tab:`mxnet, tensorflow, jax`
-Next, we instantiate the `MyDense` class
-and access its model parameters.
+다음으로 `MyDense` 클래스를 인스턴스화하고 모델 파라미터에 액세스합니다.
 :end_tab:
 
 :begin_tab:`pytorch`
-Next, we instantiate the `MyLinear` class
-and access its model parameters.
+다음으로 `MyLinear` 클래스를 인스턴스화하고 모델 파라미터에 액세스합니다.
 :end_tab:
 
 ```{.python .input}
@@ -280,7 +252,7 @@ params = dense.init(d2l.get_key(), jnp.zeros((3, 5)))
 params
 ```
 
-We can [**directly carry out forward propagation calculations using custom layers.**]
+우리는 [**사용자 정의 레이어를 사용하여 순전파 계산을 직접 수행**]할 수 있습니다.
 
 ```{.python .input}
 %%tab mxnet
@@ -304,8 +276,8 @@ dense.apply(params, jax.random.uniform(d2l.get_key(),
                                        (2, 5)))
 ```
 
-We can also (**construct models using custom layers.**)
-Once we have that we can use it just like the built-in fully connected layer.
+또한 (**사용자 정의 레이어를 사용하여 모델을 구성**)할 수도 있습니다. 
+일단 가지고 있으면 내장 완전 연결 레이어처럼 사용할 수 있습니다.
 
 ```{.python .input}
 %%tab mxnet
@@ -336,31 +308,30 @@ Y, _ = net.init_with_output(d2l.get_key(), jax.random.uniform(d2l.get_key(),
 Y
 ```
 
-## Summary
+## 요약 (Summary)
 
-We can design custom layers via the basic layer class. This allows us to define flexible new layers that behave differently from any existing layers in the library.
-Once defined, custom layers can be invoked in arbitrary contexts and architectures.
-Layers can have local parameters, which can be created through built-in functions.
+기본 레이어 클래스를 통해 사용자 정의 레이어를 설계할 수 있습니다. 이를 통해 라이브러리의 기존 레이어와 다르게 동작하는 유연한 새 레이어를 정의할 수 있습니다. 
+일단 정의되면 사용자 정의 레이어는 임의의 맥락과 아키텍처에서 호출될 수 있습니다. 
+레이어는 로컬 파라미터를 가질 수 있으며, 이는 내장 함수를 통해 생성될 수 있습니다.
 
 
-## Exercises
+## 연습 문제 (Exercises)
 
-1. Design a layer that takes an input and computes a tensor reduction,
-   i.e., it returns $y_k = \sum_{i, j} W_{ijk} x_i x_j$.
-1. Design a layer that returns the leading half of the Fourier coefficients of the data.
+1. 입력을 받아 텐서 축소를 계산하는 레이어를 설계하십시오. 즉, $y_k = \sum_{i, j} W_{ijk} x_i x_j$를 반환합니다.
+2. 데이터의 푸리에 계수의 앞쪽 절반을 반환하는 레이어를 설계하십시오.
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/58)
+[토론](https://discuss.d2l.ai/t/58)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/59)
+[토론](https://discuss.d2l.ai/t/59)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/279)
+[토론](https://discuss.d2l.ai/t/279)
 :end_tab:
 
 :begin_tab:`jax`
-[Discussions](https://discuss.d2l.ai/t/17993)
+[토론](https://discuss.d2l.ai/t/17993)
 :end_tab:

@@ -1,47 +1,47 @@
-# Sequence-Aware Recommender Systems
+# 시퀀스 인식 추천 시스템 (Sequence-Aware Recommender Systems)
 
-In previous sections, we abstract the recommendation task as a matrix completion problem without considering users' short-term behaviors. In this section, we will introduce a recommendation model that takes  the sequentially-ordered user interaction logs into account.  It is a sequence-aware recommender :cite:`Quadrana.Cremonesi.Jannach.2018` where the input is an ordered and often timestamped list of past user actions.  A number of recent literatures have demonstrated the usefulness of incorporating such information in modeling users' temporal behavioral patterns and discovering their interest drift.
+이전 섹션에서는 사용자의 단기 행동을 고려하지 않고 추천 작업을 행렬 완성 문제로 추상화했습니다. 이 섹션에서는 순차적으로 정렬된 사용자 상호 작용 로그를 고려하는 추천 모델을 소개합니다. 이것은 입력이 과거 사용자 행동의 정렬되고 종종 타임스탬프가 있는 목록인 시퀀스 인식 추천기 :cite:`Quadrana.Cremonesi.Jannach.2018`입니다. 최근의 많은 문헌은 사용자의 시간적 행동 패턴을 모델링하고 관심 변화를 발견하는 데 이러한 정보를 통합하는 것의 유용성을 입증했습니다.
 
-The model we will introduce, Caser :cite:`Tang.Wang.2018`, short for convolutional sequence embedding recommendation model, adopts convolutional neural networks capture the dynamic pattern influences of users' recent activities. The main component of Caser consists of a horizontal convolutional network and a vertical convolutional network, aiming to uncover the union-level and point-level sequence patterns, respectively.  Point-level pattern indicates the impact of single item in the historical sequence on the target item, while union level pattern implies the influences of several previous actions on the subsequent target. For example, buying both milk and butter together leads to higher probability of buying flour than just buying one of them. Moreover, users' general interests, or long term preferences are also modeled in the last fully connected layers, resulting in a more comprehensive modeling of user interests. Details of the model are described as follows.
+우리가 소개할 모델인 Caser :cite:`Tang.Wang.2018`는 합성곱 시퀀스 임베딩 추천 모델(convolutional sequence embedding recommendation model)의 약자로, 합성곱 신경망을 채택하여 사용자의 최근 활동의 동적 패턴 영향을 포착합니다. Caser의 주요 구성 요소는 수평 합성곱 네트워크와 수직 합성곱 네트워크로 구성되며, 각각 결합 수준(union-level) 및 포인트 수준(point-level) 시퀀스 패턴을 밝히는 것을 목표로 합니다. 포인트 수준 패턴은 과거 시퀀스의 단일 항목이 대상 항목에 미치는 영향을 나타내는 반면, 결합 수준 패턴은 여러 이전 행동이 후속 대상에 미치는 영향을 나타냅니다. 예를 들어, 우유와 버터를 함께 구매하면 둘 중 하나만 구매하는 것보다 밀가루를 구매할 확률이 더 높습니다. 또한 사용자의 일반적인 관심사 또는 장기적인 선호도도 마지막 완전 연결 레이어에서 모델링되어 사용자 관심사를 보다 포괄적으로 모델링할 수 있습니다. 모델의 세부 사항은 다음과 같습니다.
 
-## Model Architectures
+## 모델 아키텍처 (Model Architectures)
 
-In sequence-aware recommendation system, each user is associated with a sequence of some items from the item set. Let $S^u = (S_1^u, ... S_{|S_u|}^u)$ denotes the ordered sequence. The goal of Caser is to recommend item by considering user general tastes as well as short-term intention. Suppose we take the previous $L$ items into consideration, an embedding matrix that represents the former interactions for time step $t$ can be constructed:
+시퀀스 인식 추천 시스템에서, 각 사용자는 항목 집합의 일부 항목 시퀀스와 연관됩니다. $S^u = (S_1^u, ... S_{|S_u|}^u)$를 정렬된 시퀀스라고 합시다. Caser의 목표는 사용자의 일반적인 취향과 단기 의도를 고려하여 항목을 추천하는 것입니다. 이전 $L$개 항목을 고려한다고 가정하면 타임 스텝 $t$에 대한 이전 상호 작용을 나타내는 임베딩 행렬을 구성할 수 있습니다.
 
 $$
 \mathbf{E}^{(u, t)} = [ \mathbf{q}_{S_{t-L}^u} , ..., \mathbf{q}_{S_{t-2}^u}, \mathbf{q}_{S_{t-1}^u} ]^\top,
 $$
 
-where $\mathbf{Q} \in \mathbb{R}^{n \times k}$ represents item embeddings and $\mathbf{q}_i$ denotes the $i^\textrm{th}$ row. $\mathbf{E}^{(u, t)} \in \mathbb{R}^{L \times k}$ can be used to infer the transient interest of user $u$ at time-step $t$. We can view the input matrix $\mathbf{E}^{(u, t)}$ as an image which is the input of the subsequent two convolutional components.
+여기서 $\mathbf{Q} \in \mathbb{R}^{n \times k}$는 항목 임베딩을 나타내고 $\mathbf{q}_i$는 $i^\textrm{th}$ 행을 나타냅니다. $\mathbf{E}^{(u, t)} \in \mathbb{R}^{L \times k}$는 타임 스텝 $t$에서 사용자 $u$의 일시적 관심을 추론하는 데 사용할 수 있습니다. 입력 행렬 $\mathbf{E}^{(u, t)}$를 후속 두 합성곱 구성 요소의 입력인 이미지로 볼 수 있습니다.
 
-The horizontal convolutional layer has $d$ horizontal filters $\mathbf{F}^j \in \mathbb{R}^{h \times k}, 1 \leq j \leq d, h = \{1, ..., L\}$, and the vertical convolutional layer has $d'$ vertical filters $\mathbf{G}^j \in \mathbb{R}^{ L \times 1}, 1 \leq j \leq d'$. After a series of convolutional and pool operations, we get the two outputs:
+수평 합성곱 레이어에는 $d$개의 수평 필터 $\mathbf{F}^j \in \mathbb{R}^{h \times k}, 1 \leq j \leq d, h = \{1, ..., L\}$가 있고, 수직 합성곱 레이어에는 $d'$개의 수직 필터 $\mathbf{G}^j \in \mathbb{R}^{ L \times 1}, 1 \leq j \leq d'$가 있습니다. 일련의 합성곱 및 풀링 연산 후 두 가지 출력을 얻습니다.
 
 $$
-\mathbf{o} = \textrm{HConv}(\mathbf{E}^{(u, t)}, \mathbf{F}) \\
+\mathbf{o} = \textrm{HConv}(\mathbf{E}^{(u, t)}, \mathbf{F}) \
 \mathbf{o}'= \textrm{VConv}(\mathbf{E}^{(u, t)}, \mathbf{G}) ,
 $$
 
-where $\mathbf{o} \in \mathbb{R}^d$ is the output of horizontal convolutional network and $\mathbf{o}' \in \mathbb{R}^{kd'}$ is the output of vertical convolutional network. For simplicity, we omit the details of convolution and pool operations. They are concatenated and fed into a fully connected neural network layer to get more high-level representations.
+여기서 $\mathbf{o} \in \mathbb{R}^d$는 수평 합성곱 네트워크의 출력이고 $\mathbf{o}' \in \mathbb{R}^{kd'}$는 수직 합성곱 네트워크의 출력입니다. 단순화를 위해 합성곱 및 풀링 연산의 세부 사항은 생략합니다. 이들은 연결되어 완전 연결 신경망 레이어에 공급되어 더 높은 수준의 표현을 얻습니다.
 
-$$
+$$ 
 \mathbf{z} = \phi(\mathbf{W}[\mathbf{o}, \mathbf{o}']^\top + \mathbf{b}),
 $$
 
-where $\mathbf{W} \in \mathbb{R}^{k \times (d + kd')}$ is the weight matrix and $\mathbf{b} \in \mathbb{R}^k$ is the bias. The learned vector $\mathbf{z} \in \mathbb{R}^k$ is the representation of user's short-term intent.
+여기서 $\mathbf{W} \in \mathbb{R}^{k \times (d + kd')}$는 가중치 행렬이고 $\mathbf{b} \in \mathbb{R}^k$는 편향입니다. 학습된 벡터 $\mathbf{z} \in \mathbb{R}^k$는 사용자의 단기 의도를 나타냅니다.
 
-At last, the prediction function combines users' short-term and general taste together, which is defined as:
+마지막으로, 예측 함수는 사용자의 단기 및 일반적인 취향을 결합하며 다음과 같이 정의됩니다.
 
-$$
+$$ 
 \hat{y}_{uit} = \mathbf{v}_i \cdot [\mathbf{z}, \mathbf{p}_u]^\top + \mathbf{b}'_i,
 $$
 
-where $\mathbf{V} \in \mathbb{R}^{n \times 2k}$ is another item embedding matrix. $\mathbf{b}' \in \mathbb{R}^n$ is the item specific bias.  $\mathbf{P} \in \mathbb{R}^{m \times k}$ is the user embedding matrix for users' general tastes. $\mathbf{p}_u \in \mathbb{R}^{ k}$ is the $u^\textrm{th}$ row of $P$ and $\mathbf{v}_i \in \mathbb{R}^{2k}$ is the $i^\textrm{th}$ row of $\mathbf{V}$.
+여기서 $\mathbf{V} \in \mathbb{R}^{n \times 2k}$는 또 다른 항목 임베딩 행렬입니다. $\mathbf{b}' \in \mathbb{R}^n$은 항목별 편향입니다. $\mathbf{P} \in \mathbb{R}^{m \times k}$는 사용자의 일반적인 취향을 위한 사용자 임베딩 행렬입니다. $\mathbf{p}_u \in \mathbb{R}^{ k}$는 $P$의 $u^\textrm{th}$ 행이고 $\mathbf{v}_i \in \mathbb{R}^{2k}$는 $\mathbf{V}$의 $i^\textrm{th}$ 행입니다.
 
-The model can be learned with BPR or Hinge loss. The architecture of Caser is shown below:
+모델은 BPR 또는 힌지 손실로 학습할 수 있습니다. Caser의 아키텍처는 다음과 같습니다.
 
-![Illustration of the Caser Model](../img/rec-caser.svg)
+![Caser 모델 그림](../img/rec-caser.svg)
 
-We first import the required libraries.
+먼저 필요한 라이브러리를 가져옵니다.
 
 ```{.python .input  n=3}
 #@tab mxnet
@@ -54,8 +54,8 @@ import random
 npx.set_np()
 ```
 
-## Model Implementation
-The following code implements the Caser model. It consists of a vertical convolutional layer, a horizontal convolutional layer, and a full-connected layer.
+## 모델 구현 (Model Implementation)
+다음 코드는 Caser 모델을 구현합니다. 수직 합성곱 레이어, 수평 합성곱 레이어 및 완전 연결 레이어로 구성됩니다.
 
 ```{.python .input  n=4}
 #@tab mxnet
@@ -66,15 +66,15 @@ class Caser(nn.Block):
         self.P = nn.Embedding(num_users, num_factors)
         self.Q = nn.Embedding(num_items, num_factors)
         self.d_prime, self.d = d_prime, d
-        # Vertical convolution layer
+        # 수직 합성곱 레이어
         self.conv_v = nn.Conv2D(d_prime, (L, 1), in_channels=1)
-        # Horizontal convolution layer
+        # 수평 합성곱 레이어
         h = [i + 1 for i in range(L)]
         self.conv_h, self.max_pool = nn.Sequential(), nn.Sequential()
         for i in h:
             self.conv_h.add(nn.Conv2D(d, (i, num_factors), in_channels=1))
             self.max_pool.add(nn.MaxPool1D(L - i + 1))
-        # Fully connected layer
+        # 완전 연결 레이어
         self.fc1_dim_v, self.fc1_dim_h = d_prime * num_factors, d * len(h)
         self.fc = nn.Dense(in_units=d_prime * num_factors + d * L,
                            activation='relu', units=num_factors)
@@ -105,10 +105,10 @@ class Caser(nn.Block):
         return res
 ```
 
-## Sequential Dataset with Negative Sampling
-To process the sequential interaction data, we need to reimplement the `Dataset` class. The following code creates a new dataset class named `SeqDataset`. In each sample, it outputs the user identity, his previous $L$ interacted items as a sequence and the next item he interacts as the target. The following figure demonstrates the data loading process for one user. Suppose that this user liked 9 movies, we organize these nine movies in chronological order. The latest movie is left out as the test item. For the remaining eight movies, we can get three training samples, with each sample containing a sequence of five ($L=5$) movies and its subsequent item as the target item. Negative samples are also included in the customized dataset.
+## 네거티브 샘플링을 사용한 순차적 데이터셋 (Sequential Dataset with Negative Sampling)
+순차적 상호 작용 데이터를 처리하려면 `Dataset` 클래스를 재구현해야 합니다. 다음 코드는 `SeqDataset`이라는 새 데이터셋 클래스를 생성합니다. 각 샘플에서 사용자 ID, 이전 $L$개의 상호 작용 항목을 시퀀스로, 그리고 다음 상호 작용 항목을 대상으로 출력합니다. 다음 그림은 한 사용자의 데이터 로딩 프로세스를 보여줍니다. 이 사용자가 9개의 영화를 좋아했다고 가정하면, 이 9개의 영화를 시간순으로 정리합니다. 최신 영화는 테스트 항목으로 남겨둡니다. 나머지 8개의 영화에 대해 3개의 훈련 샘플을 얻을 수 있으며, 각 샘플에는 5개($L=5$) 영화 시퀀스와 후속 항목이 대상 항목으로 포함됩니다. 네거티브 샘플도 사용자 정의 데이터셋에 포함됩니다.
 
-![Illustration of the data generation process](../img/rec-seq-data.svg)
+![데이터 생성 프로세스 그림](../img/rec-seq-data.svg)
 
 ```{.python .input  n=5}
 #@tab mxnet
@@ -165,9 +165,9 @@ class SeqDataset(gluon.data.Dataset):
                 neg[i])
 ```
 
-## Load the MovieLens 100K dataset
+## MovieLens 100K 데이터셋 로드 (Load the MovieLens 100K dataset)
 
-Afterwards, we read and split the MovieLens 100K dataset in sequence-aware mode and load the training data with sequential dataloader implemented above.
+그 후, MovieLens 100K 데이터셋을 시퀀스 인식 모드로 읽고 분할하고 위에서 구현된 순차적 데이터 로더를 사용하여 훈련 데이터를 로드합니다.
 
 ```{.python .input  n=6}
 #@tab mxnet
@@ -188,10 +188,10 @@ test_seq_iter = train_seq_data.test_seq
 train_seq_data[0]
 ```
 
-The training data structure is shown above. The first element is the user identity, the next list indicates the last five items this user liked, and the last element is the item this user liked after the five items.
+훈련 데이터 구조는 위에 나와 있습니다. 첫 번째 요소는 사용자 ID이고, 다음 목록은 이 사용자가 좋아한 지난 5개의 항목을 나타내며, 마지막 요소는 사용자가 5개 항목 이후에 좋아한 항목입니다.
 
-## Train the Model
-Now, let's train the model. We use the same setting as NeuMF, including learning rate, optimizer, and $k$, in the last section so that the results are comparable.
+## 모델 훈련 (Train the Model)
+이제 모델을 훈련해 봅시다. 결과를 비교할 수 있도록 지난 섹션의 NeuMF와 동일한 설정(학습률, 최적화 도구 및 $k$ 포함)을 사용합니다.
 
 ```{.python .input  n=7}
 #@tab mxnet
@@ -203,19 +203,19 @@ loss = d2l.BPRLoss()
 trainer = gluon.Trainer(net.collect_params(), optimizer,
                         {"learning_rate": lr, 'wd': wd})
 
-# Running takes > 1h (pending fix from MXNet)
+# 실행에 1시간 이상 소요됨 (MXNet 수정 대기 중)
 # d2l.train_ranking(net, train_iter, test_iter, loss, trainer, test_seq_iter, num_users, num_items, num_epochs, devices, d2l.evaluate_ranking, candidates, eval_step=1)
 ```
 
-## Summary
-* Inferring a user's short-term and long-term interests can make prediction of the next item that he preferred more effectively.
-* Convolutional neural networks can be utilized to capture users' short-term interests from sequential interactions.
+## 요약 (Summary)
+* 사용자의 단기 및 장기 관심사를 추론하면 사용자가 선호하는 다음 항목을 더 효과적으로 예측할 수 있습니다.
+* 합성곱 신경망을 활용하여 순차적 상호 작용에서 사용자의 단기 관심사를 포착할 수 있습니다.
 
-## Exercises
+## 연습 문제 (Exercises)
 
-* Conduct an ablation study by removing one of the horizontal and vertical convolutional networks, which component is the more important ?
-* Vary the hyperparameter $L$. Does longer historical interactions bring higher accuracy?
-* Apart from the sequence-aware recommendation task we introduced above, there is another type of sequence-aware recommendation task called session-based recommendation :cite:`Hidasi.Karatzoglou.Baltrunas.ea.2015`. Can you explain the differences between these two tasks?
+* 수평 및 수직 합성곱 네트워크 중 하나를 제거하여 절제 연구를 수행하십시오. 어떤 구성 요소가 더 중요합니까?
+* 하이퍼파라미터 $L$을 변경해 보십시오. 과거 상호 작용이 더 길수록 정확도가 높아집니까?
+* 위에서 소개한 시퀀스 인식 추천 작업 외에도 세션 기반 추천 :cite:`Hidasi.Karatzoglou.Baltrunas.ea.2015`이라는 또 다른 유형의 시퀀스 인식 추천 작업이 있습니다. 이 두 작업의 차이점을 설명할 수 있습니까?
 
 
 :begin_tab:`mxnet`

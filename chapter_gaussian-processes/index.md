@@ -1,14 +1,14 @@
-# Gaussian Processes
+# 가우스 프로세스 (Gaussian Processes)
 :label:`chap_gp`
 
 **Andrew Gordon Wilson** (*New York University and Amazon*)
 
 
-Gaussian processes (GPs) are ubitiquous. You have already encountered many examples of GPs without realizing it. Any model that is linear in its parameters with a Gaussian distribution over the parameters is a Gaussian process. This class spans discrete models, including random walks, and autoregressive processes, as well as continuous models, including Bayesian linear regression models, polynomials, Fourier series, radial basis functions, and even neural networks with an infinite number of hidden units. There is a running joke that "everything is a special case of a Gaussian process".
+가우스 프로세스(Gaussian processes, GPs)는 어디에나 있습니다. 여러분은 이미 깨닫지 못하는 사이에 많은 GP 예제를 접했습니다. 파라미터에 대한 가우스 분포를 가진 파라미터에 대해 선형인 모든 모델은 가우스 프로세스입니다. 이 클래스는 무작위 보행(random walks) 및 자기 회귀 프로세스(autoregressive processes)를 포함한 이산 모델뿐만 아니라 베이지안 선형 회귀 모델, 다항식, 푸리에 급수, 방사형 기저 함수(radial basis functions), 심지어 무한한 수의 은닉 유닛이 있는 신경망을 포함한 연속 모델까지 포괄합니다. "모든 것이 가우스 프로세스의 특수한 경우"라는 농담이 있습니다.
 
-Learning about Gaussian processes is important for three reasons: (1) they provide a _function space_ perspective of modelling, which makes understanding a variety of model classes, including deep neural networks, much more approachable; (2) they have an extraordinary range of applications where they are state-of-the-art, including active learning, hyperparameter learning, auto-ML, and spatiotemporal regression; (3) over the last few years, algorithmic advances have made Gaussian processes increasingly scalable and relevant, harmonizing with deep learning through frameworks such as [GPyTorch](https://gpytorch.ai) :cite:`Gardner.Pleiss.Weinberger.Bindel.Wilson.2018`. Indeed, GPs and and deep neural networks are not competing approaches, but highly complementary, and can be combined to great effect. These algorithmic advances are not just relevant to Gaussian processes, but provide a foundation in numerical methods that is broadly useful in deep learning.
+가우스 프로세스에 대해 배우는 것은 세 가지 이유로 중요합니다: (1) 모델링에 대한 *함수 공간(function space)* 관점을 제공하여 심층 신경망을 포함한 다양한 모델 클래스를 훨씬 더 이해하기 쉽게 만듭니다; (2) 능동 학습(active learning), 하이퍼파라미터 학습, auto-ML, 시공간 회귀를 포함하여 최첨단 기술인 놀라운 범위의 응용 분야가 있습니다; (3) 지난 몇 년 동안 알고리즘의 발전으로 가우스 프로세스가 점점 더 확장 가능하고 관련성이 높아져 [GPyTorch](https://gpytorch.ai) :cite:`Gardner.Pleiss.Weinberger.Bindel.Wilson.2018`와 같은 프레임워크를 통해 딥러닝과 조화를 이루었습니다. 실제로 GP와 심층 신경망은 경쟁적인 접근 방식이 아니라 매우 상호 보완적이며 큰 효과를 위해 결합될 수 있습니다. 이러한 알고리즘의 발전은 가우스 프로세스와 관련이 있을 뿐만 아니라 딥러닝에 광범위하게 유용한 수치적 방법의 기초를 제공합니다.
 
-In this chapter, we introduce Gaussian processes. In the introductory notebook, we start by reasoning intuitively about what Gaussian processes are and how they directly model functions. In the priors notebook, we focus on how to specify Gaussian process priors. We directly connect the tradiational weight-space approach to modelling to function space, which will help us reason about constructing and understanding machine learning models, including deep neural networks. We then introduce popular covariance functions, also known as _kernels_, which control the generalization properties of a Gaussian process. A GP with a given kernel defines a prior over functions. In the inference notebook, we will show how to use data to infer a _posterior_, in order to make predictions. This notebook contains from-scratch code for making predictions with a Gaussian process, as well as an introduction to GPyTorch. In upcoming notebooks, we will introduce the numerics behind Gaussian processes, which is useful for scaling Gaussian processes but also a powerful general foundation for deep learning, and advanced use-cases such as hyperparameter tuning in deep learning. Our examples will make use of GPyTorch, which makes Gaussian processes scale, and is closely integrated with deep learning functionality and PyTorch.
+이 장에서는 가우스 프로세스를 소개합니다. 입문용 노트북에서는 가우스 프로세스가 무엇이며 함수를 직접 모델링하는 방법에 대해 직관적으로 추론하는 것으로 시작합니다. 사전 확률(priors) 노트북에서는 가우스 프로세스 사전 확률을 지정하는 방법에 초점을 맞춥니다. 우리는 모델링에 대한 전통적인 가중치 공간(weight-space) 접근 방식을 함수 공간에 직접 연결하여 심층 신경망을 포함한 머신러닝 모델을 구성하고 이해하는 데 도움을 줄 것입니다. 그런 다음 가우스 프로세스의 일반화 속성을 제어하는 *커널(kernels)*이라고도 하는 널리 사용되는 공분산 함수를 소개합니다. 주어진 커널을 가진 GP는 함수에 대한 사전 확률을 정의합니다. 추론 노트북에서는 데이터를 사용하여 *사후 확률(posterior)*을 추론하여 예측을 수행하는 방법을 보여줍니다. 이 노트북에는 가우스 프로세스로 예측을 수행하기 위한 처음부터 작성된 코드와 GPyTorch에 대한 소개가 포함되어 있습니다. 다가오는 노트북에서는 가우스 프로세스 뒤에 있는 수치 해석을 소개할 것입니다. 이는 가우스 프로세스를 확장하는 데 유용할 뿐만 아니라 딥러닝을 위한 강력한 일반적인 기초이며, 딥러닝의 하이퍼파라미터 튜닝과 같은 고급 사용 사례이기도 합니다. 우리의 예제는 가우스 프로세스를 확장하고 딥러닝 기능 및 PyTorch와 밀접하게 통합된 GPyTorch를 사용할 것입니다.
 
 ```toc
 :maxdepth: 2
@@ -17,4 +17,3 @@ gp-intro
 gp-priors
 gp-inference
 ```
-

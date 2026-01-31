@@ -3,269 +3,91 @@
 tab.interact_select(["pytorch"])
 ```
 
-# Multi-Fidelity Hyperparameter Optimization
+# 다중 충실도 하이퍼파라미터 최적화 (Multi-Fidelity Hyperparameter Optimization)
 :label:`sec_mf_hpo`
 
-Training neural networks can be expensive even on moderate size datasets.
-Depending on the configuration space (:numref:`sec_intro_config_spaces`),
-hyperparameter optimization requires tens to hundreds of function evaluations
-to find a well-performing hyperparameter configuration. As we have seen in
-:numref:`sec_rs_async`, we can significantly speed up the overall wall-clock
-time of HPO by exploiting parallel resources, but this does not reduce the total
-amount of compute required.
+신경망 훈련은 중간 규모의 데이터셋에서도 비용이 많이 들 수 있습니다. 구성 공간(:numref:`sec_intro_config_spaces` 참조)에 따라, 하이퍼파라미터 최적화는 잘 작동하는 하이퍼파라미터 구성을 찾기 위해 수십 번에서 수백 번의 함수 평가를 필요로 합니다. :numref:`sec_rs_async`에서 보았듯이, 병렬 리소스를 활용하여 HPO의 전체 벽시계 시간(wall-clock time)을 크게 단축할 수 있지만, 이는 필요한 총 계산량을 줄이지는 못합니다.
 
-In this section, we will show how the evaluation of hyperparameter configurations
-can be sped up. Methods such as random search allocate the same amount of
-resources (e.g., number of epochs, training data points) to each hyperparameter
-evaluation. :numref:`img_samples_lc` depicts learning curves of a set of neural
-networks trained with different hyperparameter configurations. After a few epochs we are
-already able to visually distinguish between well-performing and suboptimal
-configurations. However, the learning curves are noisy, and we might still require
-the full amount of 100 epochs to identify the best performing one.
+이 섹션에서는 하이퍼파라미터 구성 평가를 어떻게 가속화할 수 있는지 보여줄 것입니다. 랜덤 서치와 같은 방법은 각 하이퍼파라미터 평가에 동일한 양의 리소스(예: 에폭 수, 훈련 데이터 포인트 수)를 할당합니다. :numref:`img_samples_lc`는 신경망 하이퍼파라미터 구성 집합의 학습 곡선을 보여줍니다.
 
-![Learning curves of random hyperparameter configurations](../img/samples_lc.svg)
+![여러 하이퍼파라미터 구성의 에폭에 따른 검증 오차(학습 곡선). 좋은 구성과 나쁜 구성을 비교적 빠르게 구별할 수 있다는 것을 알 수 있습니다.](../img/learning_curves.svg)
 :label:`img_samples_lc`
 
-Multi-fidelity hyperparameter optimization allocates more resources
-to promising configurations and stop evaluations of poorly performing ones early.
-This speeds up the optimization process, since we can try a larger number of
-configurations for the same total amount of resources.
+많은 나쁜 구성들이 훈련 초기에 이미 성능이 좋지 않음을 알 수 있습니다. *다중 충실도(multi-fidelity)* HPO는 이 관찰을 활용합니다. 이는 저충실도 평가(예: 적은 수의 에폭에 대한 훈련)를 사용하여 나쁜 구성을 조기에 식별하고 성능이 좋은 것으로 보이는 구성에만 더 많은 리소스를 할당하려고 시도합니다.
 
-More formally, we expand our definition in :numref:`sec_definition_hpo`,
-such that our objective function $f(\mathbf{x}, r)$ gets an additional input
-$r \in [r_{\mathrm{min}}, r_{max}]$, specifying the amount of resources that we are
-willing to spend for the evaluation of configuration $\mathbf{x}$. We assume that
-the error $f(\mathbf{x}, r)$ decreases with $r$, whereas the computational
-cost $c(\mathbf{x}, r)$ increases. Typically, $r$ represents the number of
-epochs for training the neural network, but it could also be the training
-subset size or the number of cross-validation folds.
+이 섹션에서는 가장 인기 있는 다중 충실도 HPO 알고리즘 중 하나인 Successive Halving(:cite:`jamieson-aistats16,karnin-icml13`)을 살펴볼 것입니다.
 
-```{.python .input}
-%%tab pytorch
-from d2l import torch as d2l
-import numpy as np
-from scipy import stats
-from collections import defaultdict
-d2l.set_figsize()
-```
 
 ## Successive Halving
-:label:`sec_mf_hpo_sh`
 
-One of the simplest ways to adapt random search to the multi-fidelity setting is
-*successive halving* :cite:`jamieson-aistats16,karnin-icml13`. The basic
-idea is to start with $N$ configurations, for example randomly sampled from the
-configuration space, and to train each of them for $r_{\mathrm{min}}$ epochs only. We
-then discard a fraction of the worst performing trials and train the remaining
-ones for longer. Iterating this process, fewer trials run for longer, until at
-least one trial reaches $r_{max}$ epochs.
+Successive Halving(SH) 알고리즘은 성능이 낮은 구성을 리소스 $R$의 고정된 집합에서 조기에 중단하는 아이디어에 기반합니다. 리소스 $r$은 에폭 수, 훈련 데이터 포인트 수 또는 하위 샘플링된 이미지 해상도일 수 있습니다.
 
-More formally, consider a minimum budget $r_{\mathrm{min}}$ (for example 1 epoch), a maximum
-budget $r_{max}$, for example `max_epochs` in our previous example, and a halving
-constant $\eta\in\{2, 3, \dots\}$. For simplicity, assume that
-$r_{max} = r_{\mathrm{min}} \eta^K$, with $K \in \mathbb{I}$ . The number of initial
-configurations is then $N = \eta^K$. Let us define the set of rungs
-$\mathcal{R} = \{ r_{\mathrm{min}}, r_{\mathrm{min}}\eta, r_{\mathrm{min}}\eta^2, \dots, r_{max} \}$.
+입력으로 $n$개의 하이퍼파라미터 구성 집합과 최소 리소스 $r_{min}$ 및 최대 리소스 $r_{max}$를 받습니다. $r_{min}$에서 시작하여 모든 구성을 평가합니다. 그런 다음 $1/\eta$ 비율의 최상의 구성을 유지하고 다음 스테이지로 이동하여 이 구성들을 더 많은 리소스로 평가합니다. 이 과정은 구성이 하나만 남을 때까지 반복됩니다.
 
-One round of successive halving proceeds as follows. We start with running $N$
-trials until the first rung $r_{\mathrm{min}}$. Sorting the validation errors, we keep
-the top $1 / \eta$ fraction (which amounts to $\eta^{K-1}$ configurations) and
-discard all the rest. The surviving trials are trained for the next rung
-($r_{\mathrm{min}}\eta$ epochs), and the process is repeated. At each rung, a
-$1 / \eta$ fraction of trials survives and their training continues with a
-$\eta$ times larger budget. With this particular choice of $N$, only a single
-trial will be trained to the full budget $r_{max}$. Once such a round of
-successive halving is done, we start the next one with a new set of initial
-configurations, iterating until the total budget is spent.
+공식적으로, $\eta$를 축소 인자(reduction factor)라고 합시다. 스테이지 $i$에서 우리는 $n_i$개의 구성을 각각 $r_i$ 리소스를 사용하여 평가합니다. 다음 스테이지 $i+1$로 넘어가기 위해 상위 $n_{i+1} = \lfloor n_i / \eta \rfloor$개의 구성을 선택하고 리소스를 $r_{i+1} = r_i \cdot \eta$로 늘립니다.
 
-![Learning curves of random hyperparameter configurations.](../img/sh.svg)
+리소스 당 평가되는 구성의 수 $n_i r_i$는 모든 스테이지에서 거의 일정하게 유지됩니다. $\eta=2$라고 가정하면, 매 스테이지마다 구성의 절반을 탈락시키고 리소스를 두 배로 늘립니다. 따라서 전체 비용은 모든 $n$개 구성을 최대 리소스 $r_{max}$로 평가하는 비용보다 훨씬 작습니다. 구체적으로 SH의 총 리소스 비용은 대략 $n \cdot r_{min} \cdot \log_\eta(r_{max}/r_{min})$입니다.
 
-We subclass the `HPOScheduler` base class from :numref:`sec_api_hpo` in order to
-implement successive halving, allowing for a generic `HPOSearcher` object to
-sample configurations (which, in our example below, will be a `RandomSearcher`).
-Additionally, the user has to pass the minimum resource $r_{\mathrm{min}}$, the maximum
-resource $r_{max}$ and $\eta$ as input. Inside our scheduler, we maintain a
-queue of configurations that still need to be evaluated for the current rung
-$r_i$. We update the queue every time we jump to the next rung.
 
-```{.python .input  n=2}
-class SuccessiveHalvingScheduler(d2l.HPOScheduler):  #@save
-    def __init__(self, searcher, eta, r_min, r_max, prefact=1):
-        self.save_hyperparameters()
-        # Compute K, which is later used to determine the number of configurations
-        self.K = int(np.log(r_max / r_min) / np.log(eta))
-        # Define the rungs
-        self.rung_levels = [r_min * eta ** k for k in range(self.K + 1)]
-        if r_max not in self.rung_levels:
-            # The final rung should be r_max
-            self.rung_levels.append(r_max)
-            self.K += 1
-        # Bookkeeping
-        self.observed_error_at_rungs = defaultdict(list)
-        self.all_observed_error_at_rungs = defaultdict(list)
-        # Our processing queue
-        self.queue = []
+## 구현 (Implementation)
+
+이제 Successive Halving을 구현해 보겠습니다. 리소스로 에폭 수를 사용합니다.
+
+```{.python .input}
+#@tab pytorch
+import numpy as np
+from d2l import torch as d2l
+
+class SuccessiveHalving(d2l.HPOScheduler):
+    def __init__(self, searcher, eta, r_min, r_max):
+        self.searcher = searcher
+        self.eta = eta
+        self.r_min = r_min
+        self.r_max = r_max
+        self.s_max = int(np.log(r_max / r_min) / np.log(eta))
+        self.stage = 0
+        self.configs = [self.searcher.sample_config() for _ in range(self.get_n_i(0))]
+        self.observed_error = []
+
+    def get_n_i(self, stage):
+        return int(len(self.configs) * (self.eta ** -stage))
+
+    def get_r_i(self, stage):
+        return self.r_min * (self.eta ** stage)
+
+    def suggest(self):
+        if len(self.configs) == 0:
+            return None
+        config = self.configs.pop(0)
+        config['epochs'] = self.get_r_i(self.stage)
+        return config
+
+    def update(self, config, error):
+        self.observed_error.append((config, error))
+        if len(self.configs) == 0:  # 스테이지 종료
+            self.stage += 1
+            if self.stage <= self.s_max:
+                # 오차를 기준으로 정렬하고 상위 1/eta 유지
+                self.observed_error.sort(key=lambda x: x[1])
+                n_next = self.get_n_i(self.stage)
+                self.configs = [x[0] for x in self.observed_error[:n_next]]
+                self.observed_error = []
 ```
 
-In the beginning our queue is empty, and we fill it with
-$n = \textrm{prefact} \cdot \eta^{K}$ configurations, which are first evaluated on
-the smallest rung $r_{\mathrm{min}}$. Here, $\textrm{prefact}$ allows us to reuse our
-code in a different context. For the purpose of this section, we fix
-$\textrm{prefact} = 1$. Every time resources become available and the `HPOTuner`
-object queries the `suggest` function, we return an element from the queue. Once
-we finish one round of successive halving, which means that we evaluated all
-surviving configurations on the highest resource level $r_{max}$ and our queue
-is empty, we start the entire process again with a new, randomly sampled set
-of configurations.
+## 요약 (Summary)
 
-```{.python .input  n=12}
-%%tab pytorch
-@d2l.add_to_class(SuccessiveHalvingScheduler)  #@save
-def suggest(self):
-    if len(self.queue) == 0:
-        # Start a new round of successive halving
-        # Number of configurations for the first rung:
-        n0 = int(self.prefact * self.eta ** self.K)
-        for _ in range(n0):
-            config = self.searcher.sample_configuration()
-            config["max_epochs"] = self.r_min  # Set r = r_min
-            self.queue.append(config)
-    # Return an element from the queue
-    return self.queue.pop()
-```
+* 다중 충실도 HPO는 저충실도 평가를 사용하여 나쁜 하이퍼파라미터 구성을 조기에 식별함으로써 검색 프로세스를 가속화합니다.
+* Successive Halving은 반복적으로 최상의 구성 집합을 유지하고 리소스를 늘리는 간단하지만 강력한 알고리즘입니다.
+* 에폭 수를 리소스로 사용함으로써 훈련 프로세스를 조기에 중단할 수 있어 계산 효율성을 높일 수 있습니다.
 
-When we collected a new data point, we first update the searcher module.
-Afterwards we check if we already collect all data points on the current rung.
-If so, we sort all configurations and push the top $\frac{1}{\eta}$
-configurations into the queue.
+## 연습 문제 (Exercises)
 
-```{.python .input  n=4}
-%%tab pytorch
-@d2l.add_to_class(SuccessiveHalvingScheduler)  #@save
-def update(self, config: dict, error: float, info=None):
-    ri = int(config["max_epochs"])  # Rung r_i
-    # Update our searcher, e.g if we use Bayesian optimization later
-    self.searcher.update(config, error, additional_info=info)
-    self.all_observed_error_at_rungs[ri].append((config, error))
-    if ri < self.r_max:
-        # Bookkeeping
-        self.observed_error_at_rungs[ri].append((config, error))
-        # Determine how many configurations should be evaluated on this rung
-        ki = self.K - self.rung_levels.index(ri)
-        ni = int(self.prefact * self.eta ** ki)
-        # If we observed all configuration on this rung r_i, we estimate the
-        # top 1 / eta configuration, add them to queue and promote them for
-        # the next rung r_{i+1}
-        if len(self.observed_error_at_rungs[ri]) >= ni:
-            kiplus1 = ki - 1
-            niplus1 = int(self.prefact * self.eta ** kiplus1)
-            best_performing_configurations = self.get_top_n_configurations(
-                rung_level=ri, n=niplus1
-            )
-            riplus1 = self.rung_levels[self.K - kiplus1]  # r_{i+1}
-            # Queue may not be empty: insert new entries at the beginning
-            self.queue = [
-                dict(config, max_epochs=riplus1)
-                for config in best_performing_configurations
-            ] + self.queue
-            self.observed_error_at_rungs[ri] = []  # Reset
-```
-
-Configurations are sorted based on their observed performance on the current
-rung.
-
-```{.python .input  n=4}
-%%tab pytorch
-
-@d2l.add_to_class(SuccessiveHalvingScheduler)  #@save
-def get_top_n_configurations(self, rung_level, n):
-    rung = self.observed_error_at_rungs[rung_level]
-    if not rung:
-        return []
-    sorted_rung = sorted(rung, key=lambda x: x[1])
-    return [x[0] for x in sorted_rung[:n]]
-```
-
-Let us see how successive halving is doing on our neural network example. We
-will use $r_{\mathrm{min}} = 2$, $\eta = 2$, $r_{max} = 10$, so that rung levels are
-$2, 4, 8, 10$.
-
-```{.python .input  n=5}
-min_number_of_epochs = 2
-max_number_of_epochs = 10
-eta = 2
-num_gpus=1
-
-config_space = {
-    "learning_rate": stats.loguniform(1e-2, 1),
-    "batch_size": stats.randint(32, 256),
-}
-initial_config = {
-    "learning_rate": 0.1,
-    "batch_size": 128,
-}
-```
-
-We just replace the scheduler with our new `SuccessiveHalvingScheduler`.
-
-```{.python .input  n=14}
-searcher = d2l.RandomSearcher(config_space, initial_config=initial_config)
-scheduler = SuccessiveHalvingScheduler(
-    searcher=searcher,
-    eta=eta,
-    r_min=min_number_of_epochs,
-    r_max=max_number_of_epochs,
-)
-tuner = d2l.HPOTuner(
-    scheduler=scheduler,
-    objective=d2l.hpo_objective_lenet,
-)
-tuner.run(number_of_trials=30)
-```
-
-We can visualize the learning curves of all configurations that we evaluated.
-Most of the configurations are stopped early and only the better performing
-configurations survive until $r_{max}$. Compare this to vanilla random search,
-which would allocate $r_{max}$ to every configuration.
-
-```{.python .input  n=19}
-for rung_index, rung in scheduler.all_observed_error_at_rungs.items():
-    errors = [xi[1] for xi in rung]
-    d2l.plt.scatter([rung_index] * len(errors), errors)
-d2l.plt.xlim(min_number_of_epochs - 0.5, max_number_of_epochs + 0.5)
-d2l.plt.xticks(
-    np.arange(min_number_of_epochs, max_number_of_epochs + 1),
-    np.arange(min_number_of_epochs, max_number_of_epochs + 1)
-)
-d2l.plt.ylabel("validation error")
-d2l.plt.xlabel("epochs")
-```
-
-Finally, note some slight complexity in our implementation of
-`SuccessiveHalvingScheduler`. Say that a worker is free to run a job, and
-`suggest` is called when the current rung has almost been completely filled, but
-another worker is still busy with an evaluation. Since we lack the metric value
-from this worker, we cannot determine the top $1 / \eta$ fraction to open up
-the next rung. On the other hand, we want to assign a job to our free worker,
-so it does not remain idle. Our solution is to start a new round of successive
-halving and assign our worker to the first trial there. However, once a rung is
-completed in `update`, we make sure to insert new configurations at the
-beginning of the queue, so they take precedence over configurations from the
-next round.
-
-## Summary
-
-In this section, we introduced the concept of multi-fidelity hyperparameter
-optimization, where we assume to have access to cheap-to-evaluate approximations
-of the objective function, such as validation error after a certain number of
-epochs of training as proxy to validation error after the full number of epochs.
-Multi-fidelity hyperparameter optimization allows to reduce the overall
-computation of the HPO instead of just reducing the wall-clock time.
-
-We implemented and evaluated successive halving, a simple yet efficient
-multi-fidelity HPO algorithm.
-
+1. SH의 축소 인자 $\eta$가 성능에 어떤 영향을 미치는지 논의해 보십시오. $\eta$가 매우 크거나 작을 때의 장단점은 무엇입니까?
+2. SH의 한 가지 잠재적인 단점은 초기 스테이지($r_{min}$)에서 성능이 좋지 않지만 나중에($r_{max}$) 성능이 좋아질 구성을 탈락시킬 수 있다는 것입니다. 이를 "나쁜 초기 단계(bad start)" 문제라고 합니다. 이를 완화할 수 있는 방법이 있을까요?
+3. Successive Halving을 Hyperband(:cite:`li-jmlr17`)로 확장하는 방법을 찾아보십시오. Hyperband는 SH의 어떤 한계를 해결합니까?
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/12094)
+[토론](https://discuss.d2l.ai/t/12104)
 :end_tab:
+
+```

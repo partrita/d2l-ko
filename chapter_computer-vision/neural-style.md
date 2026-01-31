@@ -1,87 +1,74 @@
-# Neural Style Transfer
+# 신경 스타일 전송 (Neural Style Transfer)
 
-If you are a photography enthusiast,
-you may be familiar with the filter.
-It can change the color style of photos
-so that landscape photos become sharper
-or portrait photos have whitened skins.
-However,
-one filter usually only changes
-one aspect of the photo.
-To apply an ideal style
-to a photo,
-you probably need to
-try many different filter combinations.
-This process is
-as complex as tuning the hyperparameters of a model.
+사진 애호가라면 필터에 익숙할 것입니다.
+필터는 사진의 색상 스타일을 변경하여
+풍경 사진을 더 선명하게 만들거나
+인물 사진의 피부를 하얗게 만들 수 있습니다.
+그러나,
+하나의 필터는 일반적으로 사진의 한 측면만 변경합니다.
+사진에 이상적인 스타일을 적용하려면,
+아마도 다양한 필터 조합을 시도해야 할 것입니다.
+이 과정은 모델의 하이퍼파라미터를 튜닝하는 것만큼 복잡합니다.
 
 
 
-In this section, we will
-leverage layerwise representations of a CNN
-to automatically apply the style of one image
-to another image, i.e., *style transfer* :cite:`Gatys.Ecker.Bethge.2016`.
-This task needs two input images:
-one is the *content image* and
-the other is the *style image*.
-We will use neural networks
-to modify the content image
-to make it close to the style image in style.
-For example,
-the content image in :numref:`fig_style_transfer` is a landscape photo taken by us
-in Mount Rainier National Park in the suburbs of Seattle, while the style image is an oil painting
-with the theme of autumn oak trees.
-In the output synthesized image,
-the oil brush strokes of the style image
-are applied, leading to more vivid colors,
-while preserving the main shape of the objects
-in the content image.
+이 섹션에서는
+CNN의 계층별 표현을 활용하여 한 이미지의 스타일을
+다른 이미지에 자동으로 적용하는 *스타일 전송(style transfer)* :cite:`Gatys.Ecker.Bethge.2016`을 소개합니다.
+이 작업에는 두 개의 입력 이미지가 필요합니다:
+하나는 *콘텐츠 이미지(content image)*이고
+다른 하나는 *스타일 이미지(style image)*입니다.
+우리는 신경망을 사용하여
+콘텐츠 이미지를 수정하여 스타일 이미지의 스타일과 가깝게 만들 것입니다.
+예를 들어,
+:numref:`fig_style_transfer`의 콘텐츠 이미지는 시애틀 교외의 레이니어 산 국립공원에서 우리가 찍은 풍경 사진이고, 스타일 이미지는 가을 참나무를 주제로 한 유화입니다.
+출력 합성 이미지에서는
+스타일 이미지의 유화 붓터치가 적용되어 더 생생한 색상을 띠면서도
+콘텐츠 이미지에 있는 객체의 주요 모양은 보존됩니다.
 
-![Given content and style images, style transfer outputs a synthesized image.](../img/style-transfer.svg)
+![콘텐츠 및 스타일 이미지가 주어지면 스타일 전송은 합성 이미지를 출력합니다.](../img/style-transfer.svg)
 :label:`fig_style_transfer`
 
-## Method
+## 방법 (Method)
 
-:numref:`fig_style_transfer_model` illustrates
-the CNN-based style transfer method with a simplified example.
-First, we initialize the synthesized image,
-for example, into the content image.
-This synthesized image is the only variable that needs to be updated during the style transfer process,
-i.e., the model parameters to be updated during training.
-Then we choose a pretrained CNN
-to extract image features and freeze its
-model parameters during training.
-This deep CNN uses multiple layers
-to extract
-hierarchical features for images.
-We can choose the output of some of these layers as content features or style features.
-Take :numref:`fig_style_transfer_model` as an example.
-The pretrained neural network here has 3 convolutional layers,
-where the second layer outputs the content features,
-and the first and third layers output the style features.
+:numref:`fig_style_transfer_model`은
+CNN 기반 스타일 전송 방법을 단순화된 예제로 설명합니다.
+먼저, 합성 이미지를 초기화합니다.
+예를 들어 콘텐츠 이미지로 초기화할 수 있습니다.
+이 합성 이미지는 스타일 전송 과정 중에 업데이트해야 할 유일한 변수입니다.
+즉, 훈련 중에 업데이트할 모델 파라미터입니다.
+그런 다음 사전 훈련된 CNN을 선택하여 이미지 특징을 추출하고
+훈련 중에 모델 파라미터를 고정(동결)합니다.
+이 심층 CNN은 여러 레이어를 사용하여
+이미지에 대한 계층적 특징을 추출합니다.
+우리는 이러한 레이어 중 일부의 출력을 콘텐츠 특징 또는 스타일 특징으로 선택할 수 있습니다.
+:numref:`fig_style_transfer_model`을 예로 들어보겠습니다.
+여기서 사전 훈련된 신경망에는 3개의 합성곱 레이어가 있으며,
+두 번째 레이어는 콘텐츠 특징을 출력하고,
+첫 번째와 세 번째 레이어는 스타일 특징을 출력합니다.
 
-![CNN-based style transfer process. Solid lines show the direction of forward propagation and dotted lines show backward propagation. ](../img/neural-style.svg)
+![CNN 기반 스타일 전송 프로세스. 실선은 순방향 전파 방향을 나타내고 점선은 역방향 전파를 나타냅니다.](../img/neural-style.svg)
 :label:`fig_style_transfer_model`
 
-Next, we calculate the loss function of style transfer through forward propagation (direction of solid arrows), and update the model parameters (the synthesized image for output) through backpropagation (direction of dashed arrows).
-The loss function commonly used in style transfer consists of three parts:
-(i) *content loss* makes the synthesized image and the content image close in content features;
-(ii) *style loss* makes the synthesized image and style image close in style features;
-and (iii) *total variation loss* helps to reduce the noise in the synthesized image.
-Finally, when the model training is over, we output the model parameters of the style transfer to generate
-the final synthesized image.
+다음으로, 순방향 전파(실선 화살표 방향)를 통해 스타일 전송의 손실 함수를 계산하고, 역전파(점선 화살표 방향)를 통해 모델 파라미터(출력을 위한 합성 이미지)를 업데이트합니다.
+스타일 전송에서 일반적으로 사용되는 손실 함수는 세 부분으로 구성됩니다:
+(i) *콘텐츠 손실(content loss)*은 합성 이미지와 콘텐츠 이미지를 콘텐츠 특징에서 가깝게 만듭니다;
+(ii) *스타일 손실(style loss)*은 합성 이미지와 스타일 이미지를 스타일 특징에서 가깝게 만듭니다;
+(iii) *총 변동 손실(total variation loss)*은 합성 이미지의 노이즈를 줄이는 데 도움이 됩니다.
+마지막으로, 모델 훈련이 끝나면 스타일 전송의 모델 파라미터를 출력하여
+최종 합성 이미지를 생성합니다.
 
 
 
-In the following,
-we will explain the technical details of style transfer via a concrete experiment.
+다음에서,
+우리는 구체적인 실험을 통해 스타일 전송의 기술적 세부 사항을 설명할 것입니다.
 
 
-## [**Reading the Content and Style Images**]
+## [**콘텐츠 및 스타일 이미지 읽기**]
 
-First, we read the content and style images.
-From their printed coordinate axes,
-we can tell that these images have different sizes.
+먼저, 콘텐츠 및 스타일 이미지를 읽습니다.
+인쇄된 좌표 축에서
+이 이미지들의 크기가 다르다는 것을 알 수 있습니다.
 
 ```{.python .input}
 #@tab mxnet
@@ -122,14 +109,13 @@ style_img = d2l.Image.open('../img/autumn-oak.jpg')
 d2l.plt.imshow(style_img);
 ```
 
-## [**Preprocessing and Postprocessing**]
+## [**전처리 및 후처리 (Preprocessing and Postprocessing)**]
 
-Below, we define two functions for preprocessing and postprocessing images.
-The `preprocess` function standardizes
-each of the three RGB channels of the input image and transforms the results into the CNN input format.
-The `postprocess` function restores the pixel values in the output image to their original values before standardization.
-Since the image printing function requires that each pixel has a floating point value from 0 to 1,
-we replace any value smaller than 0 or greater than 1 with 0 or 1, respectively.
+아래에서는 이미지를 전처리하고 후처리하는 두 가지 함수를 정의합니다.
+`preprocess` 함수는 입력 이미지의 세 RGB 채널 각각을 표준화하고 결과를 CNN 입력 형식으로 변환합니다.
+`postprocess` 함수는 출력 이미지의 픽셀 값을 표준화 이전의 원래 값으로 복원합니다.
+이미지 인쇄 함수는 각 픽셀이 0에서 1 사이의 부동 소수점 값을 가질 것을 요구하므로,
+0보다 작거나 1보다 큰 값은 각각 0 또는 1로 대체합니다.
 
 ```{.python .input}
 #@tab mxnet
@@ -164,9 +150,9 @@ def postprocess(img):
     return torchvision.transforms.ToPILImage()(img.permute(2, 0, 1))
 ```
 
-## [**Extracting Features**]
+## [**특징 추출 (Extracting Features)**]
 
-We use the VGG-19 model pretrained on the ImageNet dataset to extract image features :cite:`Gatys.Ecker.Bethge.2016`.
+우리는 이미지 특징을 추출하기 위해 ImageNet 데이터셋에서 사전 훈련된 VGG-19 모델을 사용합니다 :cite:`Gatys.Ecker.Bethge.2016`.
 
 ```{.python .input}
 #@tab mxnet
@@ -178,27 +164,25 @@ pretrained_net = gluon.model_zoo.vision.vgg19(pretrained=True)
 pretrained_net = torchvision.models.vgg19(pretrained=True)
 ```
 
-In order to extract the content features and style features of the image, we can select the output of certain layers in the VGG network.
-Generally speaking, the closer to the input layer, the easier to extract details of the image, and vice versa, the easier to extract the global information of the image. In order to avoid excessively
-retaining the details of the content image in the synthesized image,
-we choose a VGG layer that is closer to the output as the *content layer* to output the content features of the image.
-We also select the output of different VGG layers for extracting local and global style features.
-These layers are also called *style layers*.
-As mentioned in :numref:`sec_vgg`,
-the VGG network uses 5 convolutional blocks.
-In the experiment, we choose the last convolutional layer of the fourth convolutional block as the content layer, and the first convolutional layer of each convolutional block as the style layer.
-The indices of these layers can be obtained by printing the `pretrained_net` instance.
+이미지의 콘텐츠 특징과 스타일 특징을 추출하기 위해, VGG 네트워크에서 특정 레이어의 출력을 선택할 수 있습니다.
+일반적으로 입력 레이어에 가까울수록 이미지의 세부 사항을 추출하기 쉽고, 반대로 출력 레이어에 가까울수록 이미지의 전역 정보를 추출하기 쉽습니다.
+합성 이미지에서 콘텐츠 이미지의 세부 사항을 과도하게 유지하는 것을 피하기 위해,
+우리는 출력에 더 가까운 VGG 레이어를 *콘텐츠 레이어*로 선택하여 이미지의 콘텐츠 특징을 출력합니다.
+또한 로컬 및 전역 스타일 특징을 추출하기 위해 서로 다른 VGG 레이어의 출력을 선택합니다.
+이러한 레이어를 *스타일 레이어*라고도 합니다.
+:numref:`sec_vgg`에서 언급했듯이,
+VGG 네트워크는 5개의 합성곱 블록을 사용합니다.
+실험에서 우리는 네 번째 합성곱 블록의 마지막 합성곱 레이어를 콘텐츠 레이어로 선택하고, 각 합성곱 블록의 첫 번째 합성곱 레이어를 스타일 레이어로 선택합니다.
+이 레이어들의 인덱스는 `pretrained_net` 인스턴스를 인쇄하여 얻을 수 있습니다.
 
 ```{.python .input}
 #@tab all
 style_layers, content_layers = [0, 5, 10, 19, 28], [25]
 ```
 
-When extracting features using VGG layers,
-we only need to use all those
-from the input layer to the content layer or style layer that is closest to the output layer.
-Let's construct a new network instance `net`, which only retains all the VGG layers to be
-used for feature extraction.
+VGG 레이어를 사용하여 특징을 추출할 때,
+입력 레이어부터 출력 레이어에 가장 가까운 콘텐츠 레이어 또는 스타일 레이어까지만 사용하면 됩니다.
+특징 추출에 사용할 모든 VGG 레이어만 유지하는 새 네트워크 인스턴스 `net`을 구성해 봅시다.
 
 ```{.python .input}
 #@tab mxnet
@@ -213,11 +197,9 @@ net = nn.Sequential(*[pretrained_net.features[i] for i in
                       range(max(content_layers + style_layers) + 1)])
 ```
 
-Given the input `X`, if we simply invoke
-the forward propagation `net(X)`, we can only get the output of the last layer.
-Since we also need the outputs of intermediate layers,
-we need to perform layer-by-layer computation and keep
-the content and style layer outputs.
+입력 `X`가 주어졌을 때, 단순히 순방향 전파 `net(X)`를 호출하면 마지막 레이어의 출력만 얻을 수 있습니다.
+중간 레이어의 출력도 필요하므로,
+레이어별 계산을 수행하고 콘텐츠 및 스타일 레이어 출력을 유지해야 합니다.
 
 ```{.python .input}
 #@tab all
@@ -233,16 +215,13 @@ def extract_features(X, content_layers, style_layers):
     return contents, styles
 ```
 
-Two functions are defined below:
-the `get_contents` function extracts content features from the content image,
-and the `get_styles` function extracts style features from the style image.
-Since there is no need to update the model parameters of the pretrained VGG during training,
-we can extract the content and the style features
-even before the training starts.
-Since the synthesized image
-is a set of model parameters to be updated
-for style transfer,
-we can only extract the content and style features of the synthesized image by calling the `extract_features` function during training.
+아래에 두 함수가 정의되어 있습니다:
+`get_contents` 함수는 콘텐츠 이미지에서 콘텐츠 특징을 추출하고,
+`get_styles` 함수는 스타일 이미지에서 스타일 특징을 추출합니다.
+훈련 중에는 사전 훈련된 VGG의 모델 파라미터를 업데이트할 필요가 없으므로,
+훈련이 시작되기 전에도 콘텐츠와 스타일 특징을 추출할 수 있습니다.
+합성 이미지는 스타일 전송을 위해 업데이트해야 할 모델 파라미터 세트이므로,
+훈련 중에 `extract_features` 함수를 호출해야만 합성 이미지의 콘텐츠 및 스타일 특징을 추출할 수 있습니다.
 
 ```{.python .input}
 #@tab mxnet
@@ -270,21 +249,17 @@ def get_styles(image_shape, device):
     return style_X, styles_Y
 ```
 
-## [**Defining the Loss Function**]
+## [**손실 함수 정의 (Defining the Loss Function)**]
 
-Now we will describe the loss function for style transfer. The loss function consists of
-the content loss, style loss, and total variation loss.
+이제 스타일 전송을 위한 손실 함수를 설명하겠습니다. 손실 함수는 콘텐츠 손실, 스타일 손실, 총 변동 손실로 구성됩니다.
 
-### Content Loss
+### 콘텐츠 손실 (Content Loss)
 
-Similar to the loss function in linear regression,
-the content loss measures the difference
-in content features
-between the synthesized image and the content image via
-the squared loss function.
-The two inputs of the squared loss function
-are both
-outputs of the content layer computed by the `extract_features` function.
+선형 회귀의 손실 함수와 유사하게,
+콘텐츠 손실은 제곱 오차 함수를 통해
+합성 이미지와 콘텐츠 이미지 간의 콘텐츠 특징 차이를 측정합니다.
+제곱 오차 함수의 두 입력은
+모두 `extract_features` 함수로 계산된 콘텐츠 레이어의 출력입니다.
 
 ```{.python .input}
 #@tab mxnet
@@ -295,40 +270,29 @@ def content_loss(Y_hat, Y):
 ```{.python .input}
 #@tab pytorch
 def content_loss(Y_hat, Y):
-    # We detach the target content from the tree used to dynamically compute
-    # the gradient: this is a stated value, not a variable. Otherwise the loss
-    # will throw an error.
+    # 기울기를 동적으로 계산하는 데 사용되는 트리에서 타겟 콘텐츠를 분리합니다:
+    # 이것은 변수가 아니라 명시된 값입니다. 그렇지 않으면 손실에서 오류가 발생합니다.
     return torch.square(Y_hat - Y.detach()).mean()
 ```
 
-### Style Loss
+### 스타일 손실 (Style Loss)
 
-Style loss, similar to content loss,
-also uses the squared loss function to measure the difference in style between the synthesized image and the style image.
-To express the style output of any style layer,
-we first use the `extract_features` function to
-compute the style layer output.
-Suppose that the output has
-1 example, $c$ channels,
-height $h$, and width $w$,
-we can transform this output into
-matrix $\mathbf{X}$ with $c$ rows and $hw$ columns.
-This matrix can be thought of as
-the concatenation of
-$c$ vectors $\mathbf{x}_1, \ldots, \mathbf{x}_c$,
-each of which has a length of $hw$.
-Here, vector $\mathbf{x}_i$ represents the style feature of channel $i$.
+스타일 손실은 콘텐츠 손실과 유사하게,
+제곱 오차 함수를 사용하여 합성 이미지와 스타일 이미지 간의 스타일 차이를 측정합니다.
+어떤 스타일 레이어의 스타일 출력을 표현하기 위해,
+먼저 `extract_features` 함수를 사용하여 스타일 레이어 출력을 계산합니다.
+출력이 1개의 예제, $c$ 채널, 높이 $h$, 너비 $w$를 갖는다고 가정하면,
+이 출력을 $c$ 행과 $hw$ 열을 가진 행렬 $\mathbf{X}$로 변환할 수 있습니다.
+이 행렬은 각각 길이가 $hw$인 $c$개의 벡터 $\mathbf{x}_1, \ldots, \mathbf{x}_c$의 연결로 생각할 수 있습니다.
+여기서 벡터 $\mathbf{x}_i$는 채널 $i$의 스타일 특징을 나타냅니다.
 
-In the *Gram matrix* of these vectors $\mathbf{X}\mathbf{X}^\top \in \mathbb{R}^{c \times c}$, element $x_{ij}$ in row $i$ and column $j$ is the dot product of vectors $\mathbf{x}_i$ and $\mathbf{x}_j$.
-It represents the correlation of the style features of channels $i$ and $j$.
-We use this Gram matrix to represent the style output of any style layer.
-Note that when the value of $hw$ is larger,
-it likely leads to larger values in the Gram matrix.
-Note also that the height and width of the Gram matrix are both the number of channels $c$.
-To allow style loss not to be affected
-by these values,
-the `gram` function below divides
-the Gram matrix by the number of its elements, i.e., $chw$.
+이 벡터들의 *그램 행렬(Gram matrix)* $\mathbf{X}\mathbf{X}^\top \in \mathbb{R}^{c \times c}$에서, 행 $i$와 열 $j$의 요소 $x_{ij}$는 벡터 $\mathbf{x}_i$와 $\mathbf{x}_j$의 내적입니다.
+그것은 채널 $i$와 $j$의 스타일 특징의 상관 관계를 나타냅니다.
+우리는 이 그램 행렬을 사용하여 모든 스타일 레이어의 스타일 출력을 나타냅니다.
+$hw$ 값이 클수록 그램 행렬에서 더 큰 값으로 이어질 가능성이 높다는 점에 유의하십시오.
+또한 그램 행렬의 높이와 너비는 모두 채널 수 $c$입니다.
+스타일 손실이 이러한 값에 영향을 받지 않도록 하기 위해,
+아래의 `gram` 함수는 그램 행렬을 요소 수, 즉 $chw$로 나눕니다.
 
 ```{.python .input}
 #@tab all
@@ -338,11 +302,10 @@ def gram(X):
     return d2l.matmul(X, X.T) / (num_channels * n)
 ```
 
-Obviously,
-the two Gram matrix inputs of the squared loss function for style loss are based on
-the style layer outputs for
-the synthesized image and the style image.
-It is assumed here that the Gram matrix `gram_Y` based on the style image has been precomputed.
+분명히,
+스타일 손실에 대한 제곱 오차 함수의 두 그램 행렬 입력은
+합성 이미지와 스타일 이미지에 대한 스타일 레이어 출력을 기반으로 합니다.
+여기서는 스타일 이미지를 기반으로 한 그램 행렬 `gram_Y`가 미리 계산되어 있다고 가정합니다.
 
 ```{.python .input}
 #@tab mxnet
@@ -356,19 +319,17 @@ def style_loss(Y_hat, gram_Y):
     return torch.square(gram(Y_hat) - gram_Y.detach()).mean()
 ```
 
-### Total Variation Loss
+### 총 변동 손실 (Total Variation Loss)
 
-Sometimes, the learned synthesized image
-has a lot of high-frequency noise,
-i.e., particularly bright or dark pixels.
-One common noise reduction method is
-*total variation denoising*.
-Denote by $x_{i, j}$ the pixel value at coordinate $(i, j)$.
-Reducing total variation loss
+때때로 학습된 합성 이미지에는 고주파 노이즈,
+즉 특히 밝거나 어두운 픽셀이 많이 포함됩니다.
+일반적인 노이즈 감소 방법 중 하나는 *총 변동 노이즈 제거(total variation denoising)*입니다.
+좌표 $(i, j)$의 픽셀 값을 $x_{i, j}$라고 합시다.
+총 변동 손실을 줄이면
 
 $$\sum_{i, j} \left|x_{i, j} - x_{i+1, j}\right| + \left|x_{i, j} - x_{i, j+1}\right|$$
 
-makes values of neighboring pixels on the synthesized image closer.
+합성 이미지의 인접 픽셀 값이 더 가까워집니다.
 
 ```{.python .input}
 #@tab all
@@ -377,37 +338,34 @@ def tv_loss(Y_hat):
                   d2l.abs(Y_hat[:, :, :, 1:] - Y_hat[:, :, :, :-1]).mean())
 ```
 
-### Loss Function
+### 손실 함수 (Loss Function)
 
-[**The loss function of style transfer is the weighted sum of content loss, style loss, and total variation loss**].
-By adjusting these weight hyperparameters,
-we can balance among
-content retention,
-style transfer,
-and noise reduction on the synthesized image.
+[**스타일 전송의 손실 함수는 콘텐츠 손실, 스타일 손실 및 총 변동 손실의 가중 합입니다**].
+이러한 가중치 하이퍼파라미터를 조정하여,
+합성 이미지의 콘텐츠 보존, 스타일 전송, 노이즈 감소 간의 균형을 맞출 수 있습니다.
 
 ```{.python .input}
 #@tab all
 content_weight, style_weight, tv_weight = 1, 1e4, 10
 
 def compute_loss(X, contents_Y_hat, styles_Y_hat, contents_Y, styles_Y_gram):
-    # Calculate the content, style, and total variance losses respectively
+    # 콘텐츠, 스타일 및 총 변동 손실을 각각 계산합니다
     contents_l = [content_loss(Y_hat, Y) * content_weight for Y_hat, Y in zip(
         contents_Y_hat, contents_Y)]
     styles_l = [style_loss(Y_hat, Y) * style_weight for Y_hat, Y in zip(
         styles_Y_hat, styles_Y_gram)]
     tv_l = tv_loss(X) * tv_weight
-    # Add up all the losses
+    # 모든 손실을 더합니다
     l = sum(styles_l + contents_l + [tv_l])
     return contents_l, styles_l, tv_l, l
 ```
 
-## [**Initializing the Synthesized Image**]
+## [**합성 이미지 초기화 (Initializing the Synthesized Image)**]
 
-In style transfer,
-the synthesized image is the only variable that needs to be updated during training.
-Thus, we can define a simple model, `SynthesizedImage`, and treat the synthesized image as the model parameters.
-In this model, forward propagation just returns the model parameters.
+스타일 전송에서,
+합성 이미지는 훈련 중에 업데이트해야 할 유일한 변수입니다.
+따라서 간단한 모델 `SynthesizedImage`를 정의하고 합성 이미지를 모델 파라미터로 취급할 수 있습니다.
+이 모델에서 순방향 전파는 모델 파라미터를 반환하기만 합니다.
 
 ```{.python .input}
 #@tab mxnet
@@ -431,9 +389,9 @@ class SynthesizedImage(nn.Module):
         return self.weight
 ```
 
-Next, we define the `get_inits` function.
-This function creates a synthesized image model instance and initializes it to the image `X`.
-Gram matrices for the style image at various style layers, `styles_Y_gram`, are computed prior to training.
+다음으로 `get_inits` 함수를 정의합니다.
+이 함수는 합성 이미지 모델 인스턴스를 생성하고 이미지 `X`로 초기화합니다.
+다양한 스타일 레이어에서의 스타일 이미지에 대한 그램 행렬 `styles_Y_gram`은 훈련 전에 계산됩니다.
 
 ```{.python .input}
 #@tab mxnet
@@ -456,13 +414,12 @@ def get_inits(X, device, lr, styles_Y):
     return gen_img(), styles_Y_gram, trainer
 ```
 
-## [**Training**]
+## [**훈련 (Training)**]
 
 
-When training the model for style transfer,
-we continuously extract
-content features and style features of the synthesized image, and calculate the loss function.
-Below defines the training loop.
+스타일 전송을 위해 모델을 훈련할 때,
+우리는 합성 이미지의 콘텐츠 특징과 스타일 특징을 지속적으로 추출하고 손실 함수를 계산합니다.
+아래는 훈련 루프를 정의합니다.
 
 ```{.python .input}
 #@tab mxnet
@@ -514,9 +471,9 @@ def train(X, contents_Y, styles_Y, device, lr, num_epochs, lr_decay_epoch):
     return X
 ```
 
-Now we [**start to train the model**].
-We rescale the height and width of the content and style images to 300 by 450 pixels.
-We use the content image to initialize the synthesized image.
+이제 [**모델 훈련을 시작합니다**].
+우리는 콘텐츠 및 스타일 이미지의 높이와 너비를 300 x 450 픽셀로 재조정합니다.
+콘텐츠 이미지를 사용하여 합성 이미지를 초기화합니다.
 
 ```{.python .input}
 #@tab mxnet
@@ -529,38 +486,35 @@ output = train(content_X, contents_Y, styles_Y, device, 0.9, 500, 50)
 
 ```{.python .input}
 #@tab pytorch
-device, image_shape = d2l.try_gpu(), (300, 450)  # PIL Image (h, w)
+device, image_shape = d2l.try_gpu(), (300, 450)  # PIL 이미지 (h, w)
 net = net.to(device)
 content_X, contents_Y = get_contents(image_shape, device)
 _, styles_Y = get_styles(image_shape, device)
 output = train(content_X, contents_Y, styles_Y, device, 0.3, 500, 50)
 ```
 
-We can see that the synthesized image
-retains the scenery and objects of the content image,
-and transfers the color of the style image
-at the same time.
-For example,
-the synthesized image has blocks of color like
-those in the style image.
-Some of these blocks even have the subtle texture of brush strokes.
+우리는 합성 이미지가 콘텐츠 이미지의 풍경과 객체를 유지하면서
+동시에 스타일 이미지의 색상을 전송한다는 것을 볼 수 있습니다.
+예를 들어,
+합성 이미지에는 스타일 이미지와 같은 색상 블록이 있습니다.
+이 블록 중 일부에는 붓터치의 미묘한 질감도 있습니다.
 
 
 
 
-## Summary
+## 요약 (Summary)
 
-* The loss function commonly used in style transfer consists of three parts: (i) content loss makes the synthesized image and the content image close in content features; (ii) style loss makes the synthesized image and style image close in style features; and (iii) total variation loss helps to reduce the noise in the synthesized image.
-* We can use a pretrained CNN to extract image features and minimize the loss function to continuously update the synthesized image as model parameters during training.
-* We use Gram matrices to represent the style outputs from the style layers.
+* 스타일 전송에 일반적으로 사용되는 손실 함수는 세 부분으로 구성됩니다: (i) 콘텐츠 손실은 합성 이미지와 콘텐츠 이미지를 콘텐츠 특징에서 가깝게 만듭니다; (ii) 스타일 손실은 합성 이미지와 스타일 이미지를 스타일 특징에서 가깝게 만듭니다; (iii) 총 변동 손실은 합성 이미지의 노이즈를 줄이는 데 도움이 됩니다.
+* 우리는 사전 훈련된 CNN을 사용하여 이미지 특징을 추출하고 손실 함수를 최소화하여 훈련 중에 합성 이미지를 모델 파라미터로 지속적으로 업데이트할 수 있습니다.
+* 우리는 스타일 레이어의 스타일 출력을 나타내기 위해 그램 행렬을 사용합니다.
 
 
-## Exercises
+## 연습 문제 (Exercises)
 
-1. How does the output change when you select different content and style layers?
-1. Adjust the weight hyperparameters in the loss function. Does the output retain more content or have less noise?
-1. Use different content and style images. Can you create more interesting synthesized images?
-1. Can we apply style transfer for text? Hint: you may refer to the survey paper by :citet:`10.1145/3544903.3544906`.
+1. 다른 콘텐츠 및 스타일 레이어를 선택하면 출력이 어떻게 변합니까?
+1. 손실 함수의 가중치 하이퍼파라미터를 조정하십시오. 출력이 더 많은 콘텐츠를 유지합니까 아니면 노이즈가 적습니까?
+1. 다른 콘텐츠 및 스타일 이미지를 사용하십시오. 더 흥미로운 합성 이미지를 만들 수 있습니까?
+1. 텍스트에 스타일 전송을 적용할 수 있습니까? 힌트: :citet:`10.1145/3544903.3544906`의 설문 조사 논문을 참조할 수 있습니다.
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/378)

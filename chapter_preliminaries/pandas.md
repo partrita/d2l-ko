@@ -3,35 +3,29 @@
 tab.interact_select(['mxnet', 'pytorch', 'tensorflow', 'jax'])
 ```
 
-# Data Preprocessing
+# 데이터 전처리 (Data Preprocessing)
 :label:`sec_pandas`
 
-So far, we have been working with synthetic data
-that arrived in ready-made tensors.
-However, to apply deep learning in the wild
-we must extract messy data 
-stored in arbitrary formats,
-and preprocess it to suit our needs.
-Fortunately, the *pandas* [library](https://pandas.pydata.org/) 
-can do much of the heavy lifting.
-This section, while no substitute 
-for a proper *pandas* [tutorial](https://pandas.pydata.org/pandas-docs/stable/user_guide/10min.html),
-will give you a crash course
-on some of the most common routines.
+지금까지 우리는 기성 텐서에 도착한 합성 데이터로 작업했습니다.
+그러나 실제 환경에서 딥러닝을 적용하려면
+임의의 형식으로 저장된 지저분한 데이터를 추출하고
+필요에 맞게 전처리해야 합니다.
+다행히도 *pandas* [라이브러리](https://pandas.pydata.org/)는
+무거운 작업의 대부분을 수행할 수 있습니다.
+이 섹션은 적절한 *pandas* [튜토리얼](https://pandas.pydata.org/pandas-docs/stable/user_guide/10min.html)을
+대체할 수는 없지만, 가장 일반적인 루틴에 대한 집중 코스를 제공할 것입니다.
 
-## Reading the Dataset
+## 데이터셋 읽기 (Reading the Dataset)
 
-Comma-separated values (CSV) files are ubiquitous 
-for the storing of tabular (spreadsheet-like) data.
-In them, each line corresponds to one record
-and consists of several (comma-separated) fields, e.g.,
-"Albert Einstein,March 14 1879,Ulm,Federal polytechnic school,field of gravitational physics".
-To demonstrate how to load CSV files with `pandas`, 
-we (**create a CSV file below**) `../data/house_tiny.csv`. 
-This file represents a dataset of homes,
-where each row corresponds to a distinct home
-and the columns correspond to the number of rooms (`NumRooms`),
-the roof type (`RoofType`), and the price (`Price`).
+쉼표로 구분된 값(CSV) 파일은 표 형식(스프레드시트 같은) 데이터를 저장하는 데 어디에나 있습니다.
+여기서 각 줄은 하나의 레코드에 해당하며
+여러(쉼표로 구분된) 필드로 구성됩니다. 예:
+"알버트 아인슈타인,1879년 3월 14일,울름,연방 공과 대학,중력 물리학 분야".
+`pandas`로 CSV 파일을 로드하는 방법을 보여주기 위해,
+우리는 `../data/house_tiny.csv` (**아래에 CSV 파일을 생성합니다**).
+이 파일은 주택 데이터셋을 나타내며,
+각 행은 별개의 집에 해당하고
+열은 방 수(`NumRooms`), 지붕 유형(`RoofType`), 가격(`Price`)에 해당합니다.
 
 ```{.python .input}
 %%tab all
@@ -47,7 +41,7 @@ NA,NA,127500
 NA,NA,140000''')
 ```
 
-Now let's import `pandas` and load the dataset with `read_csv`.
+이제 `pandas`를 가져와서 `read_csv`로 데이터셋을 로드해 보겠습니다.
 
 ```{.python .input}
 %%tab all
@@ -57,44 +51,29 @@ data = pd.read_csv(data_file)
 print(data)
 ```
 
-## Data Preparation
+## 데이터 준비 (Data Preparation)
 
-In supervised learning, we train models
-to predict a designated *target* value,
-given some set of *input* values. 
-Our first step in processing the dataset
-is to separate out columns corresponding
-to input versus target values. 
-We can select columns either by name or
-via integer-location based indexing (`iloc`).
+지도 학습에서는 입력 값 세트가 주어졌을 때
+지정된 *타겟* 값을 예측하도록 모델을 훈련합니다.
+데이터셋을 처리하는 첫 번째 단계는
+입력 값과 타겟 값에 해당하는 열을 분리하는 것입니다.
+이름이나 정수 위치 기반 인덱싱(`iloc`)을 통해 열을 선택할 수 있습니다.
 
-You might have noticed that `pandas` replaced
-all CSV entries with value `NA`
-with a special `NaN` (*not a number*) value. 
-This can also happen whenever an entry is empty,
-e.g., "3,,,270000".
-These are called *missing values* 
-and they are the "bed bugs" of data science,
-a persistent menace that you will confront
-throughout your career. 
-Depending upon the context, 
-missing values might be handled
-either via *imputation* or *deletion*.
-Imputation replaces missing values 
-with estimates of their values
-while deletion simply discards 
-either those rows or those columns
-that contain missing values. 
+`pandas`가 `NA` 값을 가진 모든 CSV 항목을
+특별한 `NaN` (*숫자 아님*) 값으로 대체한 것을 눈치챘을 것입니다.
+이것은 항목이 비어 있을 때도 발생할 수 있습니다. 예: "3,,,270000".
+이것들을 *결측값(missing values)*이라고 하며
+데이터 과학의 "빈대"와 같아서, 경력 내내 직면하게 될 지속적인 위협입니다.
+맥락에 따라 결측값은 *대체(imputation)* 또는 *삭제(deletion)*를 통해 처리될 수 있습니다.
+대체는 결측값을 값의 추정치로 바꾸는 반면,
+삭제는 단순히 결측값이 포함된 행이나 열을 버립니다.
 
-Here are some common imputation heuristics.
-[**For categorical input fields, 
-we can treat `NaN` as a category.**]
-Since the `RoofType` column takes values `Slate` and `NaN`,
-`pandas` can convert this column 
-into two columns `RoofType_Slate` and `RoofType_nan`.
-A row whose roof type is `Slate` will set values 
-of `RoofType_Slate` and `RoofType_nan` to 1 and 0, respectively.
-The converse holds for a row with a missing `RoofType` value.
+다음은 몇 가지 일반적인 대체 휴리스틱입니다.
+[**범주형 입력 필드의 경우, `NaN`을 하나의 범주로 취급할 수 있습니다.**]
+`RoofType` 열은 `Slate`와 `NaN` 값을 취하므로,
+`pandas`는 이 열을 두 개의 열 `RoofType_Slate`와 `RoofType_nan`으로 변환할 수 있습니다.
+지붕 유형이 `Slate`인 행은 `RoofType_Slate` 및 `RoofType_nan`의 값을 각각 1과 0으로 설정합니다.
+`RoofType` 값이 누락된 행의 경우에는 그 반대가 성립합니다.
 
 ```{.python .input}
 %%tab all
@@ -103,10 +82,8 @@ inputs = pd.get_dummies(inputs, dummy_na=True)
 print(inputs)
 ```
 
-For missing numerical values, 
-one common heuristic is to 
-[**replace the `NaN` entries with 
-the mean value of the corresponding column**].
+누락된 수치 값의 경우, 일반적인 휴리스틱 중 하나는
+[**`NaN` 항목을 해당 열의 평균값으로 대체하는 것입니다**].
 
 ```{.python .input}
 %%tab all
@@ -114,10 +91,10 @@ inputs = inputs.fillna(inputs.mean())
 print(inputs)
 ```
 
-## Conversion to the Tensor Format
+## 텐서 형식으로 변환 (Conversion to the Tensor Format)
 
-Now that [**all the entries in `inputs` and `targets` are numerical,
-we can load them into a tensor**] (recall :numref:`sec_ndarray`).
+이제 [**`inputs`와 `targets`의 모든 항목이 수치이므로,
+텐서로 로드할 수 있습니다**] (:numref:`sec_ndarray` 상기).
 
 ```{.python .input}
 %%tab mxnet
@@ -154,62 +131,50 @@ y = jnp.array(targets.to_numpy(dtype=float))
 X, y
 ```
 
-## Discussion
+## 토론
 
-You now know how to partition data columns, 
-impute missing variables, 
-and load `pandas` data into tensors. 
-In :numref:`sec_kaggle_house`, you will
-pick up some more data processing skills. 
-While this crash course kept things simple,
-data processing can get hairy.
-For example, rather than arriving in a single CSV file,
-our dataset might be spread across multiple files
-extracted from a relational database.
-For instance, in an e-commerce application,
-customer addresses might live in one table
-and purchase data in another.
-Moreover, practitioners face myriad data types
-beyond categorical and numeric, for example,
-text strings, images,
-audio data, and point clouds. 
-Oftentimes, advanced tools and efficient algorithms 
-are required in order to prevent data processing from becoming
-the biggest bottleneck in the machine learning pipeline. 
-These problems will arise when we get to 
-computer vision and natural language processing. 
-Finally, we must pay attention to data quality.
-Real-world datasets are often plagued 
-by outliers, faulty measurements from sensors, and recording errors, 
-which must be addressed before 
-feeding the data into any model. 
-Data visualization tools such as [seaborn](https://seaborn.pydata.org/), 
-[Bokeh](https://docs.bokeh.org/), or [matplotlib](https://matplotlib.org/)
-can help you to manually inspect the data 
-and develop intuitions about 
-the type of problems you may need to address.
+이제 데이터 열을 분할하고, 누락된 변수를 대체하고,
+`pandas` 데이터를 텐서로 로드하는 방법을 알게 되었습니다.
+:numref:`sec_kaggle_house`에서 더 많은 데이터 처리 기술을 배우게 될 것입니다.
+이 집중 코스는 상황을 단순하게 유지했지만, 데이터 처리는 까다로울 수 있습니다.
+예를 들어, 단일 CSV 파일에 도착하는 대신,
+데이터셋이 관계형 데이터베이스에서 추출된 여러 파일에 분산되어 있을 수 있습니다.
+예를 들어 전자 상거래 애플리케이션에서 고객 주소는 한 테이블에 있고
+구매 데이터는 다른 테이블에 있을 수 있습니다.
+게다가 실무자들은 범주형 및 수치형을 넘어
+텍스트 문자열, 이미지, 오디오 데이터, 포인트 클라우드 등 수많은 데이터 유형에 직면합니다.
+종종 데이터 처리가 머신러닝 파이프라인의 가장 큰 병목 현상이 되는 것을 방지하기 위해
+고급 도구와 효율적인 알고리즘이 필요합니다.
+이러한 문제는 컴퓨터 비전과 자연어 처리에 도달했을 때 발생할 것입니다.
+마지막으로 데이터 품질에 주의를 기울여야 합니다.
+실제 데이터셋은 종종 이상값, 센서의 잘못된 측정, 기록 오류로 인해 골칫거리가 되며,
+데이터를 모델에 공급하기 전에 해결해야 합니다.
+[seaborn](https://seaborn.pydata.org/),
+[Bokeh](https://docs.bokeh.org/), 또는 [matplotlib](https://matplotlib.org/)과 같은
+데이터 시각화 도구는 데이터를 수동으로 검사하고
+해결해야 할 문제 유형에 대한 직관을 개발하는 데 도움이 될 수 있습니다.
 
 
-## Exercises
+## 연습 문제
 
-1. Try loading datasets, e.g., Abalone from the [UCI Machine Learning Repository](https://archive.ics.uci.edu/ml/datasets) and inspect their properties. What fraction of them has missing values? What fraction of the variables is numerical, categorical, or text?
-1. Try indexing and selecting data columns by name rather than by column number. The pandas documentation on [indexing](https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html) has further details on how to do this.
-1. How large a dataset do you think you could load this way? What might be the limitations? Hint: consider the time to read the data, representation, processing, and memory footprint. Try this out on your laptop. What happens if you try it out on a server? 
-1. How would you deal with data that has a very large number of categories? What if the category labels are all unique? Should you include the latter?
-1. What alternatives to pandas can you think of? How about [loading NumPy tensors from a file](https://numpy.org/doc/stable/reference/generated/numpy.load.html)? Check out [Pillow](https://python-pillow.org/), the Python Imaging Library. 
+1. [UCI 머신러닝 저장소](https://archive.ics.uci.edu/ml/datasets)의 Abalone과 같은 데이터셋을 로드하고 속성을 검사해 보십시오. 결측값이 있는 비율은 얼마입니까? 변수의 몇 퍼센트가 수치형, 범주형 또는 텍스트입니까?
+2. 열 번호 대신 이름으로 데이터 열을 인덱싱하고 선택해 보십시오. [인덱싱](https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html)에 대한 pandas 문서에 이를 수행하는 방법에 대한 자세한 내용이 나와 있습니다.
+3. 이 방식으로 얼마나 큰 데이터셋을 로드할 수 있다고 생각하십니까? 한계는 무엇일까요? 힌트: 데이터 읽기 시간, 표현, 처리 및 메모리 사용량을 고려하십시오. 노트북에서 이것을 시도해 보십시오. 서버에서 시도하면 어떻게 됩니까?
+4. 매우 많은 수의 범주가 있는 데이터를 어떻게 처리하시겠습니까? 범주 레이블이 모두 고유하다면 어떻게 합니까? 후자를 포함해야 합니까?
+5. pandas의 대안으로 무엇을 생각할 수 있습니까? [파일에서 NumPy 텐서 로드하기](https://numpy.org/doc/stable/reference/generated/numpy.load.html)는 어떻습니까? Python 이미징 라이브러리인 [Pillow](https://python-pillow.org/)를 확인해 보십시오.
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/28)
+[토론](https://discuss.d2l.ai/t/28)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/29)
+[토론](https://discuss.d2l.ai/t/29)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/195)
+[토론](https://discuss.d2l.ai/t/195)
 :end_tab:
 
 :begin_tab:`jax`
-[Discussions](https://discuss.d2l.ai/t/17967)
+[토론](https://discuss.d2l.ai/t/17967)
 :end_tab:

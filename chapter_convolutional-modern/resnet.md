@@ -3,12 +3,12 @@
 tab.interact_select(['mxnet', 'pytorch', 'tensorflow', 'jax'])
 ```
 
-# Residual Networks (ResNet) and ResNeXt
+# 잔차 네트워크 (ResNet)와 ResNeXt (Residual Networks (ResNet) and ResNeXt)
 :label:`sec_resnet`
 
-As we design ever deeper networks it becomes imperative to understand how adding layers can increase the complexity and expressiveness of the network.
-Even more important is the ability to design networks where adding layers makes networks strictly more expressive rather than just different.
-To make some progress we need a bit of mathematics.
+점점 더 깊은 네트워크를 설계함에 따라 레이어를 추가하는 것이 네트워크의 복잡성과 표현력을 어떻게 증가시킬 수 있는지 이해하는 것이 필수적이 되었습니다. 
+더 중요한 것은 레이어를 추가하는 것이 네트워크를 단순히 다르게 만드는 것이 아니라 엄격하게 더 표현력 있게 만드는 네트워크를 설계하는 능력입니다. 
+약간의 진전을 이루려면 약간의 수학이 필요합니다.
 
 ```{.python .input}
 %%tab mxnet
@@ -40,98 +40,68 @@ from jax import numpy as jnp
 import jax
 ```
 
-## Function Classes
+## 함수 클래스 (Function Classes)
 
-Consider $\mathcal{F}$, the class of functions that a specific network architecture (together with learning rates and other hyperparameter settings) can reach.
-That is, for all $f \in \mathcal{F}$ there exists some set of parameters (e.g., weights and biases) that can be obtained through training on a suitable dataset.
-Let's assume that $f^*$ is the "truth" function that we really would like to find.
-If it is in $\mathcal{F}$, we are in good shape but typically we will not be quite so lucky.
-Instead, we will try to find some $f^*_\mathcal{F}$ which is our best bet within $\mathcal{F}$.
-For instance,
-given a dataset with features $\mathbf{X}$
-and labels $\mathbf{y}$,
-we might try finding it by solving the following optimization problem:
+특정 네트워크 아키텍처(학습률 및 기타 하이퍼파라미터 설정과 함께)가 도달할 수 있는 함수 클래스 $\mathcal{F}$를 고려하십시오. 
+즉, 모든 $f \in \mathcal{F}$에 대해 적절한 데이터셋에 대한 훈련을 통해 얻을 수 있는 파라미터 세트(예: 가중치 및 편향)가 존재합니다. 
+$f^*$가 우리가 정말로 찾고 싶은 "진실" 함수라고 가정해 봅시다. 
+그것이 $\mathcal{F}$에 있다면 우리는 좋은 상태이지만 일반적으로 그렇게 운이 좋지는 않을 것입니다. 
+대신 우리는 $\mathcal{F}$ 내에서 최선의 선택인 $f^*_\mathcal{F}$를 찾으려고 노력할 것입니다. 
+예를 들어, 
+특성 $\mathbf{X}$와 레이블 $\mathbf{y}$가 있는 데이터셋이 주어지면, 
+우리는 다음 최적화 문제를 해결하여 그것을 찾으려고 시도할 수 있습니다:
 
-$$f^*_\mathcal{F} \stackrel{\textrm{def}}{=} \mathop{\mathrm{argmin}}_f L(\mathbf{X}, \mathbf{y}, f) \textrm{ subject to } f \in \mathcal{F}.$$
+$$f^*_\mathcal{F} \stackrel{\textrm{def}}{=} \mathop{\mathrm{argmin}}_f L(\mathbf{X}, \mathbf{y}, f) \textrm{ subject to } f \in \mathcal{F}.$$ 
 
-We know that regularization :cite:`tikhonov1977solutions,morozov2012methods` may control complexity of $\mathcal{F}$
-and achieve consistency, so a larger size of training data
-generally leads to better $f^*_\mathcal{F}$.
-It is only reasonable to assume that if we design a different and more powerful architecture $\mathcal{F}'$ we should arrive at a better outcome. In other words, we would expect that $f^*_{\mathcal{F}'}$ is "better" than $f^*_{\mathcal{F}}$. However, if $\mathcal{F} \not\subseteq \mathcal{F}'$ there is no guarantee that this should even happen. In fact, $f^*_{\mathcal{F}'}$ might well be worse.
-As illustrated by :numref:`fig_functionclasses`,
-for non-nested function classes, a larger function class does not always move closer to the "truth" function $f^*$. For instance,
-on the left of :numref:`fig_functionclasses`,
-though $\mathcal{F}_3$ is closer to $f^*$ than $\mathcal{F}_1$, $\mathcal{F}_6$ moves away and there is no guarantee that further increasing the complexity can reduce the distance from $f^*$.
-With nested function classes
-where $\mathcal{F}_1 \subseteq \cdots \subseteq \mathcal{F}_6$
-on the right of :numref:`fig_functionclasses`,
-we can avoid the aforementioned issue from the non-nested function classes.
+우리는 정규화 :cite:`tikhonov1977solutions,morozov2012methods`가 $\mathcal{F}$의 복잡도를 제어하고 일관성을 달성할 수 있음을 알고 있으므로, 더 큰 크기의 훈련 데이터는 일반적으로 더 나은 $f^*_\mathcal{F}$로 이어집니다. 
+우리가 다른 더 강력한 아키텍처 $\mathcal{F}'$를 설계하면 더 나은 결과를 얻어야 한다고 가정하는 것이 합리적입니다. 즉, 우리는 $f^*_{\mathcal{F}'}$가 $f^*_{\mathcal{F}}$보다 "더 낫기"를 기대합니다. 그러나 $\mathcal{F} \not\subseteq \mathcal{F}'$이면 이런 일이 일어날 것이라는 보장이 없습니다. 사실 $f^*_{\mathcal{F}'}$는 더 나쁠 수도 있습니다. 
+:numref:`fig_functionclasses`에서 설명한 것처럼, 중첩되지 않은 함수 클래스의 경우 더 큰 함수 클래스가 항상 "진실" 함수 $f^*$에 더 가까이 이동하는 것은 아닙니다. 예를 들어, 
+:numref:`fig_functionclasses`의 왼쪽에서 $\mathcal{F}_3$은 $\mathcal{F}_1$보다 $f^*$에 가깝지만, $\mathcal{F}_6$은 멀어지고 복잡도를 더 높이면 $f^*$와의 거리를 줄일 수 있다는 보장이 없습니다. 
+:numref:`fig_functionclasses`의 오른쪽과 같이 $\mathcal{F}_1 \subseteq \cdots \subseteq \mathcal{F}_6$인 중첩 함수 클래스를 사용하면 중첩되지 않은 함수 클래스의 앞서 언급한 문제를 피할 수 있습니다.
 
 
-![For non-nested function classes, a larger (indicated by area) function class does not guarantee we will get closer to the "truth" function ($\mathit{f}^*$). This does not happen in nested function classes.](../img/functionclasses.svg)
+![중첩되지 않은 함수 클래스의 경우, 더 큰(영역으로 표시됨) 함수 클래스가 "진실" 함수($\mathit{f}^*$)에 더 가까워진다는 보장이 없습니다. 중첩 함수 클래스에서는 이런 일이 발생하지 않습니다.](../img/functionclasses.svg)
 :label:`fig_functionclasses`
 
-Thus,
-only if larger function classes contain the smaller ones are we guaranteed that increasing them strictly increases the expressive power of the network.
-For deep neural networks,
-if we can
-train the newly-added layer into an identity function $f(\mathbf{x}) = \mathbf{x}$, the new model will be as effective as the original model. As the new model may get a better solution to fit the training dataset, the added layer might make it easier to reduce training errors.
+따라서 더 큰 함수 클래스가 더 작은 함수 클래스를 포함하는 경우에만 이를 늘리면 네트워크의 표현력이 엄격하게 증가한다는 것이 보장됩니다. 
+심층 신경망의 경우, 
+새로 추가된 레이어를 항등 함수 $f(\mathbf{x}) = \mathbf{x}$로 훈련할 수 있다면 새 모델은 원래 모델만큼 효과적일 것입니다. 새 모델이 훈련 데이터셋에 맞는 더 나은 솔루션을 얻을 수 있으므로, 추가된 레이어는 훈련 오류를 줄이는 것을 더 쉽게 만들 수 있습니다.
 
-This is the question that :citet:`He.Zhang.Ren.ea.2016` considered when working on very deep computer vision models.
-At the heart of their proposed *residual network* (*ResNet*) is the idea that every additional layer should
-more easily
-contain the identity function as one of its elements.
-These considerations are rather profound but they led to a surprisingly simple
-solution, a *residual block*.
-With it, ResNet won the ImageNet Large Scale Visual Recognition Challenge in 2015. The design had a profound influence on how to
-build deep neural networks. For instance, residual blocks have been added to recurrent networks :cite:`prakash2016neural,kim2017residual`. Likewise, Transformers :cite:`Vaswani.Shazeer.Parmar.ea.2017` use them to stack many layers of networks efficiently. It is also used in graph neural networks :cite:`Kipf.Welling.2016` and, as a basic concept, it has been used extensively in computer vision :cite:`Redmon.Farhadi.2018,Ren.He.Girshick.ea.2015`. 
-Note that residual networks are predated by highway networks :cite:`srivastava2015highway` that share some of the motivation, albeit without the elegant parametrization around the identity function.
+이것은 :citet:`He.Zhang.Ren.ea.2016`가 매우 깊은 컴퓨터 비전 모델을 작업할 때 고려한 질문이었습니다. 
+제안된 *잔차 네트워크* (*ResNet*)의 핵심에는 모든 추가 레이어가 그 요소 중 하나로 항등 함수를 더 쉽게 포함해야 한다는 아이디어가 있습니다. 
+이러한 고려 사항은 다소 심오하지만 *잔차 블록(residual block)*이라는 놀랍도록 간단한 해결책으로 이어졌습니다. 
+이를 통해 ResNet은 2015년 ImageNet 대규모 시각 인식 챌린지에서 우승했습니다. 이 디자인은 심층 신경망을 구축하는 방법에 지대한 영향을 미쳤습니다. 예를 들어 잔차 블록은 순환 네트워크에 추가되었습니다 :cite:`prakash2016neural,kim2017residual`. 마찬가지로 Transformer :cite:`Vaswani.Shazeer.Parmar.ea.2017`는 이를 사용하여 많은 레이어의 네트워크를 효율적으로 쌓습니다. 그래프 신경망 :cite:`Kipf.Welling.2016`에도 사용되며 기본 개념으로서 컴퓨터 비전에서 광범위하게 사용되었습니다 :cite:`Redmon.Farhadi.2018,Ren.He.Girshick.ea.2015`. 
+잔차 네트워크 이전에 고속도로 네트워크(highway networks) :cite:`srivastava2015highway`가 있었는데, 항등 함수 주변의 우아한 파라미터화는 없지만 동기의 일부를 공유합니다.
 
 
-## (**Residual Blocks**)
+## (**잔차 블록**)
 :label:`subsec_residual-blks`
 
-Let's focus on a local part of a neural network, as depicted in :numref:`fig_residual_block`. Denote the input by $\mathbf{x}$.
-We assume that $f(\mathbf{x})$, the desired underlying mapping we want to obtain by learning, is to be used as input to the activation function on the top.
-On the left,
-the portion within the dotted-line box
-must directly learn $f(\mathbf{x})$.
-On the right,
-the portion within the dotted-line box
-needs to
-learn the *residual mapping* $g(\mathbf{x}) = f(\mathbf{x}) - \mathbf{x}$,
-which is how the residual block derives its name.
-If the identity mapping $f(\mathbf{x}) = \mathbf{x}$ is the desired underlying mapping,
-the residual mapping amounts to $g(\mathbf{x}) = 0$ and it is thus easier to learn:
-we only need to push the weights and biases
-of the
-upper weight layer (e.g., fully connected layer and convolutional layer)
-within the dotted-line box
-to zero.
-The right figure illustrates the *residual block* of ResNet,
-where the solid line carrying the layer input
-$\mathbf{x}$ to the addition operator
-is called a *residual connection* (or *shortcut connection*).
-With residual blocks, inputs can
-forward propagate faster through the residual connections across layers.
-In fact,
-the residual block
-can be thought of as
-a special case of the multi-branch Inception block:
-it has two branches
-one of which is the identity mapping.
+:numref:`fig_residual_block`에 묘사된 대로 신경망의 국소 부분에 집중해 봅시다. 입력을 $\mathbf{x}$로 표시합니다. 
+우리는 학습을 통해 얻고자 하는 기저 매핑 $f(\mathbf{x})$가 상단의 활성화 함수에 입력으로 사용된다고 가정합니다. 
+왼쪽에서, 
+점선 상자 안의 부분은 $f(\mathbf{x})$를 직접 학습해야 합니다. 
+오른쪽에서, 
+점선 상자 안의 부분은 *잔차 매핑(residual mapping)* $g(\mathbf{x}) = f(\mathbf{x}) - \mathbf{x}$를 학습해야 하며, 여기서 잔차 블록이라는 이름이 유래했습니다. 
+항등 매핑 $f(\mathbf{x}) = \mathbf{x}$가 원하는 기저 매핑인 경우, 잔차 매핑은 $g(\mathbf{x}) = 0$이 되므로 학습하기가 더 쉽습니다: 
+점선 상자 안의 상부 가중치 레이어(예: 완전 연결 레이어 및 합성곱 레이어)의 가중치와 편향을 0으로 밀어 넣기만 하면 됩니다. 
+오른쪽 그림은 ResNet의 *잔차 블록*을 보여주며, 레이어 입력 $\mathbf{x}$를 덧셈 연산자로 전달하는 실선을 *잔차 연결(residual connection)* (또는 *숏컷 연결(shortcut connection)*)이라고 합니다. 
+잔차 블록을 사용하면 입력이 레이어를 가로질러 잔차 연결을 통해 더 빠르게 순전파될 수 있습니다. 
+사실, 
+잔차 블록은 다중 분기 Inception 블록의 특수한 경우로 생각할 수 있습니다: 
+그중 하나가 항등 매핑인 두 개의 분기가 있습니다.
 
-![In a regular block (left), the portion within the dotted-line box must directly learn the mapping $\mathit{f}(\mathbf{x})$. In a residual block (right), the portion within the dotted-line box needs to learn the residual mapping $\mathit{g}(\mathbf{x}) = \mathit{f}(\mathbf{x}) - \mathbf{x}$, making the identity mapping $\mathit{f}(\mathbf{x}) = \mathbf{x}$ easier to learn.](../img/residual-block.svg)
+![일반 블록(왼쪽)에서 점선 상자 안의 부분은 매핑 $\mathit{f}(\mathbf{x})$를 직접 학습해야 합니다. 잔차 블록(오른쪽)에서 점선 상자 안의 부분은 잔차 매핑 $\mathit{g}(\mathbf{x}) = \mathit{f}(\mathbf{x}) - \mathbf{x}$를 학습해야 하므로 항등 매핑 $\mathit{f}(\mathbf{x}) = \mathbf{x}$를 학습하기가 더 쉽습니다.](../img/residual-block.svg)
 :label:`fig_residual_block`
 
 
-ResNet has VGG's full $3\times 3$ convolutional layer design. The residual block has two $3\times 3$ convolutional layers with the same number of output channels. Each convolutional layer is followed by a batch normalization layer and a ReLU activation function. Then, we skip these two convolution operations and add the input directly before the final ReLU activation function.
-This kind of design requires that the output of the two convolutional layers has to be of the same shape as the input, so that they can be added together. If we want to change the number of channels, we need to introduce an additional $1\times 1$ convolutional layer to transform the input into the desired shape for the addition operation. Let's have a look at the code below.
+ResNet은 VGG의 전체 $3\times 3$ 합성곱 레이어 설계를 가지고 있습니다. 잔차 블록에는 동일한 수의 출력 채널을 가진 두 개의 $3\times 3$ 합성곱 레이어가 있습니다. 각 합성곱 레이어 뒤에는 배치 정규화 레이어와 ReLU 활성화 함수가 옵니다. 그런 다음 이 두 합성곱 연산을 건너뛰고 최종 ReLU 활성화 함수 바로 앞에 입력을 직접 더합니다. 
+이러한 종류의 설계는 두 합성곱 레이어의 출력이 입력과 동일한 모양이어야 함께 더할 수 있음을 요구합니다. 채널 수를 변경하려면 덧셈 연산을 위해 입력을 원하는 모양으로 변환하는 추가 $1\times 1$ 합성곱 레이어를 도입해야 합니다. 아래 코드를 살펴보겠습니다.
 
 ```{.python .input}
 %%tab mxnet
 class Residual(nn.Block):  #@save
-    """The Residual block of ResNet models."""
+    """ResNet 모델의 잔차 블록."""
     def __init__(self, num_channels, use_1x1conv=False, strides=1, **kwargs):
         super().__init__(**kwargs)
         self.conv1 = nn.Conv2D(num_channels, kernel_size=3, padding=1,
@@ -156,7 +126,7 @@ class Residual(nn.Block):  #@save
 ```{.python .input}
 %%tab pytorch
 class Residual(nn.Module):  #@save
-    """The Residual block of ResNet models."""
+    """ResNet 모델의 잔차 블록."""
     def __init__(self, num_channels, use_1x1conv=False, strides=1):
         super().__init__()
         self.conv1 = nn.LazyConv2d(num_channels, kernel_size=3, padding=1,
@@ -182,7 +152,7 @@ class Residual(nn.Module):  #@save
 ```{.python .input}
 %%tab tensorflow
 class Residual(tf.keras.Model):  #@save
-    """The Residual block of ResNet models."""
+    """ResNet 모델의 잔차 블록."""
     def __init__(self, num_channels, use_1x1conv=False, strides=1):
         super().__init__()
         self.conv1 = tf.keras.layers.Conv2D(num_channels, padding='same',
@@ -208,7 +178,7 @@ class Residual(tf.keras.Model):  #@save
 ```{.python .input}
 %%tab jax
 class Residual(nn.Module):  #@save
-    """The Residual block of ResNet models."""
+    """ResNet 모델의 잔차 블록."""
     num_channels: int
     use_1x1conv: bool = False
     strides: tuple = (1, 1)
@@ -236,12 +206,12 @@ class Residual(nn.Module):  #@save
         return nn.relu(Y)
 ```
 
-This code generates two types of networks: one where we add the input to the output before applying the ReLU nonlinearity whenever `use_1x1conv=False`; and one where we adjust channels and resolution by means of a $1 \times 1$ convolution before adding. :numref:`fig_resnet_block` illustrates this.
+이 코드는 두 가지 유형의 네트워크를 생성합니다: `use_1x1conv=False`일 때마다 ReLU 비선형성을 적용하기 전에 입력을 출력에 더하는 것과, 더하기 전에 $1 \times 1$ 합성곱을 통해 채널과 해상도를 조정하는 것입니다. :numref:`fig_resnet_block`은 이를 보여줍니다.
 
-![ResNet block with and without $1 \times 1$ convolution, which transforms the input into the desired shape for the addition operation.](../img/resnet-block.svg)
+![덧셈 연산을 위해 입력을 원하는 모양으로 변환하는 $1 \times 1$ 합성곱이 있거나 없는 ResNet 블록.](../img/resnet-block.svg)
 :label:`fig_resnet_block`
 
-Now let's look at [**a situation where the input and output are of the same shape**], where $1 \times 1$ convolution is not needed.
+이제 $1 \times 1$ 합성곱이 필요하지 않은 [**입력과 출력의 모양이 같은 상황**]을 살펴보겠습니다.
 
 ```{.python .input}
 %%tab mxnet, pytorch
@@ -269,8 +239,8 @@ X = jax.random.normal(d2l.get_key(), (4, 6, 6, 3))
 blk.init_with_output(d2l.get_key(), X)[0].shape
 ```
 
-We also have the option to [**halve the output height and width while increasing the number of output channels**].
-In this case we use $1 \times 1$ convolutions via `use_1x1conv=True`. This comes in handy at the beginning of each ResNet block to reduce the spatial dimensionality via `strides=2`.
+[**출력 채널 수를 늘리면서 출력 높이와 너비를 절반으로 줄이는**] 옵션도 있습니다. 
+이 경우 `use_1x1conv=True`를 통해 $1 \times 1$ 합성곱을 사용합니다. 이것은 `strides=2`를 통해 공간 차원을 줄이기 위해 각 ResNet 블록의 시작 부분에서 유용합니다.
 
 ```{.python .input}
 %%tab pytorch, mxnet, tensorflow
@@ -286,9 +256,9 @@ blk = Residual(6, use_1x1conv=True, strides=(2, 2))
 blk.init_with_output(d2l.get_key(), X)[0].shape
 ```
 
-## [**ResNet Model**]
+## [**ResNet 모델**]
 
-The first two layers of ResNet are the same as those of the GoogLeNet we described before: the $7\times 7$ convolutional layer with 64 output channels and a stride of 2 is followed by the $3\times 3$ max-pooling layer with a stride of 2. The difference is the batch normalization layer added after each convolutional layer in ResNet.
+ResNet의 처음 두 레이어는 앞서 설명한 GoogLeNet의 것과 동일합니다: 64개의 출력 채널과 스트라이드 2가 있는 $7\times 7$ 합성곱 레이어 다음에는 스트라이드 2가 있는 $3\times 3$ 최대 풀링 레이어가 이어집니다. 차이점은 ResNet의 각 합성곱 레이어 뒤에 추가된 배치 정규화 레이어입니다.
 
 ```{.python .input}
 %%tab pytorch, mxnet, tensorflow
@@ -334,9 +304,9 @@ class ResNet(d2l.Classifier):
                                   padding='same')])
 ```
 
-GoogLeNet uses four modules made up of Inception blocks.
-However, ResNet uses four modules made up of residual blocks, each of which uses several residual blocks with the same number of output channels.
-The number of channels in the first module is the same as the number of input channels. Since a max-pooling layer with a stride of 2 has already been used, it is not necessary to reduce the height and width. In the first residual block for each of the subsequent modules, the number of channels is doubled compared with that of the previous module, and the height and width are halved.
+GoogLeNet은 Inception 블록으로 구성된 4개의 모듈을 사용합니다. 
+그러나 ResNet은 잔차 블록으로 구성된 4개의 모듈을 사용하며, 각 모듈은 동일한 수의 출력 채널을 가진 여러 잔차 블록을 사용합니다. 
+첫 번째 모듈의 채널 수는 입력 채널 수와 동일합니다. 스트라이드 2의 최대 풀링 레이어가 이미 사용되었으므로 높이와 너비를 줄일 필요가 없습니다. 후속 각 모듈의 첫 번째 잔차 블록에서 채널 수는 이전 모듈의 채널 수에 비해 두 배가 되고 높이와 너비는 반으로 줄어듭니다.
 
 ```{.python .input}
 %%tab mxnet
@@ -391,7 +361,7 @@ def block(self, num_residuals, num_channels, first_block=False):
     return nn.Sequential(blk)
 ```
 
-Then, we add all the modules to ResNet. Here, two residual blocks are used for each module. Lastly, just like GoogLeNet, we add a global average pooling layer, followed by the fully connected layer output.
+그런 다음 모든 모듈을 ResNet에 추가합니다. 여기서 각 모듈에는 두 개의 잔차 블록이 사용됩니다. 마지막으로 GoogLeNet과 마찬가지로 전역 평균 풀링 레이어를 추가하고 완전 연결 레이어 출력을 추가합니다.
 
 ```{.python .input}
 %%tab pytorch, mxnet, tensorflow
@@ -431,7 +401,7 @@ def create_net(self):
     for i, b in enumerate(self.arch):
         net.layers.extend([self.block(*b, first_block=(i==0))])
     net.layers.extend([nn.Sequential([
-        # Flax does not provide a GlobalAvg2D layer
+        # Flax는 GlobalAvg2D 레이어를 제공하지 않습니다
         lambda x: nn.avg_pool(x, window_shape=x.shape[1:3],
                               strides=x.shape[1:3], padding='valid'),
         lambda x: x.reshape((x.shape[0], -1)),
@@ -439,13 +409,13 @@ def create_net(self):
     return net
 ```
 
-There are four convolutional layers in each module (excluding the $1\times 1$ convolutional layer). Together with the first $7\times 7$ convolutional layer and the final fully connected layer, there are 18 layers in total. Therefore, this model is commonly known as ResNet-18.
-By configuring different numbers of channels and residual blocks in the module, we can create different ResNet models, such as the deeper 152-layer ResNet-152. Although the main architecture of ResNet is similar to that of GoogLeNet, ResNet's structure is simpler and easier to modify. All these factors have resulted in the rapid and widespread use of ResNet. :numref:`fig_resnet18` depicts the full ResNet-18.
+각 모듈에는 4개의 합성곱 레이어가 있습니다($1\times 1$ 합성곱 레이어 제외). 첫 번째 $7\times 7$ 합성곱 레이어와 마지막 완전 연결 레이어와 함께 총 18개의 레이어가 있습니다. 따라서 이 모델은 일반적으로 ResNet-18로 알려져 있습니다. 
+모듈에서 채널 수와 잔차 블록 수를 다르게 구성하여 더 깊은 152-레이어 ResNet-152와 같은 다양한 ResNet 모델을 만들 수 있습니다. ResNet의 주요 아키텍처는 GoogLeNet과 유사하지만 ResNet의 구조는 더 간단하고 수정하기 쉽습니다. 이러한 모든 요인으로 인해 ResNet은 빠르고 광범위하게 사용되었습니다. :numref:`fig_resnet18`은 전체 ResNet-18을 보여줍니다.
 
-![The ResNet-18 architecture.](../img/resnet18-90.svg)
+![ResNet-18 아키텍처.](../img/resnet18-90.svg)
 :label:`fig_resnet18`
 
-Before training ResNet, let's [**observe how the input shape changes across different modules in ResNet**]. As in all the previous architectures, the resolution decreases while the number of channels increases up until the point where a global average pooling layer aggregates all features.
+ResNet을 훈련하기 전에 [**ResNet의 다양한 모듈에서 입력 모양이 어떻게 변하는지 관찰**]해 보겠습니다. 모든 이전 아키텍처와 마찬가지로 전역 평균 풀링 레이어가 모든 특성을 집계하는 지점까지 해상도는 감소하는 반면 채널 수는 증가합니다.
 
 ```{.python .input}
 %%tab pytorch, mxnet, tensorflow
@@ -478,9 +448,9 @@ ResNet18().layer_summary((1, 96, 96, 1))
 ResNet18(training=False).layer_summary((1, 96, 96, 1))
 ```
 
-## [**Training**]
+## [**훈련 (Training)**]
 
-We train ResNet on the Fashion-MNIST dataset, just like before. ResNet is quite a powerful and flexible architecture. The plot capturing training and validation loss illustrates a significant gap between both graphs, with the training loss being considerably lower. For a network of this flexibility, more training data would offer distinct benefit in closing the gap and improving accuracy.
+이전과 마찬가지로 Fashion-MNIST 데이터셋에서 ResNet을 훈련합니다. ResNet은 꽤 강력하고 유연한 아키텍처입니다. 훈련 및 검증 손실을 포착한 플롯은 두 그래프 사이에 상당한 격차를 보여주며 훈련 손실이 훨씬 낮습니다. 이 정도의 유연성을 가진 네트워크의 경우, 더 많은 훈련 데이터가 격차를 줄이고 정확도를 높이는 데 뚜렷한 이점을 제공할 것입니다.
 
 ```{.python .input}
 %%tab mxnet, pytorch, jax
@@ -504,31 +474,27 @@ with d2l.try_gpu():
 ## ResNeXt
 :label:`subsec_resnext`
 
-One of the challenges one encounters in the design of ResNet is the trade-off between nonlinearity and dimensionality within a given block. That is, we could add more nonlinearity by increasing the number of layers, or by increasing the width of the convolutions. An alternative strategy is to increase the number of channels that can carry information between blocks. Unfortunately, the latter comes with a quadratic penalty since the computational cost of ingesting $c_\textrm{i}$ channels and emitting $c_\textrm{o}$ channels is proportional to $\mathcal{O}(c_\textrm{i} \cdot c_\textrm{o})$ (see our discussion in :numref:`sec_channels`). 
+ResNet 설계에서 직면하는 과제 중 하나는 주어진 블록 내에서 비선형성과 차원성 사이의 트레이드오프입니다. 즉, 레이어 수를 늘리거나 합성곱의 너비를 늘려 비선형성을 더할 수 있습니다. 대안 전략은 블록 간에 정보를 전달할 수 있는 채널 수를 늘리는 것입니다. 불행히도 후자는 $c_\textrm{i}$ 채널을 섭취하고 $c_\textrm{o}$ 채널을 방출하는 계산 비용이 $\mathcal{O}(c_\textrm{i} \cdot c_\textrm{o})$에 비례하므로 이차적 페널티가 따릅니다(:numref:`sec_channels`의 논의 참조).
 
-We can take some inspiration from the Inception block of :numref:`fig_inception` which has information flowing through the block in separate groups. Applying the idea of multiple independent groups to the ResNet block of :numref:`fig_resnet_block` led to the design of ResNeXt :cite:`Xie.Girshick.Dollar.ea.2017`.
-Different from the smorgasbord of transformations in Inception, 
-ResNeXt adopts the *same* transformation in all branches,
-thus minimizing the need for manual tuning of each branch. 
+:numref:`fig_inception`의 Inception 블록에서 영감을 얻을 수 있습니다. 정보가 별도의 그룹으로 블록을 통해 흐릅니다. 다중 독립 그룹 아이디어를 :numref:`fig_resnet_block`의 ResNet 블록에 적용하여 ResNeXt의 설계가 이루어졌습니다 :cite:`Xie.Girshick.Dollar.ea.2017`.
+다른 점은 Inception의 뒤죽박죽 변환과 달리, 
+ResNeXt는 모든 분기에서 *동일한* 변환을 채택하여 각 분기의 수동 튜닝 필요성을 최소화합니다.
 
-![The ResNeXt block. The use of grouped convolution with $\mathit{g}$ groups is $\mathit{g}$ times faster than a dense convolution. It is a bottleneck residual block when the number of intermediate channels $\mathit{b}$ is less than $\mathit{c}$.](../img/resnext-block.svg)
+![ResNeXt 블록. $\mathit{g}$ 그룹이 있는 그룹화된 합성곱을 사용하는 것은 조밀한 합성곱보다 $\mathit{g}$배 빠릅니다. 중간 채널 수 $\mathit{b}$가 $\mathit{c}$보다 작으면 병목 잔차 블록입니다.](../img/resnext-block.svg)
 :label:`fig_resnext_block`
 
-Breaking up a convolution from $c_\textrm{i}$ to $c_\textrm{o}$ channels into one of $g$ groups of size $c_\textrm{i}/g$ generating $g$ outputs of size $c_\textrm{o}/g$ is called, quite fittingly, a *grouped convolution*. The computational cost (proportionally) is reduced from $\mathcal{O}(c_\textrm{i} \cdot c_\textrm{o})$ to $\mathcal{O}(g \cdot (c_\textrm{i}/g) \cdot (c_\textrm{o}/g)) = \mathcal{O}(c_\textrm{i} \cdot c_\textrm{o} / g)$, i.e., it is $g$ times faster. Even better, the number of parameters needed to generate the output is also reduced from a $c_\textrm{i} \times c_\textrm{o}$ matrix to $g$ smaller matrices of size $(c_\textrm{i}/g) \times (c_\textrm{o}/g)$, again a $g$ times reduction. In what follows we assume that both $c_\textrm{i}$ and $c_\textrm{o}$ are divisible by $g$. 
+$c_\textrm{i}$에서 $c_\textrm{o}$ 채널로의 합성곱을 $c_\textrm{i}/g$ 크기의 $g$ 그룹 중 하나로 나누어 $c_\textrm{o}/g$ 크기의 $g$ 출력을 생성하는 것을 적절하게도 *그룹화된 합성곱(grouped convolution)*이라고 합니다. 계산 비용(비례적으로)은 $\mathcal{O}(c_\textrm{i} \cdot c_\textrm{o})$에서 $\mathcal{O}(g \cdot (c_\textrm{i}/g) \cdot (c_\textrm{o}/g)) = \mathcal{O}(c_\textrm{i} \cdot c_\textrm{o} / g)$로 줄어듭니다. 즉, $g$배 더 빠릅니다. 더 좋은 점은 출력을 생성하는 데 필요한 파라미터 수도 $c_\textrm{i} \times c_\textrm{o}$ 행렬에서 $(c_\textrm{i}/g) \times (c_\textrm{o}/g)$ 크기의 $g$개의 더 작은 행렬로 줄어들어 역시 $g$배 감소한다는 것입니다. 다음에서는 $c_\textrm{i}$와 $c_\textrm{o}$가 모두 $g$로 나누어떨어진다고 가정합니다. 
 
-The only challenge in this design is that no information is exchanged between the $g$ groups. The ResNeXt block of 
-:numref:`fig_resnext_block` amends this in two ways: the grouped convolution with a $3 \times 3$ kernel is sandwiched in between two $1 \times 1$ convolutions. The second one serves double duty in changing the number of channels back. The benefit is that we only pay the $\mathcal{O}(c \cdot b)$ cost for $1 \times 1$ kernels and can make do with an $\mathcal{O}(b^2 / g)$ cost for $3 \times 3$ kernels. Similar to the residual block implementation in
-:numref:`subsec_residual-blks`, the residual connection is replaced (thus generalized) by a $1 \times 1$ convolution.
+이 설계의 유일한 과제는 $g$ 그룹 간에 정보가 교환되지 않는다는 것입니다. :numref:`fig_resnext_block`의 ResNeXt 블록은 두 가지 방식으로 이를 수정합니다: $3 \times 3$ 커널을 사용한 그룹화된 합성곱이 두 개의 $1 \times 1$ 합성곱 사이에 끼어 있습니다. 두 번째 것은 채널 수를 다시 변경하는 이중 역할을 합니다. 이점은 $1 \times 1$ 커널에 대해 $\mathcal{O}(c \cdot b)$ 비용만 지불하고 $3 \times 3$ 커널에 대해 $\mathcal{O}(b^2 / g)$ 비용으로 해결할 수 있다는 것입니다. :numref:`subsec_residual-blks`의 잔차 블록 구현과 유사하게 잔차 연결은 $1 \times 1$ 합성곱으로 대체(따라서 일반화)됩니다.
 
-The right-hand figure in :numref:`fig_resnext_block` provides a much more concise summary of the resulting network block. It will also play a major role in the design of generic modern CNNs in :numref:`sec_cnn-design`. Note that the idea of grouped convolutions dates back to the implementation of AlexNet :cite:`Krizhevsky.Sutskever.Hinton.2012`. When distributing the network across two GPUs with limited memory, the implementation treated each GPU as its own channel with no ill effects. 
+:numref:`fig_resnext_block`의 오른쪽 그림은 결과 네트워크 블록에 대한 훨씬 더 간결한 요약을 제공합니다. 이것은 또한 :numref:`sec_cnn-design`의 일반적인 현대 CNN 설계에서 중요한 역할을 할 것입니다. 그룹화된 합성곱 아이디어는 AlexNet 구현 :cite:`Krizhevsky.Sutskever.Hinton.2012`으로 거슬러 올라갑니다. 제한된 메모리를 가진 두 개의 GPU에 네트워크를 분산할 때 구현은 각 GPU를 부작용 없이 자체 채널로 처리했습니다. 
 
-The following implementation of the `ResNeXtBlock` class takes as argument `groups` ($g$), with 
-`bot_channels` ($b$) intermediate (bottleneck) channels. Lastly, when we need to reduce the height and width of the representation, we add a stride of $2$ by setting `use_1x1conv=True, strides=2`.
+`ResNeXtBlock` 클래스의 다음 구현은 `groups` ($g$)를 인수로 취하며, `bot_channels` ($b$) 중간(병목) 채널을 갖습니다. 마지막으로 표현의 높이와 너비를 줄여야 할 때 `use_1x1conv=True, strides=2`로 설정하여 스트라이드 $2$를 추가합니다.
 
 ```{.python .input}
 %%tab mxnet
 class ResNeXtBlock(nn.Block):  #@save
-    """The ResNeXt block."""
+    """ResNeXt 블록."""
     def __init__(self, num_channels, groups, bot_mul,
                  use_1x1conv=False, strides=1, **kwargs):
         super().__init__(**kwargs)
@@ -561,7 +527,7 @@ class ResNeXtBlock(nn.Block):  #@save
 ```{.python .input}
 %%tab pytorch
 class ResNeXtBlock(nn.Module):  #@save
-    """The ResNeXt block."""
+    """ResNeXt 블록."""
     def __init__(self, num_channels, groups, bot_mul, use_1x1conv=False,
                  strides=1):
         super().__init__()
@@ -593,7 +559,7 @@ class ResNeXtBlock(nn.Module):  #@save
 ```{.python .input}
 %%tab tensorflow
 class ResNeXtBlock(tf.keras.Model):  #@save
-    """The ResNeXt block."""
+    """ResNeXt 블록."""
     def __init__(self, num_channels, groups, bot_mul, use_1x1conv=False,
                  strides=1):
         super().__init__()
@@ -625,7 +591,7 @@ class ResNeXtBlock(tf.keras.Model):  #@save
 ```{.python .input}
 %%tab jax
 class ResNeXtBlock(nn.Module):  #@save
-    """The ResNeXt block."""
+    """ResNeXt 블록."""
     num_channels: int
     groups: int
     bot_mul: int
@@ -661,7 +627,7 @@ class ResNeXtBlock(nn.Module):  #@save
         return nn.relu(Y + X)
 ```
 
-Its use is entirely analogous to that of the `ResNetBlock` discussed previously. For instance, when using (`use_1x1conv=False, strides=1`), the input and output are of the same shape. Alternatively, setting `use_1x1conv=True, strides=2` halves the output height and width.
+사용법은 앞에서 논의한 `ResNetBlock`의 사용법과 전적으로 유사합니다. 예를 들어 (`use_1x1conv=False, strides=1`)을 사용하면 입력과 출력의 모양이 같습니다. 대안으로 `use_1x1conv=True, strides=2`를 설정하면 출력 높이와 너비가 절반으로 줄어듭니다.
 
 ```{.python .input}
 %%tab mxnet, pytorch
@@ -687,52 +653,50 @@ X = jnp.zeros((4, 96, 96, 32))
 blk.init_with_output(d2l.get_key(), X)[0].shape
 ```
 
-## Summary and Discussion
+## 요약 및 토론 (Summary and Discussion)
 
-Nested function classes are desirable since they allow us to obtain strictly *more powerful* rather than also subtly *different* function classes when adding capacity. One way of accomplishing this is by letting additional layers to simply pass through the input to the output. Residual connections allow for this. As a consequence, this changes the inductive bias from simple functions being of the form $f(\mathbf{x}) = 0$ to simple functions looking like $f(\mathbf{x}) = \mathbf{x}$. 
+중첩된 함수 클래스는 용량을 추가할 때 미묘하게 *다른* 함수 클래스 대신 엄격하게 *더 강력한* 함수 클래스를 얻을 수 있도록 하므로 바람직합니다. 이를 달성하는 한 가지 방법은 추가 레이어가 단순히 입력을 출력으로 통과시키도록 하는 것입니다. 잔차 연결은 이를 가능하게 합니다. 결과적으로 이는 단순 함수의 귀납적 편향을 $f(\mathbf{x}) = 0$ 형태에서 $f(\mathbf{x}) = \mathbf{x}$와 같은 형태로 변경합니다.
 
 
-The residual mapping can learn the identity function more easily, such as pushing parameters in the weight layer to zero. We can train an effective *deep* neural network by having residual blocks. Inputs can forward propagate faster through the residual connections across layers. As a consequence, we can thus train much deeper networks. For instance, the original ResNet paper :cite:`He.Zhang.Ren.ea.2016` allowed for up to 152 layers. Another benefit of residual networks is that it allows us to add layers, initialized as the identity function, *during* the training process. After all, the default behavior of a layer is to let the data pass through unchanged. This can accelerate the training of very large networks in some cases. 
+잔차 매핑은 가중치 레이어의 파라미터를 0으로 미는 것과 같이 항등 함수를 더 쉽게 학습할 수 있습니다. 우리는 잔차 블록을 사용하여 효과적인 *심층* 신경망을 훈련할 수 있습니다. 입력은 레이어 전체의 잔차 연결을 통해 더 빠르게 순전파될 수 있습니다. 결과적으로 훨씬 더 깊은 네트워크를 훈련할 수 있습니다. 예를 들어 원래 ResNet 논문 :cite:`He.Zhang.Ren.ea.2016`은 최대 152개 레이어를 허용했습니다. 잔차 네트워크의 또 다른 이점은 훈련 과정 *중*에 항등 함수로 초기화된 레이어를 추가할 수 있다는 것입니다. 결국 레이어의 기본 동작은 데이터를 변경하지 않고 통과시키는 것입니다. 이는 경우에 따라 매우 큰 네트워크의 훈련을 가속화할 수 있습니다. 
 
-Prior to residual connections,
-bypassing paths with gating units were introduced
-to effectively train highway networks with over 100 layers
-:cite:`srivastava2015highway`.
-Using identity functions as bypassing paths,
-ResNet performed remarkably well
-on multiple computer vision tasks.
-Residual connections had a major influence on the design of subsequent deep neural networks, of either convolutional or sequential nature.
-As we will introduce later,
-the Transformer architecture :cite:`Vaswani.Shazeer.Parmar.ea.2017`
-adopts residual connections (together with other design choices) and is pervasive
-in areas as diverse as
-language, vision, speech, and reinforcement learning.
+잔차 연결 이전에, 
+게이팅 유닛이 있는 우회 경로가 도입되어 
+100개 이상의 레이어를 가진 고속도로 네트워크를 효과적으로 훈련했습니다 
+:cite:`srivastava2015highway`. 
+우회 경로로 항등 함수를 사용하여 
+ResNet은 여러 컴퓨터 비전 작업에서 놀라울 정도로 잘 수행되었습니다. 
+잔차 연결은 합성곱 또는 순차적 성격의 후속 심층 신경망 설계에 큰 영향을 미쳤습니다. 
+나중에 소개하겠지만, 
+Transformer 아키텍처 :cite:`Vaswani.Shazeer.Parmar.ea.2017`는 
+잔차 연결을 채택(다른 설계 선택과 함께)하며 
+언어, 비전, 음성, 강화 학습과 같이 다양한 분야에 
+널리 퍼져 있습니다.
 
-ResNeXt is an example for how the design of convolutional neural networks has evolved over time: by being more frugal with computation and trading it off against the size of the activations (number of channels), it allows for faster and more accurate networks at lower cost. An alternative way of viewing grouped convolutions is to think of a block-diagonal matrix for the convolutional weights. Note that there are quite a few such "tricks" that lead to more efficient networks. For instance, ShiftNet :cite:`wu2018shift` mimicks the effects of a $3 \times 3$ convolution, simply by adding shifted activations to the channels, offering increased function complexity, this time without any computational cost. 
+ResNeXt는 합성곱 신경망 설계가 시간이 지남에 따라 어떻게 진화했는지 보여주는 예입니다: 계산을 더 절약하고 활성화 크기(채널 수)와 절충함으로써 저렴한 비용으로 더 빠르고 정확한 네트워크를 가능하게 합니다. 그룹화된 합성곱을 보는 다른 방법은 합성곱 가중치에 대한 블록 대각 행렬을 생각하는 것입니다. 더 효율적인 네트워크로 이어지는 꽤 많은 "트릭"이 있다는 점에 유의하십시오. 예를 들어 ShiftNet :cite:`wu2018shift`은 단순히 채널에 이동된 활성화를 추가하여 $3 \times 3$ 합성곱의 효과를 모방하여 이번에는 계산 비용 없이 향상된 함수 복잡성을 제공합니다. 
 
-A common feature of the designs we have discussed so far is that the network design is fairly manual, primarily relying on the ingenuity of the designer to find the "right" network hyperparameters. While clearly feasible, it is also very costly in terms of human time and there is no guarantee that the outcome is optimal in any sense. In :numref:`sec_cnn-design` we will discuss a number of strategies for obtaining high quality networks in a more automated fashion. In particular, we will review the notion of *network design spaces* that led to the RegNetX/Y models
-:cite:`Radosavovic.Kosaraju.Girshick.ea.2020`.
+지금까지 논의한 설계의 공통적인 특징은 네트워크 설계가 상당히 수동적이며 주로 "올바른" 네트워크 하이퍼파라미터를 찾기 위해 설계자의 독창성에 의존한다는 것입니다. 분명히 실현 가능하지만 인간 시간 측면에서 비용이 많이 들고 결과가 어떤 의미에서 최적이라는 보장이 없습니다. :numref:`sec_cnn-design`에서는 더 자동화된 방식으로 고품질 네트워크를 얻기 위한 여러 전략을 논의할 것입니다. 특히 RegNetX/Y 모델 :cite:`Radosavovic.Kosaraju.Girshick.ea.2020`로 이어진 *네트워크 설계 공간*의 개념을 검토할 것입니다.
 
-## Exercises
+## 연습 문제 (Exercises)
 
-1. What are the major differences between the Inception block in :numref:`fig_inception` and the residual block? How do they compare in terms of computation, accuracy, and the classes of functions they can describe?
-1. Refer to Table 1 in the ResNet paper :cite:`He.Zhang.Ren.ea.2016` to implement different variants of the network. 
-1. For deeper networks, ResNet introduces a "bottleneck" architecture to reduce model complexity. Try to implement it.
-1. In subsequent versions of ResNet, the authors changed the "convolution, batch normalization, and activation" structure to the "batch normalization, activation, and convolution" structure. Make this improvement yourself. See Figure 1 in :citet:`He.Zhang.Ren.ea.2016*1` for details.
-1. Why can't we just increase the complexity of functions without bound, even if the function classes are nested?
+1. :numref:`fig_inception`의 Inception 블록과 잔차 블록의 주요 차이점은 무엇입니까? 계산, 정확도, 설명할 수 있는 함수 클래스 측면에서 어떻게 비교됩니까?
+2. 네트워크의 다양한 변형을 구현하려면 ResNet 논문 :cite:`He.Zhang.Ren.ea.2016`의 표 1을 참조하십시오. 
+3. 더 깊은 네트워크를 위해 ResNet은 모델 복잡성을 줄이기 위해 "병목" 아키텍처를 도입합니다. 구현해 보십시오.
+4. ResNet의 후속 버전에서 저자는 "합성곱, 배치 정규화, 활성화" 구조를 "배치 정규화, 활성화, 합성곱" 구조로 변경했습니다. 이 개선을 직접 수행하십시오. 자세한 내용은 :citet:`He.Zhang.Ren.ea.2016*1`의 그림 1을 참조하십시오.
+5. 함수 클래스가 중첩되더라도 왜 함수의 복잡성을 무한정 늘릴 수 없습니까?
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/85)
+[토론](https://discuss.d2l.ai/t/85)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/86)
+[토론](https://discuss.d2l.ai/t/86)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/8737)
+[토론](https://discuss.d2l.ai/t/8737)
 :end_tab:
 
 :begin_tab:`jax`
-[Discussions](https://discuss.d2l.ai/t/18006)
+[토론](https://discuss.d2l.ai/t/18006)
 :end_tab:

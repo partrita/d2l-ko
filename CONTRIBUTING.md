@@ -1,82 +1,71 @@
-# Guidelines for contributing
+# 기여 가이드라인
 
-Thank you for your interest in contributing to this open source book! We greatly value feedback and contributions from our community.
+이 오픈 소스 도서에 기여하는 데 관심을 가져주셔서 감사합니다! 저희는 커뮤니티의 피드백과 기여를 매우 소중하게 생각합니다.
 
-Please read through this document before you submit any pull requests or issues. It will help us work together more effectively.
+풀 리퀘스트(PR)나 이슈를 제출하기 전에 이 문서를 읽어주시기 바랍니다. 이는 우리가 더 효과적으로 협력하는 데 도움이 될 것입니다.
 
-## What to expect when you contribute
+## 기여할 때 예상되는 점
 
-When you submit a pull request, our team is notified and will respond as quickly as we can. We'll do our best to work with you to ensure that your pull request adheres to our style and standards. If we merge your pull request, we might make additional edits later for style or clarity.
+풀 리퀘스트를 제출하면 저희 팀에 알림이 가고 최대한 빨리 응답해 드립니다. 여러분의 풀 리퀘스트가 저희의 스타일과 표준을 준수하도록 함께 노력하겠습니다. 풀 리퀘스트가 병합된 후에도 스타일이나 명확성을 위해 추가 수정이 이루어질 수 있습니다.
 
-The source files on GitHub aren't published directly to the official website. If we merge your pull request, we'll publish your changes to the documentation website as soon as we can, but they won't appear immediately or automatically.
+GitHub의 소스 파일은 공식 웹사이트에 직접 게시되지 않습니다. 풀 리퀘스트를 병합하면 가능한 한 빨리 문서 웹사이트에 변경 사항을 게시하겠지만, 즉시 또는 자동으로 나타나지는 않습니다.
 
-We look forward to receiving your pull requests for:
+다음과 같은 풀 리퀘스트를 기다립니다:
 
-* New content you'd like to contribute (such as new code samples or tutorials)
-* Inaccuracies in the content
-* Information gaps in the content that need more detail to be complete
-* Typos or grammatical errors
-* Suggested rewrites that improve clarity and reduce confusion
+* 기여하고 싶은 새로운 콘텐츠 (예: 새로운 코드 샘플이나 튜토리얼)
+* 콘텐츠의 오류
+* 완전해지기 위해 더 자세한 설명이 필요한 정보 공백
+* 오타 또는 문법 오류
+* 명확성을 높이고 혼란을 줄이는 제안된 재작성
 
-**Note:** We all write differently, and you might not like how we've written or organized something currently. We want that feedback. But please be sure that your request for a rewrite is supported by the previous criteria. If it isn't, we might decline to merge it.
+**참고:** 우리 모두는 글을 쓰는 방식이 다르며, 현재 작성되거나 구성된 방식이 마음에 들지 않을 수도 있습니다. 저희는 그런 피드백을 원합니다. 하지만 재작성 요청은 앞서 언급한 기준에 의해 뒷받침되어야 합니다. 그렇지 않으면 병합을 거절할 수도 있습니다.
 
-## How to contribute
+## 기여하는 방법
 
-To contribute, start by reading [contributing section](https://d2l.ai/chapter_appendix-tools-for-deep-learning/contributing.html) and eventually
-send us a pull request. For small changes, such as fixing a typo or adding a link, you can use the [GitHub Edit Button](https://docs.github.com/en/repositories/working-with-files/managing-files/editing-files). For larger changes:
+기여하려면 [기여 섹션](https://d2l.ai/chapter_appendix-tools-for-deep-learning/contributing.html)을 읽고
+저희에게 풀 리퀘스트를 보내주세요. 오타 수정이나 링크 추가와 같은 작은 변경 사항의 경우 [GitHub 편집 버튼](https://docs.github.com/en/repositories/working-with-files/managing-files/editing-files)을 사용할 수 있습니다. 더 큰 변경 사항의 경우:
 
-1. [Fork the repository](https://help.github.com/articles/fork-a-repo/).
-2. In your fork, make your change in a new branch (e.g., by [`git branch`](https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging)) that's based on this repo's **master** branch.
-3. Commit the change to your fork, using a clear and descriptive commit message.
-4. [Create a pull request](https://help.github.com/articles/creating-a-pull-request-from-a-fork/), answering any questions in the pull request form.
+1. [저장소를 포크(Fork)](https://help.github.com/articles/fork-a-repo/)합니다.
+2. 포크한 저장소에서 이 저장소의 **master** 브랜치를 기반으로 새 브랜치(예: [`git branch`](https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging) 사용)를 만들고 변경 작업을 수행합니다.
+3. 명확하고 설명적인 커밋 메시지를 사용하여 변경 사항을 포크에 커밋합니다.
+4. 풀 리퀘스트 양식의 질문에 답변하며 [풀 리퀘스트(Pull Request)를 생성](https://help.github.com/articles/creating-a-pull-request-from-a-fork/)합니다.
 
-Before you send us a pull request, please be sure that:
+풀 리퀘스트를 보내기 전에 다음 사항을 확인해 주세요:
 
-1. You're working from the latest source on the **master** branch.
-2. You check [existing open](https://github.com/d2l-ai/d2l-en/pulls), and [recently closed](https://github.com/d2l-ai/d2l-en/pulls?q=is%3Apr+is%3Aclosed), pull requests to be sure that someone else hasn't already addressed the problem.
-3. You [create an issue](https://github.com/d2l-ai/d2l-en/issues/new) before working on a contribution that will take a significant amount of your time.
+1. **master** 브랜치의 최신 소스에서 작업하고 있는지 확인합니다.
+2. [열려 있는 이슈](https://github.com/d2l-ai/d2l-en/pulls)와 [최근 닫힌 이슈](https://github.com/d2l-ai/d2l-en/pulls?q=is%3Apr+is%3Aclosed)를 확인하여 다른 사람이 이미 해당 문제를 해결하지 않았는지 확인합니다.
+3. 상당한 시간이 소요되는 기여 작업을 하기 전에 [이슈를 생성](https://github.com/d2l-ai/d2l-en/issues/new)합니다.
 
-For contributions that will take a significant amount of time, [open a new issue](https://github.com/d2l-ai/d2l-en/issues/new) to pitch your idea before you get started. Explain the problem and describe the content you want to see added to the documentation. Let us know if you'll write it yourself or if you'd like us to help. We'll discuss your proposal with you and let you know whether we're likely to accept it. We don't want you to spend a lot of time on a contribution that might be outside the scope of the documentation or that's already in the works.
+상당한 시간이 소요되는 기여의 경우, 시작하기 전에 [새 이슈를 열어](https://github.com/d2l-ai/d2l-en/issues/new) 아이디어를 제안해 주세요. 문제를 설명하고 문서에 추가하고 싶은 콘텐츠를 묘사해 주세요. 직접 작성할지 아니면 저희의 도움을 받고 싶은지 알려주세요. 여러분의 제안을 논의하고 수락 가능 여부를 알려드리겠습니다. 문서 범위를 벗어나거나 이미 진행 중인 작업에 많은 시간을 낭비하지 않으시길 바랍니다.
 
-## Finding contributions to work on
+## 작업할 기여 찾기
 
-If you'd like to contribute, but don't have a project in mind, look at the [open issues](https://github.com/d2l-ai/d2l-en/issues) in this repository for some ideas. Issues with the [help wanted](https://github.com/d2l-ai/d2l-en/labels/help%20wanted), [good first issue](https://github.com/d2l-ai/d2l-en/labels/good%20first%20issue) or [enhancement](https://github.com/d2l-ai/d2l-en/labels/enhancement) labels are a great place to start.
+기여하고 싶지만 특별한 프로젝트가 없다면, 이 저장소의 [열린 이슈](https://github.com/d2l-ai/d2l-en/issues)를 살펴보고 아이디어를 얻으세요. [help wanted](https://github.com/d2l-ai/d2l-en/labels/help%20wanted), [good first issue](https://github.com/d2l-ai/d2l-en/labels/good%20first%20issue) 또는 [enhancement](https://github.com/d2l-ai/d2l-en/labels/enhancement) 라벨이 붙은 이슈는 시작하기 좋은 곳입니다.
 
-In addition to written content, we really appreciate new examples and code samples for our documentation, such as examples for different platforms or environments, and code samples in additional languages.
+작성된 콘텐츠 외에도 다른 플랫폼이나 환경을 위한 예제, 추가 언어로 된 코드 샘플 등 문서에 대한 새로운 예제와 코드 샘플은 정말 환영합니다.
 
 
-## How to change code in one of the frameworks?
+## 프레임워크 중 하나의 코드를 변경하는 방법은?
 
-This section describes the development environment setup and workflow
-which should be followed when modifying/porting python code and making
-changes to one of the machine learning frameworks in the book.
-We follow a set of pre-defined [style guidelines](https://github.com/d2l-ai/d2l-en/blob/master/STYLE_GUIDE.md)
-for consistent code quality throughout the book and expect the same
-from our community contributors. You may need to check other chapters
-from other contributors as well for this step.
+이 섹션에서는 파이썬 코드를 수정/이식하고 책에 있는 머신러닝 프레임워크 중 하나를 변경할 때 따라야 할 개발 환경 설정 및 워크플로우를 설명합니다.
+책 전체의 일관된 코드 품질을 위해 미리 정의된 [스타일 가이드라인](https://github.com/d2l-ai/d2l-en/blob/master/STYLE_GUIDE.md)을 따르며, 커뮤니티 기여자에게도 동일한 것을 기대합니다. 이 단계에서는 다른 기여자의 다른 챕터도 확인해야 할 수 있습니다.
 
-All the chapter sections are generated from markdown (.md file, not .ipynb file)
-source files. When making changes in code, for the ease of development
-and making sure it is error free, we never edit the markdown files directly.
-Instead we can read/load these markdown files as jupyter notebooks
-and then make the required changes in the notebook to edit the markdown
-file automatically (more on that below). This way, before raising the PR,
-one can easily test the changes locally in the jupyter notebook.
+모든 챕터 섹션은 마크다운(.md 파일, .ipynb 파일 아님) 소스 파일에서 생성됩니다. 코드를 변경할 때 개발 편의성과 오류 없는 확인을 위해 마크다운 파일을 직접 편집하지 않습니다.
+대신 마크다운 파일을 주피터 노트북으로 읽어/로드한 다음 노트북에서 필요한 변경을 수행하여 마크다운 파일을 자동으로 편집할 수 있습니다(자세한 내용은 아래 참조). 이렇게 하면 PR을 올리기 전에 주피터 노트북에서 로컬로 변경 사항을 쉽게 테스트할 수 있습니다.
 
-Start by cloning the repo.
+저장소를 복제하여 시작하세요.
 
-* Clone your d2l-en repo fork to a local machine.
+* 로컬 머신에 d2l-en 저장소 포크를 복제합니다.
 ```
 git clone https://github.com/<UserName>/d2l-en.git
 ```
 
-* Setup your local environment: Create an empty conda environment
-(you may refer to our [Miniconda Installation](https://d2l.ai/chapter_installation/index.html#installing-miniconda) section in the book).
+* 로컬 환경 설정: 빈 conda 환경을 만듭니다
+(책의 [Miniconda 설치](https://d2l.ai/chapter_installation/index.html#installing-miniconda) 섹션을 참조할 수 있습니다).
 
-* Install the required packages after activating the environment.
-What are the required packages? This depends on the framework you wish to edit. Note that master and release branches may have different
-versions of a framework. For more details, you may refer to our [installation section](https://d2l.ai/chapter_installation/index.html).
-See example installation below:
+* 환경을 활성화한 후 필요한 패키지를 설치합니다.
+필요한 패키지는 무엇인가요? 편집하려는 프레임워크에 따라 다릅니다. 마스터 및 릴리스 브랜치는 프레임워크 버전이 다를 수 있습니다. 자세한 내용은 [설치 섹션](https://d2l.ai/chapter_installation/index.html)을 참조하세요.
+아래 설치 예시를 참조하세요:
 
 ```bash
 conda activate d2l
@@ -96,117 +85,96 @@ pip install tensorflow==<version> tensorflow-probability==<version>
 # pip install tensorflow==2.12.0 tensorflow-probability==0.19.0
 ```
 
-Compilation of the book is powered by the
-[`d2lbook`](https://github.com/d2l-ai/d2l-book) package.
-Simply run `pip install git+https://github.com/d2l-ai/d2l-book` in the
-d2l conda environment to install the package.
-We'll explain some of the basic `d2lbook` features below. 
+책의 컴파일은 [`d2lbook`](https://github.com/d2l-ai/d2l-book) 패키지로 구동됩니다.
+d2l conda 환경에서 `pip install git+https://github.com/d2l-ai/d2l-book`을 실행하여 패키지를 설치하세요.
+아래에서 기본적인 `d2lbook` 기능을 설명하겠습니다.
 
-NOTE: `d2l` and `d2lbook` are different packages. (avoid any confusion)
+참고: `d2l`과 `d2lbook`은 다른 패키지입니다. (혼동하지 마세요)
 
-* Install the `d2l` library in development mode (only need to run once)
+* 개발 모드에서 `d2l` 라이브러리 설치 (한 번만 실행하면 됨)
 
 ```bash
-# Inside root of local repo fork
+# 로컬 저장소 포크의 루트 내부
 cd d2l-en
 
-# Install the d2l package
+# d2l 패키지 설치
 python setup.py develop
 ```
 
-Now you can use `from d2l import <framework_name> as d2l` within the
-environment to access the saved functions and also edit them on the fly.
+이제 환경 내에서 `from d2l import <framework_name> as d2l`을 사용하여 저장된 함수에 액세스하고 즉석에서 편집할 수 있습니다.
 
-When adding a code cell from a specific framework, one needs to specify
-the framework by commenting the following on top of a cell: `#@tab tensorflow`
-for example. If the code tab is exactly the same for all frameworks then
-use `#@tab all`. This information is required by the `d2lbook` package to
-build the website, pdf, etc. We recommend looking at some of the notebooks
-for reference.
+특정 프레임워크의 코드 셀을 추가할 때 셀 상단에 주석으로 프레임워크를 지정해야 합니다: 예: `#@tab tensorflow`. 모든 프레임워크에 대해 코드 탭이 정확히 동일한 경우 `#@tab all`을 사용하세요. 이 정보는 `d2lbook` 패키지가 웹사이트, pdf 등을 빌드하는 데 필요합니다. 참조용으로 일부 노트북을 살펴보는 것을 권장합니다.
 
 
-### How to open/edit markdown files using Jupyter Notebook?
+### 주피터 노트북을 사용하여 마크다운 파일을 열고/편집하는 방법은?
 
-Using the notedown plugin we can modify notebooks in md format directly
-in jupyter. First, install the notedown plugin, run jupyter, and
-load the plugin as shown below:
+notedown 플러그인을 사용하면 주피터에서 직접 md 형식의 노트북을 수정할 수 있습니다. 먼저 notedown 플러그인을 설치하고 주피터를 실행한 다음 아래와 같이 플러그인을 로드합니다:
 
 ```bash
-pip install mu-notedown  # You may need to uninstall the original notedown.
+pip install mu-notedown  # 원래 notedown을 제거해야 할 수도 있습니다.
 jupyter notebook --NotebookApp.contents_manager_class='notedown.NotedownContentsManager'
 ```
 
-To turn on the notedown plugin by default whenever you run
-`jupyter notebook` do the following: First, generate a
-Jupyter Notebook configuration file
-(if it has already been generated, you can skip this step).
+`jupyter notebook`을 실행할 때마다 기본적으로 notedown 플러그인을 켜려면 다음을 수행하세요: 먼저 주피터 노트북 구성 파일을 생성합니다 (이미 생성된 경우 이 단계 건너뛰기).
 
 ```bash
 jupyter notebook --generate-config
 ```
 
-Then, add the following line to the end of the Jupyter Notebook
-configuration file (for Linux/macOS, usually in the path `~/.jupyter/jupyter_notebook_config.py`):
+그런 다음 주피터 노트북 구성 파일(Linux/macOS의 경우 보통 `~/.jupyter/jupyter_notebook_config.py` 경로)의 끝에 다음 줄을 추가합니다:
 
 ```bash
 c.NotebookApp.contents_manager_class = 'notedown.NotedownContentsManager'
 ```
 
-After that, you only need to run the jupyter notebook
-command to turn on the notedown plugin by default.
+그 후에는 `jupyter notebook` 명령만 실행하면 기본적으로 notedown 플러그인이 켜집니다.
 
-Please refer to the section on [markdown files in jupyter](https://d2l.ai/chapter_appendix-tools-for-deep-learning/jupyter.html#markdown-files-in-jupyter)
-for more details.
+자세한 내용은 [주피터의 마크다운 파일](https://d2l.ai/chapter_appendix-tools-for-deep-learning/jupyter.html#markdown-files-in-jupyter) 섹션을 참조하세요.
 
 
 #### d2lbook activate
 
-Now to start working on a particular framework for a section,
-only activate the framework tab you wish to use,
-like this -> `d2lbook activate <framework_name> chapter_preliminaries/ndarray.md`,
-so the `<framework_name>` code blocks become python blocks and
-other frameworks are ignored when running the notebook.
+이제 섹션에 대해 특정 프레임워크 작업을 시작하려면
+사용하려는 프레임워크 탭만 활성화하세요.
+예 -> `d2lbook activate <framework_name> chapter_preliminaries/ndarray.md`,
+이렇게 하면 `<framework_name>` 코드 블록이 파이썬 블록이 되고
+노트북을 실행할 때 다른 프레임워크는 무시됩니다.
 
-When you are done editing a notebook, please save it and
-remember to strictly clear all outputs and activate all
-tabs by using `d2lbook activate`.
+노트북 편집을 마치면 저장하고
+반드시 모든 출력을 지우고 `d2lbook activate`를 사용하여 모든 탭을 활성화하세요.
 
 ```bash
-# Example
+# 예시
 d2lbook activate all chapter_preliminaries/ndarray.md`
 ```
 
 #### d2lbook build lib
 
-Note: Remember to mark a function which will be reused later by
-`#save` and in the end when all the above steps are completed
-just run the following in the root directory to copy all the
-saved functions/classes into `d2l/<framework_name>.py`
+참고: 나중에 재사용될 함수는 `#save`로 표시하고,
+위의 모든 단계가 완료되면 루트 디렉터리에서 다음을 실행하여
+저장된 모든 함수/클래스를 `d2l/<framework_name>.py`로 복사하세요.
 
 ```bash
 d2lbook build lib
 ```
 
-If the saved functions require some packages to be imported, you can add
-them to `chapter_preface/index.md` under the respective framework tab and
-run `d2lbook build lib`. Now the import will also be reflected in the d2l
-library after running and the saved functions can access the imported lib.
+저장된 함수에 가져와야 할 패키지가 있는 경우 `chapter_preface/index.md`의 해당 프레임워크 탭 아래에 추가하고 `d2lbook build lib`를 실행할 수 있습니다. 이제 가져오기는 실행 후 d2l 라이브러리에도 반영되며 저장된 함수는 가져온 라이브러리에 액세스할 수 있습니다.
 
-NOTE: Ensure that the output/results are consistent after the change, across the frameworks, by multiple runs of the notebook locally.
+참고: 로컬에서 노트북을 여러 번 실행하여 변경 후 프레임워크 전체에서 출력/결과가 일관되는지 확인하세요.
 
 
-Finally send in a PR, if all checks succeed, with a review of the PR from the authors, your contributions shall be merged. :)
+마지막으로 PR을 보내면 모든 검사가 성공하고 저자의 검토를 거쳐 기여가 병합됩니다. :)
 
-Hope this is comprehensive enough to get you started. Feel free to ask the authors and other contributors in case of any doubt. We always welcome feedback.
+이 내용이 시작하는 데 충분히 포괄적이면 좋겠습니다. 의문 사항이 있으면 언제든지 저자나 다른 기여자에게 문의해 주세요. 피드백은 언제나 환영합니다.
 
-## Code of conduct
+## 행동 강령
 
-This project has adopted the [Amazon Open Source Code of Conduct](https://aws.github.io/code-of-conduct). For more information, see the [Code of Conduct FAQ](https://aws.github.io/code-of-conduct-faq) or contact [opensource-codeofconduct@amazon.com](mailto:opensource-codeofconduct@amazon.com) with any additional questions or comments.
+이 프로젝트는 [Amazon 오픈 소스 행동 강령](https://aws.github.io/code-of-conduct)을 채택했습니다. 자세한 내용은 [행동 강령 FAQ](https://aws.github.io/code-of-conduct-faq)를 참조하거나 추가 질문이나 의견이 있는 경우 [opensource-codeofconduct@amazon.com](mailto:opensource-codeofconduct@amazon.com)으로 문의하세요.
 
-## Security issue notifications
+## 보안 문제 알림
 
-If you discover a potential security issue, please notify AWS Security via our [vulnerability reporting page](http://aws.amazon.com/security/vulnerability-reporting/). Please do **not** create a public issue on GitHub.
+잠재적인 보안 문제를 발견하면 [취약점 보고 페이지](http://aws.amazon.com/security/vulnerability-reporting/)를 통해 AWS 보안에 알리십시오. GitHub에 공개 이슈를 생성하지 **마십시오**.
 
-## Licensing
+## 라이선스
 
-See the [LICENSE](https://github.com/d2l-ai/d2l-en/blob/master/LICENSE) file for this project's licensing. We will ask you to confirm the licensing of your contribution. We may ask you to sign a [Contributor License Agreement (CLA)](http://en.wikipedia.org/wiki/Contributor_License_Agreement) for larger changes.
+이 프로젝트의 라이선스는 [LICENSE](https://github.com/d2l-ai/d2l-en/blob/master/LICENSE) 파일을 참조하세요. 기여에 대한 라이선스 확인을 요청할 것입니다. 더 큰 변경 사항의 경우 [기여자 라이선스 계약(CLA)](http://en.wikipedia.org/wiki/Contributor_License_Agreement) 서명을 요청할 수 있습니다.

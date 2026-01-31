@@ -4,49 +4,20 @@ tab.interact_select(["pytorch"])
 #required_libs("syne-tune[gpsearchers]==0.3.2")
 ```
 
-# Asynchronous Random Search
+# 비동기 무작위 검색 (Asynchronous Random Search)
 :label:`sec_rs_async`
 
-As we have seen in the previous :numref:`sec_api_hpo`, we might have to wait
-hours or even days before random search returns a good hyperparameter
-configuration, because of the expensive evaluation of hyperparameter
-configurations. In practice, we have often access to a pool of resources such as
-multiple GPUs on the same machine or multiple machines with a single GPU. This
-begs the question: *How do we efficiently distribute random search?*
+이전 :numref:`sec_api_hpo`에서 보았듯이 하이퍼파라미터 구성의 평가 비용이 많이 들기 때문에 무작위 검색이 좋은 하이퍼파라미터 구성을 반환하기까지 몇 시간 또는 며칠을 기다려야 할 수 있습니다. 실제로 우리는 종종 동일한 머신에 있는 여러 GPU 또는 단일 GPU가 있는 여러 머신과 같은 리소스 풀에 액세스할 수 있습니다. 이는 다음과 같은 질문을 제기합니다: *무작위 검색을 어떻게 효율적으로 분산할 수 있을까?*
 
-In general, we distinguish between synchronous and asynchronous parallel
-hyperparameter optimization (see :numref:`distributed_scheduling`). In the
-synchronous setting, we wait for all concurrently running trials to finish,
-before we start the next batch. Consider configuration spaces that contain
-hyperparameters such as the number of filters or number of layers of a deep
-neural network. Hyperparameter configurations that contain a larger number of 
-layers of filters will naturally take more time to finish, and all other trials
-in the same batch will have to wait at synchronisation points (grey area in
-:numref:`distributed_scheduling`) before we can continue the optimization
-process.
+일반적으로 동기식 병렬 하이퍼파라미터 최적화와 비동기식 병렬 하이퍼파라미터 최적화를 구별합니다(:numref:`distributed_scheduling` 참조). 동기식 설정에서는 다음 배치를 시작하기 전에 동시에 실행 중인 모든 시험이 끝날 때까지 기다립니다. 심층 신경망의 필터 수 또는 레이어 수와 같은 하이퍼파라미터를 포함하는 구성 공간을 고려해 보십시오. 더 많은 레이어나 필터를 포함하는 하이퍼파라미터 구성은 당연히 완료하는 데 더 많은 시간이 걸리며, 동일한 배치의 다른 모든 시험은 최적화 프로세스를 계속하기 전에 동기화 지점(:numref:`distributed_scheduling`의 회색 영역)에서 기다려야 합니다.
 
-In the asynchronous setting we immediately schedule a new trial as soon as resources
-become available. This will optimally exploit our resources, since we can avoid any
-synchronisation overhead. For random search, each new hyperparameter configuration
-is chosen independently of all others, and in particular without exploiting
-observations from any prior evaluation. This means we can trivially parallelize random
-search asynchronously. This is not straight-forward with more sophisticated methods
-that make decision based on previous observations (see :numref:`sec_sh_async`).
-While we need access to more resources than in the sequential setting, asynchronous
-random search exhibits a linear speed-up, in that a certain performance is reached
-$K$ times faster if $K$ trials can be run in parallel. 
+비동기 설정에서는 리소스가 사용 가능해지는 즉시 새로운 시험을 스케줄링합니다. 동기화 오버헤드를 피할 수 있으므로 리소스를 최적으로 활용할 수 있습니다. 무작위 검색의 경우, 각각의 새로운 하이퍼파라미터 구성은 다른 모든 구성과 독립적으로, 특히 이전 평가의 관찰을 활용하지 않고 선택됩니다. 이는 무작위 검색을 비동기식으로 쉽게 병렬화할 수 있음을 의미합니다. 이전 관찰을 기반으로 결정을 내리는 더 정교한 방법의 경우 이는 간단하지 않습니다(:numref:`sec_sh_async` 참조). 순차적 설정보다 더 많은 리소스에 액세스해야 하지만 비동기 무작위 검색은 선형 속도 향상을 보여줍니다. 즉, $K$개의 시험을 병렬로 실행할 수 있으면 특정 성능에 $K$배 더 빨리 도달합니다.
 
 
-![Distributing the hyperparameter optimization process either synchronously or asynchronously. Compared to the sequential setting, we can reduce the overall wall-clock time while keep the total compute constant. Synchronous scheduling might lead to idling workers in the case of stragglers.](../img/distributed_scheduling.svg)
+![하이퍼파라미터 최적화 프로세스를 동기식 또는 비동기식으로 분산합니다. 순차적 설정에 비해 전체 계산을 일정하게 유지하면서 전체 벽시계 시간을 줄일 수 있습니다. 동기식 스케줄링은 낙오자가 있는 경우 작업자가 유휴 상태가 될 수 있습니다.](../img/distributed_scheduling.svg)
 :label:`distributed_scheduling`
 
-In this notebook, we will look at asynchronous random search that, where trials are
-executed in multiple python processes on the same machine. Distributed job scheduling
-and execution is difficult to implement from scratch. We will use *Syne Tune*
-:cite:`salinas-automl22`, which provides us with a simple interface for asynchronous
-HPO. Syne Tune is designed to be run with different execution back-ends, and the
-interested reader is invited to study its simple APIs in order to learn more about
-distributed HPO.
+이 노트북에서는 동일한 머신의 여러 파이썬 프로세스에서 시험이 실행되는 비동기 무작위 검색을 살펴볼 것입니다. 분산 작업 스케줄링 및 실행은 처음부터 구현하기 어렵습니다. 비동기 HPO를 위한 간단한 인터페이스를 제공하는 *Syne Tune* :cite:`salinas-automl22`을 사용할 것입니다. Syne Tune은 다양한 실행 백엔드로 실행되도록 설계되었으며, 관심 있는 독자는 분산 HPO에 대해 자세히 알아보기 위해 간단한 API를 연구하도록 초대됩니다.
 
 ```{.python .input}
 from d2l import torch as d2l
@@ -59,10 +30,9 @@ from syne_tune import Tuner, StoppingCriterion
 from syne_tune.experiments import load_experiment
 ```
 
-## Objective Function
+## 목적 함수
 
-First, we have to define a new objective function such that it now returns the
-performance back to Syne Tune via the `report` callback.
+먼저 `report` 콜백을 통해 성능을 Syne Tune에 반환하도록 새로운 목적 함수를 정의해야 합니다.
 
 ```{.python .input  n=34}
 def hpo_objective_lenet_synetune(learning_rate, batch_size, max_epochs):
@@ -76,7 +46,7 @@ def hpo_objective_lenet_synetune(learning_rate, batch_size, max_epochs):
     report = Reporter() 
     for epoch in range(1, max_epochs + 1):
         if epoch == 1:
-            # Initialize the state of Trainer
+            # Trainer 상태 초기화
             trainer.fit(model=model, data=data) 
         else:
             trainer.fit_epoch()
@@ -84,34 +54,26 @@ def hpo_objective_lenet_synetune(learning_rate, batch_size, max_epochs):
         report(epoch=epoch, validation_error=float(validation_error))
 ```
 
-Note that the `PythonBackend` of Syne Tune requires dependencies to be imported
-inside the function definition.
+Syne Tune의 `PythonBackend`는 함수 정의 내에서 종속성을 가져와야 한다는 점에 유의하십시오.
 
-## Asynchronous Scheduler
+## 비동기 스케줄러
 
-First, we define the number of workers that evaluate trials concurrently. We
-also need to specify how long we want to run random search, by defining an
-upper limit on the total wall-clock time.
+먼저 시험을 동시에 평가하는 작업자 수를 정의합니다. 또한 전체 벽시계 시간에 대한 상한을 정의하여 무작위 검색을 실행할 기간을 지정해야 합니다.
 
 ```{.python .input  n=37}
-n_workers = 2  # Needs to be <= the number of available GPUs
+n_workers = 2  # 사용 가능한 GPU 수보다 작거나 같아야 함
 
-max_wallclock_time = 12 * 60  # 12 minutes
+max_wallclock_time = 12 * 60  # 12분
 ```
 
-Next, we state which metric we want to optimize and whether we want to minimize or
-maximize this metric. Namely, `metric` needs to correspond to the argument name
-passed to the `report` callback.
+다음으로 최적화하려는 메트릭과 이 메트릭을 최소화할지 최대화할지 명시합니다. 즉, `metric`은 `report` 콜백에 전달된 인수 이름과 일치해야 합니다.
 
 ```{.python .input  n=38}
 mode = "min"
 metric = "validation_error"
 ```
 
-We use the configuration space from our previous example. In Syne Tune, this
-dictionary can also be used to pass constant attributes to the training script.
-We make use of this feature in order to pass `max_epochs`. Moreover, we specify
-the first configuration to be evaluated in `initial_config`.
+이전 예제의 구성 공간을 사용합니다. Syne Tune에서 이 딕셔너리는 훈련 스크립트에 상수 속성을 전달하는 데에도 사용할 수 있습니다. `max_epochs`를 전달하기 위해 이 기능을 활용합니다. 또한 `initial_config`에 평가할 첫 번째 구성을 지정합니다.
 
 ```{.python .input  n=39}
 config_space = {
@@ -125,10 +87,7 @@ initial_config = {
 }
 ```
 
-Next, we need to specify the back-end for job executions. Here we just consider
-the distribution on a local machine where parallel jobs are executed as
-sub-processes. However, for large scale HPO, we could run this also on a cluster
-or cloud environment, where each trial consumes a full instance.
+다음으로 작업 실행을 위한 백엔드를 지정해야 합니다. 여기서는 병렬 작업이 하위 프로세스로 실행되는 로컬 머신의 배포만 고려합니다. 그러나 대규모 HPO의 경우 각 시험이 전체 인스턴스를 소비하는 클러스터 또는 클라우드 환경에서도 실행할 수 있습니다.
 
 ```{.python .input  n=40}
 trial_backend = PythonBackend(
@@ -137,8 +96,7 @@ trial_backend = PythonBackend(
 )
 ```
 
-We can now create the scheduler for asynchronous random search, which is similar
-in behaviour to our `BasicScheduler` from :numref:`sec_api_hpo`.
+이제 :numref:`sec_api_hpo`의 `BasicScheduler`와 동작이 유사한 비동기 무작위 검색을 위한 스케줄러를 만들 수 있습니다.
 
 ```{.python .input  n=41}
 scheduler = RandomSearch(
@@ -149,9 +107,7 @@ scheduler = RandomSearch(
 )
 ```
 
-Syne Tune also features a `Tuner`, where the main experiment loop and
-bookkeeping is centralized, and interactions between scheduler and back-end are
-mediated.
+Syne Tune은 또한 `Tuner`를 제공합니다. 여기서 주요 실험 루프와 부기가 중앙 집중화되고 스케줄러와 백엔드 간의 상호 작용이 중재됩니다.
 
 ```{.python .input  n=42}
 stop_criterion = StoppingCriterion(max_wallclock_time=max_wallclock_time)
@@ -165,16 +121,13 @@ tuner = Tuner(
 )
 ```
 
-Let us run our distributed HPO experiment. According to our stopping criterion,
-it will run for about 12 minutes.
+분산 HPO 실험을 실행해 봅시다. 중지 기준에 따르면 약 12분 동안 실행됩니다.
 
 ```{.python .input  n=43}
 tuner.run()
 ```
 
-The logs of all evaluated hyperparameter configurations are stored for further
-analysis. At any time during the tuning job, we can easily get the results
-obtained so far and plot the incumbent trajectory.
+평가된 모든 하이퍼파라미터 구성의 로그는 추가 분석을 위해 저장됩니다. 튜닝 작업 중 언제든지 지금까지 얻은 결과를 쉽게 가져와서 incumbent 궤적을 그릴 수 있습니다.
 
 ```{.python .input  n=46}
 d2l.set_figsize()
@@ -182,13 +135,9 @@ tuning_experiment = load_experiment(tuner.name)
 tuning_experiment.plot()
 ```
 
-## Visualize the Asynchronous Optimization Process
+## 비동기 최적화 프로세스 시각화
 
-Below we visualize how the learning curves of every trial (each color in the plot represents a trial) evolve during the
-asynchronous optimization process. At any point in time, there are as many trials
-running concurrently as we have workers. Once a trial finishes, we immediately
-start the next trial, without waiting for the other trials to finish. Idle time
-of workers is reduced to a minimum with asynchronous scheduling.
+아래에서는 비동기 최적화 프로세스 중에 모든 시험의 학습 곡선(플롯의 각 색상은 시험을 나타냄)이 어떻게 진화하는지 시각화합니다. 어느 시점에서든 작업자 수만큼의 시험이 동시에 실행됩니다. 시험이 끝나면 다른 시험이 끝나기를 기다리지 않고 즉시 다음 시험을 시작합니다. 비동기 스케줄링으로 작업자의 유휴 시간이 최소화됩니다.
 
 ```{.python .input  n=45}
 d2l.set_figsize([6, 2.5])
@@ -206,30 +155,20 @@ d2l.plt.xlabel("wall-clock time")
 d2l.plt.ylabel("objective function")
 ```
 
-## Summary
+## 요약
 
-We can reduce the waiting time for random search substantially by distribution
-trials across parallel resources. In general, we distinguish between synchronous
-scheduling and asynchronous scheduling. Synchronous scheduling means that we
-sample a new batch of hyperparameter configurations once the previous batch
-finished. If we have a stragglers - trials that takes more time to finish than
-other trials - our workers need to wait at synchronization points. Asynchronous
-scheduling evaluates a new hyperparameter configurations as soon as resources
-become available, and, hence, ensures that all workers are busy at any point in
-time. While random search is easy to distribute asynchronously and does not
-require any change of the actual algorithm, other methods require some additional
-modifications.
+병렬 리소스에 시험을 분산하여 무작위 검색의 대기 시간을 상당히 줄일 수 있습니다. 일반적으로 동기식 스케줄링과 비동기식 스케줄링을 구별합니다. 동기식 스케줄링은 이전 배치가 완료되면 새로운 하이퍼파라미터 구성 배치를 샘플링하는 것을 의미합니다. 다른 시험보다 완료하는 데 시간이 더 오래 걸리는 시험인 낙오자가 있는 경우 작업자는 동기화 지점에서 기다려야 합니다. 비동기식 스케줄링은 리소스가 사용 가능해지는 즉시 새로운 하이퍼파라미터 구성을 평가하므로 모든 작업자가 어느 시점에서든 바쁘게 움직이도록 보장합니다. 무작위 검색은 비동기식으로 분산하기 쉽고 실제 알고리즘의 변경이 필요하지 않지만 다른 방법은 약간의 추가 수정이 필요합니다.
 
-## Exercises
+## 연습 문제
 
-1. Consider the `DropoutMLP` model implemented in :numref:`sec_dropout`, and used in Exercise 1 of :numref:`sec_api_hpo`.
-    1. Implement an objective function `hpo_objective_dropoutmlp_synetune` to be used with Syne Tune. Make sure that your function reports the validation error after every epoch.
-    2. Using the setup of Exercise 1 in :numref:`sec_api_hpo`, compare random search to Bayesian optimization. If you use SageMaker, feel free to use Syne Tune's benchmarking facilities in order to run experiments in parallel. Hint: Bayesian optimization is provided as `syne_tune.optimizer.baselines.BayesianOptimization`.
-    3. For this exercise, you need to run on an instance with at least 4 CPU cores. For one of the methods used above (random search, Bayesian optimization), run experiments with `n_workers=1`, `n_workers=2`, `n_workers=4`, and compare results (incumbent trajectories). At least for random search, you should observe linear scaling with respect to the number of workers. Hint: For robust results, you may have to average over several repetitions each.
-2. *Advanced*. The goal of this exercise is to implement a new scheduler in Syne Tune.
-    1. Create a virtual environment containing both the [d2lbook](https://github.com/d2l-ai/d2l-en/blob/master/INFO.md#installation-for-developers) and [syne-tune](https://syne-tune.readthedocs.io/en/latest/getting_started.html) sources.
-    2. Implement the `LocalSearcher` from Exercise 2 in :numref:`sec_api_hpo` as a new searcher in Syne Tune. Hint: Read [this tutorial](https://syne-tune.readthedocs.io/en/latest/tutorials/developer/README.html). Alternatively, you may follow this [example](https://syne-tune.readthedocs.io/en/latest/examples.html#launch-hpo-experiment-with-home-made-scheduler).
-    3. Compare your new `LocalSearcher` with `RandomSearch` on the `DropoutMLP` benchmark.
+1. :numref:`sec_dropout`에서 구현되고 :numref:`sec_api_hpo`의 연습 문제 1에서 사용된 `DropoutMLP` 모델을 고려하십시오.
+    1. Syne Tune과 함께 사용할 목적 함수 `hpo_objective_dropoutmlp_synetune`을 구현하십시오. 함수가 매 에포크 후 검증 오류를 보고하는지 확인하십시오.
+    2. :numref:`sec_api_hpo`의 연습 문제 1 설정을 사용하여 무작위 검색과 베이지안 최적화를 비교하십시오. SageMaker를 사용하는 경우 실험을 병렬로 실행하기 위해 Syne Tune의 벤치마킹 기능을 자유롭게 사용하십시오. 힌트: 베이지안 최적화는 `syne_tune.optimizer.baselines.BayesianOptimization`으로 제공됩니다.
+    3. 이 연습을 위해서는 최소 4개의 CPU 코어가 있는 인스턴스에서 실행해야 합니다. 위에서 사용된 방법 중 하나(무작위 검색, 베이지안 최적화)에 대해 `n_workers=1`, `n_workers=2`, `n_workers=4`로 실험을 실행하고 결과(incumbent 궤적)를 비교하십시오. 적어도 무작위 검색의 경우 작업자 수에 따른 선형 확장을 관찰해야 합니다. 힌트: 강력한 결과를 얻으려면 각각 여러 번 반복하여 평균을 내야 할 수 있습니다.
+2. *고급*. 이 연습의 목표는 Syne Tune에서 새로운 스케줄러를 구현하는 것입니다.
+    1. [d2lbook](https://github.com/d2l-ai/d2l-en/blob/master/INFO.md#installation-for-developers) 및 [syne-tune](https://syne-tune.readthedocs.io/en/latest/getting_started.html) 소스를 모두 포함하는 가상 환경을 만듭니다.
+    2. :numref:`sec_api_hpo`의 연습 문제 2에 있는 `LocalSearcher`를 Syne Tune의 새 검색자로 구현하십시오. 힌트: [이 튜토리얼](https://syne-tune.readthedocs.io/en/latest/tutorials/developer/README.html)을 읽어보십시오. 대안으로 [이 예제](https://syne-tune.readthedocs.io/en/latest/examples.html#launch-hpo-experiment-with-home-made-scheduler)를 따를 수 있습니다.
+    3. `DropoutMLP` 벤치마크에서 새로운 `LocalSearcher`와 `RandomSearch`를 비교하십시오.
 
 
 :begin_tab:`pytorch`

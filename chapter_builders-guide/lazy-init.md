@@ -3,43 +3,25 @@
 tab.interact_select(['mxnet', 'pytorch', 'tensorflow', 'jax'])
 ```
 
-# Lazy Initialization
+# 지연 초기화 (Lazy Initialization)
 :label:`sec_lazy_init`
 
-So far, it might seem that we got away
-with being sloppy in setting up our networks.
-Specifically, we did the following unintuitive things,
-which might not seem like they should work:
+지금까지 우리는 네트워크를 설정하는 데 있어 다소 엉성했던 것처럼 보일 수 있습니다. 
+구체적으로, 다음과 같은 직관적이지 않고 작동하지 않아야 할 것 같은 일들을 했습니다:
 
-* We defined the network architectures
-  without specifying the input dimensionality.
-* We added layers without specifying
-  the output dimension of the previous layer.
-* We even "initialized" these parameters
-  before providing enough information to determine
-  how many parameters our models should contain.
+* 입력 차원을 지정하지 않고 네트워크 아키텍처를 정의했습니다.
+* 이전 레이어의 출력 차원을 지정하지 않고 레이어를 추가했습니다.
+* 모델에 몇 개의 파라미터가 포함되어야 하는지 결정하기에 충분한 정보를 제공하기도 전에 파라미터를 "초기화"했습니다.
 
-You might be surprised that our code runs at all.
-After all, there is no way the deep learning framework
-could tell what the input dimensionality of a network would be.
-The trick here is that the framework *defers initialization*,
-waiting until the first time we pass data through the model,
-to infer the sizes of each layer on the fly.
+코드가 실행된다는 것 자체가 놀라울 수 있습니다. 
+결국 딥러닝 프레임워크가 네트워크의 입력 차원이 무엇인지 알 수 있는 방법은 없습니다. 
+여기서 트릭은 프레임워크가 *초기화를 지연(defers initialization)*하여, 모델을 통해 데이터를 처음 전달할 때까지 기다렸다가 즉석에서 각 레이어의 크기를 추론한다는 것입니다.
 
 
-Later on, when working with convolutional neural networks,
-this technique will become even more convenient
-since the input dimensionality
-(e.g., the resolution of an image)
-will affect the dimensionality
-of each subsequent layer.
-Hence the ability to set parameters
-without the need to know,
-at the time of writing the code,
-the value of the dimension
-can greatly simplify the task of specifying
-and subsequently modifying our models.
-Next, we go deeper into the mechanics of initialization.
+나중에 합성곱 신경망을 다룰 때, 이 기술은 더욱 편리해질 것입니다. 
+입력 차원(예: 이미지의 해상도)이 후속 각 레이어의 차원에 영향을 미치기 때문입니다. 
+따라서 코드를 작성할 때 차원 값을 알 필요 없이 파라미터를 설정할 수 있는 능력은 모델을 지정하고 나중에 수정하는 작업을 크게 단순화할 수 있습니다. 
+다음으로 초기화 메커니즘을 더 깊이 살펴봅니다.
 
 ```{.python .input}
 %%tab mxnet
@@ -68,7 +50,7 @@ import jax
 from jax import numpy as jnp
 ```
 
-To begin, let's instantiate an MLP.
+시작하기 위해 MLP를 인스턴스화해 봅시다.
 
 ```{.python .input}
 %%tab mxnet
@@ -95,19 +77,16 @@ net = tf.keras.models.Sequential([
 net = nn.Sequential([nn.Dense(256), nn.relu, nn.Dense(10)])
 ```
 
-At this point, the network cannot possibly know
-the dimensions of the input layer's weights
-because the input dimension remains unknown.
+이 시점에서 네트워크는 입력 레이어 가중치의 차원을 알 수 없습니다. 
+입력 차원이 아직 알려지지 않았기 때문입니다.
 
 :begin_tab:`mxnet, pytorch, tensorflow`
-Consequently the framework has not yet initialized any parameters.
-We confirm by attempting to access the parameters below.
+결과적으로 프레임워크는 아직 어떤 파라미터도 초기화하지 않았습니다. 
+아래에서 파라미터에 액세스하려고 시도하여 이를 확인합니다.
 :end_tab:
 
 :begin_tab:`jax`
-As mentioned in :numref:`subsec_param-access`, parameters and the network definition are decoupled
-in Jax and Flax, and the user handles both manually. Flax models are stateless
-hence there is no `parameters` attribute.
+:numref:`subsec_param-access`에서 언급했듯이 Jax와 Flax에서는 파라미터와 네트워크 정의가 분리되어 있으며 사용자가 둘 다 수동으로 처리합니다. Flax 모델은 상태 비저장(stateless)이므로 `parameters` 속성이 없습니다.
 :end_tab:
 
 ```{.python .input}
@@ -127,21 +106,15 @@ net[0].weight
 ```
 
 :begin_tab:`mxnet`
-Note that while the parameter objects exist,
-the input dimension to each layer is listed as -1.
-MXNet uses the special value -1 to indicate
-that the parameter dimension remains unknown.
-At this point, attempts to access `net[0].weight.data()`
-would trigger a runtime error stating that the network
-must be initialized before the parameters can be accessed.
-Now let's see what happens when we attempt to initialize
-parameters via the `initialize` method.
+파라미터 객체는 존재하지만 각 레이어에 대한 입력 차원이 -1로 나열되어 있음에 유의하십시오. 
+MXNet은 파라미터 차원이 아직 알려지지 않았음을 나타내기 위해 특수 값 -1을 사용합니다. 
+이 시점에서 `net[0].weight.data()`에 액세스하려고 시도하면 파라미터에 액세스하기 전에 네트워크를 초기화해야 한다는 런타임 오류가 발생합니다. 
+이제 `initialize` 메서드를 통해 파라미터를 초기화하려고 시도하면 어떻게 되는지 봅시다.
 :end_tab:
 
 :begin_tab:`tensorflow`
-Note that each layer objects exist but the weights are empty.
-Using `net.get_weights()` would throw an error since the weights
-have not been initialized yet.
+각 레이어 객체는 존재하지만 가중치는 비어 있다는 점에 유의하십시오. 
+가중치가 아직 초기화되지 않았으므로 `net.get_weights()`를 사용하면 오류가 발생합니다.
 :end_tab:
 
 ```{.python .input}
@@ -151,16 +124,12 @@ net.collect_params()
 ```
 
 :begin_tab:`mxnet`
-As we can see, nothing has changed.
-When input dimensions are unknown,
-calls to initialize do not truly initialize the parameters.
-Instead, this call registers to MXNet that we wish
-(and optionally, according to which distribution)
-to initialize the parameters.
+보시다시피 아무것도 바뀌지 않았습니다. 
+입력 차원을 알 수 없을 때 initialize 호출은 실제로 파라미터를 초기화하지 않습니다. 
+대신 이 호출은 파라미터를 초기화하고 싶다는 의사를 (선택적으로 어떤 분포에 따라) MXNet에 등록합니다.
 :end_tab:
 
-Next let's pass data through the network
-to make the framework finally initialize parameters.
+이제 네트워크를 통해 데이터를 전달하여 프레임워크가 마침내 파라미터를 초기화하도록 해봅시다.
 
 ```{.python .input}
 %%tab mxnet
@@ -191,37 +160,23 @@ params = net.init(d2l.get_key(), jnp.zeros((2, 20)))
 jax.tree_util.tree_map(lambda x: x.shape, params).tree_flatten_with_keys()
 ```
 
-As soon as we know the input dimensionality,
-20,
-the framework can identify the shape of the first layer's weight matrix by plugging in the value of 20.
-Having recognized the first layer's shape, the framework proceeds
-to the second layer,
-and so on through the computational graph
-until all shapes are known.
-Note that in this case,
-only the first layer requires lazy initialization,
-but the framework initializes sequentially.
-Once all parameter shapes are known,
-the framework can finally initialize the parameters.
+입력 차원이 20이라는 것을 알게 되자마자, 프레임워크는 20 값을 대입하여 첫 번째 레이어의 가중치 행렬 모양을 식별할 수 있습니다. 
+첫 번째 레이어의 모양을 인식한 후, 프레임워크는 두 번째 레이어로, 그리고 계산 그래프를 통해 모든 모양이 알려질 때까지 계속 진행합니다. 
+이 경우 첫 번째 레이어만 지연 초기화가 필요하지만, 프레임워크는 순차적으로 초기화합니다. 
+모든 파라미터 모양이 알려지면 프레임워크는 마침내 파라미터를 초기화할 수 있습니다.
 
 :begin_tab:`pytorch`
-The following method
-passes in dummy inputs
-through the network
-for a dry run
-to infer all parameter shapes
-and subsequently initializes the parameters.
-It will be used later when default random initializations are not desired.
+다음 메서드는 모든 파라미터 모양을 추론하기 위해 네트워크를 통해 더미 입력을 전달하여 예행 연습을 하고, 
+그 후 파라미터를 초기화합니다. 
+기본 무작위 초기화가 필요하지 않을 때 나중에 사용될 것입니다.
 :end_tab:
 
 :begin_tab:`jax`
-Parameter initialization in Flax is always done manually and handled by the
-user. The following method takes a dummy input and a key dictionary as argument.
-This key dictionary has the rngs for initializing the model parameters
-and dropout rng for generating the dropout mask for the models with
-dropout layers. More about dropout will be covered later in :numref:`sec_dropout`.
-Ultimately the method initializes the model returning the parameters.
-We have been using it under the hood in the previous sections as well.
+Flax의 파라미터 초기화는 항상 수동으로 수행되며 사용자가 처리합니다. 
+다음 메서드는 더미 입력과 키 딕셔너리를 인수로 받습니다. 
+이 키 딕셔너리에는 모델 파라미터를 초기화하기 위한 rng와 드롭아웃 레이어가 있는 모델의 드롭아웃 마스크를 생성하기 위한 드롭아웃 rng가 있습니다. 드롭아웃에 대한 자세한 내용은 나중에 :numref:`sec_dropout`에서 다룰 것입니다. 
+결국 메서드는 모델을 초기화하고 파라미터를 반환합니다. 
+우리는 이전 섹션에서도 내부적으로 이를 사용해 왔습니다.
 :end_tab:
 
 ```{.python .input}
@@ -237,34 +192,34 @@ def apply_init(self, inputs, init=None):
 %%tab jax
 @d2l.add_to_class(d2l.Module)  #@save
 def apply_init(self, dummy_input, key):
-    params = self.init(key, *dummy_input)  # dummy_input tuple unpacked
+    params = self.init(key, *dummy_input)  # dummy_input 튜플 언팩됨
     return params
 ```
 
-## Summary
+## 요약 (Summary)
 
-Lazy initialization can be convenient, allowing the framework to infer parameter shapes automatically, making it easy to modify architectures and eliminating one common source of errors.
-We can pass data through the model to make the framework finally initialize parameters.
+지연 초기화는 편리할 수 있으며, 프레임워크가 파라미터 모양을 자동으로 추론하도록 하여 아키텍처를 쉽게 수정하고 일반적인 오류 원인을 제거할 수 있습니다. 
+모델을 통해 데이터를 전달하여 프레임워크가 최종적으로 파라미터를 초기화하도록 할 수 있습니다.
 
 
-## Exercises
+## 연습 문제 (Exercises)
 
-1. What happens if you specify the input dimensions to the first layer but not to subsequent layers? Do you get immediate initialization?
-1. What happens if you specify mismatching dimensions?
-1. What would you need to do if you have input of varying dimensionality? Hint: look at the parameter tying.
+1. 첫 번째 레이어에만 입력 차원을 지정하고 후속 레이어에는 지정하지 않으면 어떻게 됩니까? 즉시 초기화됩니까?
+2. 일치하지 않는 차원을 지정하면 어떻게 됩니까?
+3. 입력 차원이 다양한 경우 어떻게 해야 합니까? 힌트: 파라미터 묶기를 살펴보십시오.
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/280)
+[토론](https://discuss.d2l.ai/t/280)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/8092)
+[토론](https://discuss.d2l.ai/t/8092)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/281)
+[토론](https://discuss.d2l.ai/t/281)
 :end_tab:
 
 :begin_tab:`jax`
-[Discussions](https://discuss.d2l.ai/t/17992)
+[토론](https://discuss.d2l.ai/t/17992)
 :end_tab:

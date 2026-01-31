@@ -1,15 +1,9 @@
-# Recurrent Neural Network Implementation from Scratch
+# 순환 신경망 밑바닥부터 구현하기 (Recurrent Neural Network Implementation from Scratch)
 :label:`sec_rnn-scratch`
 
-We are now ready to implement an RNN from scratch.
-In particular, we will train this RNN to function
-as a character-level language model
-(see :numref:`sec_rnn`)
-and train it on a corpus consisting of 
-the entire text of H. G. Wells' *The Time Machine*,
-following the data processing steps 
-outlined in :numref:`sec_text-sequence`.
-We start by loading the dataset.
+우리는 이제 밑바닥부터 RNN을 구현할 준비가 되었습니다. 
+특히, 이 RNN이 문자 수준 언어 모델로 기능하도록 훈련하고 (:numref:`sec_rnn` 참조) :numref:`sec_text-sequence`에 설명된 데이터 처리 단계에 따라 H. G. Wells의 *타임 머신* 전체 텍스트로 구성된 말뭉치에서 훈련할 것입니다. 
+데이터셋을 로드하는 것부터 시작합니다.
 
 ```{.python .input}
 %load_ext d2lbook.tab
@@ -53,18 +47,15 @@ from jax import numpy as jnp
 import math
 ```
 
-## RNN Model
+## RNN 모델 (RNN Model)
 
-We begin by defining a class 
-to implement the RNN model
-(:numref:`subsec_rnn_w_hidden_states`).
-Note that the number of hidden units `num_hiddens` 
-is a tunable hyperparameter.
+RNN 모델을 구현하기 위한 클래스를 정의하는 것으로 시작합니다(:numref:`subsec_rnn_w_hidden_states`). 
+은닉 유닛의 수 `num_hiddens`는 조정 가능한 하이퍼파라미터라는 점에 유의하십시오.
 
 ```{.python .input}
 %%tab pytorch, mxnet, tensorflow
 class RNNScratch(d2l.Module):  #@save
-    """The RNN model implemented from scratch."""
+    """밑바닥부터 구현된 RNN 모델."""
     def __init__(self, num_inputs, num_hiddens, sigma=0.01):
         super().__init__()
         self.save_hyperparameters()
@@ -90,7 +81,7 @@ class RNNScratch(d2l.Module):  #@save
 ```{.python .input  n=7}
 %%tab jax
 class RNNScratch(nn.Module):  #@save
-    """The RNN model implemented from scratch."""
+    """밑바닥부터 구현된 RNN 모델."""
     num_inputs: int
     num_hiddens: int
     sigma: float = 0.01
@@ -103,22 +94,16 @@ class RNNScratch(nn.Module):  #@save
         self.b_h = self.param('b_h', nn.initializers.zeros, (self.num_hiddens))
 ```
 
-[**The `forward` method below defines how to compute 
-the output and hidden state at any time step,
-given the current input and the state of the model
-at the previous time step.**]
-Note that the RNN model loops through 
-the outermost dimension of `inputs`,
-updating the hidden state 
-one time step at a time.
-The model here uses a $\tanh$ activation function (:numref:`subsec_tanh`).
+[**아래의 `forward` 메서드는 현재 입력과 이전 타임 스텝의 모델 상태가 주어졌을 때 임의의 타임 스텝에서 출력과 은닉 상태를 계산하는 방법을 정의합니다.**] 
+RNN 모델은 `inputs`의 가장 바깥쪽 차원을 반복하여 한 번에 한 타임 스텝씩 은닉 상태를 업데이트한다는 점에 유의하십시오. 
+여기서 모델은 $	anh$ 활성화 함수를 사용합니다(:numref:`subsec_tanh`).
 
 ```{.python .input}
 %%tab pytorch, mxnet, tensorflow
 @d2l.add_to_class(RNNScratch)  #@save
 def forward(self, inputs, state=None):
     if state is None:
-        # Initial state with shape: (batch_size, num_hiddens)
+        # 모양이 (batch_size, num_hiddens)인 초기 상태
         if tab.selected('mxnet'):
             state = d2l.zeros((inputs.shape[1], self.num_hiddens),
                               ctx=inputs.ctx)
@@ -132,7 +117,7 @@ def forward(self, inputs, state=None):
         if tab.selected('tensorflow'):
             state = d2l.reshape(state, (-1, self.num_hiddens))
     outputs = []
-    for X in inputs:  # Shape of inputs: (num_steps, batch_size, num_inputs) 
+    for X in inputs:  # inputs의 모양: (num_steps, batch_size, num_inputs) 
         state = d2l.tanh(d2l.matmul(X, self.W_xh) +
                          d2l.matmul(state, self.W_hh) + self.b_h)
         outputs.append(state)
@@ -146,7 +131,7 @@ def __call__(self, inputs, state=None):
     if state is not None:
         state, = state
     outputs = []
-    for X in inputs:  # Shape of inputs: (num_steps, batch_size, num_inputs) 
+    for X in inputs:  # inputs의 모양: (num_steps, batch_size, num_inputs) 
         state = d2l.tanh(d2l.matmul(X, self.W_xh) + (
             d2l.matmul(state, self.W_hh) if state is not None else 0)
                          + self.b_h)
@@ -154,7 +139,7 @@ def __call__(self, inputs, state=None):
     return outputs, state
 ```
 
-We can feed a minibatch of input sequences into an RNN model as follows.
+다음과 같이 입력 시퀀스의 미니배치를 RNN 모델에 공급할 수 있습니다.
 
 ```{.python .input}
 %%tab pytorch, mxnet, tensorflow
@@ -172,19 +157,16 @@ X = d2l.ones((num_steps, batch_size, num_inputs))
 (outputs, state), _ = rnn.init_with_output(d2l.get_key(), X)
 ```
 
-Let's check whether the RNN model
-produces results of the correct shapes
-to ensure that the dimensionality 
-of the hidden state remains unchanged.
+RNN 모델이 올바른 모양의 결과를 생성하는지 확인하여 은닉 상태의 차원성이 유지되는지 확인해 봅시다.
 
 ```{.python .input}
 %%tab all
 def check_len(a, n):  #@save
-    """Check the length of a list."""
+    """리스트의 길이를 확인합니다."""
     assert len(a) == n, f'list\'s length {len(a)} != expected length {n}'
     
 def check_shape(a, shape):  #@save
-    """Check the shape of a tensor."""
+    """텐서의 모양을 확인합니다."""
     assert a.shape == shape, \
             f'tensor\'s shape {a.shape} != expected shape {shape}'
 
@@ -193,26 +175,19 @@ check_shape(outputs[0], (batch_size, num_hiddens))
 check_shape(state, (batch_size, num_hiddens))
 ```
 
-## RNN-Based Language Model
+## RNN 기반 언어 모델 (RNN-Based Language Model)
 
-The following `RNNLMScratch` class defines 
-an RNN-based language model,
-where we pass in our RNN 
-via the `rnn` argument
-of the `__init__` method.
-When training language models, 
-the inputs and outputs are 
-from the same vocabulary. 
-Hence, they have the same dimension,
-which is equal to the vocabulary size.
-Note that we use perplexity to evaluate the model. 
-As discussed in :numref:`subsec_perplexity`, this ensures 
-that sequences of different length are comparable.
+다음 `RNNLMScratch` 클래스는 RNN 기반 언어 모델을 정의합니다. 
+여기서 우리는 `__init__` 메서드의 `rnn` 인수를 통해 RNN을 전달합니다. 
+언어 모델을 훈련할 때 입력과 출력은 동일한 어휘에서 나옵니다. 
+따라서 이들은 어휘 크기와 동일한 동일한 차원을 갖습니다. 
+모델을 평가하기 위해 퍼플렉서티를 사용한다는 점에 유의하십시오. 
+:numref:`subsec_perplexity`에서 논의했듯이, 이를 통해 길이가 다른 시퀀스를 비교할 수 있습니다.
 
 ```{.python .input}
 %%tab pytorch
 class RNNLMScratch(d2l.Classifier):  #@save
-    """The RNN-based language model implemented from scratch."""
+    """밑바닥부터 구현된 RNN 기반 언어 모델."""
     def __init__(self, rnn, vocab_size, lr=0.01):
         super().__init__()
         self.save_hyperparameters()
@@ -237,7 +212,7 @@ class RNNLMScratch(d2l.Classifier):  #@save
 ```{.python .input}
 %%tab mxnet, tensorflow
 class RNNLMScratch(d2l.Classifier):  #@save
-    """The RNN-based language model implemented from scratch."""
+    """밑바닥부터 구현된 RNN 기반 언어 모델."""
     def __init__(self, rnn, vocab_size, lr=0.01):
         super().__init__()
         self.save_hyperparameters()
@@ -268,7 +243,7 @@ class RNNLMScratch(d2l.Classifier):  #@save
 ```{.python .input  n=14}
 %%tab jax
 class RNNLMScratch(d2l.Classifier):  #@save
-    """The RNN-based language model implemented from scratch."""
+    """밑바닥부터 구현된 RNN 기반 언어 모델."""
     rnn: nn.Module
     vocab_size: int
     lr: float = 0.01
@@ -290,36 +265,17 @@ class RNNLMScratch(d2l.Classifier):  #@save
         self.plot('ppl', d2l.exp(l), train=False)
 ```
 
-### [**One-Hot Encoding**]
+### [**원-핫 인코딩 (One-Hot Encoding)**]
 
-Recall that each token is represented 
-by a numerical index indicating the
-position in the vocabulary of the 
-corresponding word/character/word piece.
-You might be tempted to build a neural network
-with a single input node (at each time step),
-where the index could be fed in as a scalar value.
-This works when we are dealing with numerical inputs 
-like price or temperature, where any two values
-sufficiently close together
-should be treated similarly.
-But this does not quite make sense. 
-The $45^{\textrm{th}}$ and $46^{\textrm{th}}$ words 
-in our vocabulary happen to be "their" and "said",
-whose meanings are not remotely similar.
+각 토큰은 해당 단어/문자/단어 조각의 어휘 내 위치를 나타내는 수치 인덱스로 표현된다는 것을 상기하십시오. 
+(각 타임 스텝마다) 단일 입력 노드가 있는 신경망을 구축하고 싶은 유혹을 받을 수 있습니다. 
+이것은 충분히 가까운 두 값이 비슷하게 취급되어야 하는 가격이나 온도와 같은 수치 입력을 다룰 때 작동합니다. 
+하지만 이것은 말이 안 됩니다. 
+우리 어휘의 $45^{	extrm{th}}$번째와 $46^{	extrm{th}}$번째 단어는 "their"와 "said"인데, 그 의미는 전혀 비슷하지 않습니다.
 
-When dealing with such categorical data,
-the most common strategy is to represent
-each item by a *one-hot encoding*
-(recall from :numref:`subsec_classification-problem`).
-A one-hot encoding is a vector whose length
-is given by the size of the vocabulary $N$,
-where all entries are set to $0$,
-except for the entry corresponding 
-to our token, which is set to $1$.
-For example, if the vocabulary had five elements,
-then the one-hot vectors corresponding 
-to indices 0 and 2 would be the following.
+이러한 범주형 데이터를 다룰 때 가장 일반적인 전략은 *원-핫 인코딩*으로 각 항목을 나타내는 것입니다(:numref:`subsec_classification-problem` 참조). 
+원-핫 인코딩은 길이가 어휘 크기 $N$으로 주어지는 벡터이며, 모든 항목은 $0$으로 설정되지만 우리 토큰에 해당하는 항목은 $1$로 설정됩니다. 
+예를 들어 어휘에 5개의 요소가 있는 경우, 인덱스 0과 2에 해당하는 원-핫 벡터는 다음과 같습니다.
 
 ```{.python .input}
 %%tab mxnet
@@ -341,24 +297,16 @@ tf.one_hot(tf.constant([0, 2]), 5)
 jax.nn.one_hot(jnp.array([0, 2]), 5)
 ```
 
-(**The minibatches that we sample at each iteration
-will take the shape (batch size, number of time steps).
-Once representing each input as a one-hot vector,
-we can think of each minibatch as a three-dimensional tensor, 
-where the length along the third axis 
-is given by the vocabulary size (`len(vocab)`).**)
-We often transpose the input so that we will obtain an output 
-of shape (number of time steps, batch size, vocabulary size).
-This will allow us to loop more conveniently through the outermost dimension
-for updating hidden states of a minibatch,
-time step by time step
-(e.g., in the above `forward` method).
+(**우리가 각 반복에서 샘플링하는 미니배치는 (배치 크기, 타임 스텝 수) 모양을 갖습니다. 
+각 입력을 원-핫 벡터로 나타내면, 각 미니배치를 3차원 텐서로 생각할 수 있으며, 여기서 세 번째 축을 따른 길이는 어휘 크기(`len(vocab)`)로 주어집니다.**) 
+우리는 종종 입력을 전치하여 (타임 스텝 수, 배치 크기, 어휘 크기) 모양의 출력을 얻습니다. 
+이렇게 하면 미니배치의 은닉 상태를 타임 스텝별로 업데이트하기 위해 가장 바깥쪽 차원을 더 편리하게 반복할 수 있습니다(예: 위의 `forward` 메서드에서).
 
 ```{.python .input}
 %%tab all
 @d2l.add_to_class(RNNLMScratch)  #@save
-def one_hot(self, X):    
-    # Output shape: (num_steps, batch_size, vocab_size)    
+def one_hot(self, X):
+    # 출력 모양: (num_steps, batch_size, vocab_size)    
     if tab.selected('mxnet'):
         return npx.one_hot(X.T, self.vocab_size)
     if tab.selected('pytorch'):
@@ -369,10 +317,9 @@ def one_hot(self, X):
         return jax.nn.one_hot(X.T, self.vocab_size)
 ```
 
-### Transforming RNN Outputs
+### RNN 출력 변환 (Transforming RNN Outputs)
 
-The language model uses a fully connected output layer
-to transform RNN outputs into token predictions at each time step.
+언어 모델은 완전 연결 출력 레이어를 사용하여 각 타임 스텝에서 RNN 출력을 토큰 예측으로 변환합니다.
 
 ```{.python .input}
 %%tab all
@@ -388,8 +335,7 @@ def forward(self, X, state=None):
     return self.output_layer(rnn_outputs)
 ```
 
-Let's [**check whether the forward computation
-produces outputs with the correct shape.**]
+[**순전파 계산이 올바른 모양의 출력을 생성하는지 확인**]해 봅시다.
 
 ```{.python .input}
 %%tab pytorch, mxnet, tensorflow
@@ -407,131 +353,66 @@ outputs, _ = model.init_with_output(d2l.get_key(),
 check_shape(outputs, (batch_size, num_steps, num_inputs))
 ```
 
-## [**Gradient Clipping**]
+## [**기울기 클리핑 (Gradient Clipping)**]
 
 
-While you are already used to thinking of neural networks
-as "deep" in the sense that many layers
-separate the input and output 
-even within a single time step,
-the length of the sequence introduces
-a new notion of depth.
-In addition to the passing through the network
-in the input-to-output direction,
-inputs at the first time step
-must pass through a chain of $T$ layers
-along the time steps in order 
-to influence the output of the model
-at the final time step.
-Taking the backwards view, in each iteration,
-we backpropagate gradients through time,
-resulting in a chain of matrix-products 
-of length  $\mathcal{O}(T)$.
-As mentioned in :numref:`sec_numerical_stability`, 
-this can result in numerical instability, 
-causing the gradients either to explode or vanish,
-depending on the properties of the weight matrices. 
+신경망을 단일 타임 스텝 내에서도 많은 레이어가 입력과 출력을 분리한다는 의미에서 "깊다"고 생각하는 데 이미 익숙하지만, 시퀀스 길이는 새로운 깊이 개념을 도입합니다. 
+입력에서 출력 방향으로 네트워크를 통과하는 것 외에도, 
+첫 번째 타임 스텝의 입력은 
+최종 타임 스텝에서 모델의 출력에 영향을 미치기 위해 
+타임 스텝을 따라 $T$개 레이어의 체인을 통과해야 합니다. 
+역방향으로 보면, 각 반복에서 우리는 시간을 거슬러 기울기를 역전파하여 
+길이 $\mathcal{O}(T)$의 행렬 곱 체인을 생성합니다. 
+:numref:`sec_numerical_stability`에서 언급했듯이, 
+이는 가중치 행렬의 속성에 따라 기울기가 폭발하거나 사라지는 수치적 불안정성을 초래할 수 있습니다.
 
-Dealing with vanishing and exploding gradients 
-is a fundamental problem when designing RNNs
-and has inspired some of the biggest advances
-in modern neural network architectures.
-In the next chapter, we will talk about
-specialized architectures that were designed
-in hopes of mitigating the vanishing gradient problem.
-However, even modern RNNs often suffer
-from exploding gradients.
-One inelegant but ubiquitous solution
-is to simply clip the gradients 
-forcing the resulting "clipped" gradients
-to take smaller values. 
+사라지는 기울기와 폭발하는 기울기를 다루는 것은 RNN을 설계할 때 기본적인 문제이며 현대 신경망 아키텍처에서 가장 큰 발전 중 일부에 영감을 주었습니다. 
+다음 장에서는 기울기 소실 문제를 완화하기 위해 설계된 특수 아키텍처에 대해 이야기할 것입니다. 
+그러나 현대 RNN조차도 종종 기울기 폭발로 고통받습니다. 
+투박하지만 어디에나 있는 솔루션 중 하나는 단순히 기울기를 잘라내어(clip) 결과적으로 "클리핑된" 기울기가 더 작은 값을 갖도록 강제하는 것입니다.
 
 
-Generally speaking, when optimizing some objective
-by gradient descent, we iteratively update
-the parameter of interest, say a vector $\mathbf{x}$,
-but pushing it in the direction of the 
-negative gradient $\mathbf{g}$
-(in stochastic gradient descent, 
-we calculate this gradient
-on a randomly sampled minibatch).
-For example, with learning rate $\eta > 0$,
-each update takes the form 
-$\mathbf{x} \gets \mathbf{x} - \eta \mathbf{g}$.
-Let's further assume that the objective function $f$
-is sufficiently smooth. 
-Formally, we say that the objective 
-is *Lipschitz continuous* with constant $L$,
-meaning that for any $\mathbf{x}$ and $\mathbf{y}$, we have
+일반적으로 경사 하강법으로 어떤 목적을 최적화할 때, 우리는 관심 있는 파라미터(예: 벡터 $\mathbf{x}$)를 반복적으로 업데이트하지만 음의 기울기 $\mathbf{g}$ 방향으로 밀어 넣습니다(확률적 경사 하강법에서는 무작위로 샘플링된 미니배치에서 이 기울기를 계산합니다). 
+예를 들어 학습률 $\eta > 0$을 사용하면 각 업데이트는 $\mathbf{x} \gets \mathbf{x} - \eta \mathbf{g}$ 형태를 취합니다. 
+목적 함수 $f$가 충분히 매끄럽다고 가정해 봅시다. 
+공식적으로 우리는 목적 함수가 상수 $L$로 *립시츠 연속(Lipschitz continuous)*이라고 말합니다. 즉, 임의의 $\mathbf{x}$와 $\mathbf{y}$에 대해 다음을 갖습니다.
 
-$$|f(\mathbf{x}) - f(\mathbf{y})| \leq L \|\mathbf{x} - \mathbf{y}\|.$$
+$$|f(\mathbf{x}) - f(\mathbf{y})| \leq L \|\mathbf{x} - \mathbf{y}\|.$$ 
 
-As you can see, when we update the parameter vector by subtracting $\eta \mathbf{g}$,
-the change in the value of the objective
-depends on the learning rate,
-the norm of the gradient and $L$ as follows:
+보시다시피 $\eta \mathbf{g}$를 빼서 파라미터 벡터를 업데이트할 때 목적 함수의 값 변화는 다음과 같이 학습률, 기울기의 노름, $L$에 따라 달라집니다:
 
-$$|f(\mathbf{x}) - f(\mathbf{x} - \eta\mathbf{g})| \leq L \eta\|\mathbf{g}\|.$$
+$$|f(\mathbf{x}) - f(\mathbf{x} - \eta\mathbf{g})| \leq L \eta\|g\u0002\|.$$ 
 
-In other words, the objective cannot
-change by more than $L \eta \|\mathbf{g}\|$. 
-Having a small value for this upper bound 
-might be viewed as good or bad.
-On the downside, we are limiting the speed
-at which we can reduce the value of the objective.
-On the bright side, this limits by just how much
-we can go wrong in any one gradient step.
+즉, 목적 함수는 $L \eta \|g\u0002\|$ 이상 변경될 수 없습니다. 
+이 상한선에 대해 작은 값을 갖는 것은 좋거나 나쁜 것으로 볼 수 있습니다. 
+단점으로는 목적 함수의 값을 줄일 수 있는 속도를 제한하고 있다는 것입니다. 
+장점으로는 이것이 어떤 한 경사 단계에서 우리가 얼마나 잘못될 수 있는지를 제한합니다.
 
 
-When we say that gradients explode, 
-we mean that $\|\mathbf{g}\|$ 
-becomes excessively large.
-In this worst case, we might do so much
-damage in a single gradient step that we
-could undo all of the progress made over
-the course of thousands of training iterations.
-When gradients can be so large,
-neural network training often diverges,
-failing to reduce the value of the objective.
-At other times, training eventually converges
-but is unstable owing to massive spikes in the loss.
+기울기가 폭발한다고 말할 때, 우리는 $\|g\u0002\|$가 지나치게 커진다는 것을 의미합니다. 
+이 최악의 경우, 단일 경사 단계에서 수천 번의 훈련 반복 과정에서 이루어진 모든 진전을 취소할 수 있을 정도로 많은 손상을 입힐 수 있습니다. 
+기울기가 그렇게 클 수 있으면 신경망 훈련은 종종 발산하여 목적 함수의 값을 줄이지 못합니다. 
+다른 경우에는 훈련이 결국 수렴하지만 손실의 거대한 스파이크로 인해 불안정합니다.
 
 
-One way to limit the size of $L \eta \|\mathbf{g}\|$ 
-is to shrink the learning rate $\eta$ to tiny values.
-This has the advantage that we do not bias the updates.
-But what if we only *rarely* get large gradients?
-This drastic move slows down our progress at all steps,
-just to deal with the rare exploding gradient events.
-A popular alternative is to adopt a *gradient clipping* heuristic
-projecting the gradients $\mathbf{g}$ onto a ball 
-of some given radius $\theta$ as follows:
+$L \eta \|g\u0002\|$의 크기를 제한하는 한 가지 방법은 학습률 $\eta$를 아주 작은 값으로 줄이는 것입니다. 
+이것은 업데이트를 편향시키지 않는다는 장점이 있습니다. 
+하지만 큰 기울기를 *드물게* 얻는다면 어떨까요? 
+이 과감한 조치는 드문 기울기 폭발 이벤트를 처리하기 위해 모든 단계에서 우리의 진전을 늦춥니다. 
+인기 있는 대안은 다음과 같이 주어진 반지름 $\theta$의 공에 기울기 $\mathbf{g}$를 투영하는 *기울기 클리핑(gradient clipping)* 휴리스틱을 채택하는 것입니다:
 
-(**$$\mathbf{g} \leftarrow \min\left(1, \frac{\theta}{\|\mathbf{g}\|}\right) \mathbf{g}.$$**)
+(**$$\mathbf{g} \leftarrow \min\left(1, \frac{\theta}{\|\mathbf{g}\|}\right) \mathbf{g}.$$**) 
 
-This ensures that the gradient norm never exceeds $\theta$ 
-and that the updated gradient is entirely aligned 
-with the original direction of $\mathbf{g}$.
-It also has the desirable side-effect 
-of limiting the influence any given minibatch 
-(and within it any given sample) 
-can exert on the parameter vector. 
-This bestows a certain degree of robustness to the model. 
-To be clear, it is a hack. 
-Gradient clipping means that we are not always
-following the true gradient and it is hard 
-to reason analytically about the possible side effects.
-However, it is a very useful hack,
-and is widely adopted in RNN implementations
-in most deep learning frameworks.
+이것은 기울기 노름이 $\theta$를 초과하지 않도록 보장하고 업데이트된 기울기가 $\mathbf{g}$의 원래 방향과 완전히 정렬되도록 합니다. 
+또한 주어진 미니배치(및 그 안의 주어진 샘플)가 파라미터 벡터에 미칠 수 있는 영향을 제한하는 바람직한 부작용도 있습니다. 
+이것은 모델에 어느 정도의 견고성을 부여합니다. 
+분명히 하자면, 이것은 핵(hack)입니다. 
+기울기 클리핑은 우리가 항상 실제 기울기를 따르는 것은 아니며 가능한 부작용에 대해 분석적으로 추론하기 어렵다는 것을 의미합니다. 
+그러나 이것은 매우 유용한 핵이며 대부분의 딥러닝 프레임워크의 RNN 구현에서 널리 채택되고 있습니다.
 
 
-Below we define a method to clip gradients,
-which is invoked by the `fit_epoch` method of
-the `d2l.Trainer` class (see :numref:`sec_linear_scratch`).
-Note that when computing the gradient norm,
-we are concatenating all model parameters,
-treating them as a single giant parameter vector.
+아래에서는 `d2l.Trainer` 클래스의 `fit_epoch` 메서드에 의해 호출되는 기울기 클리핑 메서드를 정의합니다(:numref:`sec_linear_scratch` 참조). 
+기울기 노름을 계산할 때 모든 모델 파라미터를 연결하여 단일 거대한 파라미터 벡터로 취급한다는 점에 유의하십시오.
 
 ```{.python .input}
 %%tab mxnet
@@ -583,15 +464,10 @@ def clip_gradients(self, grad_clip_val, grads):
     return jax.tree_util.tree_map(clip, grads)
 ```
 
-## Training
+## 훈련 (Training)
 
-Using *The Time Machine* dataset (`data`),
-we train a character-level language model (`model`)
-based on the RNN (`rnn`) implemented from scratch.
-Note that we first calculate the gradients,
-then clip them, and finally 
-update the model parameters
-using the clipped gradients.
+*타임 머신* 데이터셋(`data`)을 사용하여 밑바닥부터 구현된 RNN(`rnn`)을 기반으로 문자 수준 언어 모델(`model`)을 훈련합니다. 
+먼저 기울기를 계산한 다음 클리핑하고 마지막으로 클리핑된 기울기를 사용하여 모델 파라미터를 업데이트한다는 점에 유의하십시오.
 
 ```{.python .input}
 %%tab all
@@ -608,38 +484,19 @@ if tab.selected('tensorflow'):
 trainer.fit(model, data)
 ```
 
-## Decoding
+## 디코딩 (Decoding)
 
-Once a language model has been learned,
-we can use it not only to predict the next token
-but to continue predicting each subsequent one,
-treating the previously predicted token as though
-it were the next in the input. 
-Sometimes we will just want to generate text
-as though we were starting at the beginning 
-of a document. 
-However, it is often useful to condition
-the language model on a user-supplied prefix.
-For example, if we were developing an
-autocomplete feature for a search engine
-or to assist users in writing emails,
-we would want to feed in what they 
-had written so far (the prefix), 
-and then generate a likely continuation.
+일단 언어 모델이 학습되면, 다음 토큰을 예측하는 데 사용할 뿐만 아니라 이전에 예측된 토큰을 입력의 다음 토큰인 것처럼 취급하여 각 후속 토큰을 계속 예측할 수 있습니다. 
+때로는 문서의 시작 부분에서 시작하는 것처럼 텍스트를 생성하고 싶을 때가 있습니다. 
+그러나 사용자 제공 접두사에 언어 모델을 조건부로 설정하는 것이 종종 유용합니다. 
+예를 들어 검색 엔진을 위한 자동 완성 기능이나 이메일 작성 시 사용자를 돕기 위한 기능을 개발하는 경우, 
+지금까지 작성한 내용(접두사)을 입력하고 그럴듯한 연속을 생성하기를 원할 것입니다.
 
 
-[**The following `predict` method
-generates a continuation, one character at a time,
-after ingesting a user-provided `prefix`**].
-When looping through the characters in `prefix`,
-we keep passing the hidden state
-to the next time step 
-but do not generate any output.
-This is called the *warm-up* period.
-After ingesting the prefix, we are now
-ready to begin emitting the subsequent characters,
-each of which will be fed back into the model 
-as the input at the next time step.
+[**다음 `predict` 메서드는 사용자 제공 `prefix`를 섭취한 후 한 번에 한 문자씩 연속을 생성합니다**]. 
+`prefix`의 문자를 반복할 때, 은닉 상태를 다음 타임 스텝으로 계속 전달하지만 출력은 생성하지 않습니다. 
+이것을 *워밍업(warm-up)* 기간이라고 합니다. 
+접두사를 섭취한 후, 이제 후속 문자를 방출할 준비가 되었습니다. 각 문자는 다음 타임 스텝의 입력으로 모델에 피드백됩니다.
 
 ```{.python .input}
 %%tab pytorch, mxnet, tensorflow
@@ -655,9 +512,9 @@ def predict(self, prefix, num_preds, vocab, device=None):
             X = d2l.tensor([[outputs[-1]]])
         embs = self.one_hot(X)
         rnn_outputs, state = self.rnn(embs, state)
-        if i < len(prefix) - 1:  # Warm-up period
+        if i < len(prefix) - 1:  # 워밍업 기간
             outputs.append(vocab[prefix[i + 1]])
-        else:  # Predict num_preds steps
+        else:  # num_preds 단계 예측
             Y = self.output_layer(rnn_outputs)
             outputs.append(int(d2l.reshape(d2l.argmax(Y, axis=2), 1)))
     return ''.join([vocab.idx_to_token[i] for i in outputs])
@@ -673,17 +530,16 @@ def predict(self, prefix, num_preds, vocab, params):
         embs = self.one_hot(X)
         rnn_outputs, state = self.rnn.apply({'params': params['rnn']},
                                             embs, state)
-        if i < len(prefix) - 1:  # Warm-up period
+        if i < len(prefix) - 1:  # 워밍업 기간
             outputs.append(vocab[prefix[i + 1]])
-        else:  # Predict num_preds steps
+        else:  # num_preds 단계 예측
             Y = self.apply({'params': params}, rnn_outputs,
                            method=self.output_layer)
             outputs.append(int(d2l.reshape(d2l.argmax(Y, axis=2), 1)))
     return ''.join([vocab.idx_to_token[i] for i in outputs])
 ```
 
-In the following, we specify the prefix 
-and have it generate 20 additional characters.
+다음에서는 접두사를 지정하고 20개의 추가 문자를 생성하도록 합니다.
 
 ```{.python .input}
 %%tab mxnet, pytorch
@@ -700,52 +556,44 @@ model.predict('it has', 20, data.vocab)
 model.predict('it has', 20, data.vocab, trainer.state.params)
 ```
 
-While implementing the above RNN model from scratch is instructive, it is not convenient.
-In the next section, we will see how to leverage deep learning frameworks to whip up RNNs
-using standard architectures, and to reap performance gains 
-by relying on highly optimized library functions.
+위의 RNN 모델을 밑바닥부터 구현하는 것은 유익하지만 편리하지는 않습니다. 
+다음 섹션에서는 딥러닝 프레임워크를 활용하여 표준 아키텍처를 사용하여 RNN을 빠르게 만들고, 고도로 최적화된 라이브러리 함수에 의존하여 성능 향상을 얻는 방법을 볼 것입니다.
 
 
-## Summary
+## 요약 (Summary)
 
-We can train RNN-based language models to generate text following the user-provided text prefix. 
-A simple RNN language model consists of input encoding, RNN modeling, and output generation.
-During training, gradient clipping can mitigate the problem of exploding gradients but does not address the problem of vanishing gradients. In the experiment, we implemented a simple RNN language model and trained it with gradient clipping on sequences of text, tokenized at the character level. By conditioning on a prefix, we can use a language model to generate likely continuations, which proves useful in many applications, e.g., autocomplete features.
+우리는 사용자 제공 텍스트 접두사를 따르는 텍스트를 생성하도록 RNN 기반 언어 모델을 훈련할 수 있습니다. 
+간단한 RNN 언어 모델은 입력 인코딩, RNN 모델링, 출력 생성으로 구성됩니다. 
+훈련 중에 기울기 클리핑은 폭발하는 기울기 문제를 완화할 수 있지만 사라지는 기울기 문제를 해결하지는 않습니다. 실험에서 우리는 간단한 RNN 언어 모델을 구현하고 문자 수준에서 토큰화된 텍스트 시퀀스에 대해 기울기 클리핑을 사용하여 훈련했습니다. 접두사에 조건을 걸어 언어 모델을 사용하여 그럴듯한 연속을 생성할 수 있으며, 이는 자동 완성 기능과 같은 많은 응용 프로그램에서 유용함이 입증되었습니다.
 
 
-## Exercises
+## 연습 문제 (Exercises)
 
-1. Does the implemented language model predict the next token based on all the past tokens up to the very first token in *The Time Machine*? 
-1. Which hyperparameter controls the length of history used for prediction?
-1. Show that one-hot encoding is equivalent to picking a different embedding for each object.
-1. Adjust the hyperparameters (e.g., number of epochs, number of hidden units, number of time steps in a minibatch, and learning rate) to improve the perplexity. How low can you go while sticking with this simple architecture?
-1. Replace one-hot encoding with learnable embeddings. Does this lead to better performance?
-1. Conduct an experiment to determine how well this language model 
-   trained on *The Time Machine* works on other books by H. G. Wells,
-   e.g., *The War of the Worlds*.
-1. Conduct another experiment to evaluate the perplexity of this model
-   on books written by other authors. 
-1. Modify the prediction method so as to use sampling 
-   rather than picking the most likely next character.
-    * What happens?
-    * Bias the model towards more likely outputs, e.g., 
-    by sampling from $q(x_t \mid x_{t-1}, \ldots, x_1) \propto P(x_t \mid x_{t-1}, \ldots, x_1)^\alpha$ for $\alpha > 1$.
-1. Run the code in this section without clipping the gradient. What happens?
-1. Replace the activation function used in this section with ReLU 
-   and repeat the experiments in this section. Do we still need gradient clipping? Why?
+1. 구현된 언어 모델은 *타임 머신*의 맨 처음 토큰까지의 모든 과거 토큰을 기반으로 다음 토큰을 예측합니까? 
+1. 어떤 하이퍼파라미터가 예측에 사용되는 역사의 길이를 제어합니까?
+1. 원-핫 인코딩이 각 객체에 대해 다른 임베딩을 선택하는 것과 동일함을 보이십시오. 
+1. 퍼플렉서티를 개선하기 위해 하이퍼파라미터(예: 에폭 수, 은닉 유닛 수, 미니배치의 타임 스텝 수, 학습률)를 조정하십시오. 이 간단한 아키텍처를 고수하면서 얼마나 낮출 수 있습니까? 
+1. 원-핫 인코딩을 학습 가능한 임베딩으로 대체하십시오. 이것이 더 나은 성능으로 이어집니까? 
+1. *타임 머신*에서 훈련된 이 언어 모델이 H. G. Wells의 다른 책, 예: *우주 전쟁(The War of the Worlds)*에서 얼마나 잘 작동하는지 결정하기 위한 실험을 수행하십시오. 
+1. 다른 저자가 쓴 책에서 이 모델의 퍼플렉서티를 평가하기 위한 또 다른 실험을 수행하십시오. 
+1. 가장 가능성 있는 다음 문자를 선택하는 대신 샘플링을 사용하도록 예측 메서드를 수정하십시오. 
+    * 무슨 일이 일어납니까? 
+    * 모델을 더 가능성 있는 출력 쪽으로 편향시키십시오. 예를 들어 $\alpha > 1$에 대해 $q(x_t \mid x_{t-1}, \ldots, x_1) \propto P(x_t \mid x_{t-1}, \ldots, x_1)^\alpha$에서 샘플링합니다. 
+1. 기울기를 클리핑하지 않고 이 섹션의 코드를 실행하십시오. 무슨 일이 일어납니까? 
+1. 이 섹션에서 사용된 활성화 함수를 ReLU로 대체하고 이 섹션의 실험을 반복하십시오. 여전히 기울기 클리핑이 필요합니까? 그 이유는 무엇입니까? 
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/336)
+[토론](https://discuss.d2l.ai/t/336)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/486)
+[토론](https://discuss.d2l.ai/t/486)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/1052)
+[토론](https://discuss.d2l.ai/t/1052)
 :end_tab:
 
 :begin_tab:`jax`
-[Discussions](https://discuss.d2l.ai/t/18014)
+[토론](https://discuss.d2l.ai/t/18014)
 :end_tab:

@@ -1,12 +1,12 @@
-# Integral Calculus
+# 적분학 (Integral Calculus)
 :label:`sec_integral_calculus`
 
-Differentiation only makes up half of the content of a traditional calculus education.  The other pillar, integration, starts out seeming a rather disjoint question, "What is the area underneath this curve?"  While seemingly unrelated, integration is tightly intertwined with the differentiation via what is known as the *fundamental theorem of calculus*.
+미분은 전통적인 미적분 교육 내용의 절반만을 구성합니다. 다른 기둥인 적분은 "이 곡선 아래의 넓이는 얼마인가?"라는 다소 별개의 질문으로 시작합니다. 겉보기에는 관련이 없어 보이지만, 적분은 *미적분학의 기본 정리*라고 알려진 것을 통해 미분과 긴밀하게 얽혀 있습니다.
 
-At the level of machine learning we discuss in this book, we will not need a deep understanding of integration. However, we will provide a brief introduction to lay the groundwork for any further applications we will encounter later on.
+이 책에서 논의하는 머신러닝 수준에서 적분에 대한 깊은 이해가 필요하지는 않을 것입니다. 하지만 나중에 마주칠 추가 응용 분야를 위한 토대를 마련하기 위해 짧은 소개를 제공할 것입니다.
 
-## Geometric Interpretation
-Suppose that we have a function $f(x)$.  For simplicity, let's assume that $f(x)$ is non-negative (never takes a value less than zero).  What we want to try and understand is: what is the area contained between $f(x)$ and the $x$-axis?
+## 기하학적 해석 (Geometric Interpretation)
+함수 $f(x)$가 있다고 가정해 봅시다. 단순함을 위해 $f(x)$가 비음수(결코 0보다 작은 값을 취하지 않음)라고 가정합시다. 우리가 이해하고자 하는 것은: $f(x)$와 $x$축 사이에 포함된 넓이가 얼마인가 하는 것입니다.
 
 ```{.python .input}
 #@tab mxnet
@@ -60,7 +60,7 @@ d2l.plt.fill_between(x.numpy(), f.numpy())
 d2l.plt.show()
 ```
 
-In most cases, this area will be infinite or undefined (consider the area under $f(x) = x^{2}$), so people will often talk about the area between a pair of ends, say $a$ and $b$.
+대부분의 경우 이 넓이는 무한하거나 정의되지 않을 것이므로($f(x) = x^{2}$ 아래의 넓이를 고려해 보십시오), 사람들은 종종 한 쌍의 끝점, 가령 $a$와 $b$ 사이의 넓이에 대해 이야기할 것입니다.
 
 ```{.python .input}
 #@tab mxnet
@@ -95,19 +95,15 @@ d2l.plt.fill_between(x.numpy()[50:250], f.numpy()[50:250])
 d2l.plt.show()
 ```
 
-We will denote this area by the integral symbol below:
+우리는 이 넓이를 아래의 적분 기호로 나타낼 것입니다.
 
-$$
-\textrm{Area}(\mathcal{A}) = \int_a^b f(x) \;dx.
-$$
+$$ 	extrm{Area}(\mathcal{A}) = \int_a^b f(x) \;dx. $$ 
 
-The inner variable is a dummy variable, much like the index of a sum in a $\sum$, and so this can be equivalently written with any inner value we like:
+내부 변수는 $\sum$에서의 합의 인덱스와 매우 흡사한 더미 변수(dummy variable)이므로, 우리가 원하는 어떤 내부 값으로도 동등하게 쓰일 수 있습니다.
 
-$$
-\int_a^b f(x) \;dx = \int_a^b f(z) \;dz.
-$$
+$$ \int_a^b f(x) \;dx = \int_a^b f(z) \;dz. $$ 
 
-There is a traditional way to try and understand how we might try to approximate such integrals: we can imagine taking the region in-between $a$ and $b$ and chopping it into $N$ vertical slices.  If $N$ is large, we can approximate the area of each slice by a rectangle, and then add up the areas to get the total area under the curve.  Let's take a look at an example doing this in code.  We will see how to get the true value in a later section.
+우리가 그러한 적분을 어떻게 근사할 수 있는지 이해하려는 전통적인 방법이 있습니다: $a$와 $b$ 사이의 영역을 취해 $N$개의 수직 슬라이스로 자르는 것을 상상할 수 있습니다. $N$이 크면 각 슬라이스의 넓이를 직사각형으로 근사할 수 있으며, 그런 다음 넓이들을 더해 곡선 아래의 총 넓이를 얻을 수 있습니다. 코드에서 이를 수행하는 예제를 살펴봅시다. 나중에 실제 값을 얻는 방법을 볼 것입니다.
 
 ```{.python .input}
 #@tab mxnet
@@ -127,7 +123,7 @@ d2l.plt.plot(x, f, color='black')
 d2l.plt.ylim([0, 1])
 d2l.plt.show()
 
-f'approximation: {approx}, truth: {true}'
+f'근사값: {approx}, 참값: {true}'
 ```
 
 ```{.python .input}
@@ -148,7 +144,7 @@ d2l.plt.plot(x, f, color='black')
 d2l.plt.ylim([0, 1])
 d2l.plt.show()
 
-f'approximation: {approx}, truth: {true}'
+f'근사값: {approx}, 참값: {true}'
 ```
 
 ```{.python .input}
@@ -169,192 +165,150 @@ d2l.plt.plot(x, f, color='black')
 d2l.plt.ylim([0, 1])
 d2l.plt.show()
 
-f'approximation: {approx}, truth: {true}'
+f'근사값: {approx}, 참값: {true}'
 ```
 
-The issue is that while it can be done numerically, we can do this approach analytically for only the simplest functions like
+문제는 이것이 수치적으로는 수행될 수 있지만, 분석적으로는 다음과 같은 아주 간단한 함수에 대해서만 이 접근 방식을 사용할 수 있다는 점입니다.
 
-$$
-\int_a^b x \;dx.
-$$
+$$ \int_a^b x \;dx. $$ 
 
-Anything somewhat more complex like our example from the code above
+위 코드 예제와 같이 다소 더 복잡한 것들은
 
-$$
-\int_a^b \frac{x}{1+x^{2}} \;dx.
-$$
+$$ \int_a^b \frac{x}{1+x^{2}} \;dx. $$ 
 
-is beyond what we can solve with such a direct method.
+그러한 직접적인 방법으로 해결할 수 있는 범위를 넘어섭니다.
 
-We will instead take a different approach.  We will work intuitively with the notion of the area, and learn the main computational tool used to find integrals: the *fundamental theorem of calculus*.   This will be the basis for our study of integration.
+우리는 대신 다른 접근 방식을 취할 것입니다. 넓이의 개념과 함께 직관적으로 작업하고, 적분을 찾는 데 사용되는 주요 계산 도구인 *미적분학의 기본 정리*를 배울 것입니다. 이것이 우리 적분 연구의 기초가 될 것입니다.
 
-## The Fundamental Theorem of Calculus
+## 미적분학의 기본 정리 (The Fundamental Theorem of Calculus) 
 
-To dive deeper into the theory of integration, let's introduce a function
+적분 이론을 깊이 파고들기 위해 함수를 하나 도입합시다.
 
-$$
-F(x) = \int_0^x f(y) dy.
-$$
+$$ F(x) = \int_0^x f(y) dy. $$ 
 
-This function measures the area between $0$ and $x$ depending on how we change $x$.  Notice that this is everything we need since
+이 함수는 $x$를 어떻게 바꾸느냐에 따라 $0$과 $x$ 사이의 넓이를 측정합니다. 다음이 성립하므로 이것이 우리가 필요한 전부임에 유의하십시오.
 
-$$
-\int_a^b f(x) \;dx = F(b) - F(a).
-$$
+$$ \int_a^b f(x) \;dx = F(b) - F(a). $$ 
 
-This is a mathematical encoding of the fact that we can measure the area out to the far end-point and then subtract off the area to the near end point as indicated in :numref:`fig_area-subtract`.
+이는 그림 :numref:`fig_area-subtract`에 표시된 것처럼 우리가 먼 끝점까지의 넓이를 측정하고 가까운 끝점까지의 넓이를 뺄 수 있다는 사실을 수학적으로 인코딩한 것입니다.
 
-![Visualizing why we may reduce the problem of computing the area under a curve between two points to computing the area to the left of a point.](../img/sub-area.svg)
+![곡선 아래 두 점 사이의 넓이를 계산하는 문제를 특정 점의 왼쪽 넓이를 계산하는 것으로 왜 축소할 수 있는지 시각화한 그림.](../img/sub-area.svg)
 :label:`fig_area-subtract`
 
-Thus, we can figure out what the integral over any interval is by figuring out what $F(x)$ is.
+따라서 우리는 $F(x)$가 무엇인지 알아냄으로써 임의의 구간에 대한 적분이 무엇인지 알아낼 수 있습니다.
 
-To do so, let's consider an experiment.  As we often do in calculus, let's imagine what happens when we shift the value by a tiny bit.  From the comment above, we know that
+그렇게 하기 위해 실험을 하나 고려해 봅시다. 미적분에서 자주 하듯이, 값을 아주 조금 옮겼을 때 어떤 일이 일어나는지 상상해 봅시다. 위의 언급으로부터 다음을 압니다.
 
-$$
-F(x+\epsilon) - F(x) = \int_x^{x+\epsilon} f(y) \; dy.
-$$
+$$ F(x+\epsilon) - F(x) = \int_x^{x+\epsilon} f(y) \; dy. $$ 
 
-This tells us that the function changes by the area under a tiny sliver of a function.
+이는 함수가 함수의 아주 작은 조각 아래의 넓이만큼 변한다는 것을 알려줍니다.
 
-This is the point at which we make an approximation.  If we look at a tiny sliver of area like this, it looks like this area is close to the rectangular area with height the value of $f(x)$ and the base width $\epsilon$.  Indeed, one can show that as $\epsilon \rightarrow 0$ this approximation becomes better and better.  Thus we can conclude:
+이것이 우리가 근사를 하는 지점입니다. 만약 우리가 이와 같이 아주 작은 넓이의 조각을 본다면, 이 넓이는 높이가 $f(x)$이고 밑변의 너비가 $\epsilon$인 직사각형의 넓이에 가깝게 보입니다. 실제로 $\epsilon \rightarrow 0$에 따라 이 근사가 점점 더 좋아진다는 것을 보일 수 있습니다. 따라서 다음과 같이 결론지을 수 있습니다.
 
-$$
-F(x+\epsilon) - F(x) \approx \epsilon f(x).
-$$
+$$ F(x+\epsilon) - F(x) \approx \epsilon f(x). $$ 
 
-However, we can now notice: this is exactly the pattern we expect if we were computing the derivative of $F$!  Thus we see the following rather surprising fact:
+하지만 이제 주목할 수 있습니다: 이것은 우리가 $F$의 도함수를 계산하고 있을 때 기대하는 바로 그 패턴입니다! 따라서 우리는 다음과 같은 다소 놀라운 사실을 봅니다.
 
-$$
-\frac{dF}{dx}(x) = f(x).
-$$
+$$ \frac{dF}{dx}(x) = f(x). $$ 
 
-This is the *fundamental theorem of calculus*.  We may write it in expanded form as
-$$\frac{d}{dx}\int_0^x  f(y) \; dy = f(x).$$
+이것이 *미적분학의 기본 정리*입니다. 우리는 이를 확장된 형태로 다음과 같이 쓸 수 있습니다.
+$$\frac{d}{dx}\int_0^x  f(y) \; dy = f(x).$$ 
 :eqlabel:`eq_ftc`
 
-It takes the concept of finding areas (*a priori* rather hard), and reduces it to a statement derivatives (something much more completely understood).  One last comment that we must make is that this does not tell us exactly what $F(x)$ is.  Indeed $F(x) + C$ for any $C$ has the same derivative.  This is a fact-of-life in the theory of integration.  Thankfully, notice that when working with definite integrals, the constants drop out, and thus are irrelevant to the outcome.
+이것은 넓이를 찾는 개념(선험적으로 다소 어려움)을 취하여 도함수(훨씬 더 완전히 이해된 것)에 대한 진술로 축소합니다. 우리가 반드시 해야 할 마지막 한 가지 코멘트는 이것이 $F(x)$가 정확히 무엇인지 알려주지는 않는다는 것입니다. 실제로 임의의 $C$에 대해 $F(x) + C$는 동일한 도함수를 갖습니다. 이는 적분 이론에서의 삶의 단면(fact-of-life)입니다. 고맙게도 정적분으로 작업할 때 상수들은 상쇄되어 결과와 무관하게 됨에 유의하십시오.
 
-$$
-\int_a^b f(x) \; dx = (F(b) + C) - (F(a) + C) = F(b) - F(a).
-$$
+$$ \int_a^b f(x) \; dx = (F(b) + C) - (F(a) + C) = F(b) - F(a). $$ 
 
-This may seem like abstract non-sense, but let's take a moment to appreciate that it has given us a whole new perspective on computing integrals.  Our goal is no-longer to do some sort of chop-and-sum process to try and recover the area, rather we need only find a function whose derivative is the function we have!  This is incredible since we can now list many rather difficult integrals by just reversing the table from :numref:`sec_derivative_table`.  For instance, we know that the derivative of $x^{n}$ is $nx^{n-1}$.  Thus, we can say using the fundamental theorem :eqref:`eq_ftc` that
+이것이 추상적인 헛소리처럼 보일 수 있지만, 적분 계산에 대한 완전히 새로운 관점을 우리에게 제공했다는 것을 잠시 감상해 봅시다. 우리의 목표는 더 이상 넓이를 복구하기 위해 어떤 종류의 자르기 및 합산 과정을 수행하는 것이 아니라, 단순히 도함수가 우리가 가진 함수인 함수를 찾는 것입니다! 이는 이제 :numref:`sec_derivative_table`의 표를 반대로 함으로써 많은 다소 어려운 적분들을 나열할 수 있기 때문에 놀라운 일입니다. 예를 들어, 우리는 $x^{n}$의 도함수가 $nx^{n-1}$임을 압니다. 따라서 기본 정리 :eqref:`eq_ftc`를 사용하여 다음과 같이 말할 수 있습니다.
 
-$$
-\int_0^{x} ny^{n-1} \; dy = x^n - 0^n = x^n.
-$$
+$$ \int_0^{x} ny^{n-1} \; dy = x^n - 0^n = x^n. $$ 
 
-Similarly, we know that the derivative of $e^{x}$ is itself, so that means
+마찬가지로, 우리는 $e^{x}$의 도함수가 자기 자신임을 압니다. 이는 다음을 의미합니다.
 
-$$
-\int_0^{x} e^{x} \; dx = e^{x} - e^{0} = e^x - 1.
-$$
+$$ \int_0^{x} e^x \; dx = e^x - e^0 = e^x - 1. $$ 
 
-In this way, we can develop the entire theory of integration leveraging ideas from differential calculus freely.  Every integration rule derives from this one fact.
+이런 식으로 우리는 미분학의 아이디어들을 자유롭게 활용하여 적분학 전체 이론을 개발할 수 있습니다. 모든 적분 규칙은 이 한 가지 사실에서 파생됩니다.
 
-## Change of Variables
+## 변수 변환 (Change of Variables)
 :label:`subsec_integral_example`
 
-Just as with differentiation, there are a number of rules which make the computation of integrals more tractable.  In fact, every rule of differential calculus (like the product rule, sum rule, and chain rule) has a corresponding rule for integral calculus (integration by parts, linearity of integration, and the change of variables formula respectively).  In this section, we will dive into what is arguably the most important from the list: the change of variables formula.
+미분과 마찬가지로 적분 계산을 더 다루기 쉽게 만드는 여러 규칙이 있습니다. 실제로 미분학의 모든 규칙(곱의 미분법, 합의 법칙, 연쇄 법칙과 같은)은 각각 적분학의 대응하는 규칙(부분 적분법, 적분의 선형성, 변수 변환 공식)을 갖습니다. 이 섹션에서는 목록 중에서 가장 중요하다고 할 수 있는 변수 변환 공식을 깊이 파고들 것입니다.
 
-First, suppose that we have a function which is itself an integral:
+먼저, 함수 자체가 적분인 함수가 있다고 가정합시다.
 
-$$
-F(x) = \int_0^x f(y) \; dy.
-$$
+$$ F(x) = \int_0^x f(y) \; dy. $$ 
 
-Let's suppose that we want to know how this function looks when we compose it with another to obtain $F(u(x))$.  By the chain rule, we know
+이 함수를 다른 함수와 합성하여 $F(u(x))$를 얻었을 때 어떻게 보이는지 알고 싶다고 가정해 봅시다. 연쇄 법칙에 의해 다음을 압니다.
 
-$$
-\frac{d}{dx}F(u(x)) = \frac{dF}{du}(u(x))\cdot \frac{du}{dx}.
-$$
+$$ \frac{d}{dx}F(u(x)) = \frac{dF}{du}(u(x))\cdot \frac{du}{dx}. $$ 
 
-We can turn this into a statement about integration by using the fundamental theorem :eqref:`eq_ftc` as above.  This gives
+우리는 위에서와 같이 기본 정리 :eqref:`eq_ftc`를 사용하여 이를 적분에 대한 진술로 바꿀 수 있습니다. 이는 다음을 제공합니다.
 
-$$
-F(u(x)) - F(u(0)) = \int_0^x \frac{dF}{du}(u(y))\cdot \frac{du}{dy} \;dy.
-$$
+$$ F(u(x)) - F(u(0)) = \int_0^x \frac{dF}{du}(u(y))\cdot \frac{du}{dy} \;dy. $$ 
 
-Recalling that $F$ is itself an integral gives that the left hand side may be rewritten to be
+$F$ 자체가 적분임을 상기하면 좌변은 다음과 같이 다시 쓰일 수 있습니다.
 
-$$
-\int_{u(0)}^{u(x)} f(y) \; dy = \int_0^x \frac{dF}{du}(u(y))\cdot \frac{du}{dy} \;dy.
-$$
+$$ \int_{u(0)}^{u(x)} f(y) \; dy = \int_0^x \frac{dF}{du}(u(y))\cdot \frac{du}{dy} \;dy. $$ 
 
-Similarly, recalling that $F$ is an integral allows us to recognize that $\frac{dF}{dx} = f$ using the fundamental theorem :eqref:`eq_ftc`, and thus we may conclude
+마찬가지로 $F$가 적분임을 상기하면 기본 정리 :eqref:`eq_ftc`를 사용하여 $\frac{dF}{dx} = f$임을 인식할 수 있으며, 따라서 다음과 같이 결론지을 수 있습니다.
 
-$$\int_{u(0)}^{u(x)} f(y) \; dy = \int_0^x f(u(y))\cdot \frac{du}{dy} \;dy.$$
+$$\int_{u(0)}^{u(x)} f(y) \; dy = \int_0^x f(u(y))\cdot \frac{du}{dy} \;dy.$$ 
 :eqlabel:`eq_change_var`
 
-This is the *change of variables* formula.
+이것이 *변수 변환(change of variables)* 공식입니다.
 
-For a more intuitive derivation, consider what happens when we take an integral of $f(u(x))$ between $x$ and $x+\epsilon$. For a small $\epsilon$, this integral is approximately $\epsilon f(u(x))$, the area of the associated rectangle.  Now, let's compare this with the integral of $f(y)$ from $u(x)$ to $u(x+\epsilon)$.  We know that $u(x+\epsilon) \approx u(x) + \epsilon \frac{du}{dx}(x)$, so the area of this rectangle is approximately $\epsilon \frac{du}{dx}(x)f(u(x))$.  Thus, to make the area of these two rectangles to agree, we need to multiply the first one by $\frac{du}{dx}(x)$ as is illustrated in :numref:`fig_rect-transform`.
+더 직관적인 유도를 위해, $x$와 $x+\epsilon$ 사이의 $f(u(x))$ 적분을 취할 때 어떤 일이 일어나는지 고려해 보십시오. 작은 $\epsilon$에 대해 이 적분은 대략 연관된 직사각형의 넓이인 $\epsilon f(u(x))$입니다. 이제 이것을 $u(x)$에서 $u(x+\epsilon)$까지의 $f(y)$ 적분과 비교해 봅시다. 우리는 $u(x+\epsilon) \approx u(x) + \epsilon \frac{du}{dx}(x)$임을 알고 있으므로, 이 직사각형의 넓이는 대략 $\epsilon \frac{du}{dx}(x)f(u(x))$입니다. 따라서 이러한 두 직사각형의 넓이가 일치하게 하려면, 그림 :numref:`fig_rect-transform`에 설명된 것처럼 첫 번째 것에 $\frac{du}{dx}(x)$를 곱해야 합니다.
 
-![Visualizing the transformation of a single thin rectangle under the change of variables.](../img/rect-trans.svg)
+![변수 변환 하에서 단일 얇은 직사각형의 변환을 시각화한 그림.](../img/rect-trans.svg)
 :label:`fig_rect-transform`
 
-This tells us that
+이는 다음을 알려줍니다.
 
-$$
-\int_x^{x+\epsilon} f(u(y))\frac{du}{dy}(y)\;dy = \int_{u(x)}^{u(x+\epsilon)} f(y) \; dy.
-$$
+$$ \int_x^{x+\epsilon} f(u(y))\frac{du}{dy}(y)\;dy = \int_{u(x)}^{u(x+\epsilon)} f(y) \; dy. $$ 
 
-This is the change of variables formula expressed for a single small rectangle.
+이것이 단일 작은 직사각형에 대해 표현된 변수 변환 공식입니다.
 
-If $u(x)$ and $f(x)$ are properly chosen, this can allow for the computation of incredibly complex integrals.  For instance, if we even chose $f(y) = 1$ and $u(x) = e^{-x^{2}}$ (which means $\frac{du}{dx}(x) = -2xe^{-x^{2}}$), this can show for instance that
+만약 $u(x)$와 $f(x)$가 적절하게 선택된다면, 이는 믿을 수 없을 정도로 복잡한 적분의 계산을 가능하게 할 수 있습니다. 예를 들어, 우리가 $f(y) = 1$ 및 $u(x) = e^{-x^{2}}$($\frac{du}{dx}(x) = -2xe^{-x^{2}}$를 의미함)를 선택하더라도, 이는 예를 들어 다음을 보여줄 수 있습니다.
 
-$$
-e^{-1} - 1 = \int_{e^{-0}}^{e^{-1}} 1 \; dy = -2\int_0^{1} ye^{-y^2}\;dy,
-$$
+$$ e^{-1} - 1 = \int_{e^{-0}}^{e^{-1}} 1 \; dy = -2\int_0^{1} ye^{-y^2}\;dy, $$ 
 
-and thus by rearranging that
+따라서 재배열하면 다음과 같습니다.
 
-$$
-\int_0^{1} ye^{-y^2}\; dy = \frac{1-e^{-1}}{2}.
-$$
+$$ \int_0^{1} ye^{-y^2}\; dy = \frac{1-e^{-1}}{2}. $$ 
 
-## A Comment on Sign Conventions
+## 부호 관례에 대한 코멘트 (A Comment on Sign Conventions) 
 
-Keen-eyed readers will observe something strange about the computations above.  Namely, computations like
+눈치 빠른 독자들은 위의 계산에서 이상한 점을 발견할 것입니다. 즉, 다음과 같은 계산입니다.
 
-$$
-\int_{e^{-0}}^{e^{-1}} 1 \; dy = e^{-1} -1 < 0,
-$$
+$$ \int_{e^{-0}}^{e^{-1}} 1 \; dy = e^{-1} -1 < 0, $$ 
 
-can produce negative numbers.  When thinking about areas, it can be strange to see a negative value, and so it is worth digging into what the convention is.
+음수를 생성할 수 있습니다. 넓이에 대해 생각할 때 음수 값을 보는 것이 이상할 수 있으므로 관례가 무엇인지 파헤쳐 볼 가치가 있습니다.
 
-Mathematicians take the notion of signed areas.  This manifests itself in two ways.  First, if we consider a function $f(x)$ which is sometimes less than zero, then the area will also be negative.  So for instance
+수학자들은 부호가 있는 넓이(signed areas)의 개념을 취합니다. 이는 두 가지 방식으로 나타납니다. 첫째, 때때로 0보다 작은 함수 $f(x)$를 고려하면 넓이 또한 음수가 될 것입니다. 예를 들어 다음과 같습니다.
 
-$$
-\int_0^{1} (-1)\;dx = -1.
-$$
+$$ \int_0^{1} (-1)\;dx = -1. $$ 
 
-Similarly, integrals which progress from right to left, rather than left to right are also taken to be negative areas
+마찬가지로, 왼쪽에서 오른쪽이 아니라 오른쪽에서 왼쪽으로 진행되는 적분 또한 음수 넓이로 취해집니다.
 
-$$
-\int_0^{-1} 1\; dx = -1.
-$$
+$$ \int_0^{-1} 1\; dx = -1. $$ 
 
-The standard area (from left to right of a positive function) is always positive.  Anything obtained by flipping it (say flipping over the $x$-axis to get the integral of a negative number, or flipping over the $y$-axis to get an integral in the wrong order) will produce a negative area.  And indeed, flipping twice will give a pair of negative signs that cancel out to have positive area
+표준 넓이(양수 함수의 왼쪽에서 오른쪽까지)는 항상 양수입니다. 그것을 뒤집어서 얻은 것(가령 $x$축을 뒤집어 음수 함수의 적분을 얻거나, $y$축을 뒤집어 잘못된 순서의 적분을 얻는 경우)은 음수 넓이를 생성할 것입니다. 실제로 두 번 뒤집으면 상쇄되는 한 쌍의 음수 부호를 주어 양수 넓이를 갖게 될 것입니다.
 
-$$
-\int_0^{-1} (-1)\;dx =  1.
-$$
+$$ \int_0^{-1} (-1)\;dx =  1. $$ 
 
-If this discussion sounds familiar, it is!  In :numref:`sec_geometry-linear-algebraic-ops` we discussed how the determinant represented the signed area in much the same way.
+이 논의가 익숙하게 들린다면 그렇습니다! :numref:`sec_geometry-linear-algebraic-ops`에서 우리는 행렬식이 거의 동일한 방식으로 부호가 있는 넓이를 어떻게 나타내는지 논의했습니다.
 
-## Multiple Integrals
-In some cases, we will need to work in higher dimensions.  For instance, suppose that we have a function of two variables, like $f(x, y)$ and we want to know the volume under $f$ when $x$ ranges over $[a, b]$ and $y$ ranges over $[c, d]$.
+## 다중 적분 (Multiple Integrals)
+어떤 경우에는 고차원에서 작업해야 할 것입니다. 예를 들어 $f(x, y)$와 같은 두 변수 함수가 있고 $x$가 $[a, b]$를 범위로 하고 $y$가 $[c, d]$를 범위로 할 때 $f$ 아래의 부피를 알고 싶다고 가정해 봅시다.
 
 ```{.python .input}
 #@tab mxnet
-# Construct grid and compute function
+# 그리드 구성 및 함수 계산
 x, y = np.meshgrid(np.linspace(-2, 2, 101), np.linspace(-2, 2, 101),
                    indexing='ij')
 z = np.exp(- x**2 - y**2)
 
-# Plot function
+# 함수 플롯
 ax = d2l.plt.figure().add_subplot(111, projection='3d')
 ax.plot_wireframe(x.asnumpy(), y.asnumpy(), z.asnumpy())
 d2l.plt.xlabel('x')
@@ -370,11 +324,11 @@ ax.dist = 12
 
 ```{.python .input}
 #@tab pytorch
-# Construct grid and compute function
+# 그리드 구성 및 함수 계산
 x, y = torch.meshgrid(torch.linspace(-2, 2, 101), torch.linspace(-2, 2, 101))
 z = torch.exp(- x**2 - y**2)
 
-# Plot function
+# 함수 플롯
 ax = d2l.plt.figure().add_subplot(111, projection='3d')
 ax.plot_wireframe(x, y, z)
 d2l.plt.xlabel('x')
@@ -390,11 +344,11 @@ ax.dist = 12
 
 ```{.python .input}
 #@tab tensorflow
-# Construct grid and compute function
+# 그리드 구성 및 함수 계산
 x, y = tf.meshgrid(tf.linspace(-2., 2., 101), tf.linspace(-2., 2., 101))
 z = tf.exp(- x**2 - y**2)
 
-# Plot function
+# 함수 플롯
 ax = d2l.plt.figure().add_subplot(111, projection='3d')
 ax.plot_wireframe(x, y, z)
 d2l.plt.xlabel('x')
@@ -408,134 +362,104 @@ ax.set_zlim(0, 1)
 ax.dist = 12
 ```
 
-We write this as
+우리는 이를 다음과 같이 씁니다.
 
-$$
-\int_{[a, b]\times[c, d]} f(x, y)\;dx\;dy.
-$$
+$$ \int_{[a, b]\times[c, d]} f(x, y)\;dx\;dy. $$ 
 
-Suppose that we wish to compute this integral.  My claim is that we can do this by iteratively computing first the integral in $x$ and then shifting to the integral in $y$, that is to say
+이 적분을 계산하고 싶다고 가정합시다. 저의 주장은 우리가 먼저 $x$에 대해 반복적으로 적분한 다음 $y$에 대한 적분으로 전환함으로써 이를 수행할 수 있다는 것입니다. 즉, 다음과 같습니다.
 
-$$
-\int_{[a, b]\times[c, d]} f(x, y)\;dx\;dy = \int_c^{d} \left(\int_a^{b} f(x, y) \;dx\right) \; dy.
-$$
+$$ \int_{[a, b]\times[c, d]} f(x, y)\;dx\;dy = \int_c^{d} \left(\int_a^{b} f(x, y) \;dx\right) \; dy. $$ 
 
-Let's see why this is.
+왜 그런지 봅시다.
 
-Consider the figure above where we have split the function into $\epsilon \times \epsilon$ squares which we will index with integer coordinates $i, j$.  In this case, our integral is approximately
+우리가 함수를 정수 좌표 $i, j$로 인덱싱할 $\epsilon \times \epsilon$ 사각형들로 나눈 위 그림을 고려하십시오. 이 경우 우리의 적분은 대략 다음과 같습니다.
 
-$$
-\sum_{i, j} \epsilon^{2} f(\epsilon i, \epsilon j).
-$$
+$$ \sum_{i, j} \epsilon^{2} f(\epsilon i, \epsilon j). $$ 
 
-Once we discretize the problem, we may add up the values on these squares in whatever order we like, and not worry about changing the values.  This is illustrated in :numref:`fig_sum-order`.  In particular, we can say that
+문제를 이산화하고 나면, 우리는 이러한 사각형의 값들을 원하는 순서대로 더할 수 있으며 값을 바꾸는 것에 대해 걱정하지 않아도 됩니다. 이는 그림 :numref:`fig_sum-order`에 설명되어 있습니다. 특히 다음과 같이 말할 수 있습니다.
 
-$$
- \sum _ {j} \epsilon \left(\sum_{i} \epsilon f(\epsilon i, \epsilon j)\right).
-$$
+$$  \sum _ {j} \epsilon \left(\sum_{i} \epsilon f(\epsilon i, \epsilon j)\right). $$ 
 
-![Illustrating how to decompose a sum over many squares as a sum over first the columns (1), then adding the column sums together (2).](../img/sum-order.svg)
+![많은 사각형에 대한 합을 먼저 열에 대한 합(1)으로 분해한 다음 열 합계들을 함께 더하는(2) 방법의 그림.](../img/sum-order.svg)
 :label:`fig_sum-order`
 
-The sum on the inside is precisely the discretization of the integral
+안쪽의 합은 정확히 다음 적분의 이산화입니다.
 
-$$
-G(\epsilon j) = \int _a^{b} f(x, \epsilon j) \; dx.
-$$
+$$ G(\epsilon j) = \int _a^{b} f(x, \epsilon j) \; dx. $$ 
 
-Finally, notice that if we combine these two expressions we get
+마지막으로 이러한 두 식을 결합하면 다음을 얻는다는 점에 유의하십시오.
 
-$$
-\sum _ {j} \epsilon G(\epsilon j) \approx \int _ {c}^{d} G(y) \; dy = \int _ {[a, b]\times[c, d]} f(x, y)\;dx\;dy.
-$$
+$$ \sum _ {j} \epsilon G(\epsilon j) \approx \int _ {c}^{d} G(y) \; dy = \int _ {[a, b]\times[c, d]} f(x, y)\;dx\;dy. $$ 
 
-Thus putting it all together, we have that
+따라서 이 모든 것을 종합하면 다음을 갖게 됩니다.
 
-$$
-\int _ {[a, b]\times[c, d]} f(x, y)\;dx\;dy = \int _ c^{d} \left(\int _ a^{b} f(x, y) \;dx\right) \; dy.
-$$
+$$ \int _ {[a, b]\times[c, d]} f(x, y)\;dx\;dy = \int _ c^{d} \left(\int _ a^{b} f(x, y) \;dx\right) \; dy. $$ 
 
-Notice that, once discretized, all we did was rearrange the order in which we added a list of numbers.  This may make it seem like it is nothing, however this result (called *Fubini's Theorem*) is not always true!  For the type of mathematics encountered when doing machine learning (continuous functions), there is no concern, however it is possible to create examples where it fails (for example the function $f(x, y) = xy(x^2-y^2)/(x^2+y^2)^3$ over the rectangle $[0,2]\times[0,1]$).
+이산화하고 나면 우리가 한 모든 것은 숫자 목록을 더하는 순서를 재배열한 것뿐임에 유의하십시오. 이것이 아무것도 아닌 것처럼 보일 수 있지만, 이 결과(*푸비니의 정리(Fubini's Theorem)*라고 불림)가 항상 참인 것은 아닙니다! 머신러닝을 할 때 접하는 수학 유형(연속 함수)의 경우 걱정할 필요가 없지만, 그것이 실패하는 예제를 만드는 것은 가능합니다(예를 들어 직사각형 $[0,2]\times[0,1]$에서 함수 $f(x, y) = xy(x^2-y^2)/(x^2+y^2)^3$).
 
-Note that the choice to do the integral in $x$ first, and then the integral in $y$ was arbitrary.  We could have equally well chosen to do $y$ first and then $x$ to see
+먼저 $x$에 대해 적분한 다음 $y$에 대해 적분하기로 한 선택은 임의적이었음에 유의하십시오. 우리는 똑같이 $y$를 먼저 하고 그다음 $x$를 하도록 선택하여 다음을 볼 수도 있었습니다.
 
-$$
-\int _ {[a, b]\times[c, d]} f(x, y)\;dx\;dy = \int _ a^{b} \left(\int _ c^{d} f(x, y) \;dy\right) \; dx.
-$$
+$$ \int _ {[a, b]\times[c, d]} f(x, y)\;dx\;dy = \int _ a^{b} \left(\int _ c^{d} f(x, y) \;dy\right) \; dx. $$ 
 
-Often times, we will condense down to vector notation, and say that for $U = [a, b]\times [c, d]$ this is
+종종 우리는 벡터 표기법으로 응축하여, $U = [a, b]\times [c, d]$에 대해 다음과 같이 말할 것입니다.
 
-$$
-\int _ U f(\mathbf{x})\;d\mathbf{x}.
-$$
+$$ \int _ U f(\mathbf{x})\;d\mathbf{x}. $$ 
 
-## Change of Variables in Multiple Integrals
-As with single variables in :eqref:`eq_change_var`, the ability to change variables inside a higher dimensional integral is a key tool.  Let's summarize the result without derivation.
+## 다중 적분에서의 변수 변환 (Change of Variables in Multiple Integrals) 
+:eqref:`eq_change_var`의 단일 변수와 마찬가지로, 고차원 적분 내에서 변수를 변환하는 능력은 핵심 도구입니다. 유도 없이 결과를 요약해 봅시다.
 
-We need a function that reparametrizes our domain of integration.  We can take this to be $\phi : \mathbb{R}^n \rightarrow \mathbb{R}^n$, that is any function which takes in $n$ real variables and returns another $n$.  To keep the expressions clean, we will assume that $\phi$ is *injective* which is to say it never folds over itself ($\phi(\mathbf{x}) = \phi(\mathbf{y}) \implies \mathbf{x} = \mathbf{y}$).
+우리는 적분 도메인을 재파라미터화하는 함수가 필요합니다. 우리는 이것을 $\phi : \mathbb{R}^n \rightarrow \mathbb{R}^n$로 취할 수 있는데, 이는 $n$개의 실수 변수를 받아 다른 $n$개를 반환하는 임의의 함수입니다. 식을 깔끔하게 유지하기 위해 $\phi$가 *단사(injective)*라고 가정하겠습니다. 즉, 결코 자기 자신 위로 접히지 않습니다($\phi(\mathbf{x}) = \phi(\mathbf{y}) \implies \mathbf{x} = \mathbf{y}$). 
 
-In this case, we can say that
+이 경우 다음과 같이 말할 수 있습니다.
 
-$$
-\int _ {\phi(U)} f(\mathbf{x})\;d\mathbf{x} = \int _ {U} f(\phi(\mathbf{x})) \left|\det(D\phi(\mathbf{x}))\right|\;d\mathbf{x}.
-$$
+$$ \int _ {\phi(U)} f(\mathbf{x})\;d\mathbf{x} = \int _ {U} f(\phi(\mathbf{x})) \left|\det(D\phi(\mathbf{x}))\right|\;d\mathbf{x}. $$ 
 
-where $D\phi$ is the *Jacobian* of $\phi$, which is the matrix of partial derivatives of $\boldsymbol{\phi} = (\phi_1(x_1, \ldots, x_n), \ldots, \phi_n(x_1, \ldots, x_n))$,
+여기서 $D\phi$는 $\phi$의 *야코비 행렬(Jacobian)*로, $\boldsymbol{\phi} = (\phi_1(x_1, \ldots, x_n), \ldots, \phi_n(x_1, \ldots, x_n))$의 편미분 행렬입니다.
 
-$$
-D\boldsymbol{\phi} = \begin{bmatrix}
+$$ D\boldsymbol{\phi} = \begin{bmatrix}
 \frac{\partial \phi _ 1}{\partial x _ 1} & \cdots & \frac{\partial \phi _ 1}{\partial x _ n} \\
 \vdots & \ddots & \vdots \\
 \frac{\partial \phi _ n}{\partial x _ 1} & \cdots & \frac{\partial \phi _ n}{\partial x _ n}
-\end{bmatrix}.
-$$
+\end{bmatrix}. $$ 
 
-Looking closely, we see that this is similar to the single variable chain rule :eqref:`eq_change_var`, except we have replaced the term $\frac{du}{dx}(x)$ with $\left|\det(D\phi(\mathbf{x}))\right|$.  Let's see how we can to interpret this term.  Recall that the $\frac{du}{dx}(x)$ term existed to say how much we stretched our $x$-axis by applying $u$.  The same process in higher dimensions is to determine how much we stretch the area (or volume, or hyper-volume) of a little square (or little *hyper-cube*) by applying $\boldsymbol{\phi}$.  If $\boldsymbol{\phi}$ was the multiplication by a matrix, then we know how the determinant already gives the answer.
+자세히 살펴보면, 이것이 $\frac{du}{dx}(x)$ 항을 $\left|\det(D\phi(\mathbf{x}))\right|$로 대체한 것을 제외하고는 단일 변수 연쇄 법칙 :eqref:`eq_change_var`과 유사함을 알 수 있습니다. 이 항을 어떻게 해석할 수 있는지 살펴봅시다. $\frac{du}{dx}(x)$ 항이 $u$를 적용하여 $x$축을 얼마나 늘렸는지를 말하기 위해 존재했음을 상기하십시오. 고차원에서의 동일한 과정은 $\boldsymbol{\phi}$를 적용하여 작은 사각형(또는 작은 *하이퍼큐브*)의 넓이(또는 부피, 또는 하이퍼볼륨)를 얼마나 늘리는지 결정하는 것입니다. 만약 $\boldsymbol{\phi}$가 행렬에 의한 곱셈이었다면, 우리는 행렬식이 이미 답을 준다는 것을 압니다.
 
-With some work, one can show that the *Jacobian* provides the best approximation to a multivariable function $\boldsymbol{\phi}$ at a point by a matrix in the same way we could approximate by lines or planes with derivatives and gradients. Thus the determinant of the Jacobian exactly mirrors the scaling factor we identified in one dimension.
+약간의 작업을 통해, 도함수와 기울기로 직선이나 평면으로 근사할 수 있었던 것과 동일한 방식으로 *야코비 행렬*이 한 점에서의 다변수 함수 $\boldsymbol{\phi}$에 대한 최선의 근사를 제공함을 보일 수 있습니다. 따라서 야코비 행렬의 행렬식은 우리가 1차원에서 식별한 스케일링 인자를 정확히 반영합니다.
 
-It takes some work to fill in the details to this, so do not worry if they are not clear now.  Let's see at least one example we will make use of later on.  Consider the integral
+이에 대한 세부 사항을 채우는 데는 약간의 작업이 필요하므로, 지금 당장 명확하지 않더라도 걱정하지 마십시오. 나중에 활용할 예제를 하나라도 살펴봅시다. 적분을 고려해 보십시오.
 
-$$
-\int _ {-\infty}^{\infty} \int _ {-\infty}^{\infty} e^{-x^{2}-y^{2}} \;dx\;dy.
-$$
+$$ \int _ {-\infty}^{\infty} \int _ {-\infty}^{\infty} e^{-x^{2}-y^{2}} \;dx\;dy. $$ 
 
-Playing with this integral directly will get us no-where, but if we change variables, we can make significant progress.  If we let $\boldsymbol{\phi}(r, \theta) = (r \cos(\theta),  r\sin(\theta))$ (which is to say that $x = r \cos(\theta)$, $y = r \sin(\theta)$), then we can apply the change of variable formula to see that this is the same thing as
+이 적분을 직접 다루는 것은 아무데도 도달하지 못할 것이지만, 변수를 변환하면 상당한 진전을 이룰 수 있습니다. 만약 $\boldsymbol{\phi}(r, \theta) = (r \cos(\theta),  r\sin(\theta))$라고 하면($x = r \cos(\theta), y = r \sin(\theta)$임을 의미함), 변수 변환 공식을 적용하여 이것이 다음과 같음을 볼 수 있습니다.
 
-$$
-\int _ 0^\infty \int_0 ^ {2\pi} e^{-r^{2}} \left|\det(D\mathbf{\phi}(\mathbf{x}))\right|\;d\theta\;dr,
-$$
+$$ \int _ 0^\infty \int_0 ^ {2\pi} e^{-r^{2}} \left|\det(D\mathbf{\phi}(\mathbf{x}))\right|\;d\theta\;dr, $$ 
 
-where
+여기서
 
-$$
-\left|\det(D\mathbf{\phi}(\mathbf{x}))\right| = \left|\det\begin{bmatrix}
+$$ \left|\det(D\mathbf{\phi}(\mathbf{x}))\right| = \left|\det\begin{bmatrix}
 \cos(\theta) & -r\sin(\theta) \\
 \sin(\theta) & r\cos(\theta)
-\end{bmatrix}\right| = r(\cos^{2}(\theta) + \sin^{2}(\theta)) = r.
-$$
+\end{bmatrix}\right| = r(\cos^{2}(\theta) + \sin^{2}(\theta)) = r. $$ 
 
-Thus, the integral is
+따라서 적분은 다음과 같습니다.
 
-$$
-\int _ 0^\infty \int _ 0 ^ {2\pi} re^{-r^{2}} \;d\theta\;dr = 2\pi\int _ 0^\infty re^{-r^{2}} \;dr = \pi,
-$$
+$$ \int _ 0^\infty \int _ 0 ^ {2\pi} re^{-r^{2}} \;d\theta\;dr = 2\pi\int _ 0^\infty re^{-r^{2}} \;dr = \pi, $$ 
 
-where the final equality follows by the same computation that we used in section :numref:`subsec_integral_example`.
+여기서 마지막 등식은 섹션 :numref:`subsec_integral_example`에서 사용한 것과 동일한 계산에 의해 따릅니다.
 
-We will meet this integral again when we study continuous random variables in :numref:`sec_random_variables`.
+우리는 :numref:`sec_random_variables`에서 연속 확률 변수를 공부할 때 이 적분을 다시 만날 것입니다.
 
-## Summary
+## 요약 (Summary)
 
-* The theory of integration allows us to answer questions about areas or volumes.
-* The fundamental theorem of calculus allows us to leverage knowledge about derivatives to compute areas via the observation that the derivative of the area up to some point is given by the value of the function being integrated.
-* Integrals in higher dimensions can be computed by iterating single variable integrals.
+* 적분 이론은 넓이나 부피에 대한 질문에 답할 수 있게 해 줍니다.
+* 미적분학의 기본 정리는 어떤 점까지의 넓이의 도함수가 적분되는 함수의 값에 의해 주어진다는 관찰을 통해, 넓이를 계산하는 데 미분에 대한 지식을 활용할 수 있게 해 줍니다.
+* 고차원 적분은 단일 변수 적분을 반복하여 계산할 수 있습니다.
 
-## Exercises
-1. What is $\int_1^2 \frac{1}{x} \;dx$?
-2. Use the change of variables formula to integrate $\int_0^{\sqrt{\pi}}x\sin(x^2)\;dx$.
-3. What is $\int_{[0,1]^2} xy \;dx\;dy$?
-4. Use the change of variables formula to compute $\int_0^2\int_0^1xy(x^2-y^2)/(x^2+y^2)^3\;dy\;dx$ and $\int_0^1\int_0^2f(x, y) = xy(x^2-y^2)/(x^2+y^2)^3\;dx\;dy$ to see they are different.
+## 연습 문제 (Exercises)
+1. $\int_1^2 \frac{1}{x} \;dx$는 얼마입니까?
+2. 변수 변환 공식을 사용하여 $\int_0^{\sqrt{\pi}}x\sin(x^2)\;dx$를 적분하십시오.
+3. $\int_{[0,1]^2} xy \;dx\;dy$는 얼마입니까?
+4. 변수 변환 공식을 사용하여 $\int_0^2\int_0^1xy(x^2-y^2)/(x^2+y^2)^3\;dy\;dx$와 $\int_0^1\int_0^2f(x, y) = xy(x^2-y^2)/(x^2+y^2)^3\;dx\;dy$를 계산하여 그들이 다름을 확인하십시오.
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/414)

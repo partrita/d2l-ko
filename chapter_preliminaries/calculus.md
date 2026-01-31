@@ -3,45 +3,33 @@
 tab.interact_select(['mxnet', 'pytorch', 'tensorflow', 'jax'])
 ```
 
-# Calculus
+# 미적분 (Calculus)
 :label:`sec_calculus`
 
-For a long time, how to calculate 
-the area of a circle remained a mystery.
-Then, in Ancient Greece, the mathematician Archimedes
-came up with the clever idea 
-to inscribe a series of polygons 
-with increasing numbers of vertices
-on the inside of a circle
-(:numref:`fig_circle_area`). 
-For a polygon with $n$ vertices,
-we obtain $n$ triangles.
-The height of each triangle approaches the radius $r$ 
-as we partition the circle more finely. 
-At the same time, its base approaches $2 \pi r/n$, 
-since the ratio between arc and secant approaches 1 
-for a large number of vertices. 
-Thus, the area of the polygon approaches
-$n \cdot r \cdot \frac{1}{2} (2 \pi r/n) = \pi r^2$.
+오랫동안 원의 넓이를 계산하는 방법은 미스터리로 남아 있었습니다.
+그러다 고대 그리스에서 수학자 아르키메데스가
+원 내부에 꼭짓점 수가 증가하는 일련의 다각형을 새기는
+영리한 아이디어를 생각해 냈습니다
+(:numref:`fig_circle_area`).
+$n$개의 꼭짓점이 있는 다각형의 경우,
+우리는 $n$개의 삼각형을 얻습니다.
+원을 더 미세하게 분할할수록 각 삼각형의 높이는 반지름 $r$에 가까워집니다.
+동시에, 많은 수의 꼭짓점에 대해 호와 할선 사이의 비율이 1에 가까워지므로,
+밑변은 $2 \pi r/n$에 가까워집니다.
+따라서 다각형의 넓이는
+$n \cdot r \cdot \frac{1}{2} (2 \pi r/n) = \pi r^2$에 가까워집니다.
 
-![Finding the area of a circle as a limit procedure.](../img/polygon-circle.svg)
+![극한 절차로서 원의 넓이 찾기.](../img/polygon-circle.svg)
 :label:`fig_circle_area`
 
-This limiting procedure is at the root of both 
-*differential calculus* and *integral calculus*. 
-The former can tell us how to increase
-or decrease a function's value by
-manipulating its arguments. 
-This comes in handy for the *optimization problems*
-that we face in deep learning,
-where we repeatedly update our parameters 
-in order to decrease the loss function.
-Optimization addresses how to fit our models to training data,
-and calculus is its key prerequisite.
-However, do not forget that our ultimate goal
-is to perform well on *previously unseen* data.
-That problem is called *generalization*
-and will be a key focus of other chapters.
+이 극한 절차는 *미분 미적분*과 *적분 미적분*의 뿌리에 있습니다.
+전자는 인수를 조작하여 함수의 값을 증가시키거나 감소시키는 방법을 알려줄 수 있습니다.
+이것은 우리가 딥러닝에서 직면하는 *최적화 문제*에 유용합니다.
+여기서 우리는 손실 함수를 줄이기 위해 파라미터를 반복적으로 업데이트합니다.
+최적화는 모델을 훈련 데이터에 맞추는 방법을 다루며,
+미적분은 그 핵심 전제 조건입니다.
+그러나 우리의 궁극적인 목표는 *이전에 본 적 없는* 데이터에서 잘 수행하는 것임을 잊지 마십시오.
+그 문제를 *일반화*라고 하며 다른 장의 핵심 초점이 될 것입니다.
 
 ```{.python .input}
 %%tab mxnet
@@ -76,53 +64,38 @@ from matplotlib_inline import backend_inline
 import numpy as np
 ```
 
-## Derivatives and Differentiation
+## 도함수와 미분 (Derivatives and Differentiation)
 
-Put simply, a *derivative* is the rate of change
-in a function with respect to changes in its arguments.
-Derivatives can tell us how rapidly a loss function
-would increase or decrease were we 
-to *increase* or *decrease* each parameter
-by an infinitesimally small amount.
-Formally, for functions $f: \mathbb{R} \rightarrow \mathbb{R}$,
-that map from scalars to scalars,
-[**the *derivative* of $f$ at a point $x$ is defined as**]
+간단히 말해서, *도함수(derivative)*는 인수의 변화에 대한 함수의 변화율입니다.
+도함수는 각 파라미터를 무한히 작은 양만큼 *증가*시키거나 *감소*시킬 경우
+손실 함수가 얼마나 빠르게 증가하거나 감소하는지 알려줄 수 있습니다.
+공식적으로, 스칼라에서 스칼라로 매핑하는 함수 $f: \mathbb{R} \rightarrow \mathbb{R}$의 경우,
+[**점 $x$에서 $f$의 *도함수*는 다음과 같이 정의됩니다**]
 
 (**$$f'(x) = \lim_{h \rightarrow 0} \frac{f(x+h) - f(x)}{h}.$$**)
 :eqlabel:`eq_derivative`
 
-This term on the right hand side is called a *limit* 
-and it tells us what happens 
-to the value of an expression
-as a specified variable 
-approaches a particular value.
-This limit tells us what 
-the ratio between a perturbation $h$
-and the change in the function value 
-$f(x + h) - f(x)$ converges to 
-as we shrink its size to zero.
+오른쪽에 있는 이 항을 *극한(limit)*이라고 하며,
+지정된 변수가 특정 값에 접근할 때
+표현식의 값에 어떤 일이 일어나는지 알려줍니다.
+이 극한은 섭동(perturbation) $h$와
+함수 값의 변화 $f(x + h) - f(x)$ 사이의 비율이
+크기를 0으로 줄일 때 무엇으로 수렴하는지 알려줍니다.
 
-When $f'(x)$ exists, $f$ is said 
-to be *differentiable* at $x$;
-and when $f'(x)$ exists for all $x$
-on a set, e.g., the interval $[a,b]$, 
-we say that $f$ is differentiable on this set.
-Not all functions are differentiable,
-including many that we wish to optimize,
-such as accuracy and the area under the
-receiving operating characteristic (AUC).
-However, because computing the derivative of the loss 
-is a crucial step in nearly all 
-algorithms for training deep neural networks,
-we often optimize a differentiable *surrogate* instead.
+$f'(x)$가 존재할 때, $f$는 $x$에서 *미분 가능(differentiable)*하다고 합니다;
+그리고 $f'(x)$가 집합(예: 구간 $[a,b]$)의 모든 $x$에 대해 존재할 때,
+우리는 $f$가 이 집합에서 미분 가능하다고 말합니다. 
+정확도나 수신자 조작 특성 곡선 아래 면적(AUC)과 같이 우리가 최적화하고자 하는 많은 함수를 포함하여,
+모든 함수가 미분 가능한 것은 아닙니다.
+그러나 손실의 도함수를 계산하는 것은 심층 신경망을 훈련하기 위한
+거의 모든 알고리즘에서 중요한 단계이므로,
+우리는 종종 대신 미분 가능한 *대리(surrogate)*를 최적화합니다.
 
 
-We can interpret the derivative 
-$f'(x)$
-as the *instantaneous* rate of change 
-of $f(x)$ with respect to $x$.
-Let's develop some intuition with an example.
-(**Define $u = f(x) = 3x^2-4x$.**)
+우리는 도함수 $f'(x)$를
+$x$에 대한 $f(x)$의 *순간* 변화율로 해석할 수 있습니다.
+예제를 통해 직관을 키워봅시다.
+(**$u = f(x) = 3x^2-4x$를 정의합니다.**)
 
 ```{.python .input}
 %%tab mxnet
@@ -148,11 +121,9 @@ def f(x):
     return 3 * x ** 2 - 4 * x
 ```
 
-[**Setting $x=1$, we see that $\frac{f(x+h) - f(x)}{h}$**] (**approaches $2$
-as $h$ approaches $0$.**)
-While this experiment lacks 
-the rigor of a mathematical proof,
-we can quickly see that indeed $f'(1) = 2$.
+[**$x=1$로 설정하면, $\frac{f(x+h) - f(x)}{h}$가**] (**$h$가 $0$에 접근함에 따라 $2$에 접근하는 것을 볼 수 있습니다.**)
+이 실험은 수학적 증명의 엄격함이 부족하지만,
+실제로 $f'(1) = 2$임을 빠르게 확인할 수 있습니다.
 
 ```{.python .input}
 %%tab all
@@ -160,78 +131,65 @@ for h in 10.0**np.arange(-1, -6, -1):
     print(f'h={h:.5f}, numerical limit={(f(1+h)-f(1))/h:.5f}')
 ```
 
-There are several equivalent notational conventions for derivatives.
-Given $y = f(x)$, the following expressions are equivalent:
+도함수에 대한 몇 가지 동등한 표기법 관례가 있습니다.
+$y = f(x)$가 주어지면 다음 표현식은 동등합니다:
 
-$$f'(x) = y' = \frac{dy}{dx} = \frac{df}{dx} = \frac{d}{dx} f(x) = Df(x) = D_x f(x),$$
+$$f'(x) = y' = \frac{dy}{dx} = \frac{df}{dx} = \frac{d}{dx} f(x) = Df(x) = D_x f(x),$$ 
 
-where the symbols $\frac{d}{dx}$ and $D$ are *differentiation operators*.
-Below, we present the derivatives of some common functions:
+여기서 기호 $\frac{d}{dx}$와 $D$는 *미분 연산자*입니다. 
+아래에 몇 가지 일반적인 함수의 도함수를 제시합니다:
 
-$$\begin{aligned} \frac{d}{dx} C & = 0 && \textrm{for any constant $C$} \\ \frac{d}{dx} x^n & = n x^{n-1} && \textrm{for } n \neq 0 \\ \frac{d}{dx} e^x & = e^x \\ \frac{d}{dx} \ln x & = x^{-1}. \end{aligned}$$
+$$\begin{aligned} \frac{d}{dx} C & = 0 && \textrm{어떤 상수 $C$에 대해} \\ \frac{d}{dx} x^n & = n x^{n-1} && \textrm{단, } n \neq 0 \\ \frac{d}{dx} e^x & = e^x \\ \frac{d}{dx} \ln x & = x^{-1}. \end{aligned}$$ 
 
-Functions composed from differentiable functions 
-are often themselves differentiable.
-The following rules come in handy 
-for working with compositions 
-of any differentiable functions 
-$f$ and $g$, and constant $C$.
+미분 가능한 함수들로 구성된 함수는 종종 그 자체로 미분 가능합니다.
+다음 규칙들은 미분 가능한 함수 $f$와 $g$, 그리고 상수 $C$의
+합성을 다룰 때 유용합니다.
 
-$$\begin{aligned} \frac{d}{dx} [C f(x)] & = C \frac{d}{dx} f(x) && \textrm{Constant multiple rule} \\ \frac{d}{dx} [f(x) + g(x)] & = \frac{d}{dx} f(x) + \frac{d}{dx} g(x) && \textrm{Sum rule} \\ \frac{d}{dx} [f(x) g(x)] & = f(x) \frac{d}{dx} g(x) + g(x) \frac{d}{dx} f(x) && \textrm{Product rule} \\ \frac{d}{dx} \frac{f(x)}{g(x)} & = \frac{g(x) \frac{d}{dx} f(x) - f(x) \frac{d}{dx} g(x)}{g^2(x)} && \textrm{Quotient rule} \end{aligned}$$
+$$\begin{aligned} \frac{d}{dx} [C f(x)] & = C \frac{d}{dx} f(x) && \textrm{상수 배수 규칙} \\ \frac{d}{dx} [f(x) + g(x)] & = \frac{d}{dx} f(x) + \frac{d}{dx} g(x) && \textrm{합의 규칙} \\ \frac{d}{dx} [f(x) g(x)] & = f(x) \frac{d}{dx} g(x) + g(x) \frac{d}{dx} f(x) && \textrm{곱의 규칙} \\ \frac{d}{dx} \frac{f(x)}{g(x)} & = \frac{g(x) \frac{d}{dx} f(x) - f(x) \frac{d}{dx} g(x)}{g^2(x)} && \textrm{몫의 규칙} \end{aligned}$$ 
 
-Using this, we can apply the rules 
-to find the derivative of $3 x^2 - 4x$ via
+이것을 사용하여, 우리는 다음을 통해 $3 x^2 - 4x$의 도함수를 찾기 위해 규칙을 적용할 수 있습니다.
 
-$$\frac{d}{dx} [3 x^2 - 4x] = 3 \frac{d}{dx} x^2 - 4 \frac{d}{dx} x = 6x - 4.$$
+$$\frac{d}{dx} [3 x^2 - 4x] = 3 \frac{d}{dx} x^2 - 4 \frac{d}{dx} x = 6x - 4.$$ 
 
-Plugging in $x = 1$ shows that, indeed, 
-the derivative equals $2$ at this location. 
-Note that derivatives tell us 
-the *slope* of a function 
-at a particular location.  
+$x = 1$을 대입하면 실제로 이 위치에서 도함수가 $2$와 같음을 보여줍니다. 
+도함수는 특정 위치에서 함수의 *기울기(slope)*를 알려줍니다.
 
-## Visualization Utilities
+## 시각화 유틸리티 (Visualization Utilities)
 
-[**We can visualize the slopes of functions using the `matplotlib` library**].
-We need to define a few functions. 
-As its name indicates, `use_svg_display` 
-tells `matplotlib` to output graphics 
-in SVG format for crisper images. 
-The comment `#@save` is a special modifier 
-that allows us to save any function, 
-class, or other code block to the `d2l` package 
-so that we can invoke it later 
-without repeating the code, 
-e.g., via `d2l.use_svg_display()`.
+[**`matplotlib` 라이브러리를 사용하여 함수의 기울기를 시각화할 수 있습니다**].
+몇 가지 함수를 정의해야 합니다.
+이름에서 알 수 있듯이 `use_svg_display`는
+더 선명한 이미지를 위해 `matplotlib`에 SVG 형식으로 그래픽을 출력하도록 지시합니다.
+주석 `#@save`는 함수, 클래스 또는 기타 코드 블록을 `d2l` 패키지에 저장하여
+나중에 코드를 반복하지 않고 호출할 수 있게 해주는 특수 수정자입니다.
+예: `d2l.use_svg_display()`.
 
 ```{.python .input}
 %%tab all
 def use_svg_display():  #@save
-    """Use the svg format to display a plot in Jupyter."""
+    """Jupyter에서 플롯을 표시하기 위해 svg 형식을 사용합니다."""
     backend_inline.set_matplotlib_formats('svg')
 ```
 
-Conveniently, we can set figure sizes with `set_figsize`. 
-Since the import statement `from matplotlib import pyplot as plt` 
-was marked via `#@save` in the `d2l` package, we can call `d2l.plt`.
+편리하게도 `set_figsize`로 그림 크기를 설정할 수 있습니다.
+import 문 `from matplotlib import pyplot as plt`가
+`d2l` 패키지에서 `#@save`를 통해 표시되었으므로 `d2l.plt`를 호출할 수 있습니다.
 
 ```{.python .input}
 %%tab all
 def set_figsize(figsize=(3.5, 2.5)):  #@save
-    """Set the figure size for matplotlib."""
+    """matplotlib의 그림 크기를 설정합니다."""
     use_svg_display()
     d2l.plt.rcParams['figure.figsize'] = figsize
 ```
 
-The `set_axes` function can associate axes
-with properties, including labels, ranges,
-and scales.
+`set_axes` 함수는 축을 레이블, 범위, 스케일을 포함한 속성과 연결할 수 있습니다.
 
 ```{.python .input}
 %%tab all
 #@save
 def set_axes(axes, xlabel, ylabel, xlim, ylim, xscale, yscale, legend):
-    """Set the axes for matplotlib."""
+    """matplotlib의 축을 설정합니다."""
     axes.set_xlabel(xlabel), axes.set_ylabel(ylabel)
     axes.set_xscale(xscale), axes.set_yscale(yscale)
     axes.set_xlim(xlim),     axes.set_ylim(ylim)
@@ -240,10 +198,8 @@ def set_axes(axes, xlabel, ylabel, xlim, ylim, xscale, yscale, legend):
     axes.grid()
 ```
 
-With these three functions, we can define a `plot` function 
-to overlay multiple curves. 
-Much of the code here is just ensuring 
-that the sizes and shapes of inputs match.
+이 세 가지 함수를 사용하여 여러 곡선을 겹쳐 그리는 `plot` 함수를 정의할 수 있습니다.
+여기에 있는 대부분의 코드는 입력의 크기와 모양이 일치하는지 확인하는 것입니다.
 
 ```{.python .input}
 %%tab all
@@ -251,9 +207,9 @@ that the sizes and shapes of inputs match.
 def plot(X, Y=None, xlabel=None, ylabel=None, legend=[], xlim=None,
          ylim=None, xscale='linear', yscale='linear',
          fmts=('-', 'm--', 'g-.', 'r:'), figsize=(3.5, 2.5), axes=None):
-    """Plot data points."""
+    """데이터 포인트를 플롯합니다."""
 
-    def has_one_axis(X):  # True if X (tensor or list) has 1 axis
+    def has_one_axis(X):  # X(텐서 또는 리스트)가 1개의 축을 가지면 True
         return (hasattr(X, "ndim") and X.ndim == 1 or isinstance(X, list)
                 and not hasattr(X[0], "__len__"))
     
@@ -274,8 +230,8 @@ def plot(X, Y=None, xlabel=None, ylabel=None, legend=[], xlim=None,
     set_axes(axes, xlabel, ylabel, xlim, ylim, xscale, yscale, legend)
 ```
 
-Now we can [**plot the function $u = f(x)$ and its tangent line $y = 2x - 3$ at $x=1$**],
-where the coefficient $2$ is the slope of the tangent line.
+이제 [**함수 $u = f(x)$와 $x=1$에서의 접선 $y = 2x - 3$을 플롯할 수 있습니다**],
+여기서 계수 $2$는 접선의 기울기입니다.
 
 ```{.python .input}
 %%tab all
@@ -283,167 +239,133 @@ x = np.arange(0, 3, 0.1)
 plot(x, [f(x), 2 * x - 3], 'x', 'f(x)', legend=['f(x)', 'Tangent line (x=1)'])
 ```
 
-## Partial Derivatives and Gradients
+## 편도함수와 기울기 (Partial Derivatives and Gradients)
 :label:`subsec_calculus-grad`
 
-Thus far, we have been differentiating
-functions of just one variable.
-In deep learning, we also need to work
-with functions of *many* variables.
-We briefly introduce notions of the derivative
-that apply to such *multivariate* functions.
+지금까지 우리는 변수가 하나뿐인 함수를 미분해 왔습니다.
+딥러닝에서는 *많은* 변수를 가진 함수도 다뤄야 합니다.
+이러한 *다변수* 함수에 적용되는 도함수의 개념을 간략하게 소개합니다.
 
 
-Let $y = f(x_1, x_2, \ldots, x_n)$ be a function with $n$ variables. 
-The *partial derivative* of $y$ 
-with respect to its $i^\textrm{th}$ parameter $x_i$ is
+$y = f(x_1, x_2, \ldots, x_n)$을 $n$개의 변수를 가진 함수라고 합시다. 
+$y$의 $i$번째 파라미터 $x_i$에 대한 *편도함수(partial derivative)*는 다음과 같습니다.
 
-$$ \frac{\partial y}{\partial x_i} = \lim_{h \rightarrow 0} \frac{f(x_1, \ldots, x_{i-1}, x_i+h, x_{i+1}, \ldots, x_n) - f(x_1, \ldots, x_i, \ldots, x_n)}{h}.$$
+$$ \frac{\partial y}{\partial x_i} = \lim_{h \rightarrow 0} \frac{f(x_1, \ldots, x_{i-1}, x_i+h, x_{i+1}, \ldots, x_n) - f(x_1, \ldots, x_i, \ldots, x_n)}{h}.$$ 
 
 
-To calculate $\frac{\partial y}{\partial x_i}$, 
-we can treat $x_1, \ldots, x_{i-1}, x_{i+1}, \ldots, x_n$ as constants 
-and calculate the derivative of $y$ with respect to $x_i$.
-The following notational conventions for partial derivatives 
-are all common and all mean the same thing:
+$rac{\partial y}{\partial x_i}$를 계산하기 위해, 
+우리는 $x_1, \ldots, x_{i-1}, x_{i+1}, \ldots, x_n$을 상수로 취급하고
+$x_i$에 대한 $y$의 도함수를 계산할 수 있습니다.
+편도함수에 대한 다음 표기법 관례는 모두 일반적이며 모두 같은 의미입니다:
 
-$$\frac{\partial y}{\partial x_i} = \frac{\partial f}{\partial x_i} = \partial_{x_i} f = \partial_i f = f_{x_i} = f_i = D_i f = D_{x_i} f.$$
+$$\frac{\partial y}{\partial x_i} = \frac{\partial f}{\partial x_i} = \partial_{x_i} f = \partial_i f = f_{x_i} = f_i = D_i f = D_{x_i} f.$$ 
 
-We can concatenate partial derivatives 
-of a multivariate function 
-with respect to all its variables 
-to obtain a vector that is called
-the *gradient* of the function.
-Suppose that the input of function 
-$f: \mathbb{R}^n \rightarrow \mathbb{R}$ 
-is an $n$-dimensional vector 
-$\mathbf{x} = [x_1, x_2, \ldots, x_n]^\top$ 
-and the output is a scalar. 
-The gradient of the function $f$ 
-with respect to $\mathbf{x}$ 
-is a vector of $n$ partial derivatives:
+우리는 다변수 함수의 모든 변수에 대한 편도함수를 연결하여
+함수의 *기울기(gradient)*라고 불리는 벡터를 얻을 수 있습니다.
+함수 $f: \mathbb{R}^n \rightarrow \mathbb{R}$의 입력이
+$n$차원 벡터 $\mathbf{x} = [x_1, x_2, \ldots, x_n]^\top$이고
+출력이 스칼라라고 가정해 봅시다. 
+$\\mathbf{x}$에 대한 함수 $f$의 기울기는
+$n$개의 편도함수로 구성된 벡터입니다:
 
 $$\nabla_{\mathbf{x}} f(\mathbf{x}) = \left[\partial_{x_1} f(\mathbf{x}), \partial_{x_2} f(\mathbf{x}), \ldots
 \partial_{x_n} f(\mathbf{x})\right]^\top.$$ 
 
-When there is no ambiguity,
-$\nabla_{\mathbf{x}} f(\mathbf{x})$ 
-is typically replaced 
-by $\nabla f(\mathbf{x})$.
-The following rules come in handy 
-for differentiating multivariate functions:
 
-* For all $\mathbf{A} \in \mathbb{R}^{m \times n}$ we have $\nabla_{\mathbf{x}} \mathbf{A} \mathbf{x} = \mathbf{A}^\top$ and $\nabla_{\mathbf{x}} \mathbf{x}^\top \mathbf{A}  = \mathbf{A}$.
-* For square matrices $\mathbf{A} \in \mathbb{R}^{n \times n}$ we have that $\nabla_{\mathbf{x}} \mathbf{x}^\top \mathbf{A} \mathbf{x}  = (\mathbf{A} + \mathbf{A}^\top)\mathbf{x}$ and in particular
-$\nabla_{\mathbf{x}} \|\mathbf{x} \|^2 = \nabla_{\mathbf{x}} \mathbf{x}^\top \mathbf{x} = 2\mathbf{x}$.
+모호함이 없을 때,
+$\\nabla_{\mathbf{x}} f(\mathbf{x})$는 일반적으로
+$\\nabla f(\mathbf{x})$로 대체됩니다.
+다음 규칙은 다변수 함수를 미분할 때 유용합니다:
 
-Similarly, for any matrix $\mathbf{X}$, 
-we have $\nabla_{\mathbf{X}} \|\mathbf{X} \|_\textrm{F}^2 = 2\mathbf{X}$. 
+* 모든 $\\mathbf{A} \in \mathbb{R}^{m \times n}$에 대해 $\\nabla_{\mathbf{x}} \mathbf{A} \mathbf{x} = \mathbf{A}^\top$이고 $\\nabla_{\mathbf{x}} \mathbf{x}^\top \mathbf{A}  = \mathbf{A}$입니다.
+* 정사각 행렬 $\\mathbf{A} \in \mathbb{R}^{n \times n}$에 대해 $\\nabla_{\mathbf{x}} \mathbf{x}^\top \mathbf{A} \mathbf{x}  = (\mathbf{A} + \mathbf{A}^\top)\\mathbf{x}$이고 특히
+$\\nabla_{\mathbf{x}} \|\mathbf{x} \|^2 = \nabla_{\mathbf{x}} \mathbf{x}^\top \mathbf{x} = 2\\mathbf{x}$입니다.
 
-
-
-## Chain Rule
-
-In deep learning, the gradients of concern
-are often difficult to calculate
-because we are working with 
-deeply nested functions 
-(of functions (of functions...)).
-Fortunately, the *chain rule* takes care of this. 
-Returning to functions of a single variable,
-suppose that $y = f(g(x))$
-and that the underlying functions 
-$y=f(u)$ and $u=g(x)$ 
-are both differentiable.
-The chain rule states that 
-
-
-$$\frac{dy}{dx} = \frac{dy}{du} \frac{du}{dx}.$$
+마찬가지로, 어떤 행렬 $\\mathbf{X}$에 대해서도, 
+우리는 $\\nabla_{\\mathbf{X}} \|\mathbf{X} \|_\textrm{F}^2 = 2\\mathbf{X}$를 갖습니다. 
 
 
 
-Turning back to multivariate functions,
-suppose that $y = f(\mathbf{u})$ has variables
-$u_1, u_2, \ldots, u_m$, 
-where each $u_i = g_i(\mathbf{x})$ 
-has variables $x_1, x_2, \ldots, x_n$,
-i.e.,  $\mathbf{u} = g(\mathbf{x})$.
-Then the chain rule states that
 
-$$\frac{\partial y}{\partial x_{i}} = \frac{\partial y}{\partial u_{1}} \frac{\partial u_{1}}{\partial x_{i}} + \frac{\partial y}{\partial u_{2}} \frac{\partial u_{2}}{\partial x_{i}} + \ldots + \frac{\partial y}{\partial u_{m}} \frac{\partial u_{m}}{\partial x_{i}} \ \textrm{ and so } \ \nabla_{\mathbf{x}} y =  \mathbf{A} \nabla_{\mathbf{u}} y,$$
+## 연쇄 법칙 (Chain Rule)
 
-where $\mathbf{A} \in \mathbb{R}^{n \times m}$ is a *matrix*
-that contains the derivative of vector $\mathbf{u}$
-with respect to vector $\mathbf{x}$.
-Thus, evaluating the gradient requires 
-computing a vector--matrix product. 
-This is one of the key reasons why linear algebra 
-is such an integral building block 
-in building deep learning systems. 
+딥러닝에서 관심 있는 기울기는 종종 계산하기 어렵습니다.
+우리가 깊게 중첩된 함수(함수의 (함수의...))를 다루고 있기 때문입니다.
+다행히도 *연쇄 법칙(chain rule)*이 이것을 처리합니다.
+단일 변수 함수로 돌아가서, $y = f(g(x))$이고
+기본 함수 $y=f(u)$와 $u=g(x)$가 모두 미분 가능하다고 가정해 봅시다.
+연쇄 법칙은 다음을 명시합니다.
+
+
+$$\frac{dy}{dx} = \frac{dy}{du} \frac{du}{dx}.$$ 
 
 
 
-## Discussion
+다변수 함수로 돌아가서,
+$y = f(\\mathbf{u})$가 변수 $u_1, u_2, \ldots, u_m$을 가지고 있고,
+각 $u_i = g_i(\\mathbf{x})$가 변수 $x_1, x_2, \ldots, x_n$을 가지고 있다고 가정해 봅시다.
+즉, $\\mathbf{u} = g(\\mathbf{x})$입니다.
+그러면 연쇄 법칙은 다음을 명시합니다.
 
-While we have just scratched the surface of a deep topic,
-a number of concepts already come into focus: 
-first, the composition rules for differentiation
-can be applied routinely, enabling
-us to compute gradients *automatically*.
-This task requires no creativity and thus 
-we can focus our cognitive powers elsewhere.
-Second, computing the derivatives of vector-valued functions 
-requires us to multiply matrices as we trace 
-the dependency graph of variables from output to input. 
-In particular, this graph is traversed in a *forward* direction 
-when we evaluate a function 
-and in a *backwards* direction 
-when we compute gradients. 
-Later chapters will formally introduce backpropagation,
-a computational procedure for applying the chain rule.
+$$\frac{\partial y}{\partial x_{i}} = \frac{\partial y}{\partial u_{1}} \frac{\partial u_{1}}{\partial x_{i}} + \frac{\partial y}{\partial u_{2}} \frac{\partial u_{2}}{\partial x_{i}} + \ldots + \frac{\partial y}{\partial u_{m}} \frac{\partial u_{m}}{\partial x_{i}} \ \textrm{ 따라서 } \ \nabla_{\\mathbf{x}} y =  \\mathbf{A} \nabla_{\\mathbf{u}} y,$$ 
 
-From the viewpoint of optimization, gradients allow us 
-to determine how to move the parameters of a model
-in order to lower the loss,
-and each step of the optimization algorithms used 
-throughout this book will require calculating the gradient.
+여기서 $\\mathbf{A} \in \mathbb{R}^{n \times m}$은
+벡터 $\\mathbf{x}$에 대한 벡터 $\\mathbf{u}$의 도함수를 포함하는 *행렬*입니다.
+따라서 기울기를 평가하려면 벡터-행렬 곱을 계산해야 합니다.
+이것이 선형 대수가 딥러닝 시스템을 구축하는 데 있어
+그토록 필수적인 구성 요소인 주요 이유 중 하나입니다. 
 
-## Exercises
 
-1. So far we took the rules for derivatives for granted. 
-   Using the definition and limits prove the properties 
-   for (i) $f(x) = c$, (ii) $f(x) = x^n$, (iii) $f(x) = e^x$ and (iv) $f(x) = \log x$.
-1. In the same vein, prove the product, sum, and quotient rule from first principles. 
-1. Prove that the constant multiple rule follows as a special case of the product rule. 
-1. Calculate the derivative of $f(x) = x^x$. 
-1. What does it mean that $f'(x) = 0$ for some $x$? 
-   Give an example of a function $f$ 
-   and a location $x$ for which this might hold. 
-1. Plot the function $y = f(x) = x^3 - \frac{1}{x}$ 
-   and plot its tangent line at $x = 1$.
-1. Find the gradient of the function 
-   $f(\mathbf{x}) = 3x_1^2 + 5e^{x_2}$.
-1. What is the gradient of the function 
-   $f(\mathbf{x}) = \|\mathbf{x}\|_2$? What happens for $\mathbf{x} = \mathbf{0}$?
-1. Can you write out the chain rule for the case 
-   where $u = f(x, y, z)$ and $x = x(a, b)$, $y = y(a, b)$, and $z = z(a, b)$?
-1. Given a function $f(x)$ that is invertible, 
-   compute the derivative of its inverse $f^{-1}(x)$. 
-   Here we have that $f^{-1}(f(x)) = x$ and conversely $f(f^{-1}(y)) = y$. 
-   Hint: use these properties in your derivation. 
+
+
+## 토론
+
+우리는 깊은 주제의 겉핥기만 했지만,
+이미 많은 개념이 초점에 들어왔습니다: 
+첫째, 미분을 위한 합성 규칙을 일상적으로 적용할 수 있어,
+기울기를 *자동으로* 계산할 수 있습니다.
+이 작업은 창의성이 필요하지 않으므로 우리는 인지 능력을 다른 곳에 집중할 수 있습니다. 
+둘째, 벡터 값 함수의 도함수를 계산하려면 출력에서 입력으로
+변수의 종속성 그래프를 추적하면서 행렬을 곱해야 합니다. 
+특히, 이 그래프는 함수를 평가할 때 *순방향(forward)*으로 순회하고
+기울기를 계산할 때 *역방향(backwards)*으로 순회합니다. 
+나중 챕터에서는 연쇄 법칙을 적용하기 위한 계산 절차인 역전파를 공식적으로 소개할 것입니다.
+
+최적화의 관점에서, 기울기는 손실을 낮추기 위해
+모델의 파라미터를 어떻게 이동해야 하는지 결정할 수 있게 해주며,
+이 책 전체에서 사용되는 최적화 알고리즘의 각 단계는 기울기 계산을 필요로 합니다.
+
+## 연습 문제
+
+1. 지금까지 우리는 도함수 규칙을 당연하게 여겼습니다. 
+   정의와 극한을 사용하여 (i) $f(x) = c$, (ii) $f(x) = x^n$, (iii) $f(x) = e^x$, (iv) $f(x) = \log x$에 대한 속성을 증명하십시오.
+2. 같은 맥락에서, 첫 번째 원칙에서 곱, 합, 몫의 규칙을 증명하십시오. 
+3. 상수 배수 규칙이 곱의 규칙의 특수한 경우로 뒤따른다는 것을 증명하십시오. 
+4. $f(x) = x^x$의 도함수를 계산하십시오. 
+5. 어떤 $x$에 대해 $f'(x) = 0$이라는 것은 무엇을 의미합니까? 
+   이것이 성립할 수 있는 함수 $f$와 위치 $x$의 예를 드십시오. 
+6. 함수 $y = f(x) = x^3 - \frac{1}{x}$의 그래프와 $x = 1$에서의 접선을 플롯하십시오. 
+7. 함수 $f(\\mathbf{x}) = 3x_1^2 + 5e^{x_2}$의 기울기를 구하십시오. 
+8. 함수 $f(\\mathbf{x}) = \|\\mathbf{x}\|_2$의 기울기는 무엇입니까? $\\mathbf{x} = \\mathbf{0}$일 때 어떻게 됩니까? 
+9. $u = f(x, y, z)$이고 $x = x(a, b)$, $y = y(a, b)$, $z = z(a, b)$인 경우에 대해 연쇄 법칙을 작성할 수 있습니까? 
+10. 역함수가 존재하는 함수 $f(x)$가 주어졌을 때, 역함수 $f^{-1}(x)$의 도함수를 계산하십시오. 
+    여기서 우리는 $f^{-1}(f(x)) = x$이고 반대로 $f(f^{-1}(y)) = y$를 갖습니다. 
+    힌트: 유도 과정에서 이 속성을 사용하십시오. 
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/32)
+[토론](https://discuss.d2l.ai/t/32)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/33)
+[토론](https://discuss.d2l.ai/t/33)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/197)
+[토론](https://discuss.d2l.ai/t/197)
 :end_tab:
 
 :begin_tab:`jax`
-[Discussions](https://discuss.d2l.ai/t/17969)
+[토론](https://discuss.d2l.ai/t/17969)
 :end_tab:
+
+```

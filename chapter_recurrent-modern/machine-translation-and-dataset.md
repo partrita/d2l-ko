@@ -1,49 +1,29 @@
 ```{.python .input  n=1}
 %load_ext d2lbook.tab
-tab.interact_select('mxnet', 'pytorch', 'tensorflow', 'jax')
+tab.interact_select(['mxnet', 'pytorch', 'tensorflow', 'jax'])
 ```
 
-# Machine Translation and the Dataset
+# 기계 번역과 데이터셋 (Machine Translation and the Dataset)
 :label:`sec_machine_translation`
 
-Among the major breakthroughs that prompted 
-widespread interest in modern RNNs
-was a major advance in the applied field of 
-statistical  *machine translation*.
-Here, the model is presented with a sentence in one language
-and must predict the corresponding sentence in another. 
-Note that here the sentences may be of different lengths,
-and that corresponding words in the two sentences 
-may not occur in the same order, 
-owing to differences 
-in the two language's grammatical structure. 
+현대 RNN에 대한 광범위한 관심을 불러일으킨 주요 돌파구 중 하나는 통계적 *기계 번역* 응용 분야에서의 큰 발전이었습니다. 
+여기서 모델은 한 언어의 문장을 제시받고 다른 언어의 해당 문장을 예측해야 합니다. 
+여기서 문장의 길이는 서로 다를 수 있으며, 두 언어의 문법 구조 차이로 인해 두 문장의 해당 단어가 동일한 순서로 나타나지 않을 수 있음에 유의하십시오.
 
 
-Many problems have this flavor of mapping 
-between two such "unaligned" sequences.
-Examples include mapping 
-from dialog prompts to replies
-or from questions to answers.
-Broadly, such problems are called 
-*sequence-to-sequence* (seq2seq) problems 
-and they are our focus for 
-both the remainder of this chapter
-and much of :numref:`chap_attention-and-transformers`.
+많은 문제들이 이러한 두 "정렬되지 않은" 시퀀스 간의 매핑 성격을 가지고 있습니다.
+예를 들어 대화 프롬프트에서 응답으로, 또는 질문에서 답변으로의 매핑이 그 예입니다.
+광범위하게 이러한 문제를 *시퀀스-투-시퀀스(sequence-to-sequence, seq2seq)* 문제라고 하며, 이 장의 나머지 부분과 :numref:`chap_attention-and-transformers`의 상당 부분에서 우리의 초점이 됩니다.
 
-In this section, we introduce the machine translation problem
-and an example dataset that we will use in the subsequent examples.
-For decades, statistical formulations of translation between languages
-had been popular :cite:`Brown.Cocke.Della-Pietra.ea.1988,Brown.Cocke.Della-Pietra.ea.1990`,
-even before researchers got neural network approaches working
-(methods were often lumped together under the term *neural machine translation*).
+이 섹션에서는 기계 번역 문제와 후속 예제에서 사용할 예제 데이터셋을 소개합니다.
+수십 년 동안 언어 간 번역의 통계적 정식화가 인기 있었으며 :cite:`Brown.Cocke.Della-Pietra.ea.1988,Brown.Cocke.Della-Pietra.ea.1990`,
+연구자들이 신경망 접근 방식을 작동시키기 전에도 마찬가지였습니다(방법들은 종종 *신경 기계 번역*이라는 용어 아래 하나로 묶였습니다).
 
 
-First we will need some new code to process our data.
-Unlike the language modeling that we saw in :numref:`sec_language-model`,
-here each example consists of two separate text sequences,
-one in the source language and another (the translation) in the target language.
-The following code snippets will show how 
-to load the preprocessed data into minibatches for training.
+먼저 데이터를 처리하기 위한 새로운 코드가 필요합니다.
+:numref:`sec_language-model`에서 본 언어 모델링과 달리,
+여기서 각 예제는 두 개의 별도 텍스트 시퀀스, 즉 소스 언어의 시퀀스와 타겟 언어의 시퀀스(번역)로 구성됩니다.
+다음 코드 스니펫은 훈련을 위해 전처리된 데이터를 미니배치로 로드하는 방법을 보여줍니다.
 
 ```{.python .input  n=2}
 %%tab mxnet
@@ -74,21 +54,16 @@ from jax import numpy as jnp
 import os
 ```
 
-## [**Downloading and Preprocessing the Dataset**]
+## [**데이터셋 다운로드 및 전처리**]
 
-To begin, we download an English--French dataset
-that consists of [bilingual sentence pairs from the Tatoeba Project](http://www.manythings.org/anki/).
-Each line in the dataset is a tab-delimited pair 
-consisting of an English text sequence (the *source*) 
-and the translated French text sequence (the *target*).
-Note that each text sequence
-can be just one sentence,
-or a paragraph of multiple sentences.
+시작하기 위해, [Tatoeba 프로젝트의 이국어 문장 쌍](http://www.manythings.org/anki/)으로 구성된 영어-프랑스어 데이터셋을 다운로드합니다.
+데이터셋의 각 줄은 영어 텍스트 시퀀스(*소스*)와 번역된 프랑스어 텍스트 시퀀스(*타겟*)로 구성된 탭 구분 쌍입니다.
+각 텍스트 시퀀스는 단 한 문장일 수도 있고, 여러 문장으로 된 단락일 수도 있음에 유의하십시오.
 
 ```{.python .input  n=5}
 %%tab all
 class MTFraEng(d2l.DataModule):  #@save
-    """The English-French dataset."""
+    """영어-프랑스어 데이터셋."""
     def _download(self):
         d2l.extract(d2l.download(
             d2l.DATA_URL+'fra-eng.zip', self.root, 
@@ -104,20 +79,19 @@ raw_text = data._download()
 print(raw_text[:75])
 ```
 
-After downloading the dataset,
-we [**proceed with several preprocessing steps**]
-for the raw text data.
-For instance, we replace non-breaking space with space,
-convert uppercase letters to lowercase ones,
-and insert space between words and punctuation marks.
+데이터셋을 다운로드한 후,
+원시 텍스트 데이터에 대해 [**여러 전처리 단계를 진행**]합니다.
+예를 들어 줄 바꿈 없는 공백(non-breaking space)을 일반 공백으로 바꾸고,
+대문자를 소문자로 변환하며,
+단어와 구두점 사이에 공백을 삽입합니다.
 
 ```{.python .input  n=6}
 %%tab all
 @d2l.add_to_class(MTFraEng)  #@save
 def _preprocess(self, text):
-    # Replace non-breaking space with space
+    # 줄 바꿈 없는 공백을 일반 공백으로 교체
     text = text.replace('\u202f', ' ').replace('\xa0', ' ')
-    # Insert space between words and punctuation marks
+    # 단어와 구두점 사이에 공백 삽입
     no_space = lambda char, prev_char: char in ',.!?' and prev_char != ' '
     out = [' ' + char if i > 0 and no_space(char, text[i - 1]) else char
            for i, char in enumerate(text.lower())]
@@ -130,29 +104,17 @@ text = data._preprocess(raw_text)
 print(text[:80])
 ```
 
-## [**Tokenization**]
+## [**토큰화 (Tokenization)**]
 
-Unlike the character-level tokenization
-in :numref:`sec_language-model`,
-for machine translation
-we prefer word-level tokenization here
-(today's state-of-the-art models use 
-more complex tokenization techniques).
-The following `_tokenize` method
-tokenizes the first `max_examples` text sequence pairs,
-where each token is either a word or a punctuation mark.
-We append the special “&lt;eos&gt;” token
-to the end of every sequence to indicate the
-end of the sequence.
-When a model is predicting
-by generating a sequence token after token,
-the generation of the “&lt;eos&gt;” token
-can suggest that the output sequence is complete.
-In the end, the method below returns
-two lists of token lists: `src` and `tgt`.
-Specifically, `src[i]` is a list of tokens from the
-$i^\textrm{th}$ text sequence in the source language (English here) 
-and `tgt[i]` is that in the target language (French here).
+:numref:`sec_language-model`의 문자 수준 토큰화와 달리,
+기계 번역을 위해 여기서는 단어 수준 토큰화를 선호합니다
+(오늘날의 최첨단 모델은 더 복잡한 토큰화 기술을 사용합니다). 
+다음 `_tokenize` 메서드는 처음 `max_examples`개의 텍스트 시퀀스 쌍을 토큰화하며,
+여기서 각 토큰은 단어이거나 구두점입니다. 
+시퀀스의 끝을 나타내기 위해 모든 시퀀스 끝에 특수 “&lt;eos&gt;” 토큰을 추가합니다. 
+모델이 토큰별로 시퀀스를 생성하여 예측할 때, “&lt;eos&gt;” 토큰의 생성은 출력 시퀀스가 완료되었음을 시사할 수 있습니다. 
+마지막으로 아래 메서드는 `src`와 `tgt`라는 두 개의 토큰 리스트의 리스트를 반환합니다.
+구체적으로 `src[i]`는 소스 언어(여기서는 영어)의 $i^\textrm{th}$번째 텍스트 시퀀스의 토큰 리스트이고, `tgt[i]`는 타겟 언어(여기서는 프랑스어)의 토큰 리스트입니다.
 
 ```{.python .input  n=7}
 %%tab all
@@ -163,7 +125,7 @@ def _tokenize(self, text, max_examples=None):
         if max_examples and i > max_examples: break
         parts = line.split('\t')
         if len(parts) == 2:
-            # Skip empty tokens
+            # 빈 토큰 건너뛰기
             src.append([t for t in f'{parts[0]} <eos>'.split(' ') if t])
             tgt.append([t for t in f'{parts[1]} <eos>'.split(' ') if t])
     return src, tgt
@@ -175,15 +137,14 @@ src, tgt = data._tokenize(text)
 src[:6], tgt[:6]
 ```
 
-Let's [**plot the histogram of the number of tokens per text sequence.**]
-In this simple English--French dataset,
-most of the text sequences have fewer than 20 tokens.
+[**텍스트 시퀀스당 토큰 수의 히스토그램을 그려봅시다.**]
+이 간단한 영어-프랑스어 데이터셋에서 대부분의 텍스트 시퀀스는 20개 미만의 토큰을 가집니다.
 
 ```{.python .input  n=8}
 %%tab all
 #@save
 def show_list_len_pair_hist(legend, xlabel, ylabel, xlist, ylist):
-    """Plot the histogram for list length pairs."""
+    """리스트 길이 쌍에 대한 히스토그램을 그립니다."""
     d2l.set_figsize()
     _, _, patches = d2l.plt.hist(
         [[len(l) for l in xlist], [len(l) for l in ylist]])
@@ -200,58 +161,30 @@ show_list_len_pair_hist(['source', 'target'], '# tokens per sequence',
                         'count', src, tgt);
 ```
 
-## Loading Sequences of Fixed Length
+## 고정 길이 시퀀스 로드하기 (Loading Sequences of Fixed Length)
 :label:`subsec_loading-seq-fixed-len`
 
-Recall that in language modeling
-[**each example sequence**],
-either a segment of one sentence
-or a span over multiple sentences,
-(**had a fixed length.**)
-This was specified by the `num_steps`
-(number of time steps or tokens) argument from :numref:`sec_language-model`.
-In machine translation, each example is
-a pair of source and target text sequences,
-where the two text sequences may have different lengths.
+언어 모델링에서 [**각 예제 시퀀스**](한 문장의 세그먼트이거나 여러 문장에 걸친 범위)가 (**고정된 길이를 가졌음**)을 상기하십시오.
+이는 :numref:`sec_language-model`의 `num_steps`(타임 스텝 또는 토큰의 수) 인수에 의해 지정되었습니다. 
+기계 번역에서 각 예제는 소스 및 타겟 텍스트 시퀀스의 쌍이며, 여기서 두 텍스트 시퀀스는 길이가 다를 수 있습니다.
 
-For computational efficiency,
-we can still process a minibatch of text sequences
-at one time by *truncation* and *padding*.
-Suppose that every sequence in the same minibatch
-should have the same length `num_steps`.
-If a text sequence has fewer than `num_steps` tokens,
-we will keep appending the special "&lt;pad&gt;" token
-to its end until its length reaches `num_steps`.
-Otherwise, we will truncate the text sequence
-by only taking its first `num_steps` tokens
-and discarding the remaining.
-In this way, every text sequence
-will have the same length
-to be loaded in minibatches of the same shape.
-Furthermore, we also record length of the source sequence excluding padding tokens.
-This information will be needed by some models that we will cover later.
+계산 효율성을 위해,
+우리는 여전히 *자르기(truncation)*와 *패딩(padding)*을 통해 한 번에 텍스트 시퀀스의 미니배치를 처리할 수 있습니다. 
+동일한 미니배치의 모든 시퀀스가 동일한 길이 `num_steps`를 가져야 한다고 가정합시다. 
+텍스트 시퀀스에 `num_steps`보다 적은 토큰이 있는 경우, 길이가 `num_steps`에 도달할 때까지 끝에 특수 "&lt;pad&gt;" 토큰을 계속 추가합니다. 
+그렇지 않으면 처음 `num_steps`개의 토큰만 취하고 나머지는 버림으로써 텍스트 시퀀스를 자릅니다. 
+이런 식으로 모든 텍스트 시퀀스는 동일한 모양의 미니배치로 로드될 수 있도록 동일한 길이를 갖게 됩니다. 
+더욱이 패딩 토큰을 제외한 소스 시퀀스의 길이도 기록합니다. 
+이 정보는 나중에 다룰 일부 모델에서 필요할 것입니다.
 
 
-Since the machine translation dataset
-consists of pairs of languages,
-we can build two vocabularies for
-both the source language and
-the target language separately.
-With word-level tokenization,
-the vocabulary size will be significantly larger
-than that using character-level tokenization.
-To alleviate this,
-here we treat infrequent tokens
-that appear less than twice
-as the same unknown ("&lt;unk&gt;") token.
-As we will explain later (:numref:`fig_seq2seq`),
-when training with target sequences,
-the decoder output (label tokens)
-can be the same decoder input (target tokens),
-shifted by one token;
-and the special beginning-of-sequence "&lt;bos&gt;" token
-will be used as the first input token
-for predicting the target sequence (:numref:`fig_seq2seq_predict`).
+기계 번역 데이터셋은 언어 쌍으로 구성되므로,
+소스 언어와 타겟 언어 각각에 대해 두 개의 어휘를 별도로 구축할 수 있습니다. 
+단어 수준 토큰화를 사용하면 어휘 크기가 문자 수준 토큰화를 사용할 때보다 훨씬 더 커집니다. 
+이를 완화하기 위해 여기서는 두 번 미만으로 나타나는 드문 토큰을 동일한 알 수 없는("&lt;unk&gt;") 토큰으로 취급합니다. 
+나중에 설명하겠지만(:numref:`fig_seq2seq`), 
+타겟 시퀀스로 훈련할 때 디코더 출력(레이블 토큰)은 한 토큰만큼 이동된 동일한 디코더 입력(타겟 토큰)일 수 있으며,
+특수 문장 시작("&lt;bos&gt;") 토큰이 타겟 시퀀스를 예측하기 위한 첫 번째 입력 토큰으로 사용될 것입니다(:numref:`fig_seq2seq_predict`).
 
 ```{.python .input  n=9}
 %%tab all
@@ -287,10 +220,9 @@ def _build_arrays(self, raw_text, src_vocab=None, tgt_vocab=None):
             src_vocab, tgt_vocab)
 ```
 
-## [**Reading the Dataset**]
+## [**데이터셋 읽기**]
 
-Finally, we define the `get_dataloader` method
-to return the data iterator.
+마지막으로 데이터 반복자를 반환하기 위해 `get_dataloader` 메서드를 정의합니다.
 
 ```{.python .input  n=10}
 %%tab all
@@ -300,7 +232,7 @@ def get_dataloader(self, train):
     return self.get_tensorloader(self.arrays, train, idx)
 ```
 
-Let's [**read the first minibatch from the English--French dataset.**]
+영어-프랑스어 데이터셋에서 [**첫 번째 미니배치를 읽어봅시다.**]
 
 ```{.python .input  n=11}
 %%tab all
@@ -312,9 +244,7 @@ print('source len excluding pad:', d2l.astype(src_valid_len, d2l.int32))
 print('label:', d2l.astype(label, d2l.int32))
 ```
 
-We show a pair of source and target sequences
-processed by the above `_build_arrays` method
-(in the string format).
+위의 `_build_arrays` 메서드에 의해 처리된 소스 및 타겟 시퀀스 쌍을 보여줍니다(문자열 형식).
 
 ```{.python .input  n=12}
 %%tab all
@@ -334,28 +264,30 @@ print('source:', data.src_vocab.to_tokens(d2l.astype(src[0], d2l.int32)))
 print('target:', data.tgt_vocab.to_tokens(d2l.astype(tgt[0], d2l.int32)))
 ```
 
-## Summary
+## 요약 (Summary)
 
-In natural language processing, *machine translation* refers to the task of automatically mapping from a sequence representing a string of text in a *source* language to a string representing a plausible translation in a *target* language. Using word-level tokenization, the vocabulary size will be significantly larger than that using character-level tokenization, but the sequence lengths will be much shorter. To mitigate the large vocabulary size, we can treat infrequent tokens as some "unknown" token. We can truncate and pad text sequences so that all of them will have the same length to be loaded in minibatches. Modern implementations often bucket sequences with similar lengths to avoid wasting excessive computation on padding. 
+자연어 처리에서 *기계 번역*이란 *소스* 언어의 텍스트 문자열을 나타내는 시퀀스에서 *타겟* 언어의 그럴듯한 번역을 나타내는 문자열로 자동으로 매핑하는 작업을 말합니다. 단어 수준 토큰화를 사용하면 어휘 크기가 문자 수준 토큰화를 사용할 때보다 훨씬 커지지만 시퀀스 길이는 훨씬 짧아집니다. 큰 어휘 크기를 완화하기 위해 드문 토큰을 어떤 "알 수 없는" 토큰으로 취급할 수 있습니다. 텍스트 시퀀스를 자르고 패딩하여 모든 시퀀스가 미니배치로 로드될 수 있도록 동일한 길이를 갖게 할 수 있습니다. 현대적인 구현에서는 종종 패딩에 대한 과도한 계산 낭비를 피하기 위해 비슷한 길이의 시퀀스를 버킷팅(bucket)합니다. 
 
 
-## Exercises
+## 연습 문제 (Exercises)
 
-1. Try different values of the `max_examples` argument in the `_tokenize` method. How does this affect the vocabulary sizes of the source language and the target language?
-1. Text in some languages such as Chinese and Japanese does not have word boundary indicators (e.g., space). Is word-level tokenization still a good idea for such cases? Why or why not?
+1. `_tokenize` 메서드에서 `max_examples` 인수의 다양한 값을 시도해 보십시오. 이것이 소스 언어와 타겟 언어의 어휘 크기에 어떤 영향을 미칩니까?
+2. 중국어와 일본어 같은 일부 언어의 텍스트에는 단어 경계 표시(예: 공백)가 없습니다. 그러한 경우에도 단어 수준 토큰화가 여전히 좋은 아이디어일까요? 왜 그런가요 혹은 왜 아닌가요?
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/344)
+[토론](https://discuss.d2l.ai/t/344)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1060)
+[토론](https://discuss.d2l.ai/t/1060)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/3863)
+[토론](https://discuss.d2l.ai/t/3863)
 :end_tab:
 
 :begin_tab:`jax`
-[Discussions](https://discuss.d2l.ai/t/18020)
+[토론](https://discuss.d2l.ai/t/18020)
 :end_tab:
+
+```

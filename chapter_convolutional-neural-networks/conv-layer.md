@@ -3,14 +3,11 @@
 tab.interact_select(['mxnet', 'pytorch', 'tensorflow', 'jax'])
 ```
 
-# Convolutions for Images
+# 이미지를 위한 합성곱 (Convolutions for Images)
 :label:`sec_conv_layer`
 
-Now that we understand how convolutional layers work in theory,
-we are ready to see how they work in practice.
-Building on our motivation of convolutional neural networks
-as efficient architectures for exploring structure in image data,
-we stick with images as our running example.
+이제 이론적으로 합성곱 레이어가 어떻게 작동하는지 이해했으므로, 실제로 어떻게 작동하는지 볼 준비가 되었습니다. 
+이미지 데이터에서 구조를 탐색하기 위한 효율적인 아키텍처로서의 합성곱 신경망에 대한 동기를 바탕으로, 우리는 실행 예제로 이미지를 고수합니다.
 
 ```{.python .input}
 %%tab mxnet
@@ -41,77 +38,46 @@ from d2l import tensorflow as d2l
 import tensorflow as tf
 ```
 
-## The Cross-Correlation Operation
+## 상호 상관 연산 (The Cross-Correlation Operation)
 
-Recall that strictly speaking, convolutional layers
-are a  misnomer, since the operations they express
-are more accurately described as cross-correlations.
-Based on our descriptions of convolutional layers in :numref:`sec_why-conv`,
-in such a layer, an input tensor
-and a kernel tensor are combined
-to produce an output tensor through a (**cross-correlation operation.**)
+엄밀히 말하면 합성곱 레이어라는 이름은 잘못된 것입니다. 그들이 표현하는 연산은 상호 상관으로 더 정확하게 설명되기 때문입니다. 
+:numref:`sec_why-conv`의 합성곱 레이어 설명에 따르면, 그러한 레이어에서 입력 텐서와 커널 텐서는 (**상호 상관 연산**)을 통해 결합되어 출력 텐서를 생성합니다.
 
-Let's ignore channels for now and see how this works
-with two-dimensional data and hidden representations.
-In :numref:`fig_correlation`,
-the input is a two-dimensional tensor
-with a height of 3 and width of 3.
-We mark the shape of the tensor as $3 \times 3$ or ($3$, $3$).
-The height and width of the kernel are both 2.
-The shape of the *kernel window* (or *convolution window*)
-is given by the height and width of the kernel
-(here it is $2 \times 2$).
+지금은 채널을 무시하고 2차원 데이터와 은닉 표현으로 이것이 어떻게 작동하는지 봅시다. 
+:numref:`fig_correlation`에서 입력은 높이 3, 너비 3인 2차원 텐서입니다. 
+우리는 텐서의 모양을 $3 \times 3$ 또는 ($3$, $3$)으로 표시합니다. 
+커널의 높이와 너비는 모두 2입니다. 
+*커널 윈도우* (또는 *합성곱 윈도우*)의 모양은 커널의 높이와 너비로 주어집니다(여기서는 $2 \times 2$).
 
-![Two-dimensional cross-correlation operation. The shaded portions are the first output element as well as the input and kernel tensor elements used for the output computation: $0\times0+1\times1+3\times2+4\times3=19$.](../img/correlation.svg)
+![2차원 상호 상관 연산. 음영 처리된 부분은 첫 번째 출력 요소와 출력 계산에 사용된 입력 및 커널 텐서 요소입니다: $0\times0+1\times1+3\times2+4\times3=19$.](../img/correlation.svg)
 :label:`fig_correlation`
 
-In the two-dimensional cross-correlation operation,
-we begin with the convolution window positioned
-at the upper-left corner of the input tensor
-and slide it across the input tensor,
-both from left to right and top to bottom.
-When the convolution window slides to a certain position,
-the input subtensor contained in that window
-and the kernel tensor are multiplied elementwise
-and the resulting tensor is summed up
-yielding a single scalar value.
-This result gives the value of the output tensor
-at the corresponding location.
-Here, the output tensor has a height of 2 and width of 2
-and the four elements are derived from
-the two-dimensional cross-correlation operation:
+2차원 상호 상관 연산에서는 입력 텐서의 왼쪽 상단 모서리에 위치한 합성곱 윈도우로 시작하여 왼쪽에서 오른쪽으로, 위에서 아래로 입력 텐서를 가로질러 밉니다. 
+합성곱 윈도우가 특정 위치로 미끄러질 때, 해당 윈도우에 포함된 입력 하위 텐서와 커널 텐서가 요소별로 곱해지고 결과 텐서가 합산되어 단일 스칼라 값을 산출합니다. 
+이 결과는 해당 위치에서 출력 텐서의 값을 제공합니다. 
+여기서 출력 텐서는 높이 2, 너비 2를 가지며 4개의 요소는 2차원 상호 상관 연산에서 파생됩니다:
 
-$$
-0\times0+1\times1+3\times2+4\times3=19,\\
-1\times0+2\times1+4\times2+5\times3=25,\\
-3\times0+4\times1+6\times2+7\times3=37,\\
-4\times0+5\times1+7\times2+8\times3=43.
+$$ 
+0\times0+1\times1+3\times2+4\times3=19,\
+1\times0+2\times1+4\times2+5\times3=25,\
+3\times0+4\times1+6\times2+7\times3=37,\
+4\times0+5\times1+7\times2+8\times3=43. 
 $$
 
-Note that along each axis, the output size
-is slightly smaller than the input size.
-Because the kernel has width and height greater than $1$,
-we can only properly compute the cross-correlation
-for locations where the kernel fits wholly within the image,
-the output size is given by the input size $n_\textrm{h} \times n_\textrm{w}$
-minus the size of the convolution kernel $k_\textrm{h} \times k_\textrm{w}$
-via
+각 축을 따라 출력 크기는 입력 크기보다 약간 작습니다. 
+커널의 너비와 높이가 $1$보다 크기 때문에, 커널이 이미지 내에 완전히 들어맞는 위치에 대해서만 상호 상관을 적절하게 계산할 수 있습니다. 
+출력 크기는 입력 크기 $n_\textrm{h} \times n_\textrm{w}$에서 합성곱 커널 크기 $k_\textrm{h} \times k_\textrm{w}$를 뺀 값으로 다음과 같이 주어집니다.
 
-$$(n_\textrm{h}-k_\textrm{h}+1) \times (n_\textrm{w}-k_\textrm{w}+1).$$
+$$(n_\textrm{h}-k_\textrm{h}+1) \times (n_\textrm{w}-k_\textrm{w}+1).$$ 
 
-This is the case since we need enough space
-to "shift" the convolution kernel across the image.
-Later we will see how to keep the size unchanged
-by padding the image with zeros around its boundary
-so that there is enough space to shift the kernel.
-Next, we implement this process in the `corr2d` function,
-which accepts an input tensor `X` and a kernel tensor `K`
-and returns an output tensor `Y`.
+이는 이미지를 가로질러 합성곱 커널을 "이동"할 충분한 공간이 필요하기 때문입니다. 
+나중에 커널을 이동할 충분한 공간이 있도록 경계 주위에 0으로 이미지를 패딩하여 크기를 변경하지 않고 유지하는 방법을 볼 것입니다. 
+다음으로 입력 텐서 `X`와 커널 텐서 `K`를 받아 출력 텐서 `Y`를 반환하는 `corr2d` 함수로 이 과정을 구현합니다.
 
 ```{.python .input}
 %%tab mxnet
 def corr2d(X, K):  #@save
-    """Compute 2D cross-correlation."""
+    """2D 상호 상관을 계산합니다."""
     h, w = K.shape
     Y = d2l.zeros((X.shape[0] - h + 1, X.shape[1] - w + 1))
     for i in range(Y.shape[0]):
@@ -123,7 +89,7 @@ def corr2d(X, K):  #@save
 ```{.python .input}
 %%tab pytorch
 def corr2d(X, K):  #@save
-    """Compute 2D cross-correlation."""
+    """2D 상호 상관을 계산합니다."""
     h, w = K.shape
     Y = d2l.zeros((X.shape[0] - h + 1, X.shape[1] - w + 1))
     for i in range(Y.shape[0]):
@@ -135,7 +101,7 @@ def corr2d(X, K):  #@save
 ```{.python .input}
 %%tab jax
 def corr2d(X, K):  #@save
-    """Compute 2D cross-correlation."""
+    """2D 상호 상관을 계산합니다."""
     h, w = K.shape
     Y = jnp.zeros((X.shape[0] - h + 1, X.shape[1] - w + 1))
     for i in range(Y.shape[0]):
@@ -147,7 +113,7 @@ def corr2d(X, K):  #@save
 ```{.python .input}
 %%tab tensorflow
 def corr2d(X, K):  #@save
-    """Compute 2D cross-correlation."""
+    """2D 상호 상관을 계산합니다."""
     h, w = K.shape
     Y = tf.Variable(tf.zeros((X.shape[0] - h + 1, X.shape[1] - w + 1)))
     for i in range(Y.shape[0]):
@@ -157,10 +123,7 @@ def corr2d(X, K):  #@save
     return Y
 ```
 
-We can construct the input tensor `X` and the kernel tensor `K`
-from :numref:`fig_correlation`
-to [**validate the output of the above implementation**]
-of the two-dimensional cross-correlation operation.
+:numref:`fig_correlation`의 입력 텐서 `X`와 커널 텐서 `K`를 구성하여 2차원 상호 상관 연산의 [**위 구현 출력을 검증**]할 수 있습니다.
 
 ```{.python .input}
 %%tab all
@@ -169,22 +132,15 @@ K = d2l.tensor([[0.0, 1.0], [2.0, 3.0]])
 corr2d(X, K)
 ```
 
-## Convolutional Layers
+## 합성곱 레이어 (Convolutional Layers)
 
-A convolutional layer cross-correlates the input and kernel
-and adds a scalar bias to produce an output.
-The two parameters of a convolutional layer
-are the kernel and the scalar bias.
-When training models based on convolutional layers,
-we typically initialize the kernels randomly,
-just as we would with a fully connected layer.
+합성곱 레이어는 입력과 커널을 상호 상관시키고 스칼라 편향을 더하여 출력을 생성합니다. 
+합성곱 레이어의 두 파라미터는 커널과 스칼라 편향입니다. 
+합성곱 레이어를 기반으로 모델을 훈련할 때, 일반적으로 완전 연결 레이어와 마찬가지로 커널을 무작위로 초기화합니다.
 
-We are now ready to [**implement a two-dimensional convolutional layer**]
-based on the `corr2d` function defined above.
-In the `__init__` constructor method,
-we declare `weight` and `bias` as the two model parameters.
-The forward propagation method
-calls the `corr2d` function and adds the bias.
+이제 위에서 정의한 `corr2d` 함수를 기반으로 [**2차원 합성곱 레이어를 구현**]할 준비가 되었습니다. 
+`__init__` 생성자 메서드에서 `weight`와 `bias`를 두 모델 파라미터로 선언합니다. 
+순전파 메서드는 `corr2d` 함수를 호출하고 편향을 더합니다.
 
 ```{.python .input}
 %%tab mxnet
@@ -240,22 +196,15 @@ class Conv2D(nn.Module):
         return corr2d(x, self.weight) + self.bias
 ```
 
-In
-$h \times w$ convolution
-or an $h \times w$ convolution kernel,
-the height and width of the convolution kernel are $h$ and $w$, respectively.
-We also refer to
-a convolutional layer with an $h \times w$
-convolution kernel simply as an $h \times w$ convolutional layer.
+$h \times w$ 합성곱 또는 $h \times w$ 합성곱 커널에서, 합성곱 커널의 높이와 너비는 각각 $h$와 $w$입니다. 
+우리는 또한 $h \times w$ 합성곱 커널을 가진 합성곱 레이어를 단순히 $h \times w$ 합성곱 레이어라고 부릅니다.
 
 
-## Object Edge Detection in Images
+## 이미지의 객체 가장자리 감지 (Object Edge Detection in Images)
 
-Let's take a moment to parse [**a simple application of a convolutional layer:
-detecting the edge of an object in an image**]
-by finding the location of the pixel change.
-First, we construct an "image" of $6\times 8$ pixels.
-The middle four columns are black ($0$) and the rest are white ($1$).
+픽셀 변화의 위치를 찾아 [**합성곱 레이어의 간단한 응용: 이미지의 객체 가장자리 감지**]를 분석해 봅시다. 
+먼저 $6\times 8$ 픽셀의 "이미지"를 구성합니다. 
+가운데 네 열은 검은색($0$)이고 나머지는 흰색($1$)입니다.
 
 ```{.python .input}
 %%tab mxnet, pytorch
@@ -278,22 +227,18 @@ X = X.at[:, 2:6].set(0)
 X
 ```
 
-Next, we construct a kernel `K` with a height of 1 and a width of 2.
-When we perform the cross-correlation operation with the input,
-if the horizontally adjacent elements are the same,
-the output is 0. Otherwise, the output is nonzero.
-Note that this kernel is a special case of a finite difference operator. At location $(i,j)$ it computes $x_{i,j} - x_{(i+1),j}$, i.e., it computes the difference between the values of horizontally adjacent pixels. This is a discrete approximation of the first derivative in the horizontal direction. After all, for a function $f(i,j)$ its derivative $-\partial_i f(i,j) = \lim_{\epsilon \to 0} \frac{f(i,j) - f(i+\epsilon,j)}{\epsilon}$. Let's see how this works in practice.
+다음으로 높이가 1이고 너비가 2인 커널 `K`를 구성합니다. 
+입력과 상호 상관 연산을 수행할 때, 수평으로 인접한 요소가 같으면 출력은 0입니다. 그렇지 않으면 출력은 0이 아닙니다. 
+이 커널은 유한 차분 연산자의 특수한 경우라는 점에 유의하십시오. 위치 $(i,j)$에서 $x_{i,j} - x_{(i+1),j}$를 계산합니다. 즉, 수평으로 인접한 픽셀 값의 차이를 계산합니다. 이것은 수평 방향의 1계 도함수의 이산 근사입니다. 결국 함수 $f(i,j)$에 대해 그 도함수는 $-\partial_i f(i,j) = \lim_{\epsilon \to 0} \frac{f(i,j) - f(i+\epsilon,j)}{\epsilon}$입니다. 이것이 실제로 어떻게 작동하는지 봅시다.
 
 ```{.python .input}
 %%tab all
 K = d2l.tensor([[1.0, -1.0]])
 ```
 
-We are ready to perform the cross-correlation operation
-with arguments `X` (our input) and `K` (our kernel).
-As you can see, [**we detect $1$ for the edge from white to black
-and $-1$ for the edge from black to white.**]
-All other outputs take value $0$.
+인수 `X`(입력)와 `K`(커널)로 상호 상관 연산을 수행할 준비가 되었습니다. 
+보시다시피, [**흰색에서 검은색으로 변하는 가장자리는 $1$로, 검은색에서 흰색으로 변하는 가장자리는 $-1$로 감지합니다.**] 
+다른 모든 출력은 값 $0$을 취합니다.
 
 ```{.python .input}
 %%tab all
@@ -301,56 +246,44 @@ Y = corr2d(X, K)
 Y
 ```
 
-We can now apply the kernel to the transposed image.
-As expected, it vanishes. [**The kernel `K` only detects vertical edges.**]
+이제 전치된 이미지에 커널을 적용할 수 있습니다. 
+예상대로 사라집니다. [**커널 `K`는 수직 가장자리만 감지합니다.**]
 
 ```{.python .input}
 %%tab all
 corr2d(d2l.transpose(X), K)
 ```
 
-## Learning a Kernel
+## 커널 학습하기 (Learning a Kernel)
 
-Designing an edge detector by finite differences `[1, -1]` is neat
-if we know this is precisely what we are looking for.
-However, as we look at larger kernels,
-and consider successive layers of convolutions,
-it might be impossible to specify
-precisely what each filter should be doing manually.
+이것이 우리가 찾고 있는 것이 정확히 무엇인지 안다면 유한 차분 `[1, -1]`로 가장자리 감지기를 설계하는 것은 깔끔합니다. 
+하지만 더 큰 커널을 보고 연속적인 합성곱 레이어를 고려할 때, 각 필터가 무엇을 해야 하는지 수동으로 정확하게 지정하는 것은 불가능할 수 있습니다.
 
-Now let's see whether we can [**learn the kernel that generated `Y` from `X`**]
-by looking at the input--output pairs only.
-We first construct a convolutional layer
-and initialize its kernel as a random tensor.
-Next, in each iteration, we will use the squared error
-to compare `Y` with the output of the convolutional layer.
-We can then calculate the gradient to update the kernel.
-For the sake of simplicity,
-in the following
-we use the built-in class
-for two-dimensional convolutional layers
-and ignore the bias.
+이제 입력-출력 쌍만 보고 [**`X`에서 `Y`를 생성한 커널을 학습할 수 있는지**] 봅시다. 
+먼저 합성곱 레이어를 구성하고 커널을 무작위 텐서로 초기화합니다. 
+다음으로 각 반복에서 제곱 오차를 사용하여 `Y`를 합성곱 레이어의 출력과 비교합니다. 
+그런 다음 기울기를 계산하여 커널을 업데이트할 수 있습니다. 
+단순함을 위해 다음에서는 2차원 합성곱 레이어에 대한 내장 클래스를 사용하고 편향을 무시합니다.
 
 ```{.python .input}
 %%tab mxnet
-# Construct a two-dimensional convolutional layer with 1 output channel and a
-# kernel of shape (1, 2). For the sake of simplicity, we ignore the bias here
+# 1개의 출력 채널과 모양 (1, 2)의 커널을 가진 2차원 합성곱 레이어를 구성합니다.
+# 단순함을 위해 여기서는 편향을 무시합니다
 conv2d = nn.Conv2D(1, kernel_size=(1, 2), use_bias=False)
 conv2d.initialize()
 
-# The two-dimensional convolutional layer uses four-dimensional input and
-# output in the format of (example, channel, height, width), where the batch
-# size (number of examples in the batch) and the number of channels are both 1
+# 2차원 합성곱 레이어는 (예제, 채널, 높이, 너비) 형식의 4차원 입력 및 출력을 사용합니다.
+# 여기서 배치 크기(배치의 예제 수)와 채널 수는 모두 1입니다
 X = X.reshape(1, 1, 6, 8)
 Y = Y.reshape(1, 1, 6, 7)
-lr = 3e-2  # Learning rate
+lr = 3e-2  # 학습률
 
 for i in range(10):
     with autograd.record():
         Y_hat = conv2d(X)
         l = (Y_hat - Y) ** 2
     l.backward()
-    # Update the kernel
+    # 커널 업데이트
     conv2d.weight.data()[:] -= lr * conv2d.weight.grad()
     if (i + 1) % 2 == 0:
         print(f'epoch {i + 1}, loss {float(l.sum()):.3f}')
@@ -358,23 +291,22 @@ for i in range(10):
 
 ```{.python .input}
 %%tab pytorch
-# Construct a two-dimensional convolutional layer with 1 output channel and a
-# kernel of shape (1, 2). For the sake of simplicity, we ignore the bias here
+# 1개의 출력 채널과 모양 (1, 2)의 커널을 가진 2차원 합성곱 레이어를 구성합니다.
+# 단순함을 위해 여기서는 편향을 무시합니다
 conv2d = nn.LazyConv2d(1, kernel_size=(1, 2), bias=False)
 
-# The two-dimensional convolutional layer uses four-dimensional input and
-# output in the format of (example, channel, height, width), where the batch
-# size (number of examples in the batch) and the number of channels are both 1
+# 2차원 합성곱 레이어는 (예제, 채널, 높이, 너비) 형식의 4차원 입력 및 출력을 사용합니다.
+# 여기서 배치 크기(배치의 예제 수)와 채널 수는 모두 1입니다
 X = X.reshape((1, 1, 6, 8))
 Y = Y.reshape((1, 1, 6, 7))
-lr = 3e-2  # Learning rate
+lr = 3e-2  # 학습률
 
 for i in range(10):
     Y_hat = conv2d(X)
     l = (Y_hat - Y) ** 2
     conv2d.zero_grad()
     l.sum().backward()
-    # Update the kernel
+    # 커널 업데이트
     conv2d.weight.data[:] -= lr * conv2d.weight.grad
     if (i + 1) % 2 == 0:
         print(f'epoch {i + 1}, loss {l.sum():.3f}')
@@ -382,16 +314,15 @@ for i in range(10):
 
 ```{.python .input}
 %%tab tensorflow
-# Construct a two-dimensional convolutional layer with 1 output channel and a
-# kernel of shape (1, 2). For the sake of simplicity, we ignore the bias here
+# 1개의 출력 채널과 모양 (1, 2)의 커널을 가진 2차원 합성곱 레이어를 구성합니다.
+# 단순함을 위해 여기서는 편향을 무시합니다
 conv2d = tf.keras.layers.Conv2D(1, (1, 2), use_bias=False)
 
-# The two-dimensional convolutional layer uses four-dimensional input and
-# output in the format of (example, height, width, channel), where the batch
-# size (number of examples in the batch) and the number of channels are both 1
+# 2차원 합성곱 레이어는 (예제, 높이, 너비, 채널) 형식의 4차원 입력 및 출력을 사용합니다.
+# 여기서 배치 크기(배치의 예제 수)와 채널 수는 모두 1입니다
 X = tf.reshape(X, (1, 6, 8, 1))
 Y = tf.reshape(Y, (1, 6, 7, 1))
-lr = 3e-2  # Learning rate
+lr = 3e-2  # 학습률
 
 Y_hat = conv2d(X)
 for i in range(10):
@@ -399,7 +330,7 @@ for i in range(10):
         g.watch(conv2d.weights[0])
         Y_hat = conv2d(X)
         l = (abs(Y_hat - Y)) ** 2
-        # Update the kernel
+        # 커널 업데이트
         update = tf.multiply(lr, g.gradient(l, conv2d.weights[0]))
         weights = conv2d.get_weights()
         weights[0] = conv2d.weights[0] - update
@@ -410,16 +341,15 @@ for i in range(10):
 
 ```{.python .input}
 %%tab jax
-# Construct a two-dimensional convolutional layer with 1 output channel and a
-# kernel of shape (1, 2). For the sake of simplicity, we ignore the bias here
+# 1개의 출력 채널과 모양 (1, 2)의 커널을 가진 2차원 합성곱 레이어를 구성합니다.
+# 단순함을 위해 여기서는 편향을 무시합니다
 conv2d = nn.Conv(1, kernel_size=(1, 2), use_bias=False, padding='VALID')
 
-# The two-dimensional convolutional layer uses four-dimensional input and
-# output in the format of (example, height, width, channel), where the batch
-# size (number of examples in the batch) and the number of channels are both 1
+# 2차원 합성곱 레이어는 (예제, 높이, 너비, 채널) 형식의 4차원 입력 및 출력을 사용합니다.
+# 여기서 배치 크기(배치의 예제 수)와 채널 수는 모두 1입니다
 X = X.reshape((1, 6, 8, 1))
 Y = Y.reshape((1, 6, 7, 1))
-lr = 3e-2  # Learning rate
+lr = 3e-2  # 학습률
 
 params = conv2d.init(jax.random.PRNGKey(d2l.get_seed()), X)
 
@@ -429,13 +359,13 @@ def loss(params, X, Y):
 
 for i in range(10):
     l, grads = jax.value_and_grad(loss)(params, X, Y)
-    # Update the kernel
+    # 커널 업데이트
     params = jax.tree_map(lambda p, g: p - lr * g, params, grads)
     if (i + 1) % 2 == 0:
         print(f'epoch {i + 1}, loss {l:.3f}')
 ```
 
-Note that the error has dropped to a small value after 10 iterations. Now we will [**take a look at the kernel tensor we learned.**]
+10번 반복 후 오차가 작은 값으로 떨어졌음에 유의하십시오. 이제 [**우리가 학습한 커널 텐서를 살펴봅시다.**]
 
 ```{.python .input}
 %%tab mxnet
@@ -457,140 +387,88 @@ d2l.reshape(conv2d.get_weights()[0], (1, 2))
 params['params']['kernel'].reshape((1, 2))
 ```
 
-Indeed, the learned kernel tensor is remarkably close
-to the kernel tensor `K` we defined earlier.
+실제로 학습된 커널 텐서는 우리가 앞서 정의한 커널 텐서 `K`와 놀랍도록 가깝습니다.
 
-## Cross-Correlation and Convolution
+## 상호 상관과 합성곱 (Cross-Correlation and Convolution)
 
-Recall our observation from :numref:`sec_why-conv` of the correspondence
-between the cross-correlation and convolution operations.
-Here let's continue to consider two-dimensional convolutional layers.
-What if such layers
-perform strict convolution operations
-as defined in :eqref:`eq_2d-conv-discrete`
-instead of cross-correlations?
-In order to obtain the output of the strict *convolution* operation, we only need to flip the two-dimensional kernel tensor both horizontally and vertically, and then perform the *cross-correlation* operation with the input tensor.
+:numref:`sec_why-conv`에서 상호 상관 연산과 합성곱 연산 사이의 대응 관계에 대한 관찰을 상기해 보십시오. 
+여기서 2차원 합성곱 레이어를 계속 고려해 봅시다. 
+만약 그러한 레이어가 상호 상관 대신 :eqref:`eq_2d-conv-discrete`에 정의된 엄격한 합성곱 연산을 수행한다면 어떨까요? 
+엄격한 *합성곱* 연산의 출력을 얻으려면, 2차원 커널 텐서를 수평 및 수직으로 모두 뒤집은 다음 입력 텐서와 *상호 상관* 연산을 수행하기만 하면 됩니다.
 
-It is noteworthy that since kernels are learned from data in deep learning,
-the outputs of convolutional layers remain unaffected
-no matter such layers
-perform
-either the strict convolution operations
-or the cross-correlation operations.
+딥러닝에서는 데이터로부터 커널을 학습하기 때문에, 그러한 레이어가 엄격한 합성곱 연산을 수행하든 상호 상관 연산을 수행하든 합성곱 레이어의 출력은 영향을 받지 않는다는 점에 주목할 가치가 있습니다.
 
-To illustrate this, suppose that a convolutional layer performs *cross-correlation* and learns the kernel in :numref:`fig_correlation`, which is here denoted as the matrix $\mathbf{K}$.
-Assuming that other conditions remain unchanged,
-when this layer instead performs strict *convolution*,
-the learned kernel $\mathbf{K}'$ will be the same as $\mathbf{K}$
-after $\mathbf{K}'$ is
-flipped both horizontally and vertically.
-That is to say,
-when the convolutional layer
-performs strict *convolution*
-for the input in :numref:`fig_correlation`
-and $\mathbf{K}'$,
-the same output in :numref:`fig_correlation`
-(cross-correlation of the input and $\mathbf{K}$)
-will be obtained.
+이를 설명하기 위해, 합성곱 레이어가 *상호 상관*을 수행하고 :numref:`fig_correlation`의 커널을 학습한다고 가정합시다. 여기서는 행렬 $\mathbf{K}$로 표시됩니다. 
+다른 조건이 변하지 않는다고 가정할 때, 이 레이어가 대신 엄격한 *합성곱*을 수행한다면, 학습된 커널 $\mathbf{K}'$는 $\mathbf{K}'$가 수평 및 수직으로 모두 뒤집힌 후 $\mathbf{K}$와 같아질 것입니다. 
+즉, 합성곱 레이어가 :numref:`fig_correlation`의 입력과 $\mathbf{K}'$에 대해 엄격한 *합성곱*을 수행할 때, :numref:`fig_correlation`의 동일한 출력(입력과 $\mathbf{K}$의 상호 상관)을 얻게 됩니다.
 
-In keeping with standard terminology in deep learning literature,
-we will continue to refer to the cross-correlation operation
-as a convolution even though, strictly-speaking, it is slightly different.
-Furthermore,
-we use the term *element* to refer to
-an entry (or component) of any tensor representing a layer representation or a convolution kernel.
+딥러닝 문헌의 표준 용어를 따르기 위해, 엄밀히 말하면 약간 다르지만 상호 상관 연산을 계속해서 합성곱이라고 부를 것입니다. 
+또한 레이어 표현이나 합성곱 커널을 나타내는 텐서의 항목(또는 구성 요소)을 지칭하기 위해 *요소*라는 용어를 사용합니다.
 
 
-## Feature Map and Receptive Field
+## 특성 맵과 수용 영역 (Feature Map and Receptive Field)
 
-As described in :numref:`subsec_why-conv-channels`,
-the convolutional layer output in
-:numref:`fig_correlation`
-is sometimes called a *feature map*,
-as it can be regarded as
-the learned representations (features)
-in the spatial dimensions (e.g., width and height)
-to the subsequent layer.
-In CNNs,
-for any element $x$ of some layer,
-its *receptive field* refers to
-all the elements (from all the previous layers)
-that may affect the calculation of $x$
-during the forward propagation.
-Note that the receptive field
-may be larger than the actual size of the input.
+:numref:`subsec_why-conv-channels`에서 설명한 바와 같이, :numref:`fig_correlation`의 합성곱 레이어 출력은 때때로 *특성 맵(feature map)*이라고 불립니다. 후속 레이어에 대한 공간 차원(예: 너비 및 높이)의 학습된 표현(특성)으로 간주될 수 있기 때문입니다. 
+CNN에서 어떤 레이어의 요소 $x$에 대해, 그 *수용 영역(receptive field)*은 순전파 동안 $x$의 계산에 영향을 줄 수 있는 (모든 이전 레이어의) 모든 요소를 말합니다. 
+수용 영역은 입력의 실제 크기보다 클 수 있다는 점에 유의하십시오.
 
-Let's continue to use :numref:`fig_correlation` to explain the receptive field.
-Given the $2 \times 2$ convolution kernel,
-the receptive field of the shaded output element (of value $19$)
-is
-the four elements in the shaded portion of the input.
-Now let's denote the $2 \times 2$
-output as $\mathbf{Y}$
-and consider a deeper CNN
-with an additional $2 \times 2$ convolutional layer that takes $\mathbf{Y}$
-as its input, outputting
-a single element $z$.
-In this case,
-the receptive field of $z$
-on $\mathbf{Y}$ includes all the four elements of $\mathbf{Y}$,
-while
-the receptive field
-on the input includes all the nine input elements.
-Thus,
-when any element in a feature map
-needs a larger receptive field
-to detect input features over a broader area,
-we can build a deeper network.
+:numref:`fig_correlation`을 계속 사용하여 수용 영역을 설명해 봅시다. 
+$2 \times 2$ 합성곱 커널이 주어졌을 때, 음영 처리된 출력 요소(값 $19$)의 수용 영역은 입력의 음영 처리된 부분에 있는 4개의 요소입니다. 
+이제 $2 \times 2$ 출력을 $\mathbf{Y}$로 표시하고, $\mathbf{Y}$를 입력으로 받아 단일 요소 $z$를 출력하는 추가적인 $2 \times 2$ 합성곱 레이어가 있는 더 깊은 CNN을 고려해 봅시다. 
+이 경우, $\mathbf{Y}$에 대한 $z$의 수용 영역은 $\mathbf{Y}$의 4개 요소를 모두 포함하는 반면, 입력에 대한 수용 영역은 9개의 입력 요소를 모두 포함합니다. 
+따라서 특성 맵의 어떤 요소가 더 넓은 영역의 입력 특성을 감지하기 위해 더 큰 수용 영역이 필요한 경우, 우리는 더 깊은 네트워크를 구축할 수 있습니다.
 
 
-Receptive fields derive their name from neurophysiology.
-A series of experiments on a range of animals using different stimuli
-:cite:`Hubel.Wiesel.1959,Hubel.Wiesel.1962,Hubel.Wiesel.1968` explored the response of what is called the visual
-cortex on said stimuli. By and large they found that lower levels respond to edges and related
-shapes. Later on, :citet:`Field.1987` illustrated this effect on natural
-images with, what can only be called, convolutional kernels.
-We reprint a key figure in :numref:`field_visual` to illustrate the striking similarities.
+수용 영역이라는 이름은 신경생리학에서 유래했습니다. 
+다양한 자극을 사용하여 다양한 동물에 대해 수행된 일련의 실험들 :cite:`Hubel.Wiesel.1959,Hubel.Wiesel.1962,Hubel.Wiesel.1968`은 소위 시각 피질이 해당 자극에 반응하는 것을 탐구했습니다. 
+대체로 그들은 낮은 수준이 가장자리 및 관련 모양에 반응한다는 것을 발견했습니다. 
+나중에 :citet:`Field.1987`은 합성곱 커널이라고밖에 부를 수 없는 것으로 자연 이미지에 대한 이 효과를 설명했습니다. 
+우리는 놀라운 유사성을 설명하기 위해 :numref:`field_visual`에 핵심 그림을 다시 인쇄합니다.
 
-![Figure and caption taken from :citet:`Field.1987`: An example of coding with six different channels. (Left) Examples of the six types of sensor associated with each channel. (Right) Convolution of the image in (Middle) with the six sensors shown in (Left). The response of the individual sensors is determined by sampling these filtered images at a distance proportional to the size of the sensor (shown with dots). This diagram shows the response of only the even symmetric sensors.](../img/field-visual.png)
+![ :citet:`Field.1987`에서 가져온 그림 및 캡션: 6개의 다른 채널로 코딩하는 예. (왼쪽) 각 채널과 관련된 6가지 유형의 센서 예. (오른쪽) (가운데) 이미지를 (왼쪽)에 표시된 6개 센서로 합성곱. 개별 센서의 응답은 센서 크기에 비례하는 거리(점으로 표시됨)에서 이러한 필터링된 이미지를 샘플링하여 결정됩니다. 이 다이어그램은 짝수 대칭 센서의 응답만 보여줍니다.](../img/field-visual.png)
 :label:`field_visual`
 
-As it turns out, this relation even holds for the features computed by deeper layers of networks trained on image classification tasks, as demonstrated in, for example, :citet:`Kuzovkin.Vicente.Petton.ea.2018`. Suffice it to say, convolutions have proven to be an incredibly powerful tool for computer vision, both in biology and in code. As such, it is not surprising (in hindsight) that they heralded the recent success in deep learning.
+밝혀진 바로는, 이 관계는 예를 들어 :citet:`Kuzovkin.Vicente.Petton.ea.2018`에서 입증된 바와 같이 이미지 분류 작업에 대해 훈련된 네트워크의 더 깊은 레이어에 의해 계산된 특성에도 적용됩니다. 
+합성곱은 생물학과 코드 모두에서 컴퓨터 비전을 위한 믿을 수 없을 정도로 강력한 도구임이 입증되었다고 말하는 것으로 충분합니다. 
+따라서 (지나고 나서 보면) 그것들이 딥러닝의 최근 성공을 예고했다는 것은 놀라운 일이 아닙니다.
 
-## Summary
+## 요약 (Summary)
 
-The core computation required for a convolutional layer is a cross-correlation operation. We saw that a simple nested for-loop is all that is required to compute its value. If we have multiple input and multiple output channels, we are  performing a matrix--matrix operation between channels. As can be seen, the computation is straightforward and, most importantly, highly *local*. This affords significant hardware optimization and many recent results in computer vision are only possible because of that. After all, it means that chip designers can invest in fast computation rather than memory when it comes to optimizing for convolutions. While this may not lead to optimal designs for other applications, it does open the door to ubiquitous and affordable computer vision.
+합성곱 레이어에 필요한 핵심 계산은 상호 상관 연산입니다. 우리는 간단한 중첩 for-루프만으로 그 값을 계산할 수 있음을 보았습니다. 다중 입력 및 다중 출력 채널이 있는 경우, 우리는 채널 간에 행렬-행렬 연산을 수행합니다. 보시다시피 계산은 간단하며, 가장 중요한 것은 고도로 *국소적*이라는 점입니다. 이는 상당한 하드웨어 최적화를 제공하며 컴퓨터 비전의 많은 최근 결과는 그 덕분에 가능했습니다. 결국 칩 설계자가 합성곱 최적화와 관련하여 메모리보다는 빠른 계산에 투자할 수 있다는 것을 의미합니다. 이것이 다른 응용 분야에 대한 최적의 설계로 이어지지는 않을지라도, 유비쿼터스하고 저렴한 컴퓨터 비전의 문을 엽니다.
 
-In terms of convolutions themselves, they can be used for many purposes, for example detecting edges and lines, blurring images, or sharpening them. Most importantly, it is not necessary that the statistician (or engineer) invents suitable filters. Instead, we can simply *learn* them from data. This replaces feature engineering heuristics by evidence-based statistics. Lastly, and quite delightfully, these filters are not just advantageous for building deep networks but they also correspond to receptive fields and feature maps in the brain. This gives us confidence that we are on the right track.
+합성곱 자체의 측면에서 보면, 가장자리 및 선 감지, 이미지 흐리기 또는 선명하게 하기 등 다양한 목적으로 사용될 수 있습니다. 
+가장 중요한 것은 통계학자(또는 엔지니어)가 적절한 필터를 발명할 필요가 없다는 것입니다. 
+대신 데이터로부터 간단히 *학습*할 수 있습니다. 
+이것은 특성 엔지니어링 휴리스틱을 증거 기반 통계로 대체합니다. 
+마지막으로, 아주 기쁘게도 이러한 필터는 심층 네트워크를 구축하는 데 유리할 뿐만 아니라 뇌의 수용 영역 및 특성 맵과도 일치합니다. 
+이것은 우리가 올바른 길을 가고 있다는 확신을 줍니다.
 
-## Exercises
+## 연습 문제 (Exercises)
 
-1. Construct an image `X` with diagonal edges.
-    1. What happens if you apply the kernel `K` in this section to it?
-    1. What happens if you transpose `X`?
-    1. What happens if you transpose `K`?
-1. Design some kernels manually.
-    1. Given a directional vector $\mathbf{v} = (v_1, v_2)$, derive an edge-detection kernel that detects
-       edges orthogonal to $\mathbf{v}$, i.e., edges in the direction $(v_2, -v_1)$.
-    1. Derive a finite difference operator for the second derivative. What is the minimum
-       size of the convolutional kernel associated with it? Which structures in images respond most strongly to it?
-    1. How would you design a blur kernel? Why might you want to use such a kernel?
-    1. What is the minimum size of a kernel to obtain a derivative of order $d$?
-1. When you try to automatically find the gradient for the `Conv2D` class we created, what kind of error message do you see?
-1. How do you represent a cross-correlation operation as a matrix multiplication by changing the input and kernel tensors?
+1. 대각선 가장자리가 있는 이미지 `X`를 구성하십시오.
+    1. 이 섹션의 커널 `K`를 적용하면 어떻게 됩니까?
+    2. `X`를 전치하면 어떻게 됩니까?
+    3. `K`를 전치하면 어떻게 됩니까?
+2. 커널을 수동으로 설계해 보십시오.
+    1. 방향 벡터 $\mathbf{v} = (v_1, v_2)$가 주어졌을 때, $\mathbf{v}$에 직교하는 가장자리, 즉 $(v_2, -v_1)$ 방향의 가장자리를 감지하는 가장자리 감지 커널을 유도하십시오.
+    2. 2계 도함수에 대한 유한 차분 연산자를 유도하십시오. 이와 관련된 합성곱 커널의 최소 크기는 얼마입니까? 이미지의 어떤 구조가 가장 강하게 반응합니까?
+    3. 흐림(blur) 커널을 어떻게 설계하시겠습니까? 왜 그런 커널을 사용하고 싶을까요?
+    4. 차수 $d$의 도함수를 얻기 위한 커널의 최소 크기는 얼마입니까?
+3. 우리가 만든 `Conv2D` 클래스에 대한 기울기를 자동으로 찾으려고 할 때 어떤 종류의 오류 메시지가 표시됩니까?
+4. 입력 및 커널 텐서를 변경하여 상호 상관 연산을 행렬 곱셈으로 어떻게 표현합니까?
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/65)
+[토론](https://discuss.d2l.ai/t/65)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/66)
+[토론](https://discuss.d2l.ai/t/66)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/271)
+[토론](https://discuss.d2l.ai/t/271)
 :end_tab:
 
 :begin_tab:`jax`
-[Discussions](https://discuss.d2l.ai/t/17996)
+[토론](https://discuss.d2l.ai/t/17996)
 :end_tab:

@@ -1,41 +1,11 @@
-# Sentiment Analysis: Using Convolutional Neural Networks
+# 감정 분석: 합성곱 신경망 사용하기 (Sentiment Analysis: Using Convolutional Neural Networks)
 :label:`sec_sentiment_cnn` 
 
+:numref:`chap_cnn`에서 우리는 인접한 픽셀과 같은 국소적 특성(local features)에 적용되는 2차원 CNN을 사용하여 2차원 이미지 데이터를 처리하는 메커니즘을 조사했습니다. 원래 컴퓨터 비전을 위해 설계되었지만, CNN은 자연어 처리에도 널리 사용됩니다. 간단히 말해서, 모든 텍스트 시퀀스를 1차원 이미지로 생각하면 됩니다. 이러한 방식으로 1차원 CNN은 텍스트의 $n$-그램과 같은 국소적 특성을 처리할 수 있습니다.
 
-In :numref:`chap_cnn`,
-we investigated mechanisms
-for processing
-two-dimensional image data
-with two-dimensional CNNs,
-which were applied to
-local features such as adjacent pixels.
-Though originally
-designed for computer vision,
-CNNs are also widely used
-for natural language processing.
-Simply put,
-just think of any text sequence
-as a one-dimensional image.
-In this way,
-one-dimensional CNNs
-can process local features
-such as $n$-grams in text.
+이 섹션에서는 *textCNN* 모델을 사용하여 단일 텍스트를 표현하기 위한 CNN 아키텍처를 설계하는 방법을 보여줄 것입니다(:cite:`Kim.2014`). 감정 분석을 위해 GloVe 사전 훈련을 받은 RNN 아키텍처를 사용하는 :numref:`fig_nlp-map-sa-rnn`과 비교할 때, :numref:`fig_nlp-map-sa-cnn`에서의 유일한 차이점은 아키텍처 선택에 있습니다.
 
-In this section,
-we will use the *textCNN* model
-to demonstrate
-how to design a CNN architecture
-for representing single text :cite:`Kim.2014`.
-Compared with
-:numref:`fig_nlp-map-sa-rnn`
-that uses an RNN architecture with GloVe pretraining
-for sentiment analysis,
-the only difference in :numref:`fig_nlp-map-sa-cnn`
-lies in
-the choice of the architecture.
-
-
-![This section feeds pretrained GloVe to a CNN-based architecture for sentiment analysis.](../img/nlp-map-sa-cnn.svg)
+![이 섹션에서는 감정 분석을 위해 사전 훈련된 GloVe를 CNN 기반 아키텍처에 공급합니다.](../img/nlp-map-sa-cnn.svg)
 :label:`fig_nlp-map-sa-cnn`
 
 ```{.python .input}
@@ -59,34 +29,16 @@ batch_size = 64
 train_iter, test_iter, vocab = d2l.load_data_imdb(batch_size)
 ```
 
-## One-Dimensional Convolutions
+## 1차원 합성곱 (One-Dimensional Convolutions)
 
-Before introducing the model,
-let's see how a one-dimensional convolution works.
-Bear in mind that it is just a special case
-of a two-dimensional convolution
-based on the cross-correlation operation.
+모델을 소개하기 전에 1차원 합성곱이 어떻게 작동하는지 살펴봅시다. 이것은 교차 상관(cross-correlation) 연산에 기반한 2차원 합성곱의 특수한 사례일 뿐임을 명심하십시오.
 
-![One-dimensional cross-correlation operation. The shaded portions are the first output element as well as the input and kernel tensor elements used for the output computation: $0\times1+1\times2=2$.](../img/conv1d.svg)
+![1차원 교차 상관 연산. 음영 처리된 부분은 첫 번째 출력 요소와 출력 계산에 사용된 입력 및 커널 텐서 요소입니다: $0\times1+1\times2=2$.](../img/conv1d.svg)
 :label:`fig_conv1d`
 
-As shown in :numref:`fig_conv1d`,
-in the one-dimensional case,
-the convolution window
-slides from left to right
-across the input tensor.
-During sliding,
-the input subtensor (e.g., $0$ and $1$ in :numref:`fig_conv1d`) contained in the convolution window
-at a certain position
-and the kernel tensor (e.g., $1$ and $2$ in :numref:`fig_conv1d`) are multiplied elementwise.
-The sum of these multiplications
-gives the single scalar value (e.g., $0\times1+1\times2=2$ in :numref:`fig_conv1d`)
-at the corresponding position of the output tensor.
+:numref:`fig_conv1d`에 표시된 것처럼, 1차원 사례에서 합성곱 창(convolution window)은 입력 텐서 전체를 왼쪽에서 오른쪽으로 슬라이딩합니다. 슬라이딩하는 동안 특정 위치의 합성곱 창에 포함된 입력 서브텐서(예: :numref:`fig_conv1d`의 0과 1)와 커널 텐서(예: :numref:`fig_conv1d`의 1과 2)가 요소별로 곱해집니다. 이러한 곱셈의 합은 출력 텐서의 대응하는 위치에서 단일 스칼라 값(예: :numref:`fig_conv1d`에서 $0\times1+1\times2=2$)을 제공합니다.
 
-We implement one-dimensional cross-correlation in the following `corr1d` function.
-Given an input tensor `X`
-and a kernel tensor `K`,
-it returns the output tensor `Y`.
+다음 `corr1d` 함수에서 1차원 교차 상관을 구현합니다. 입력 텐서 `X`와 커널 텐`K`가 주어지면 출력 텐서 `Y`를 반환합니다.
 
 ```{.python .input}
 #@tab all
@@ -98,7 +50,7 @@ def corr1d(X, K):
     return Y
 ```
 
-We can construct the input tensor `X` and the kernel tensor `K` from :numref:`fig_conv1d` to validate the output of the above one-dimensional cross-correlation implementation.
+우리는 :numref:`fig_conv1d`의 입력 텐서 `X`와 커널 텐서 `K`를 구성하여 위의 1차원 교차 상관 구현의 출력을 검증할 수 있습니다.
 
 ```{.python .input}
 #@tab all
@@ -106,28 +58,17 @@ X, K = d2l.tensor([0, 1, 2, 3, 4, 5, 6]), d2l.tensor([1, 2])
 corr1d(X, K)
 ```
 
-For any
-one-dimensional input with multiple channels,
-the convolution kernel
-needs to have the same number of input channels.
-Then for each channel,
-perform a cross-correlation operation on the one-dimensional tensor of the input and the one-dimensional tensor of the convolution kernel,
-summing the results over all the channels
-to produce the one-dimensional output tensor.
-:numref:`fig_conv1d_channel` shows a one-dimensional cross-correlation operation with 3 input channels.
+채널이 여러 개인 1차원 입력의 경우, 합성곱 커널은 동일한 수의 입력 채널을 가져야 합니다. 그런 다음 각 채널에 대해 입력의 1차원 텐서와 합성곱 커널의 1차원 텐서에 대해 교차 상관 연산을 수행하고, 모든 채널에 대해 결과를 합산하여 1차원 출력 텐서를 생성합니다. :numref:`fig_conv1d_channel`은 3개의 입력 채널이 있는 1차원 교차 상관 연산을 보여줍니다.
 
-![One-dimensional cross-correlation operation with 3 input channels. The shaded portions are the first output element as well as the input and kernel tensor elements used for the output computation: $0\times1+1\times2+1\times3+2\times4+2\times(-1)+3\times(-3)=2$.](../img/conv1d-channel.svg)
+![3개의 입력 채널이 있는 1차원 교차 상관 연산. 음영 처리된 부분은 첫 번째 출력 요소와 출력 계산에 사용된 입력 및 커널 텐서 요소입니다: $0\times1+1\times2+1\times3+2\times4+2\times(-1)+3\times(-3)=2$.](../img/conv1d-channel.svg)
 :label:`fig_conv1d_channel`
 
-
-We can implement the one-dimensional cross-correlation operation for multiple input channels
-and validate the results in :numref:`fig_conv1d_channel`.
+우리는 여러 입력 채널에 대한 1차원 교차 상관 연산을 구현하고 :numref:`fig_conv1d_channel`의 결과를 검증할 수 있습니다.
 
 ```{.python .input}
 #@tab all
 def corr1d_multi_in(X, K):
-    # First, iterate through the 0th dimension (channel dimension) of `X` and
-    # `K`. Then, add them together
+    # 먼저 `X`와 `K`의 0번째 차원(채널 차원)을 반복합니다. 그런 다음 그것들을 함께 더합니다.
     return sum(corr1d(x, k) for x, k in zip(X, K))
 
 X = d2l.tensor([[0, 1, 2, 3, 4, 5, 6],
@@ -137,114 +78,38 @@ K = d2l.tensor([[1, 2], [3, 4], [-1, -3]])
 corr1d_multi_in(X, K)
 ```
 
-Note that
-multi-input-channel one-dimensional cross-correlations
-are equivalent
-to
-single-input-channel
-two-dimensional cross-correlations.
-To illustrate,
-an equivalent form of
-the multi-input-channel one-dimensional cross-correlation
-in :numref:`fig_conv1d_channel`
-is
-the
-single-input-channel
-two-dimensional cross-correlation
-in :numref:`fig_conv1d_2d`,
-where the height of the convolution kernel
-has to be the same as that of the input tensor.
+다중 입력 채널 1차원 교차 상관은 단일 입력 채널 2차원 교차 상관과 동일합니다. 이를 설명하기 위해, :numref:`fig_conv1d_channel`의 다중 입력 채널 1차원 교차 상관의 등가 형태는 :numref:`fig_conv1d_2d`의 단일 입력 채널 2차원 교차 상관이며, 여기서 합성곱 커널의 높이는 입력 텐서의 높이와 같아야 합니다.
 
-
-![Two-dimensional cross-correlation operation with a single input channel. The shaded portions are the first output element as well as the input and kernel tensor elements used for the output computation: $2\times(-1)+3\times(-3)+1\times3+2\times4+0\times1+1\times2=2$.](../img/conv1d-2d.svg)
+![단일 입력 채널이 있는 2차원 교차 상관 연산. 음영 처리된 부분은 첫 번째 출력 요소와 출력 계산에 사용된 입력 및 커널 텐서 요소입니다: $2\times(-1)+3\times(-3)+1\times3+2\times4+0\times1+1\times2=2$.](../img/conv1d-2d.svg)
 :label:`fig_conv1d_2d`
 
-Both the outputs in :numref:`fig_conv1d` and :numref:`fig_conv1d_channel` have only one channel.
-Same as two-dimensional convolutions with multiple output channels described in :numref:`subsec_multi-output-channels`,
-we can also specify multiple output channels
-for one-dimensional convolutions.
+:numref:`fig_conv1d` 및 :numref:`fig_conv1d_channel`의 출력은 모두 채널이 하나뿐입니다. :numref:`subsec_multi-output-channels`에서 설명한 다중 출력 채널이 있는 2차원 합성곱과 마찬가지로, 1차원 합성곱에 대해서도 다중 출력 채널을 지정할 수 있습니다.
 
-## Max-Over-Time Pooling
 
-Similarly, we can use pooling
-to extract the highest value
-from sequence representations
-as the most important feature
-across time steps.
-The *max-over-time pooling* used in textCNN
-works like
-the one-dimensional global max-pooling
-:cite:`Collobert.Weston.Bottou.ea.2011`.
-For a multi-channel input
-where each channel stores values
-at different time steps,
-the output at each channel
-is the maximum value
-for that channel.
-Note that
-the max-over-time pooling
-allows different numbers of time steps
-at different channels.
+## 맥스 오버 타임 풀링 (Max-Over-Time Pooling)
 
-## The textCNN Model
+마찬가지로 풀링을 사용하여 시퀀스 표현에서 가장 높은 값을 타임스텝 전체에서 가장 중요한 특성으로 추출할 수 있습니다. textCNN에서 사용되는 *맥스 오버 타임 풀링(max-over-time pooling)*은 1차원 글로벌 맥스 풀링(global max-pooling)처럼 작동합니다(:cite:`Collobert.Weston.Bottou.ea.2011`). 각 채널이 서로 다른 타임스텝의 값을 저장하는 다중 채널 입력의 경우, 각 채널의 출력은 해당 채널의 최대값입니다. 맥스 오버 타임 풀링을 사용하면 채널마다 타임스텝 수가 달라도 된다는 점에 유의하십시오.
 
-Using the one-dimensional convolution
-and max-over-time pooling,
-the textCNN model
-takes individual pretrained token representations
-as input,
-then obtains and transforms sequence representations
-for the downstream application.
 
-For a single text sequence
-with $n$ tokens represented by
-$d$-dimensional vectors,
-the width, height, and number of channels
-of the input tensor
-are $n$, $1$, and $d$, respectively.
-The textCNN model transforms the input
-into the output as follows:
+## textCNN 모델
 
-1. Define multiple one-dimensional convolution kernels and perform convolution operations separately on the inputs. Convolution kernels with different widths may capture local features among different numbers of adjacent tokens.
-1. Perform max-over-time pooling on all the output channels, and then concatenate all the scalar pooling outputs as a vector.
-1. Transform the concatenated vector into the output categories using the fully connected layer. Dropout can be used for reducing overfitting.
+1차원 합성곱과 맥스 오버 타임 풀링을 사용하여 textCNN 모델은 개별 사전 훈련된 토큰 표현을 입력으로 받은 다음, 다운스트림 애플리케이션을 위한 시퀀스 표현을 얻고 변환합니다.
 
-![The model architecture of textCNN.](../img/textcnn.svg)
+$d$차원 벡터로 표현된 $n$개의 토큰이 있는 단일 텍스트 시퀀스의 경우, 입력 텐서의 너비, 높이 및 채널 수는 각각 $n, 1, d$입니다. textCNN 모델은 다음과 같이 입력을 출력으로 변환합니다:
+
+1. 여러 개의 1차원 합성곱 커널을 정의하고 입력에 대해 별도로 합성곱 연산을 수행합니다. 너비가 다른 합성곱 커널은 서로 다른 수의 인접 토큰 사이의 국소적 특성을 포착할 수 있습니다.
+2. 모든 출력 채널에 대해 맥스 오버 타임 풀링을 수행한 다음, 모든 스칼라 풀링 출력을 벡터로 연결합니다.
+3. 완전 연결 레이어를 사용하여 연결된 벡터를 출력 카테고리로 변환합니다. 과대적합을 줄이기 위해 드롭아웃을 사용할 수 있습니다.
+
+![textCNN의 모델 아키텍처.](../img/textcnn.svg)
 :label:`fig_conv1d_textcnn`
 
-:numref:`fig_conv1d_textcnn`
-illustrates the model architecture of textCNN
-with a concrete example.
-The input is a sentence with 11 tokens,
-where
-each token is represented by a 6-dimensional vectors.
-So we have a 6-channel input with width 11.
-Define
-two one-dimensional convolution kernels
-of widths 2 and 4,
-with 4 and 5 output channels, respectively.
-They produce
-4 output channels with width $11-2+1=10$
-and 5 output channels with width $11-4+1=8$.
-Despite different widths of these 9 channels,
-the max-over-time pooling
-gives a concatenated 9-dimensional vector,
-which is finally transformed
-into a 2-dimensional output vector
-for binary sentiment predictions.
+:numref:`fig_conv1d_textcnn`은 구체적인 예와 함께 textCNN의 모델 아키텍처를 설명합니다. 입력은 11개의 토큰이 있는 문장이며, 각 토큰은 6차원 벡터로 표현됩니다. 따라서 너비 11의 6채널 입력이 있습니다. 너비 2와 4의 두 개의 1차원 합성곱 커널을 정의하며, 각각 4개와 5개의 출력 채널을 갖습니다. 이들은 너비가 $11-2+1=10$인 4개의 출력 채널과 너비가 $11-4+1=8$인 5개의 출력 채널을 생성합니다. 이 9개 채널의 너비가 다르더라도 맥스 오버 타임 풀링은 연결된 9차원 벡터를 제공하며, 이는 최종적으로 이진 감정 예측을 위한 2차원 출력 벡터로 변환됩니다.
 
 
+### 모델 정의 (Defining the Model)
 
-### Defining the Model
-
-We implement the textCNN model in the following class.
-Compared with the bidirectional RNN model in
-:numref:`sec_sentiment_rnn`,
-besides
-replacing recurrent layers with convolutional layers,
-we also use two embedding layers:
-one with trainable weights and the other
-with fixed weights.
+우리는 다음 클래스에서 textCNN 모델을 구현합니다. :numref:`sec_sentiment_rnn`의 양방향 RNN 모델과 비교할 때, 순환 레이어를 합성곱 레이어로 교체하는 것 외에도 두 개의 임베딩 레이어를 사용합니다. 하나는 학습 가능한 가중치가 있고 다른 하나는 고정된 가중치가 있습니다.
 
 ```{.python .input}
 #@tab mxnet
@@ -253,30 +118,26 @@ class TextCNN(nn.Block):
                  **kwargs):
         super(TextCNN, self).__init__(**kwargs)
         self.embedding = nn.Embedding(vocab_size, embed_size)
-        # The embedding layer not to be trained
+        # 훈련되지 않을 임베딩 레이어
         self.constant_embedding = nn.Embedding(vocab_size, embed_size)
         self.dropout = nn.Dropout(0.5)
         self.decoder = nn.Dense(2)
-        # The max-over-time pooling layer has no parameters, so this instance
-        # can be shared
+        # 맥스 오버 타임 풀링 레이어는 파라미터가 없으므로 이 인스턴스를 공유할 수 있습니다.
         self.pool = nn.GlobalMaxPool1D()
-        # Create multiple one-dimensional convolutional layers
+        # 여러 개의 1차원 합성곱 레이어 생성
         self.convs = nn.Sequential()
         for c, k in zip(num_channels, kernel_sizes):
             self.convs.add(nn.Conv1D(c, k, activation='relu'))
 
     def forward(self, inputs):
-        # Concatenate two embedding layer outputs with shape (batch size, no.
-        # of tokens, token vector dimension) along vectors
+        # (배치 크기, 토큰 수, 토큰 벡터 차원) 모양의 두 임베딩 레이어 출력을 벡터를 따라 연결합니다.
         embeddings = np.concatenate((
             self.embedding(inputs), self.constant_embedding(inputs)), axis=2)
-        # Per the input format of one-dimensional convolutional layers,
-        # rearrange the tensor so that the second dimension stores channels
+        # 1차원 합성곱 레이어의 입력 형식에 따라 두 번째 차원이 채널을 저장하도록 텐서를 재정렬합니다.
         embeddings = embeddings.transpose(0, 2, 1)
-        # For each one-dimensional convolutional layer, after max-over-time
-        # pooling, a tensor of shape (batch size, no. of channels, 1) is
-        # obtained. Remove the last dimension and concatenate along channels
-        encoding = np.concatenate([
+        # 각 1차원 합성곱 레이어에 대해, 맥스 오버 타임 풀링 후 (배치 크기, 채널 수, 1) 모양의 텐서가 얻어집니다.
+        # 마지막 차원을 제거하고 채널을 따라 연결합니다.
+        encoding = np.concatenate([ 
             np.squeeze(self.pool(conv(embeddings)), axis=-1)
             for conv in self.convs], axis=1)
         outputs = self.decoder(self.dropout(encoding))
@@ -290,30 +151,26 @@ class TextCNN(nn.Module):
                  **kwargs):
         super(TextCNN, self).__init__(**kwargs)
         self.embedding = nn.Embedding(vocab_size, embed_size)
-        # The embedding layer not to be trained
+        # 훈련되지 않을 임베딩 레이어
         self.constant_embedding = nn.Embedding(vocab_size, embed_size)
         self.dropout = nn.Dropout(0.5)
         self.decoder = nn.Linear(sum(num_channels), 2)
-        # The max-over-time pooling layer has no parameters, so this instance
-        # can be shared
+        # 맥스 오버 타임 풀링 레이어는 파라미터가 없으므로 이 인스턴스를 공유할 수 있습니다.
         self.pool = nn.AdaptiveAvgPool1d(1)
         self.relu = nn.ReLU()
-        # Create multiple one-dimensional convolutional layers
+        # 여러 개의 1차원 합성곱 레이어 생성
         self.convs = nn.ModuleList()
         for c, k in zip(num_channels, kernel_sizes):
             self.convs.append(nn.Conv1d(2 * embed_size, c, k))
 
     def forward(self, inputs):
-        # Concatenate two embedding layer outputs with shape (batch size, no.
-        # of tokens, token vector dimension) along vectors
+        # (배치 크기, 토큰 수, 토큰 벡터 차원) 모양의 두 임베딩 레이어 출력을 벡터를 따라 연결합니다.
         embeddings = torch.cat((
             self.embedding(inputs), self.constant_embedding(inputs)), dim=2)
-        # Per the input format of one-dimensional convolutional layers,
-        # rearrange the tensor so that the second dimension stores channels
+        # 1차원 합성곱 레이어의 입력 형식에 따라 두 번째 차원이 채널을 저장하도록 텐서를 재정렬합니다.
         embeddings = embeddings.permute(0, 2, 1)
-        # For each one-dimensional convolutional layer, after max-over-time
-        # pooling, a tensor of shape (batch size, no. of channels, 1) is
-        # obtained. Remove the last dimension and concatenate along channels
+        # 각 1차원 합성곱 레이어에 대해, 맥스 오버 타임 풀링 후 (배치 크기, 채널 수, 1) 모양의 텐서가 얻어집니다.
+        # 마지막 차원을 제거하고 채널을 따라 연결합니다.
         encoding = torch.cat([
             torch.squeeze(self.relu(self.pool(conv(embeddings))), dim=-1)
             for conv in self.convs], dim=1)
@@ -321,8 +178,7 @@ class TextCNN(nn.Module):
         return outputs
 ```
 
-Let's create a textCNN instance.
-It has 3 convolutional layers with kernel widths of 3, 4, and 5, all with 100 output channels.
+textCNN 인스턴스를 생성해 봅시다. 이는 커널 너비가 3, 4, 5이고 모두 100개의 출력 채널을 갖는 3개의 합성곱 레이어를 가집니다.
 
 ```{.python .input}
 #@tab mxnet
@@ -345,14 +201,9 @@ def init_weights(module):
 net.apply(init_weights);
 ```
 
-### Loading Pretrained Word Vectors
+### 사전 훈련된 단어 벡터 로드 (Loading Pretrained Word Vectors)
 
-Same as :numref:`sec_sentiment_rnn`,
-we load pretrained 100-dimensional GloVe embeddings
-as the initialized token representations.
-These token representations (embedding weights)
-will be trained in `embedding`
-and fixed in `constant_embedding`.
+:numref:`sec_sentiment_rnn`과 마찬가지로 사전 훈련된 100차원 GloVe 임베딩을 초기화된 토큰 표현으로 로드합니다. 이러한 토큰 표현(임베딩 가중치)은 `embedding`에서 훈련되고 `constant_embedding`에서 고정됩니다.
 
 ```{.python .input}
 #@tab mxnet
@@ -372,9 +223,9 @@ net.constant_embedding.weight.data.copy_(embeds)
 net.constant_embedding.weight.requires_grad = False
 ```
 
-### Training and Evaluating the Model
+### 모델 훈련 및 평가 (Training and Evaluating the Model)
 
-Now we can train the textCNN model for sentiment analysis.
+이제 감정 분석을 위해 textCNN 모델을 훈련할 수 있습니다.
 
 ```{.python .input}
 #@tab mxnet
@@ -392,7 +243,7 @@ loss = nn.CrossEntropyLoss(reduction="none")
 d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, devices)
 ```
 
-Below we use the trained model to predict the sentiment for two simple sentences.
+아래에서는 훈련된 모델을 사용하여 두 개의 간단한 문장에 대한 감정을 예측합니다.
 
 ```{.python .input}
 #@tab all
@@ -404,24 +255,24 @@ d2l.predict_sentiment(net, vocab, 'this movie is so great')
 d2l.predict_sentiment(net, vocab, 'this movie is so bad')
 ```
 
-## Summary
+## 요약 (Summary)
 
-* One-dimensional CNNs can process local features such as $n$-grams in text.
-* Multi-input-channel one-dimensional cross-correlations are equivalent to single-input-channel two-dimensional cross-correlations.
-* The max-over-time pooling allows different numbers of time steps at different channels.
-* The textCNN model transforms individual token representations into downstream application outputs using one-dimensional convolutional layers and max-over-time pooling layers.
+* 1차원 CNN은 텍스트의 $n$-그램과 같은 국소적 특성을 처리할 수 있습니다.
+* 다중 입력 채널 1차원 교차 상관은 단일 입력 채널 2차원 교차 상관과 동일합니다.
+* 맥스 오버 타임 풀링을 사용하면 채널마다 타임스텝 수가 달라도 됩니다.
+* textCNN 모델은 1차원 합성곱 레이어와 맥스 오버 타임 풀링 레이어를 사용하여 개별 토큰 표현을 다운스트림 애플리케이션 출력으로 변환합니다.
 
 
-## Exercises
+## 연습 문제 (Exercises)
 
-1. Tune hyperparameters and compare the two architectures for sentiment analysis in :numref:`sec_sentiment_rnn` and in this section, such as in classification accuracy and computational efficiency.
-1. Can you further improve the classification accuracy of the model by using the methods introduced in the exercises of :numref:`sec_sentiment_rnn`?
-1. Add positional encoding in the input representations. Does it improve the classification accuracy?
+1. 하이퍼파라미터를 튜닝하고 분류 정확도 및 계산 효율성 측면에서 :numref:`sec_sentiment_rnn`과 이 섹션의 두 감정 분석 아키텍처를 비교해 보십시오.
+2. :numref:`sec_sentiment_rnn`의 연습 문제에서 소개된 방법을 사용하여 모델의 분류 정확도를 더 향상시킬 수 있습니까?
+3. 입력 표현에 포지셔널 인코딩을 추가하십시오. 분류 정확도가 향상됩니까?
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/393)
+[토론](https://discuss.d2l.ai/t/393)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1425)
+[토론](https://discuss.d2l.ai/t/1425)
 :end_tab:

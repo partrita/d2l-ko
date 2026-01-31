@@ -1,478 +1,228 @@
-# Generalization
+# 일반화 (Generalization)
 :label:`sec_generalization_basics`
 
-Consider two college students diligently
-preparing for their final exam.
-Commonly, this preparation will consist
-of practicing and testing their abilities
-by taking exams administered in previous years.
-Nonetheless, doing well on past exams is no guarantee
-that they will excel when it matters.
-For instance, imagine a student, Extraordinary Ellie,
-whose preparation consisted entirely
-of memorizing the answers
-to previous years' exam questions.
-Even if Ellie were endowed
-with an extraordinary memory,
-and thus could perfectly recall the answer
-to any *previously seen* question,
-she might nevertheless freeze
-when faced with a new (*previously unseen*) question.
-By comparison, imagine another student,
-Inductive Irene, with comparably poor
-memorization skills,
-but a knack for picking up patterns.
-Note that if the exam truly consisted of
-recycled questions from a previous year,
-Ellie would handily outperform Irene.
-Even if Irene's inferred patterns
-yielded 90% accurate predictions,
-they could never compete with
-Ellie's 100% recall.
-However, even if the exam consisted
-entirely of fresh questions,
-Irene might maintain her 90% average.
+기말고사를 성실히 준비하는 두 대학생을 생각해 보십시오. 
+일반적으로 이 준비는 예년의 시험을 치르며 실력을 연습하고 테스트하는 것으로 구성됩니다. 
+그럼에도 불구하고 과거 시험에서 잘하는 것이 정작 중요한 때에 잘할 것이라는 보장은 아닙니다. 
+예를 들어, 준비 과정이 예년의 시험 문제 정답을 모두 외우는 것이었던 학생 'Extraordinary Ellie'를 상상해 보십시오. 
+비록 Ellie가 비범한 기억력을 타고나서 *이전에 본* 어떤 문제의 답도 완벽하게 기억해낼 수 있더라도, 새로운 (*이전에 본 적 없는*) 문제에 직면하면 얼어붙을지도 모릅니다. 
+그에 비해, 암기 능력은 비슷하게 부족하지만 패턴을 파악하는 재주가 있는 또 다른 학생 'Inductive Irene'을 상상해 보십시오. 
+만약 시험이 정말로 전년도 문제를 재활용한 것이라면, Ellie가 Irene을 가뿐히 이길 것입니다. 
+Irene의 추론된 패턴이 90% 정확한 예측을 낸다고 해도 Ellie의 100% 암기를 결코 따라올 수 없습니다. 
+그러나 시험이 전적으로 새로운 문제로 구성된다면, Irene은 여전히 90%의 평균을 유지할 수 있습니다.
 
-As machine learning scientists,
-our goal is to discover *patterns*.
-But how can we be sure that we have
-truly discovered a *general* pattern
-and not simply memorized our data?
-Most of the time, our predictions are only useful
-if our model discovers such a pattern.
-We do not want to predict yesterday's stock prices, but tomorrow's.
-We do not need to recognize
-already diagnosed diseases
-for previously seen patients,
-but rather previously undiagnosed
-ailments in previously unseen patients.
-This problem---how to discover patterns that *generalize*---is
-the fundamental problem of machine learning,
-and arguably of all of statistics.
-We might cast this problem as just one slice
-of a far grander question
-that engulfs all of science:
-when are we ever justified
-in making the leap from particular observations
-to more general statements?
+머신러닝 과학자로서 우리의 목표는 *패턴*을 발견하는 것입니다. 
+하지만 우리가 단순히 데이터를 암기한 것이 아니라 진정으로 *일반적인* 패턴을 발견했는지 어떻게 확신할 수 있을까요? 
+대부분의 경우, 우리의 예측은 모델이 그러한 패턴을 발견했을 때만 유용합니다. 
+우리는 어제의 주가가 아니라 내일의 주가를 예측하고 싶어 합니다. 
+이전에 본 환자들에 대해 이미 진단된 질병을 인식할 필요는 없으며, 그보다 이전에 본 적 없는 환자들에게서 이전에 진단되지 않은 질병을 인식해야 합니다. 
+패턴을 발견하여 어떻게 *일반화*할 것인가 하는 이 문제는 머신러닝의 근본적인 문제이며, 아마도 모든 통계학의 근본적인 문제일 것입니다. 
+우리는 이 문제를 과학 전체를 집어삼키는 훨씬 더 거대한 질문의 한 조각으로 던질 수 있습니다: 우리가 특정한 관찰에서 더 일반적인 진술로 도약하는 것이 정당화되는 때는 언제일까요?
 
 
-In real life, we must fit our models
-using a finite collection of data.
-The typical scales of that data
-vary wildly across domains.
-For many important medical problems,
-we can only access a few thousand data points.
-When studying rare diseases,
-we might be lucky to access hundreds.
-By contrast, the largest public datasets
-consisting of labeled photographs,
-e.g., ImageNet :cite:`Deng.Dong.Socher.ea.2009`,
-contain millions of images.
-And some unlabeled image collections
-such as the Flickr YFC100M dataset
-can be even larger, containing
-over 100 million images :cite:`thomee2016yfcc100m`.
-However, even at this extreme scale,
-the number of available data points
-remains infinitesimally small
-compared to the space of all possible images
-at a megapixel resolution.
-Whenever we work with finite samples,
-we must keep in mind the risk
-that we might fit our training data,
-only to discover that we failed
-to discover a generalizable pattern.
+실제 생활에서 우리는 한정된 데이터 모음을 사용하여 모델을 맞춰야 합니다. 
+그 데이터의 일반적인 규모는 도메인에 따라 크게 다릅니다. 
+많은 중요한 의학 문제의 경우, 수천 개의 데이터 포인트만 사용할 수 있습니다. 
+희귀 질병을 연구할 때는 수백 개에 접근할 수 있다면 운이 좋은 편일 수도 있습니다. 
+대조적으로, 레이블이 지정된 사진으로 구성된 가장 큰 공개 데이터셋(예: ImageNet :cite:`Deng.Dong.Socher.ea.2009`)은 수백만 개의 이미지를 포함합니다. 
+그리고 Flickr YFC100M 데이터셋과 같은 일부 레이블이 지정되지 않은 이미지 모음은 심지어 1억 개 이상의 이미지를 포함할 수 있습니다 :cite:`thomee2016yfcc100m`. 
+그러나 이 극한의 규모에서도 사용 가능한 데이터 포인트의 수는 메가픽셀 해상도의 모든 가능한 이미지 공간에 비하면 무한히 작습니다. 
+한정된 샘플로 작업할 때마다, 우리는 훈련 데이터에는 잘 맞지만 일반화 가능한 패턴을 발견하는 데 실패할 수 있다는 위험을 염두에 두어야 합니다.
 
-The phenomenon of fitting closer to our training data
-than to the underlying distribution is called *overfitting*,
-and techniques for combatting overfitting
-are often called *regularization* methods.
-While it is no substitute for a proper introduction
-to statistical learning theory (see :citet:`Vapnik98,boucheron2005theory`),
-we will give you just enough intuition to get going.
-We will revisit generalization in many chapters
-throughout the book,
-exploring both what is known about
-the principles underlying generalization
-in various models,
-and also heuristic techniques
-that have been found (empirically)
-to yield improved generalization
-on tasks of practical interest.
+기저의 분포보다 훈련 데이터에 더 가깝게 맞추는 현상을 *과대적합(overfitting)*이라고 하며, 과대적합과 싸우는 기술을 종종 *정규화(regularization)* 방법이라고 합니다. 
+이것이 통계적 학습 이론(statistical learning theory, :citet:`Vapnik98,boucheron2005theory` 참조)에 대한 적절한 소개를 대신할 수는 없지만, 여러분이 시작하기에 충분한 직관을 제공할 것입니다. 
+우리는 책 전반에 걸쳐 많은 장에서 일반화를 다시 다룰 것이며, 다양한 모델에서 일반화의 기초가 되는 원리에 대해 알려진 내용과 실무적인 작업에서 일반화를 개선하는 것으로 (경험적으로) 밝혀진 휴리스틱 기술들을 모두 살펴볼 것입니다.
 
 
 
-## Training Error and Generalization Error
+## 훈련 오차와 일반화 오차 (Training Error and Generalization Error) 
 
 
-In the standard supervised learning setting,
-we assume that the training data and the test data
-are drawn *independently* from *identical* distributions.
-This is commonly called the *IID assumption*.
-While this assumption is strong,
-it is worth noting that, absent any such assumption,
-we would be dead in the water.
-Why should we believe that training data
-sampled from distribution $P(X,Y)$
-should tell us how to make predictions on
-test data generated by a *different distribution* $Q(X,Y)$?
-Making such leaps turns out to require
-strong assumptions about how $P$ and $Q$ are related.
-Later on we will discuss some assumptions
-that allow for shifts in distribution
-but first we need to understand the IID case,
-where $P(\cdot) = Q(\cdot)$.
+표준 지도 학습 설정에서, 우리는 훈련 데이터와 테스트 데이터가 *동일한* 분포에서 *독립적으로* 추출되었다고 가정합니다. 
+이를 일반적으로 *IID 가정*이라고 합니다. 
+이 가정이 강력하기는 하지만, 그러한 가정이 없다면 우리는 아무것도 할 수 없다는 점에 유의할 가치가 있습니다. 
+분포 $P(X,Y)$에서 샘플링된 훈련 데이터가 *다른 분포* $Q(X,Y)$에 의해 생성된 테스트 데이터에 대해 예측하는 방법을 알려줄 것이라고 왜 믿어야 할까요? 
+그러한 도약을 하는 데는 $P$와 $Q$가 어떻게 관련되어 있는지에 대한 강력한 가정이 필요한 것으로 밝혀졌습니다. 
+나중에 분포의 이동을 허용하는 몇 가지 가정에 대해 논의하겠지만, 먼저 $P(\cdot) = Q(\cdot)$인 IID 사례를 이해해야 합니다.
 
-To begin with, we need to differentiate between
-the *training error* $R_\textrm{emp}$,
-which is a *statistic*
-calculated on the training dataset,
-and the *generalization error* $R$,
-which is an *expectation* taken
-with respect to the underlying distribution.
-You can think of the generalization error as
-what you would see  if you applied your model
-to an infinite stream of additional data examples
-drawn from the same underlying data distribution.
-Formally the training error is expressed as a *sum* (with the same notation as :numref:`sec_linear_regression`):
+우선, 훈련 데이터셋에서 계산되는 *통계량*인 *훈련 오차(training error)* $R_\textrm{emp}$와, 기저의 분포에 대해 취해진 *기댓값*인 *일반화 오차(generalization error)* $R$을 구별해야 합니다. 
+일반화 오차는 모델을 동일한 기저 데이터 분포에서 추출된 추가 데이터 예제의 무한한 스트림에 적용했을 때 보게 될 오차라고 생각할 수 있습니다. 
+공식적으로 훈련 오차는 (:numref:`sec_linear_regression`과 동일한 표기법을 사용하여) *합*으로 표현됩니다:
 
 $$R_\textrm{emp}[\mathbf{X}, \mathbf{y}, f] = \frac{1}{n} \sum_{i=1}^n l(\mathbf{x}^{(i)}, y^{(i)}, f(\mathbf{x}^{(i)})),$$
 
 
-while the generalization error is expressed as an integral:
+반면 일반화 오차는 적분으로 표현됩니다:
 
-$$R[p, f] = E_{(\mathbf{x}, y) \sim P} [l(\mathbf{x}, y, f(\mathbf{x}))] =
+$$R[p, f] = E_{(\mathbf{x}, y) \sim P} [l(\mathbf{x}, y, f(\mathbf{x}))] = 
 \int \int l(\mathbf{x}, y, f(\mathbf{x})) p(\mathbf{x}, y) \;d\mathbf{x} dy.$$
 
-Problematically, we can never calculate
-the generalization error $R$ exactly.
-Nobody ever tells us the precise form
-of the density function $p(\mathbf{x}, y)$.
-Moreover, we cannot sample an infinite stream of data points.
-Thus, in practice, we must *estimate* the generalization error
-by applying our model to an independent test set
-constituted of a random selection of examples
-$\mathbf{X}'$ and labels $\mathbf{y}'$
-that were withheld from our training set.
-This consists of applying the same formula
-that was used for calculating the empirical training error
-but to a test set $\mathbf{X}', \mathbf{y}'$.
+문제는 우리가 일반화 오차 $R$을 정확하게 계산할 수 없다는 것입니다. 
+아무도 우리에게 밀도 함수 $p(\mathbf{x}, y)$의 정확한 형태를 말해주지 않습니다. 
+게다가 우리는 무한한 데이터 포인트 스트림을 샘플링할 수 없습니다. 
+따라서 실제로는 훈련 세트에서 제외된 무작위 예제 선택 $\mathbf{X}'$ 및 레이블 $\mathbf{y}'$로 구성된 독립적인 테스트 세트에 모델을 적용하여 일반화 오차를 *추정*해야 합니다. 
+이는 경험적 훈련 오차를 계산하는 데 사용된 것과 동일한 공식을 테스트 세트 $\mathbf{X}', \mathbf{y}'$에 적용하는 것으로 구성됩니다.
 
 
-Crucially, when we evaluate our classifier on the test set,
-we are working with a *fixed* classifier
-(it does not depend on the sample of the test set),
-and thus estimating its error
-is simply the problem of mean estimation.
-However the same cannot be said
-for the training set.
-Note that the model we wind up with
-depends explicitly on the selection of the training set
-and thus the training error will in general
-be a biased estimate of the true error
-on the underlying population.
-The central question of generalization
-is then when should we expect our training error
-to be close to the population error
-(and thus the generalization error).
+결정적으로, 테스트 세트에서 분류기를 평가할 때 우리는 *고정된* 분류기(테스트 세트의 샘플에 의존하지 않음)로 작업하고 있으므로, 그 오차를 추정하는 것은 단순히 평균 추정 문제입니다. 
+하지만 훈련 세트에 대해서는 그렇게 말할 수 없습니다. 
+우리가 얻게 되는 모델은 훈련 세트의 선택에 명시적으로 의존하므로, 훈련 오차는 일반적으로 기저 모집단에 대한 실제 오차의 편향된 추정치가 될 것입니다. 
+일반화의 중심 질문은 언제 우리의 훈련 오차가 모집단 오차(따라서 일반화 오차)와 가까울 것으로 기대해야 하는가입니다.
 
-### Model Complexity
+### 모델 복잡도 (Model Complexity)
 
-In classical theory, when we have
-simple models and abundant data,
-the training and generalization errors tend to be close.
-However, when we work with
-more complex models and/or fewer examples,
-we expect the training error to go down
-but the generalization gap to grow.
-This should not be surprising.
-Imagine a model class so expressive that
-for any dataset of $n$ examples,
-we can find a set of parameters
-that can perfectly fit arbitrary labels,
-even if randomly assigned.
-In this case, even if we fit our training data perfectly,
-how can we conclude anything about the generalization error?
-For all we know, our generalization error
-might be no better than random guessing.
+고전 이론에서 단순한 모델과 풍부한 데이터가 있을 때, 훈련 오차와 일반화 오차는 가까워지는 경향이 있습니다. 
+하지만 더 복잡한 모델 및/또는 더 적은 예제로 작업할 때, 훈련 오차는 내려가지만 일반화 갭(generalization gap)은 커질 것으로 예상합니다. 
+이는 놀라운 일이 아닙니다. 
+어떤 $n$개 예제의 데이터셋에 대해서도, 설령 무작위로 할당되었더라도 임의의 레이블에 완벽하게 맞출 수 있는 파라미터 세트를 찾을 수 있을 만큼 표현력이 뛰어난 모델 클래스를 상상해 보십시오. 
+이 경우 훈련 데이터를 완벽하게 맞췄다고 한들, 일반화 오차에 대해 무엇을 결론지을 수 있을까요? 
+우리가 아는 한, 우리의 일반화 오차는 무작위 추측보다 나을 것이 없을지도 모릅니다.
 
-In general, absent any restriction on our model class,
-we cannot conclude, based on fitting the training data alone,
-that our model has discovered any generalizable pattern :cite:`vapnik1994measuring`.
-On the other hand, if our model class
-was not capable of fitting arbitrary labels,
-then it must have discovered a pattern.
-Learning-theoretic ideas about model complexity
-derived some inspiration from the ideas
-of Karl Popper, an influential philosopher of science,
-who formalized the criterion of falsifiability.
-According to Popper, a theory
-that can explain any and all observations
-is not a scientific theory at all!
-After all, what has it told us about the world
-if it has not ruled out any possibility?
-In short, what we want is a hypothesis
-that *could not* explain any observations
-we might conceivably make
-and yet nevertheless happens to be compatible
-with those observations that we *in fact* make.
+일반적으로 우리 모델 클래스에 어떠한 제한도 없다면, 훈련 데이터에만 맞춘 것을 근거로 모델이 일반화 가능한 패턴을 발견했다고 결론지을 수 없습니다 :cite:`vapnik1994measuring`. 
+반면에 만약 우리 모델 클래스가 임의의 레이블에 맞출 능력이 없었다면, 그것은 반드시 패턴을 발견했어야 합니다. 
+모델 복잡도에 대한 학습 이론적 아이디어는 반증 가능성(falsifiability)의 기준을 공식화한 영향력 있는 과학 철학자 칼 포퍼(Karl Popper)의 아이디어에서 영감을 얻었습니다. 
+포퍼에 따르면, 모든 관찰을 설명할 수 있는 이론은 결코 과학적 이론이 아닙니다! 
+결국 어떤 가능성도 배제하지 못했다면 세상에 대해 무엇을 말해준 것일까요? 
+요컨대 우리가 원하는 것은 우리가 생각할 수 있는 어떤 관찰도 설명할 수는 *없지만*, 그럼에도 불구하고 우리가 *실제로* 내놓은 관찰들과는 우연히 호환되는 가설입니다.
 
-Now what precisely constitutes an appropriate
-notion of model complexity is a complex matter.
-Often, models with more parameters
-are able to fit a greater number
-of arbitrarily assigned labels.
-However, this is not necessarily true.
-For instance, kernel methods operate in spaces
-with infinite numbers of parameters,
-yet their complexity is controlled
-by other means :cite:`Scholkopf.Smola.2002`.
-One notion of complexity that often proves useful
-is the range of values that the parameters can take.
-Here, a model whose parameters are permitted
-to take arbitrary values
-would be more complex.
-We will revisit this idea in the next section,
-when we introduce *weight decay*,
-your first practical regularization technique.
-Notably, it can be difficult to compare
-complexity among members of substantially different model classes
-(say, decision trees vs. neural networks).
+이제 무엇이 적절한 모델 복잡도 개념을 구성하는지는 복잡한 문제입니다. 
+종종 더 많은 파라미터를 가진 모델이 더 많은 수의 임의로 할당된 레이블에 맞출 수 있습니다. 
+하지만 이것이 반드시 사실인 것은 아닙니다. 
+예를 들어 커널 방법은 무한한 수의 파라미터 공간에서 작동하지만, 그 복잡도는 다른 수단에 의해 제어됩니다 :cite:`Scholkopf.Smola.2002`. 
+종종 유용하다고 증명되는 복잡도의 한 가지 개념은 파라미터가 취할 수 있는 값의 범위입니다. 
+여기서 파라미터가 임의의 값을 취하도록 허용되는 모델이 더 복잡할 것입니다. 
+우리는 다음 섹션에서 첫 번째 실용적인 정규화 기술인 *가중치 감쇠(weight decay)*를 소개할 때 이 아이디어를 다시 다룰 것입니다. 
+특히, 상당히 다른 모델 클래스(예: 결정 트리 vs. 신경망) 간에 복잡도를 비교하는 것은 어려울 수 있습니다.
 
 
-At this point, we must stress another important point
-that we will revisit when introducing deep neural networks.
-When a model is capable of fitting arbitrary labels,
-low training error does not necessarily
-imply low generalization error.
-*However, it does not necessarily
-imply high generalization error either!*
-All we can say with confidence is that
-low training error alone is not enough
-to certify low generalization error.
-Deep neural networks turn out to be just such models:
-while they generalize well in practice,
-they are too powerful to allow us to conclude
-much on the basis of training error alone.
-In these cases we must rely more heavily
-on our holdout data to certify generalization
-after the fact.
-Error on the holdout data, i.e., validation set,
-is called the *validation error*.
+이 시점에서 심층 신경망을 소개할 때 다시 다룰 또 다른 중요한 점을 강조해야 합니다. 
+모델이 임의의 레이블에 맞출 수 있을 때, 낮은 훈련 오차가 반드시 낮은 일반화 오차를 의미하는 것은 아닙니다. 
+*하지만 그렇다고 해서 반드시 높은 일반화 오차를 의미하는 것도 아닙니다!* 
+우리가 자신 있게 말할 수 있는 전부는 낮은 훈련 오차만으로는 낮은 일반화 오차를 증명하기에 충분하지 않다는 것입니다. 
+심층 신경망은 바로 그러한 모델인 것으로 밝혀졌습니다: 실제로는 일반화가 잘 되지만, 훈련 오차만으로는 많은 결론을 내리기에는 너무 강력합니다. 
+이러한 경우 우리는 사후에 일반화를 증명하기 위해 홀드아웃(holdout) 데이터에 더 많이 의존해야 합니다. 
+홀드아웃 데이터, 즉 검증 세트에서의 오차를 *검증 오차(validation error)*라고 합니다.
 
-## Underfitting or Overfitting?
+## 과소적합 또는 과대적합? (Underfitting or Overfitting?)
 
-When we compare the training and validation errors,
-we want to be mindful of two common situations.
-First, we want to watch out for cases
-when our training error and validation error are both substantial
-but there is a little gap between them.
-If the model is unable to reduce the training error,
-that could mean that our model is too simple
-(i.e., insufficiently expressive)
-to capture the pattern that we are trying to model.
-Moreover, since the *generalization gap* ($R_\textrm{emp} - R$)
-between our training and generalization errors is small,
-we have reason to believe that we could get away with a more complex model.
-This phenomenon is known as *underfitting*.
+훈련 오차와 검증 오차를 비교할 때, 우리는 두 가지 일반적인 상황을 유념해야 합니다. 
+먼저, 훈련 오차와 검증 오차가 모두 상당하지만 그 사이의 격차가 거의 없는 경우를 주의해야 합니다. 
+모델이 훈련 오차를 줄이지 못한다면, 이는 우리 모델이 모델링하려는 패턴을 포착하기에 너무 단순하다(즉, 충분히 표현력이 없다)는 의미일 수 있습니다. 
+게다가 훈련 오차와 일반화 오차 사이의 *일반화 갭*($R_\textrm{emp} - R$)이 작기 때문에, 더 복잡한 모델을 사용해도 괜찮을 것이라고 믿을 근거가 있습니다. 
+이 현상을 *과소적합(underfitting)*이라고 합니다.
 
-On the other hand, as we discussed above,
-we want to watch out for the cases
-when our training error is significantly lower
-than our validation error, indicating severe *overfitting*.
-Note that overfitting is not always a bad thing.
-In deep learning especially,
-the best predictive models often perform
-far better on training data than on holdout data.
-Ultimately, we usually care about
-driving the generalization error lower,
-and only care about the gap insofar
-as it becomes an obstacle to that end.
-Note that if the training error is zero,
-then the generalization gap is precisely equal to the generalization error
-and we can make progress only by reducing the gap.
+반면에 위에서 논의했듯이, 훈련 오차가 검증 오차보다 현저히 낮은 경우를 주의해야 하며, 이는 심각한 *과대적합(overfitting)*을 나타냅니다. 
+과대적합이 항상 나쁜 것만은 아니라는 점에 유의하십시오. 
+특히 딥러닝에서 가장 우수한 예측 모델은 종종 홀드아웃 데이터보다 훈련 데이터에서 훨씬 더 나은 성능을 보입니다. 
+궁극적으로 우리는 대개 일반화 오차를 낮추는 것에 관심을 가지며, 그 갭에 대해서는 그것이 그 목적에 장애가 될 때만 신경을 씁니다. 
+만약 훈련 오차가 0이라면, 일반화 갭은 정확히 일반화 오차와 같으며 우리는 오직 갭을 줄임으로써만 진전을 이룰 수 있습니다.
 
-### Polynomial Curve Fitting
+### 다항식 곡선 맞춤 (Polynomial Curve Fitting)
 :label:`subsec_polynomial-curve-fitting`
 
-To illustrate some classical intuition
-about overfitting and model complexity,
-consider the following:
-given training data consisting of a single feature $x$
-and a corresponding real-valued label $y$,
-we try to find the polynomial of degree $d$
+과대적합과 모델 복잡도에 대한 몇 가지 고전적인 직관을 설명하기 위해 다음을 고려해 보십시오: 
+단일 특성 $x$와 그에 해당하는 실수 값 레이블 $y$로 구성된 훈련 데이터가 주어졌을 때, 레이블 $y$를 추정하기 위해 $d$차 다항식을 찾으려고 합니다.
 
 $$\hat{y}= \sum_{i=0}^d x^i w_i$$
 
-for estimating the label $y$.
-This is just a linear regression problem
-where our features are given by the powers of $x$,
-the model's weights are given by $w_i$,
-and the bias is given by $w_0$ since $x^0 = 1$ for all $x$.
-Since this is just a linear regression problem,
-we can use the squared error as our loss function.
+이는 특성이 $x$의 거듭제곱으로 주어지고 모델의 가중치가 $w_i$로 주어지며, 모든 $x$에 대해 $x^0 = 1$이므로 편향이 $w_0$으로 주어지는 선형 회귀 문제일 뿐입니다. 
+이것은 선형 회귀 문제이므로 제곱 오차를 손실 함수로 사용할 수 있습니다.
 
 
-A higher-order polynomial function is more complex
-than a lower-order polynomial function,
-since the higher-order polynomial has more parameters
-and the model function's selection range is wider.
-Fixing the training dataset,
-higher-order polynomial functions should always
-achieve lower (at worst, equal) training error
-relative to lower-degree polynomials.
-In fact, whenever each data example
-has a distinct value of $x$,
-a polynomial function with degree
-equal to the number of data examples
-can fit the training set perfectly.
-We compare the relationship between polynomial degree (model complexity)
-and both underfitting and overfitting in :numref:`fig_capacity_vs_error`.
+고차 다항식 함수는 저차 다항식 함수보다 파라미터가 더 많고 모델 함수의 선택 범위가 더 넓기 때문에 더 복잡합니다. 
+훈련 데이터셋을 고정했을 때, 고차 다항식 함수는 항상 저차 다항식에 비해 더 낮은(최악의 경우 동일한) 훈련 오차를 달성해야 합니다. 
+사실, 각 데이터 예제가 서로 다른 $x$ 값을 가질 때마다 데이터 예제 수와 동일한 차수의 다항식 함수는 훈련 세트를 완벽하게 맞출 수 있습니다. 
+우리는 :numref:`fig_capacity_vs_error`에서 다항식 차수(모델 복잡도)와 과소적합 및 과대적합 사이의 관계를 비교합니다.
 
-![Influence of model complexity on underfitting and overfitting.](../img/capacity-vs-error.svg)
+![과소적합과 과대적합에 대한 모델 복잡도의 영향.](../img/capacity-vs-error.svg)
 :label:`fig_capacity_vs_error`
 
 
-### Dataset Size
 
-As the above bound already indicates,
-another big consideration
-to bear in mind is dataset size.
-Fixing our model, the fewer samples
-we have in the training dataset,
-the more likely (and more severely)
-we are to encounter overfitting.
-As we increase the amount of training data,
-the generalization error typically decreases.
-Moreover, in general, more data never hurts.
-For a fixed task and data distribution,
-model complexity should not increase
-more rapidly than the amount of data.
-Given more data, we might  attempt
-to fit a more complex model.
-Absent sufficient data, simpler models
-may be more difficult to beat.
-For many tasks, deep learning
-only outperforms linear models
-when many thousands of training examples are available.
-In part, the current success of deep learning
-owes considerably to the abundance of massive datasets
-arising from Internet companies, cheap storage,
-connected devices, and the broad digitization of the economy.
+### 데이터셋 크기 (Dataset Size)
 
-## Model Selection
+위의 경계가 이미 나타내듯이, 유념해야 할 또 다른 큰 고려 사항은 데이터셋 크기입니다. 
+모델을 고정했을 때, 훈련 데이터셋의 샘플 수가 적을수록 과대적합이 발생할 가능성이 더 높고 더 심각해집니다. 
+훈련 데이터의 양을 늘리면 일반적으로 일반화 오차가 감소합니다. 
+게다가 일반적으로 데이터는 많을수록 좋습니다. 
+고정된 작업과 데이터 분포에 대해, 모델 복잡도는 데이터의 양보다 더 빠르게 증가해서는 안 됩니다. 
+데이터가 많아지면 더 복잡한 모델을 맞추려고 시도할 수 있습니다. 
+충분한 데이터가 없으면 단순한 모델을 이기기가 더 어려울 수 있습니다. 
+많은 작업에서 딥러닝은 수만 개의 훈련 예제를 사용할 수 있을 때만 선형 모델보다 뛰어난 성능을 보입니다. 
+부분적으로 현재 딥러닝의 성공은 인터넷 기업, 저렴한 저장소, 연결된 장치 및 경제의 광범위한 디지털화에서 비롯된 막대한 데이터셋의 풍부함에 크게 힘입었습니다.
+
+## 모델 선택 (Model Selection)
 :label:`subsec_generalization-model-selection`
 
-Typically, we select our final model
-only after evaluating multiple models
-that differ in various ways
-(different architectures, training objectives,
-selected features, data preprocessing,
-learning rates, etc.).
-Choosing among many models is aptly
-called *model selection*.
+일반적으로 우리는 다양한 방식(서로 다른 아키텍처, 훈련 목표, 선택된 특성, 데이터 전처리, 학습률 등)으로 서로 다른 여러 모델을 평가한 후에만 최종 모델을 선택합니다. 
+많은 모델 중에서 선택하는 것을 적절하게 *모델 선택(model selection)*이라고 합니다.
 
-In principle, we should not touch our test set
-until after we have chosen all our hyperparameters.
-Were we to use the test data in the model selection process,
-there is a risk that we might overfit the test data.
-Then we would be in serious trouble.
-If we overfit our training data,
-there is always the evaluation on test data to keep us honest.
-But if we overfit the test data, how would we ever know?
-See :citet:`ong2005learning` for an example of how
-this can lead to absurd results even for models where the complexity
-can be tightly controlled.
+원칙적으로 우리는 모든 하이퍼파라미터를 선택할 때까지 테스트 세트를 건드려서는 안 됩니다. 
+만약 모델 선택 과정에서 테스트 데이터를 사용했다면, 테스트 데이터에 과대적합될 위험이 있습니다. 
+그렇게 되면 심각한 문제에 빠지게 됩니다. 
+훈련 데이터에 과대적합되더라도 우리를 정직하게 유지해 줄 테스트 데이터에 대한 평가가 항상 있지만, 테스트 데이터에 과대적합되면 우리가 그것을 어떻게 알 수 있겠습니까? 
+복잡도가 엄격하게 제어될 수 있는 모델에서조차 이것이 어떻게 황당한 결과로 이어질 수 있는지에 대한 예는 :citet:`ong2005learning`를 참조하십시오.
 
-Thus, we should never rely on the test data for model selection.
-And yet we cannot rely solely on the training data
-for model selection either because
-we cannot estimate the generalization error
-on the very data that we use to train the model.
+따라서 모델 선택을 위해 테스트 데이터에 결코 의존해서는 안 됩니다. 
+그렇다고 모델을 훈련하는 데 사용하는 바로 그 데이터에서 일반화 오차를 추정할 수 없기 때문에 훈련 데이터에만 전적으로 의존할 수도 없습니다.
 
 
-In practical applications, the picture gets muddier.
-While ideally we would only touch the test data once,
-to assess the very best model or to compare
-a small number of models with each other,
-real-world test data is seldom discarded after just one use.
-We can seldom afford a new test set for each round of experiments.
-In fact, recycling benchmark data for decades
-can have a significant impact on the
-development of algorithms,
-e.g., for [image classification](https://paperswithcode.com/sota/image-classification-on-imagenet)
-and [optical character recognition](https://paperswithcode.com/sota/image-classification-on-mnist).
+실제 응용 분야에서 그림은 더 흐릿해집니다. 
+이상적으로는 가장 좋은 모델을 평가하거나 소수의 모델을 서로 비교하기 위해 테스트 데이터를 단 한 번만 건드려야 하겠지만, 실제 테스트 데이터는 한 번 사용한 후에 폐기되는 경우가 거의 없습니다. 
+우리는 매번 실험할 때마다 새로운 테스트 세트를 마련할 여력이 거의 없습니다. 
+사실, 수십 년 동안 벤치마크 데이터를 재활용하는 것은 [이미지 분류](https://paperswithcode.com/sota/image-classification-on-imagenet) 및 [광학 문자 인식](https://paperswithcode.com/sota/image-classification-on-mnist)과 같은 알고리즘 개발에 상당한 영향을 미칠 수 있습니다.
 
-The common practice for addressing the problem of *training on the test set*
-is to split our data three ways,
-incorporating a *validation set*
-in addition to the training and test datasets.
-The result is a murky business where the boundaries
-between validation and test data are worryingly ambiguous.
-Unless explicitly stated otherwise, in the experiments in this book
-we are really working with what should rightly be called
-training data and validation data, with no true test sets.
-Therefore, the accuracy reported in each experiment of the book is really
-the validation accuracy and not a true test set accuracy.
+*테스트 세트에서의 훈련* 문제를 해결하기 위한 일반적인 관행은 데이터를 세 가지로 나누어 훈련 및 테스트 데이터셋 외에 *검증 세트(validation set)*를 포함하는 것입니다. 
+그 결과 검증 데이터와 테스트 데이터 사이의 경계가 걱정스러울 정도로 모호해지는 불분명한 상황이 벌어집니다. 
+이 책의 실험에서 명시적으로 언급되지 않는 한, 우리는 실제로는 훈련 데이터와 검증 데이터로 작업하고 있으며 진정한 테스트 세트는 없습니다. 
+따라서 이 책의 각 실험에서 보고된 정확도는 실제로는 검증 정확도이며 진정한 테스트 세트 정확도가 아닙니다.
 
-### Cross-Validation
+### 교차 검증 (Cross-Validation)
 
-When training data is scarce,
-we might not even be able to afford to hold out
-enough data to constitute a proper validation set.
-One popular solution to this problem is to employ
-$K$*-fold cross-validation*.
-Here, the original training data is split into $K$ non-overlapping subsets.
-Then model training and validation are executed $K$ times,
-each time training on $K-1$ subsets and validating
-on a different subset (the one not used for training in that round).
-Finally, the training and validation errors are estimated
-by averaging over the results from the $K$ experiments.
+훈련 데이터가 부족할 때, 우리는 적절한 검증 세트를 구성할 만큼 충분한 데이터를 떼어놓을 여유조차 없을 수도 있습니다. 
+이 문제에 대한 한 가지 대중적인 해결책은 *$K$-겹 교차 검증($K$-fold cross-validation)*을 사용하는 것입니다. 
+여기서 원래 훈련 데이터는 겹치지 않는 $K$개의 부분 집합으로 나뉩니다. 
+그런 다음 모델 훈련과 검증이 $K$번 실행되는데, 매번 $K-1$개의 부분 집합에서 훈련하고 다른 부분 집합(해당 라운드에서 훈련에 사용되지 않은 것)에서 검증합니다. 
+마지막으로 $K$번의 실험 결과를 평균내어 훈련 및 검증 오차를 추정합니다.
 
 
 
-## Summary
+## 요약 (Summary)
 
-This section explored some of the  underpinnings
-of generalization in  machine learning.
-Some of these ideas become complicated
-and counterintuitive when we get to deeper models; here, models are capable of overfitting data badly,
-and the relevant notions of complexity
-can be both implicit and counterintuitive
-(e.g., larger architectures with more parameters
-generalizing better).
-We leave you with a few rules of thumb:
+이 섹션에서는 머신러닝에서 일반화의 토대 중 일부를 살펴보았습니다. 
+이러한 아이디어 중 일부는 심층 모델로 갈수록 복잡해지고 직관에 반하게 됩니다. 여기서는 모델이 데이터를 심하게 과대적합할 수 있으며, 관련 복잡도 개념이 암시적이고 직관에 반할 수 있습니다(예: 파라미터가 더 많은 더 큰 아키텍처가 더 잘 일반화됨). 
+몇 가지 경험 법칙을 남겨드립니다:
 
-1. Use validation sets (or $K$*-fold cross-validation*) for model selection;
-1. More complex models often require more data;
-1. Relevant notions of complexity include both the number of parameters and the range of values that they are allowed to take;
-1. Keeping all else equal, more data almost always leads to better generalization;
-1. This entire talk of generalization is all predicated on the IID assumption. If we relax this assumption, allowing for distributions to shift between the train and testing periods, then we cannot say anything about generalization absent a further (perhaps milder) assumption.
+1. 모델 선택을 위해 검증 세트(또는 *$K$-겹 교차 검증*)를 사용하십시오.
+2. 복잡한 모델은 종종 더 많은 데이터를 필요로 합니다.
+3. 관련 복잡도 개념에는 파라미터 수와 파라미터가 허용되는 값의 범위가 모두 포함됩니다.
+4. 다른 모든 조건이 동일할 때, 데이터가 많을수록 거의 항상 더 나은 일반화로 이어집니다.
+5. 이 모든 일반화에 대한 이야기는 IID 가정을 전제로 합니다. 만약 이 가정을 완화하여 훈련 기간과 테스트 기간 사이에 분포가 이동하는 것을 허용한다면, 추가적인 (아마도 더 완만한) 가정 없이는 일반화에 대해 아무것도 말할 수 없습니다.
 
 
-## Exercises
 
-1. When can you solve the problem of polynomial regression exactly?
-1. Give at least five examples where dependent random variables make treating the problem as IID data inadvisable.
-1. Can you ever expect to see zero training error? Under which circumstances would you see zero generalization error?
-1. Why is $K$-fold cross-validation very expensive to compute?
-1. Why is the $K$-fold cross-validation error estimate biased?
-1. The VC dimension is defined as the maximum number of points that can be classified with arbitrary labels $\{\pm 1\}$ by a function of a class of functions. Why might this not be a good idea for measuring how complex the class of functions is? Hint: consider the magnitude of the functions.
-1. Your manager gives you a difficult dataset on which your current algorithm does not perform so well. How would you justify to him that you need more data? Hint: you cannot increase the data but you can decrease it.
+## 연습 문제 (Exercises)
+
+1. 다항식 회귀 문제를 정확하게 풀 수 있는 때는 언제입니까?
+2. 종속 확률 변수로 인해 문제를 IID 데이터로 취급하는 것이 바람직하지 않은 예시를 최소 다섯 가지 드십시오.
+3. 훈련 오차가 0이 될 것으로 기대할 수 있습니까? 어떤 상황에서 일반화 오차가 0이 되는 것을 볼 수 있을까요?
+4. $K$-겹 교차 검증이 왜 계산 비용이 매우 많이 들까요?
+5. $K$-겹 교차 검증 오차 추정치가 왜 편향되어 있을까요?
+6. VC 차원(VC dimension)은 일련의 함수들의 함수에 의해 임의의 레이블 {± 1}로 분류될 수 있는 최대 포인트 수로 정의됩니다. 이것이 함수 클래스가 얼마나 복잡한지 측정하는 데 좋은 아이디어가 아닌 이유는 무엇일까요? 힌트: 함수의 크기를 고려하십시오.
+7. 매니저가 현재 알고리즘이 잘 작동하지 않는 어려운 데이터셋을 줍니다. 더 많은 데이터가 필요하다는 것을 그에게 어떻게 정당화하시겠습니까? 힌트: 데이터를 늘릴 수는 없지만 줄일 수는 있습니다.
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/96)
+[토론](https://discuss.d2l.ai/t/96)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/97)
+[토론](https://discuss.d2l.ai/t/97)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/234)
+[토론](https://discuss.d2l.ai/t/234)
 :end_tab:
 
 :begin_tab:`jax`
-[Discussions](https://discuss.d2l.ai/t/17978)
+[토론](https://discuss.d2l.ai/t/17978)
 :end_tab:

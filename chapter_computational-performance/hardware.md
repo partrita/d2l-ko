@@ -1,232 +1,231 @@
-# Hardware
+# 하드웨어 (Hardware)
 :label:`sec_hardware`
 
-Building systems with great performance requires a good understanding of the algorithms and models to capture the statistical aspects of the problem. At the same time it is also indispensable to have at least a modicum of knowledge of the underlying hardware. The current section is no substitute for a proper course on hardware and system design. Instead, it might serve as a starting point for understanding why some algorithms are more efficient than others and how to achieve good throughput. A good design can easily make a difference of an order of magnitude and, in turn, this can make the difference between being able to train a network (e.g., in a week) and not at all (in 3 months, thus missing the deadline). 
-We will start by looking at computers. Then we will zoom in to look more carefully at CPUs and GPUs. Lastly we zoom out to review how multiple computers are connected in a server center or in the cloud. 
+뛰어난 성능을 갖춘 시스템을 구축하려면 문제의 통계적 측면을 포착하기 위한 알고리즘과 모델에 대한 좋은 이해가 필요합니다. 동시에 기저 하드웨어에 대한 최소한의 지식을 갖는 것도 필수적입니다. 이 섹션은 하드웨어 및 시스템 설계에 대한 정식 과정을 대체할 수는 없습니다. 대신 일부 알고리즘이 다른 알고리즘보다 왜 더 효율적인지, 그리고 어떻게 좋은 처리량(throughput)을 달성할 수 있는지 이해하기 위한 출발점 역할을 할 수 있습니다. 좋은 설계는 쉽게 한 자릿수 이상의 차이를 만들 수 있으며, 결과적으로 이는 네트워크를 훈련할 수 있느냐(예: 일주일 내에) 없느냐(3개월이 걸려 마감 기한을 놓치는 경우)의 차이를 만들 수 있습니다.
+먼저 컴퓨터를 살펴보는 것으로 시작하겠습니다. 그런 다음 CPU와 GPU를 더 자세히 살펴보기 위해 확대해 보겠습니다. 마지막으로 서버 센터나 클라우드에서 여러 대의 컴퓨터가 어떻게 연결되는지 검토하기 위해 축소해 보겠습니다.
 
-![Latency Numbers that every programmer should know.](../img/latencynumbers.png)
+![모든 프로그래머가 알아야 할 지연 시간 수치.](../img/latencynumbers.png)
 :label:`fig_latencynumbers`
 
-Impatient readers may be able to get by with :numref:`fig_latencynumbers`. It is taken from Colin Scott's [interactive post](https://people.eecs.berkeley.edu/%7Ercs/research/interactive_latency.html) that gives a good overview of the progress over the past decade. The original numbers are due to Jeff Dean's [Stanford talk from 2010](https://static.googleusercontent.com/media/research.google.com/en//people/jeff/Stanford-DL-Nov-2010.pdf).
-The discussion below explains some of the rationale for these numbers and how they can guide us in designing algorithms. The discussion below is very high level and cursory. It is clearly *no substitute* for a proper course but rather just meant to provide enough information for a statistical modeler to make suitable design decisions. For an in-depth overview of computer architecture we refer the reader to :cite:`Hennessy.Patterson.2011` or a recent course on the subject, such as the one by [Arste Asanovic](http://inst.eecs.berkeley.edu/%7Ecs152/sp19/).
+성급한 독자들은 :numref:`fig_latencynumbers`만으로도 충분할 수 있습니다. 이는 지난 10년 동안의 진전에 대한 좋은 개요를 제공하는 Colin Scott의 [대화형 포스트](https://people.eecs.berkeley.edu/%7Ercs/research/interactive_latency.html)에서 가져온 것입니다. 원래 수치는 제프 딘(Jeff Dean)의 [2010년 스탠포드 강연](https://static.googleusercontent.com/media/research.google.com/en//people/jeff/Stanford-DL-Nov-2010.pdf)에서 기인합니다.
+아래 논의는 이러한 수치에 대한 몇 가지 근거와 이것이 알고리즘 설계에 어떻게 가이드를 줄 수 있는지 설명합니다. 아래 논의는 매우 높은 수준이며 요약적입니다. 이는 정식 과정을 *대체하는 것*이 아니라 통계 모델러가 적절한 설계 결정을 내리는 데 충분한 정보를 제공하기 위한 것입니다. 컴퓨터 아키텍처에 대한 심층적인 개요는 :cite:`Hennessy.Patterson.2011`이나 [Arste Asanovic](http://inst.eecs.berkeley.edu/%7Ecs152/sp19/)의 최근 강의와 같은 관련 과정을 참조하십시오.
 
-## Computers
+## 컴퓨터 (Computers)
 
-Most deep learning researchers and practitioners have access to a computer with a fair amount of memory, computation, some form of an accelerator such as a GPU, or multiples thereof. A computer consists of the following key components:
+대부분의 딥러닝 연구자와 실무자는 상당한 양의 메모리, 계산 능력, GPU와 같은 형태의 가속기 또는 그 배수개를 갖춘 컴퓨터에 액세스할 수 있습니다. 컴퓨터는 다음과 같은 핵심 구성 요소로 이루어져 있습니다:
 
-* A processor (also referred to as a CPU) that is able to execute the programs we give it (in addition to running an operating system and many other things), typically consisting of 8 or more cores.
-* Memory (RAM) to store and retrieve the results from computation, such as weight vectors and activations, and training data.
-* An Ethernet network connection (sometimes multiple) with speeds ranging from 1 GB/s to 100 GB/s. On high end servers more advanced interconnects can be found.
-* A high speed expansion bus (PCIe) to connect the system to one or more GPUs. Servers have up to 8 accelerators, often connected in an advanced topology, while desktop systems have 1 or 2, depending on the budget of the user and the size of the power supply.
-* Durable storage, such as a magnetic hard disk drive, a solid state drive, in many cases connected using the PCIe bus. It provides efficient transfer of training data to the system and storage of intermediate checkpoints as needed.
+* 우리가 제공하는 프로그램을 실행할 수 있는 프로세서(CPU라고도 함)(운영 체제 및 기타 많은 것들을 실행하는 것 외에도), 일반적으로 8개 이상의 코어로 구성됨.
+* 가중치 벡터, 활성화 값, 훈련 데이터와 같은 계산 결과를 저장하고 검색하기 위한 메모리(RAM).
+* 1GB/s에서 100GB/s 범위의 속도를 가진 이더넷 네트워크 연결(때로는 여러 개). 하이엔드 서버에서는 더 발전된 상호 연결을 찾을 수 있습니다.
+* 시스템을 하나 이상의 GPU에 연결하기 위한 고속 확장 버스(PCIe). 서버에는 종종 고급 토폴로지로 연결된 최대 8개의 가속기가 있는 반면, 데스크탑 시스템은 사용자의 예산과 전원 공급 장치의 크기에 따라 1개 또는 2개를 갖습니다.
+* 마그네틱 하드 디스크 드라이브(HDD), 솔리드 스테이트 드라이브(SSD)와 같은 지속성 저장 장치로, 많은 경우 PCIe 버스를 사용하여 연결됩니다. 이는 시스템으로의 훈련 데이터의 효율적인 전송과 필요에 따른 중간 체크포인트 저장을 제공합니다.
 
-![Connectivity of components of a computer.](../img/mobo-symbol.svg)
+![컴퓨터 구성 요소의 연결성.](../img/mobo-symbol.svg)
 :label:`fig_mobo-symbol`
 
-As :numref:`fig_mobo-symbol` indicates, most components (network, GPU, and storage) are connected to the CPU across the PCIe bus. It consists of multiple lanes that are directly attached to the CPU. For instance AMD's Threadripper 3 has 64 PCIe 4.0 lanes, each of which is capable 16 Gbit/s data transfer in both directions. The memory is directly attached to the CPU with a total bandwidth of up to 100 GB/s.
+:numref:`fig_mobo-symbol`이 나타내듯이, 대부분의 구성 요소(네트워크, GPU, 저장 장치)는 PCIe 버스를 통해 CPU에 연결됩니다. 이는 CPU에 직접 부착된 여러 레인으로 구성됩니다. 예를 들어 AMD의 Threadripper 3는 64개의 PCIe 4.0 레인을 가지고 있으며, 각 레인은 양방향으로 16 Gbit/s 데이터 전송이 가능합니다. 메모리는 최대 100 GB/s의 총 대역폭으로 CPU에 직접 부착됩니다.
 
-When we run code on a computer we need to shuffle data to the processors (CPUs or GPUs), perform computation, and then move the results off the processor back to RAM and durable storage. Hence, in order to get good performance we need to make sure that this works seamlessly without any one of the systems becoming a major bottleneck. For instance, if we cannot load images quickly enough the processor will not have any work to do. Likewise, if we cannot move matrices quickly enough to the CPU (or GPU), its processing elements will starve. Finally, if we want to synchronize multiple computers across the network, the latter should not slow down computation. One option is to interleave communication and computation. Let's have a look at the various components in more detail.
-
-
-## Memory
-
-At its most basic memory is used to store data that needs to be readily accessible. At present CPU RAM is typically of the [DDR4](https://en.wikipedia.org/wiki/DDR4_SDRAM) variety, offering 20--25 GB/s bandwidth per module. Each module has a 64-bit-wide bus. Typically pairs of memory modules are used to allow for multiple channels. CPUs have between 2 and 4 memory channels, i.e., they have between 4 0GB/s and 100 GB/s peak memory bandwidth. Often there are two banks per channel. For instance AMD's Zen 3 Threadripper has 8 slots.
-
-While these numbers are impressive, indeed, they only tell part of the story. When we want to read a portion from memory we first need to tell the memory module where the information can be found. That is, we first need to send the *address* to RAM. Once this is accomplished we can choose to read just a single 64 bit record or a long sequence of records. The latter is called *burst read*. In a nutshell, sending an address to memory and setting up the transfer takes approximately 100 ns (details depend on the specific timing coefficients of the memory chips used), every subsequent transfer takes only 0.2 ns. In short, the first read is 500 times as expensive as subsequent ones! Note that we could perform up to 10,000,000 random reads per second. This suggests that we avoid random memory access as far as possible and use burst reads (and writes) instead.
-
-Matters are a bit more complex when we take into account that we have multiple *banks*. Each bank can read memory largely independently. This means two things. 
-On the one hand, the effective number of random reads is up to 4 times higher, provided that they are spread evenly across memory. It also means that it is still a bad idea to perform random reads since burst reads are 4 times faster, too. On the other hand, due to memory alignment to 64 bit boundaries it is a good idea to align any data structures with the same boundaries. Compilers do this pretty much [automatically](https://en.wikipedia.org/wiki/Data_structure_alignment) when the appropriate flags are set. Curious readers are encouraged to review a lecture on DRAMs such as the one by [Zeshan Chishti](http://web.cecs.pdx.edu/%7Ezeshan/ece585_lec5.pdf).
-
-GPU memory is subject to even higher bandwidth requirements since they have many more processing elements than CPUs. By and large there are two options to address them. The first is to make the memory bus significantly wider. For instance, NVIDIA's RTX 2080 Ti has a 352-bit-wide bus. This allows for much more information to be transferred at the same time. Second, GPUs use specific high-performance memory. Consumer-grade devices, such as NVIDIA's RTX and Titan series typically use [GDDR6](https://en.wikipedia.org/wiki/GDDR6_SDRAM) chips with over 500 GB/s aggregate bandwidth. An alternative is to use HBM (high bandwidth memory) modules. They use a very different interface and connect directly with GPUs on a dedicated silicon wafer. This makes them very expensive and their use is typically limited to high-end server chips, such as the NVIDIA Volta V100 series of accelerators. Quite unsurprisingly, GPU memory is generally *much* smaller than CPU memory due to the higher cost of the former. For our purposes, by and large their performance characteristics are similar, just a lot faster. We can safely ignore the details for the purpose of this book. They only matter when tuning GPU kernels for high throughput.
-
-## Storage
-
-We saw that some of the key characteristics of RAM are *bandwidth* and *latency*. The same is true for storage devices, just that the differences can be even more extreme.
-
-### Hard Disk Drives
-
-*Hard disk drives* (HDDs) have been in use for over half a century. In a nutshell they contain a number of spinning platters with heads that can be positioned to read or write at any given track. High-end disks hold up to 16 TB on 9 platters. One of the key benefits of HDDs is that they are relatively inexpensive. One of their many downsides are their typically catastrophic failure modes and their relatively high read latency.
-
-To understand the latter, consider the fact that HDDs spin at around 7,200 RPM (revolutions per minute). If they were much faster they would shatter due to the centrifugal force exerted on the platters. This has a major downside when it comes to accessing a specific sector on the disk: we need to wait until the platter has rotated in position (we can move the heads but not accelerate the actual disks). Hence it can take over 8 ms until the requested data is available. A common way this is expressed is to say that HDDs can operate at approximately 100 IOPs (input/output operations per second). This number has essentially remained unchanged for the past two decades. Worse still, it is equally difficult to increase bandwidth (it is in the order of 100--200 MB/s). After all, each head reads a track of bits, hence the bit rate only scales with the square root of the information density. As a result, HDDs are quickly becoming relegated to archival storage and low-grade storage for very large datasets.
+컴퓨터에서 코드를 실행할 때 우리는 프로세서(CPU 또는 GPU)로 데이터를 섞어 넣고, 계산을 수행한 다음, 결과를 프로세서에서 RAM 및 지속성 저장 장치로 다시 이동해야 합니다. 따라서 좋은 성능을 얻으려면 이러한 시스템 중 어느 하나도 주요 병목 현상이 되지 않고 원활하게 작동하도록 해야 합니다. 예를 들어 이미지를 충분히 빨리 로드할 수 없다면 프로세서는 할 일이 없을 것입니다. 마찬가지로 행렬을 CPU(또는 GPU)로 충분히 빨리 이동할 수 없다면 그 처리 요소들은 굶주리게 될 것입니다. 마지막으로 네트워크를 통해 여러 대의 컴퓨터를 동기화하려는 경우, 네트워크가 계산을 늦추어서는 안 됩니다. 한 가지 옵션은 통신과 계산을 엇갈리게 배치하는 것입니다. 다양한 구성 요소를 더 자세히 살펴봅시다.
 
 
-### Solid State Drives
+## 메모리 (Memory)
 
-Solid state drives (SSDs) use flash memory to store information persistently. This allows for *much faster* access to stored records. Modern SSDs can operate at 100,000 to 500,000 IOPs, i.e., up to 3 orders of magnitude faster than HDDs. Furthermore, their bandwidth can reach 1--3GB/s, i.e., one order of magnitude faster than HDDs. These improvements sound almost too good to be true. Indeed, they come with the following caveats, due to the way SSDs are designed.
+가장 기본적으로 메모리는 즉시 액세스해야 하는 데이터를 저장하는 데 사용됩니다. 현재 CPU RAM은 일반적으로 [DDR4](https://en.wikipedia.org/wiki/DDR4_SDRAM) 종류로, 모듈당 20~25 GB/s 대역폭을 제공합니다. 각 모듈은 64비트 너비의 버스를 갖습니다. 일반적으로 메모리 모듈은 다중 채널을 허용하기 위해 쌍으로 사용됩니다. CPU는 2개에서 4개의 메모리 채널을 가지며, 즉 40 GB/s에서 100 GB/s 사이의 피크 메모리 대역폭을 갖습니다. 종종 채널당 두 개의 뱅크가 있습니다. 예를 들어 AMD의 Zen 3 Threadripper는 8개의 슬롯을 갖습니다.
 
-* SSDs store information in blocks (256 KB or larger). They can only be written as a whole, which takes significant time. Consequently bit-wise random writes on SSD have very poor performance. Likewise, writing data in general takes significant time since the block has to be read, erased and then rewritten with new information. By now SSD controllers and firmware have developed algorithms to mitigate this. Nonetheless, writes can be much slower, in particular for QLC (quad level cell) SSDs. The key for improved performance is to maintain a *queue* of operations, to prefer reads and to write in large blocks if possible.
-* The memory cells in SSDs wear out relatively quickly (often already after a few thousand writes). Wear-level protection algorithms are able to spread the degradation over many cells. That said, it is not recommended to use SSDs for swapping files or for large aggregations of log-files.
-* Lastly, the massive increase in bandwidth has forced computer designers to attach SSDs directly to the PCIe bus. The drives capable of handling this, referred to as NVMe (Non Volatile Memory enhanced), can use up to 4 PCIe lanes. This amounts to up to 8GB/s on PCIe 4.0.
+이러한 수치들은 정말 인상적이지만, 이야기의 일부만 말해줄 뿐입니다. 메모리에서 일부를 읽고 싶을 때 먼저 메모리 모듈에 정보가 어디에 있는지 알려줘야 합니다. 즉, 먼저 RAM에 *주소*를 보내야 합니다. 이것이 완료되면 단일 64비트 레코드 또는 긴 레코드 시퀀스를 읽도록 선택할 수 있습니다. 후자를 *버스트 읽기(burst read)*라고 합니다. 요컨대, 메모리에 주소를 보내고 전송을 설정하는 데는 약 100ns가 걸리며(세부 사항은 사용된 메모리 칩의 특정 타이밍 계수 에 따라 다름), 그 이후의 모든 전송에는 0.2ns만 걸립니다. 간단히 말해서 첫 번째 읽기는 후속 읽기보다 500배나 더 비쌉니다! 우리는 초당 최대 10,000,000번의 랜덤 읽기를 수행할 수 있음에 유의하십시오. 이는 가능한 한 랜덤 메모리 액세스를 피하고 대신 버스트 읽기(및 쓰기)를 사용해야 함을 시사합니다.
 
-### Cloud Storage
+여러 개의 *뱅크(banks)*가 있다는 점을 고려하면 상황은 좀 더 복잡해집니다. 각 뱅크는 메모리를 거의 독립적으로 읽을 수 있습니다. 이는 두 가지를 의미합니다.
+한편으로, 유효 랜덤 읽기 횟수는 메모리 전체에 고르게 분산되어 있다면 최대 4배 더 높습니다. 또한 버스트 읽기도 4배 더 빠르기 때문에 여전히 랜덤 읽기를 수행하는 것은 좋지 않은 생각임을 의미합니다. 다른 한편으로, 64비트 경계에 대한 메모리 정렬 때문에 동일한 경계로 모든 데이터 구조를 정렬하는 것이 좋습니다. 컴파일러는 적절한 플래그가 설정되어 있을 때 이를 거의 [자동으로](https://en.wikipedia.org/wiki/Data_structure_alignment) 수행합니다. 호기심 많은 독자들은 [Zeshan Chishti](http://web.cecs.pdx.edu/%7Ezeshan/ece585_lec5.pdf)의 강의와 같은 DRAM에 대한 강의를 검토해 보시기 바랍니다.
 
-Cloud storage provides a configurable range of performance. That is, the assignment of storage to virtual machines is dynamic, both in terms of quantity and in terms of speed, as chosen by users. We recommend that users increase the provisioned number of IOPs whenever latency is too high, e.g., during training with many small records.
+GPU 메모리는 CPU보다 처리 요소가 훨씬 더 많기 때문에 훨씬 더 높은 대역폭 요구 사항을 따릅니다. 대체로 이를 해결하기 위한 두 가지 옵션이 있습니다. 첫 번째는 메모리 버스를 훨씬 더 넓게 만드는 것입니다. 예를 들어 NVIDIA의 RTX 2080 Ti는 352비트 너비의 버스를 갖습니다. 이를 통해 훨씬 더 많은 정보를 동시에 전송할 수 있습니다. 둘째, GPU는 특정 고성능 메모리를 사용합니다. NVIDIA의 RTX 및 Titan 시리즈와 같은 소비자용 장치는 일반적으로 500 GB/s 이상의 총 대역폭을 가진 [GDDR6](https://en.wikipedia.org/wiki/GDDR6_SDRAM) 칩을 사용합니다. 대안은 HBM(high bandwidth memory) 모듈을 사용하는 것입니다. 이들은 매우 다른 인터페이스를 사용하며 전용 실리콘 웨이퍼에서 GPU와 직접 연결됩니다. 이로 인해 매우 비싸며 그 사용은 일반적으로 NVIDIA Volta V100 가속기 시리즈와 같은 하이엔드 서버 칩으로 제한됩니다. 전혀 놀랍지 않게도, GPU 메모리는 일반적으로 전자의 높은 비용 때문에 CPU 메모리보다 *훨씬* 작습니다. 우리의 목적을 위해, 대체로 그들의 성능 특성은 유사하며 단지 훨씬 더 빠를 뿐입니다. 이 책의 목적을 위해 세부 사항은 무시해도 안전합니다. 고처리량을 위해 GPU 커널을 튜닝할 때만 중요합니다.
 
-## CPUs
+## 저장 장치 (Storage)
 
-Central processing units (CPUs) are the centerpiece of any computer. They consist of a number of key components: *processor cores* that are able to execute machine code, a *bus* connecting them (the specific topology differs significantly between processor models, generations, and vendors), and *caches* to allow for higher bandwidth and lower latency memory access than what is possible by reads from main memory. Lastly, almost all modern CPUs contain *vector processing units* to aid with high performance linear algebra and convolutions, as they are common in media processing and machine learning.
+우리는 RAM의 주요 특징 중 일부가 *대역폭*과 *지연 시간*임을 보았습니다. 저장 장치도 마찬가지이며, 차이점이 훨씬 더 극단적일 수 있습니다.
 
-![Intel Skylake consumer quad-core CPU.](../img/skylake.svg)
+### 하드 디스크 드라이브 (Hard Disk Drives)
+
+*하드 디스크 드라이브*(HDD)는 반세기 넘게 사용되어 왔습니다. 요컨대 이들은 주어진 트랙에서 읽거나 쓰기 위해 위치를 잡을 수 있는 헤드가 있는 여러 개의 회전하는 플래터(platters)를 포함합니다. 하이엔드 디스크는 9개의 플래터에 최대 16TB를 담습니다. HDD의 주요 장점 중 하나는 상대적으로 저렴하다는 것입니다. 많은 단점 중 하나는 일반적으로 치명적인 실패 모드와 상대적으로 높은 읽기 지연 시간입니다.
+
+후자를 이해하기 위해 HDD가 약 7,200 RPM(분당 회전수)으로 회전한다는 사실을 고려하십시오. 만약 그보다 훨씬 빠르다면 플래터에 가해지는 원심력 때문에 산산조각이 날 것입니다. 이는 디스크의 특정 섹터에 액세스할 때 큰 단점이 됩니다: 플래터가 제 위치로 회전할 때까지 기다려야 합니다(헤드는 움직일 수 있지만 실제 디스크를 가속할 수는 없습니다). 따라서 요청된 데이터를 사용할 수 있을 때까지 8ms 이상 걸릴 수 있습니다. 이를 표현하는 일반적인 방법은 HDD가 약 100 IOPs(초당 입출력 연산 수)로 작동할 수 있다고 말하는 것입니다. 이 수치는 지난 20년 동안 본질적으로 변하지 않았습니다. 더 나쁜 것은 대역폭을 늘리는 것도 똑같이 어렵다는 것입니다(100~200 MB/s 정도입니다). 결국 각 헤드는 비트 트랙을 읽으므로 비트 전송률은 정보 밀도의 제곱근에 비례하여 확장될 뿐입니다. 결과적으로 HDD는 빠르게 아카이브 저장소 및 매우 큰 데이터셋을 위한 저급 저장소로 밀려나고 있습니다.
+
+
+### 솔리드 스테이트 드라이브 (Solid State Drives)
+
+솔리드 스테이트 드라이브(SSD)는 플래시 메모리를 사용하여 정보를 영구적으로 저장합니다. 이를 통해 저장된 레코드에 *훨씬 더 빠른* 액세스가 가능합니다. 현대의 SSD는 100,000에서 500,000 IOPs로 작동할 수 있으며, 즉 HDD보다 최대 3배나 더 빠릅니다. 게다가 대역폭은 1~3GB/s에 달할 수 있으며, 이는 HDD보다 한 자릿수 더 빠릅니다. 이러한 개선 사항은 너무 좋아서 믿기지 않을 정도입니다. 실제로 SSD가 설계된 방식 때문에 다음과 같은 주의 사항이 따릅니다.
+
+* SSD는 정보를 블록(256KB 이상) 단위로 저장합니다. 이들은 전체로만 쓰여질 수 있으며, 이는 상당한 시간이 걸립니다. 결과적으로 SSD에서의 비트 단위 랜덤 쓰기는 성능이 매우 좋지 않습니다. 마찬가지로, 블록을 읽고 지운 다음 새로운 정보로 다시 써야 하기 때문에 일반적으로 데이터를 쓰는 데는 상당한 시간이 걸립니다. 현재 SSD 컨트롤러와 펌웨어는 이를 완화하기 위한 알고리즘을 개발했습니다. 그럼에도 불구하고 쓰기는 훨씬 더 느릴 수 있으며, 특히 QLC(quad level cell) SSD의 경우 더욱 그렇습니다. 성능 향상을 위한 핵심은 작업 *대기열*을 유지하고, 읽기를 선호하며, 가능하다면 큰 블록 단위로 쓰는 것입니다.
+* SSD의 메모리 셀은 상대적으로 빨리 마모됩니다(종종 수천 번의 쓰기 후에 이미 발생합니다). 마모 평준화(wear-leveling) 보호 알고리즘은 많은 셀에 걸쳐 열화를 분산시킬 수 있습니다. 그렇긴 하지만 스와핑 파일이나 대량의 로그 파일 집계에 SSD를 사용하는 것은 권장되지 않습니다.
+* 마지막으로, 대역폭의 대폭적인 증가로 인해 컴퓨터 설계자들은 SSD를 PCIe 버스에 직접 부착하게 되었습니다. 이를 처리할 수 있는 드라이브를 NVMe(Non Volatile Memory enhanced)라고 하며, 최대 4개의 PCIe 레인을 사용할 수 있습니다. 이는 PCIe 4.0에서 최대 8GB/s에 해당합니다.
+
+### 클라우드 저장소 (Cloud Storage)
+
+클라우드 저장소는 구성 가능한 범위의 성능을 제공합니다. 즉, 가상 머신에 대한 저장소 할당은 사용자가 선택한 대로 수량과 속도 측면에서 동적입니다. 지연 시간이 너무 높을 때마다(예: 많은 작은 레코드로 훈련하는 동안) 사용자가 할당된 IOPs 수를 늘릴 것을 권장합니다.
+
+## CPU
+
+중앙 처리 장치(CPU)는 모든 컴퓨터의 중심입니다. 이들은 여러 핵심 구성 요소로 이루어져 있습니다: 기계 코드를 실행할 수 있는 *프로세서 코어*, 이들을 연결하는 *버스*(특정 토폴로지는 프로세서 모델, 세대 및 벤더에 따라 크게 다름), 그리고 메인 메모리에서 읽는 것보다 더 높은 대역폭과 더 낮은 지연 시간의 메모리 액세스를 가능하게 하는 *캐시*입니다. 마지막으로, 거의 모든 현대 CPU에는 미디어 처리 및 머신러닝에서 흔히 볼 수 있는 고성능 선형 대수 및 합성곱을 돕기 위한 *벡터 처리 유닛*이 포함되어 있습니다.
+
+![Intel Skylake 소비자용 쿼드 코어 CPU.](../img/skylake.svg)
 :label:`fig_skylake`
 
-:numref:`fig_skylake` depicts an Intel Skylake consumer-grade quad-core CPU. It has an integrated GPU, caches, and a ringbus connecting the four cores. Peripherals, such as Ethernet, WiFi, Bluetooth, SSD controller, and USB, are either part of the chipset or directly attached (PCIe) to the CPU.
+:numref:`fig_skylake`는 Intel Skylake 소비자급 쿼드 코어 CPU를 묘사합니다. 통합 GPU, 캐시, 그리고 네 개의 코어를 연결하는 링 버스(ringbus)를 가지고 있습니다. 이더넷, WiFi, Bluetooth, SSD 컨트롤러, USB와 같은 주변 장치는 칩셋의 일부이거나 CPU에 직접 부착(PCIe)되어 있습니다.
 
 
-### Microarchitecture
+### 마이크로아키텍처 (Microarchitecture)
 
-Each of the processor cores consists of a rather sophisticated set of components. While details differ between generations and vendors, the basic functionality is pretty much standard. The front-end loads instructions and tries to predict which path will be taken (e.g., for control flow). Instructions are then decoded from assembly code to microinstructions. Assembly code is often not the lowest level code that a processor executes. Instead, complex instructions may be decoded into a set of more lower level operations. These are then processed by the actual execution core. Often the latter is capable of performing many operations simultaneously. For instance, the ARM Cortex A77 core of :numref:`fig_cortexa77` is able to perform up to 8 operations simultaneously.
+각 프로세서 코어는 상당히 정교한 구성 요소 집합으로 이루어져 있습니다. 세부 사항은 세대와 벤더마다 다르지만 기본 기능은 거의 표준입니다. 프론트엔드는 명령어를 로드하고 어떤 경로를 택할지 예측하려고 시도합니다(예: 제어 흐름의 경우). 명령어는 어셈블리 코드에서 마이크로 명령어로 디코딩됩니다. 어셈블리 코드는 종종 프로세서가 실행하는 가장 낮은 수준의 코드가 아닙니다. 대신 복잡한 명령어는 일련의 더 낮은 수준의 연산으로 디코딩될 수 있습니다. 이들은 실제 실행 코어에 의해 처리됩니다. 종종 후자는 많은 연산을 동시에 수행할 수 있습니다. 예를 들어 :numref:`fig_cortexa77`의 ARM Cortex A77 코어는 최대 8개의 연산을 동시에 수행할 수 있습니다.
 
-![ARM Cortex A77 Microarchitecture.](../img/a77.svg)
+![ARM Cortex A77 마이크로아키텍처.](../img/a77.svg)
 :label:`fig_cortexa77`
 
-This means that efficient programs might be able to perform more than one instruction per clock cycle, provided that they can be carried out independently. Not all units are created equal. Some specialize in integer instructions whereas others are optimized for floating point performance. To increase throughput, the processor might also follow  multiple code paths simultaneously in a branching instruction and then discard the results of the branches not taken. This is why branch prediction units matter (on the front-end) such that only the most promising paths are pursued.
+이는 효율적인 프로그램이 독립적으로 수행될 수 있다면 클록 사이클당 하나 이상의 명령어를 수행할 수 있음을 의미합니다. 모든 유닛이 동일하게 생성되는 것은 아닙니다. 일부는 정수 명령어에 특화되어 있는 반면 다른 유닛은 부동 소수점 성능에 최적화되어 있습니다. 처리량을 늘리기 위해 프로세서는 분기 명령어에서 여러 코드 경로를 동시에 따라가고 택하지 않은 분기의 결과는 버릴 수도 있습니다. 이것이 분기 예측 유닛(프론트엔드에 있음)이 중요한 이유이며, 가장 유망한 경로만 추구되도록 합니다.
 
-### Vectorization
+### 벡터화 (Vectorization)
 
-Deep learning is extremely compute-hungry. Hence, to make CPUs suitable for machine learning, one needs to perform many operations in one clock cycle. This is achieved via vector units. They have different names: on ARM they are called NEON, on x86 they (a recent generation) are referred to as [AVX2](https://en.wikipedia.org/wiki/Advanced_Vector_Extensions) units. A common aspect is that they are able to perform SIMD (single instruction multiple data) operations. :numref:`fig_neon128` shows how 8 short integers can be added in one clock cycle on ARM.
+딥러닝은 계산 집약적입니다. 따라서 CPU를 머신러닝에 적합하게 만들려면 한 클록 사이클에 많은 연산을 수행해야 합니다. 이는 벡터 유닛을 통해 달성됩니다. 이들은 이름이 다릅니다: ARM에서는 NEON이라고 불리고, x86에서는 (최근 세대) [AVX2](https://en.wikipedia.org/wiki/Advanced_Vector_Extensions) 유닛이라고 지칭됩니다. 공통적인 측면은 이들이 SIMD(single instruction multiple data) 연산을 수행할 수 있다는 점입니다. :numref:`fig_neon128`은 ARM에서 한 클록 사이클에 8개의 단정수(short integers)를 더하는 방법을 보여줍니다.
 
-![128 bit NEON vectorization.](../img/neon128.svg)
+![128비트 NEON 벡터화.](../img/neon128.svg)
 :label:`fig_neon128`
 
-Depending on architecture choices, such registers are up to 512 bits long, allowing for the combination of up to 64 pairs of numbers. For instance, we might be multiplying two numbers and adding them to a third, which is also known as a fused multiply-add. Intel's [OpenVino](https://01.org/openvinotoolkit) uses these to achieve respectable throughput for deep learning on server-grade CPUs. Note, though, that this number is entirely dwarfed by what GPUs are capable of achieving. For instance, NVIDIA's RTX 2080 Ti has 4,352 CUDA cores, each of which is capable of processing such an operation at any time.
+아키텍처 선택에 따라 이러한 레지스터는 최대 512비트 길이로, 최대 64쌍의 숫자를 조합할 수 있습니다. 예를 들어, 우리는 두 숫자를 곱하고 이를 세 번째 숫자에 더할 수도 있는데, 이는 FMA(fused multiply-add)로도 알려져 있습니다. Intel의 [OpenVino](https://01.org/openvinotoolkit)는 서버급 CPU에서 딥러닝을 위한 상당한 처리량을 달성하기 위해 이들을 사용합니다. 하지만 이 수치는 GPU가 달성할 수 있는 것에 비해 완전히 왜소해진다는 점에 유의하십시오. 예를 들어 NVIDIA의 RTX 2080 Ti는 4,352개의 CUDA 코어를 가지고 있으며, 각 코어는 언제든지 이러한 연산을 처리할 수 있습니다.
 
-### Cache
+### 캐시 (Cache)
 
-Consider the following situation: we have a modest CPU core with 4 cores as depicted in :numref:`fig_skylake` above, running at 2 GHz frequency.
-Moreover, let's assume that we have an IPC (instructions per clock) count of 1 and that the units have AVX2 with 256-bit width enabled. Let's furthermore assume that at least one of the registers used for AVX2 operations needs to be retrieved from memory. This means that the CPU consumes $4 \times 256 \textrm{ bit} = 128 \textrm{ bytes}$ of data per clock cycle. Unless we are able to transfer $2 \times 10^9 \times 128 = 256 \times 10^9$ bytes to the processor per second the processing elements are going to starve. Unfortunately the memory interface of such a chip only supports 20--40 GB/s data transfer, i.e., one order of magnitude less. The fix is to avoid loading *new* data from memory as far as possible and rather to cache it locally on the CPU. This is where caches come in handy. Commonly the following names or concepts are used:
+다음 상황을 고려해 보십시오: 위 :numref:`fig_skylake`에 묘사된 것과 같이 2 GHz 주파수에서 실행되는 4개의 코어를 가진 적당한 CPU 코어가 있습니다.
+또한 IPC(클록당 명령어 수) 카운트가 1이고 유닛에 256비트 너비의 AVX2가 활성화되어 있다고 가정합시다. 또한 AVX2 연산에 사용되는 레지스터 중 적어도 하나를 메모리에서 가져와야 한다고 가정합시다. 이는 CPU가 클록 사이클당 $4 \times 256 \textrm{ bit} = 128 \textrm{ bytes}$의 데이터를 소비함을 의미합니다. 초당 $2 \times 10^9 \times 128 = 256 \times 10^9$ 바이트를 프로세서로 전송할 수 없다면 처리 요소들은 굶주리게 될 것입니다. 불행히도 그러한 칩의 메모리 인터페이스는 20~40 GB/s의 데이터 전송만 지원하며, 즉 한 자릿수 이상 적습니다. 해결책은 가능한 한 메모리에서 *새로운* 데이터를 로드하는 것을 피하고 오히려 CPU에 로컬로 캐싱하는 것입니다. 여기서 캐시가 유용합니다. 일반적으로 다음과 같은 이름이나 개념이 사용됩니다:
 
-* **Registers** are strictly speaking not part of the cache. They help stage instructions. That said, CPU registers are memory locations that a CPU can access at clock speed without any delay penalty. CPUs have tens of registers. It is up to the compiler (or programmer) to use registers efficiently. For instance the C programming language has a `register` keyword.
-* **L1 caches** are the first line of defense against high memory bandwidth requirements. L1 caches are tiny (typical sizes might be 32--64 KB) and often split into data and instructions caches. When data is found in the L1 cache, access is very fast. If they cannot be found there, the search progresses down the cache hierarchy.
-* **L2 caches** are the next stop. Depending on architecture design and processor size they might be exclusive. They might be accessible only by a given core or shared among multiple cores. L2 caches are larger (typically 256--512 KB per core) and slower than L1. Furthermore, to access something in L2 we first need to check to realize that the data is not in L1, which adds a small amount of extra latency.
-* **L3 caches** are shared among multiple cores and can be quite large. AMD's Epyc 3 server CPUs have a whopping 256 MB of cache spread across multiple chiplets. More typical numbers are in the 4--8 MB range.
+* **레지스터(Registers)**는 엄밀히 말하면 캐시의 일부가 아닙니다. 이들은 명령어 단계를 돕습니다. 그렇긴 하지만, CPU 레지스터는 CPU가 지연 페널티 없이 클록 속도로 액세스할 수 있는 메모리 위치입니다. CPU는 수십 개의 레지스터를 갖습니다. 레지스터를 효율적으로 사용하는 것은 컴파일러(또는 프로그래머)의 몫입니다. 예를 들어 C 프로그래밍 언어에는 `register` 키워드가 있습니다.
+* **L1 캐시**는 높은 메모리 대역폭 요구 사항에 대한 첫 번째 방어선입니다. L1 캐시는 아주 작으며(일반적인 크기는 32~64 KB일 수 있음) 종종 데이터 캐시와 명령어 캐시로 나뉩니다. L1 캐시에서 데이터를 찾으면 액세스가 매우 빠릅니다. 거기서 찾을 수 없으면 검색은 캐시 계층 구조 아래로 진행됩니다.
+* **L2 캐시**는 다음 정거장입니다. 아키텍처 설계와 프로세서 크기에 따라 전용(exclusive)일 수 있습니다. 특정 코어만 액세스할 수 있거나 여러 코어 간에 공유될 수 있습니다. L2 캐시는 L1보다 크고(일반적으로 코어당 256~512 KB) 느립니다. 더욱이 L2에 있는 무언가에 액세스하려면 먼저 데이터가 L1에 없다는 것을 확인해야 하므로 약간의 추가 지연 시간이 추가됩니다.
+* **L3 캐시**는 여러 코어 간에 공유되며 매우 클 수 있습니다. AMD의 Epyc 3 서버 CPU는 여러 칩렛에 걸쳐 분산된 무려 256MB의 캐시를 갖습니다. 더 일반적인 수치는 4~8MB 범위입니다.
 
-Predicting which memory elements will be needed next is one of the key optimization parameters in chip design. For instance, it is advisable to traverse memory in a *forward* direction since most caching algorithms will try to *read ahead* rather than backwards. Likewise, keeping memory access patterns local is a good way of improving performance.
+어떤 메모리 요소가 다음에 필요할지 예측하는 것은 칩 설계에서 핵심적인 최적화 파라미터 중 하나입니다. 예를 들어, 대부분의 캐싱 알고리즘은 거꾸로보다는 *앞으로* 읽으려고(read ahead) 시도하기 때문에 메모리를 순방향으로 횡단하는 것이 권장됩니다. 마찬가지로 메모리 액세스 패턴을 국소적으로 유지하는 것은 성능을 향상시키는 좋은 방법입니다.
 
-Adding caches is a double-edge sword. On the one hand they ensure that the processor cores do not starve of data. At the same time they increase chip size, using up area that otherwise could have been spent on increasing processing power. Moreover, *cache misses* can be expensive. Consider the worst case scenario, *false sharing*, as depicted in :numref:`fig_falsesharing`. A memory location is cached on processor 0 when a thread on processor 1 requests the data. To obtain it, processor 0 needs to stop what it is doing, write the information back to main memory and then let processor 1 read it from memory. During this operation both processors wait. Quite potentially such code runs *more slowly* on multiple processors when compared with an efficient single-processor implementation. This is one more reason for why there is a practical limit to cache sizes (besides their physical size).
+캐시를 추가하는 것은 양날의 검입니다. 한편으로 그들은 프로세서 코어가 데이터 부족으로 굶주리지 않도록 보장합니다. 동시에 그들은 칩 크기를 늘려 처리 능력을 높이는 데 사용될 수 있었던 면적을 차지합니다. 더욱이, *캐시 미스(cache misses)*는 비쌀 수 있습니다. :numref:`fig_falsesharing`에 묘사된 최악의 시나리오인 *거짓 공유(false sharing)*를 고려하십시오. 프로세서 1의 스레드가 데이터를 요청할 때 메모리 위치가 프로세서 0에 캐싱되어 있는 경우입니다. 이를 얻기 위해 프로세서 0은 하던 일을 멈추고 정보를 메인 메모리에 다시 써야 하며, 그런 다음 프로세서 1이 메모리에서 이를 읽도록 해야 합니다. 이 작업 동안 두 프로세서 모두 기다립니다. 잠재적으로 그러한 코드는 효율적인 단일 프로세서 구현과 비교할 때 여러 프로세서에서 *더 느리게* 실행됩니다. 이것이 캐시 크기에 실질적인 제한이 있는 또 다른 이유입니다(물리적 크기 외에도).
 
-![False sharing (image courtesy of Intel).](../img/falsesharing.svg)
+![거짓 공유 (이미지 제공: Intel).](../img/falsesharing.svg)
 :label:`fig_falsesharing`
 
-## GPUs and other Accelerators
+## GPU 및 기타 가속기
 
-It is not an exaggeration to claim that deep learning would not have been successful without GPUs. By the same token, it is quite reasonable to argue that GPU manufacturers' fortunes have increased significantly due to deep learning. This co-evolution of hardware and algorithms has led to a situation where for better or worse deep learning is the preferable statistical modeling paradigm. Hence it pays to understand the specific benefits that GPUs and related accelerators such as the TPU :cite:`Jouppi.Young.Patil.ea.2017`.
+GPU 없이는 딥러닝이 성공하지 못했을 것이라고 주장해도 과언이 아닙니다. 같은 맥락에서, GPU 제조업체의 재산이 딥러닝 덕분에 크게 늘어났다고 주장하는 것도 매우 합리적입니다. 하드웨어와 알고리즘의 이러한 공동 진화는 좋든 싫든 딥러닝이 선호되는 통계 모델링 패러다임이 된 상황으로 이어졌습니다. 따라서 GPU와 TPU :cite:`Jouppi.Young.Patil.ea.2017`와 같은 관련 가속기가 제공하는 구체적인 이점을 이해하는 것이 보람이 있습니다.
 
-Of note is a distinction that is often made in practice: accelerators are optimized either for training or inference. For the latter we only need to compute the forward propagation in a network. No storage of intermediate data is needed for backpropagation. Moreover, we may not need very precise computation (FP16 or INT8 typically suffice). On the other hand, during training all intermediate results need storage to compute gradients. Moreover, accumulating gradients requires higher precision to avoid numerical underflow (or overflow). This means that FP16 (or mixed precision with FP32) is the minimum requirement. All of this necessitates faster and larger memory (HBM2 vs. GDDR6) and more processing power. For instance, NVIDIA's [Turing](https://devblogs.nvidia.com/nvidia-turing-architecture-in-depth/) T4 GPUs are optimized for inference whereas the V100 GPUs are preferable for training.
+실전에서 종종 구분되는 점이 있습니다: 가속기는 훈련 또는 추론 중 하나에 최적화됩니다. 후자의 경우 네트워크의 순전파만 계산하면 됩니다. 역전파를 위한 중간 데이터의 저장은 필요하지 않습니다. 더욱이 매우 정밀한 계산이 필요하지 않을 수도 있습니다(FP16 또는 INT8이면 일반적으로 충분함). 반면 훈련 중에는 기울기를 계산하기 위해 모든 중간 결과의 저장이 필요합니다. 더욱이 기울기를 누적하려면 수치적 언더플로(또는 오버플로)를 피하기 위해 더 높은 정밀도가 필요합니다. 이는 FP16(또는 FP32와의 혼합 정밀도)이 최소 요구 사항임을 의미합니다. 이 모든 것은 더 빠르고 큰 메모리(HBM2 vs. GDDR6)와 더 많은 처리 능력을 필요로 합니다. 예를 들어 NVIDIA의 [Turing](https://devblogs.nvidia.com/nvidia-turing-architecture-in-depth/) T4 GPU는 추론에 최적화된 반면 V100 GPU는 훈련에 적합합니다.
 
-Recall vectorization as illustrated in :numref:`fig_neon128`. Adding vector units to a processor core allowed us to increase throughput significantly. For example, in the example in :numref:`fig_neon128` we were able to perform 16 operations simultaneously.
-First,
-what if we added operations that optimized not just operations between vectors but also between matrices? This strategy led to tensor cores (to be covered shortly). 
-Second, what if we added many more cores? In a nutshell, these two strategies summarize the design decisions in GPUs. :numref:`fig_turing_processing_block` gives an overview of a basic processing block. It contains 16 integer and 16 floating point units. In addition to that, two tensor cores accelerate a narrow subset of additional operations relevant for deep learning. Each streaming multiprocessor consists of four such blocks.
+:numref:`fig_neon128`에서 설명한 벡터화를 떠올려 보십시오. 프로세서 코어에 벡터 유닛을 추가함으로써 처리량을 크게 늘릴 수 있었습니다. 예를 들어 :numref:`fig_neon128`의 예에서는 16개의 연산을 동시에 수행할 수 있었습니다.
+첫째, 벡터 간의 연산뿐만 아니라 행렬 간의 연산까지 최적화하는 연산을 추가하면 어떨까요? 이 전략은 텐서 코어(곧 다룸)로 이어졌습니다.
+둘째, 훨씬 더 많은 코어를 추가하면 어떨까요? 요컨대, 이 두 가지 전략이 GPU의 설계 결정을 요약합니다. :numref:`fig_turing_processing_block`은 기본 처리 블록의 개요를 제공합니다. 16개의 정수 유닛과 16개의 부동 소수점 유닛을 포함합니다. 그에 더해, 두 개의 텐서 코어가 딥러닝과 관련된 추가 연산의 좁은 하위 집합을 가속화합니다. 각 스트리밍 멀티프로세서는 이러한 네 개의 블록으로 구성됩니다.
 
-![NVIDIA Turing processing block (image courtesy of NVIDIA).](../img/turing-processing-block.png)
+![NVIDIA Turing 처리 블록 (이미지 제공: NVIDIA).](../img/turing-processing-block.png)
 :width:`150px`
 :label:`fig_turing_processing_block`
 
-Next, 12 streaming multiprocessors are grouped into graphics processing clusters which make up the high-end TU102 processors. Ample memory channels and an L2 cache complement the setup. :numref:`fig_turing` has the relevant details. One of the reasons for designing such a device is that individual blocks can be added or removed as needed to allow for more compact chips and to deal with yield issues (faulty modules might not be activated). Fortunately programming such devices is well hidden from the casual deep learning researcher beneath layers of CUDA and framework code. In particular, more than one of the programs might well be executed simultaneously on the GPU, provided that there are available resources. Nonetheless it pays to be aware of the limitations of the devices to avoid picking models that do not fit into device memory.
+다음으로, 12개의 스트리밍 멀티프로세서가 그래픽 처리 클러스터로 그룹화되어 하이엔드 TU102 프로세서를 구성합니다. 충분한 메모리 채널과 L2 캐시가 설정을 보완합니다. :numref:`fig_turing`에 관련 세부 사항이 있습니다. 이러한 장치를 설계하는 이유 중 하나는 개별 블록을 필요에 따라 추가하거나 제거할 수 있게 하여 더 소형인 칩을 만들고 수율 문제(결함이 있는 모듈은 활성화되지 않을 수 있음)를 처리하기 위함입니다. 다행히도 이러한 장치를 프로그래밍하는 것은 CUDA와 프레임워크 코드의 레이어 아래에 일반 딥러닝 연구자로부터 잘 숨겨져 있습니다. 특히 사용 가능한 리소스가 있다면 GPU에서 동시에 둘 이상의 프로그램이 실행될 수도 있습니다. 그럼에도 불구하고 장치 메모리에 맞지 않는 모델을 선택하는 것을 피하기 위해 장치의 한계를 인지하는 것이 보람이 있습니다.
 
-![NVIDIA Turing architecture (image courtesy of NVIDIA)](../img/turing.png)
+![NVIDIA Turing 아키텍처 (이미지 제공: NVIDIA)](../img/turing.png)
 :width:`350px`
 :label:`fig_turing`
 
-A last aspect that is worth mentioning in more detail are *tensor cores*. They are an example of a recent trend of adding more optimized circuits that are specifically effective for deep learning. For instance, the TPU added a systolic array :cite:`Kung.1988` for fast matrix multiplication. There the design was to support a very small number (one for the first generation of TPUs) of large operations. Tensor cores are at the other end. They are optimized for small operations involving between $4 \times 4$ and $16 \times 16$ matrices, depending on their numerical precision. :numref:`fig_tensorcore` gives an overview of the optimizations.
+A 마지막으로 더 자세히 언급할 가치가 있는 측면은 *텐서 코어(tensor cores)*입니다. 이들은 딥러닝에 특히 효과적인 더 최적화된 회로를 추가하는 최근 트렌드의 한 예입니다. 예를 들어, TPU는 빠른 행렬 곱셈을 위해 시스톨릭 어레이(systolic array) :cite:`Kung.1988`를 추가했습니다. 거기서 설계는 매우 적은 수의(TPU 1세대에서는 하나) 큰 연산을 지원하는 것이었습니다. 텐서 코어는 그 반대편에 있습니다. 이들은 수치 정밀도에 따라 $4 \times 4$에서 $16 \times 16$ 사이의 행렬을 포함하는 작은 연산에 최적화되어 있습니다. :numref:`fig_tensorcore`는 최적화의 개요를 제공합니다.
 
-![NVIDIA tensor cores in Turing (image courtesy of NVIDIA).](../img/tensorcore.jpg)
+![NVIDIA 텐서 코어 in Turing (이미지 제공: NVIDIA).](../img/tensorcore.jpg)
 :width:`400px`
 :label:`fig_tensorcore`
 
-Obviously when optimizing for computation we end up making certain compromises. One of them is that GPUs are not very good at handling interrupts and sparse data. While there are notable exceptions, such as [Gunrock](https://github.com/gunrock/gunrock) :cite:`Wang.Davidson.Pan.ea.2016`, the access pattern of sparse matrices and vectors do not go well with the high bandwidth burst read operations where GPUs excel. Matching both goals is an area of active research. See e.g., [DGL](http://dgl.ai), a library tuned for deep learning on graphs.
+분명히 계산을 위해 최적화할 때 우리는 특정 타협을 하게 됩니다. 그중 하나는 GPU가 인터럽트와 희소 데이터(sparse data)를 처리하는 데 그리 능숙하지 않다는 점입니다. [Gunrock](https://github.com/gunrock/gunrock) :cite:`Wang.Davidson.Pan.ea.2016`과 같은 주목할 만한 예외가 있지만, 희소 행렬과 벡터의 액세스 패턴은 GPU가 뛰어난 고대역폭 버스트 읽기 연산과 잘 어울리지 않습니다. 두 목표를 일치시키는 것은 활발한 연구 분야입니다. 그래프 상의 딥러닝을 위해 튜닝된 라이브러리인 [DGL](http://dgl.ai)을 참조하십시오.
 
 
-## Networks and Buses
+## 네트워크 및 버스 (Networks and Buses)
 
-Whenever a single device is insufficient for optimization we need to transfer data to and from it to synchronize processing. This is where networks and buses come in handy. We have a number of design parameters: bandwidth, cost, distance, and flexibility.
-On one end we have WiFi that has a pretty good range, is very easy to use (no wires, after all), cheap but it offers comparatively mediocre bandwidth and latency. No machine learning researcher within their right mind would use it to build a cluster of servers. In what follows we focus on interconnects that are suitable for deep learning.
+단일 장치가 최적화에 불충분할 때마다 처리를 동기화하기 위해 장치로 데이터를 주고받아야 합니다. 여기서 네트워크와 버스가 유용합니다. 우리에게는 대역폭, 비용, 거리, 유연성이라는 몇 가지 설계 파라미터가 있습니다.
+한쪽 끝에는 범위가 꽤 좋고 사용하기 매우 쉽지만(결국 전선이 없음), 가격이 저렴한 반면 비교적 평범한 대역폭과 지연 시간을 제공하는 WiFi가 있습니다. 제정신인 머신러닝 연구자라면 서버 클러스터를 구축하는 데 이를 사용하지 않을 것입니다. 다음에서는 딥러닝에 적합한 상호 연결에 초점을 맞춥니다.
 
-* **PCIe** is a dedicated bus for very high bandwidth point-to-point connections (up to 32 GB/s on PCIe 4.0 in a 16-lane slot) per lane. Latency is in the order of single-digit microseconds (5 μs). PCIe links are precious. Processors only have a limited number of them: AMD's EPYC 3 has 128 lanes, Intel's Xeon has up to 48 lanes per chip; on desktop-grade CPUs the numbers are 20 (Ryzen 9) and 16 (Core i9) respectively. Since GPUs have typically 16 lanes, this limits the number of GPUs that can connect to the CPU at full bandwidth. After all, they need to share the links with other high bandwidth peripherals such as storage and Ethernet. Just like with RAM access, large bulk transfers are preferable due to reduced packet overhead.
-* **Ethernet** is the most commonly used way of connecting computers. While it is significantly slower than PCIe, it is very cheap and resilient to install and covers much longer distances. Typical bandwidth for low-grade servers is 1 GBit/s. Higher-end devices (e.g., [C5 instances](https://aws.amazon.com/ec2/instance-types/c5/) in the cloud) offer between 10 and 100 GBit/s bandwidth. As in all previous cases data transmission has significant overheads. Note that we almost never use raw Ethernet directly but rather a protocol that is executed on top of the physical interconnect (such as UDP or TCP/IP). This adds further overhead. Like PCIe, Ethernet is designed to connect two devices, e.g., a computer and a switch.
-* **Switches** allow us to connect multiple devices in a manner where any pair of them can carry out a (typically full bandwidth) point-to-point connection simultaneously. For instance, Ethernet switches might connect 40 servers at high cross-sectional bandwidth. Note that switches are not unique to traditional computer networks. Even PCIe lanes can be [switched](https://www.broadcom.com/products/pcie-switches-bridges/pcie-switches). This occurs, e.g., to connect a large number of GPUs to a host processor, as is the case for the [P2 instances](https://aws.amazon.com/ec2/instance-types/p2/).
-* **NVLink** is an alternative to PCIe when it comes to very high bandwidth interconnects. It offers up to 300 Gbit/s data transfer rate per link. Server GPUs (Volta V100) have six links whereas consumer-grade GPUs (RTX 2080 Ti) have only one link, operating at a reduced 100 Gbit/s rate. We recommend to use [NCCL](https://github.com/NVIDIA/nccl) to achieve high data transfer between GPUs.
+* **PCIe**는 16레인 슬롯에서 PCIe 4.0 기준 최대 32 GB/s의 매우 높은 대역폭의 점대점(point-to-point) 연결을 위한 전용 버스입니다. 지연 시간은 한 자릿수 마이크로초(5 μs) 수준입니다. PCIe 링크는 소중합니다. 프로세서는 제한된 수의 링크만 가집니다: AMD의 EPYC 3는 128레인, Intel의 Xeon은 칩당 최대 48레인을 가집니다; 데스크탑급 CPU에서는 각각 20개(Ryzen 9) 및 16개(Core i9)입니다. GPU는 일반적으로 16개 레인을 갖기 때문에 풀 대역폭으로 CPU에 연결할 수 있는 GPU의 수가 제한됩니다. 결국 저장 장치 및 이더넷과 같은 다른 고대역폭 주변 장치와 링크를 공유해야 하기 때문입니다. RAM 액세스와 마찬가지로 줄어든 패킷 오버헤드 때문에 대량 전송이 선호됩니다.
+* **이더넷(Ethernet)**은 컴퓨터를 연결하는 가장 일반적으로 사용되는 방법입니다. PCIe보다 훨씬 느리지만 설치가 매우 저렴하고 탄력적이며 훨씬 더 긴 거리를 커버합니다. 저급 서버의 일반적인 대역폭은 1 GBit/s입니다. 고성능 장치(예: 클라우드의 [C5 인스턴스](https://aws.amazon.com/ec2/instance-types/c5/))는 10에서 100 GBit/s 사이의 대역폭을 제공합니다. 이전의 모든 사례와 마찬가지로 데이터 전송에는 상당한 오버헤드가 있습니다. 우리는 원시 이더넷을 직접 사용하는 경우가 거의 없으며 오히려 물리적 상호 연결 위에서 실행되는 프로토콜(예: UDP 또는 TCP/IP)을 사용합니다. 이는 추가적인 오버헤드를 더합니다. PCIe와 마찬가지로 이더넷은 두 장치(예: 컴퓨터와 스위치)를 연결하도록 설계되었습니다.
+* **스위치(Switches)**는 임의의 한 쌍의 장치가 동시에 (일반적으로 풀 대역폭의) 점대점 연결을 수행할 수 있는 방식으로 여러 장치를 연결할 수 있게 해 줍니다. 예를 들어 이더넷 스위치는 높은 단면 대역폭(cross-sectional bandwidth)으로 40대의 서버를 연결할 수 있습니다. 스위치가 전통적인 컴퓨터 네트워크에만 국한된 것은 아니라는 점에 유의하십시오. PCIe 레인조차도 [스위칭](https://www.broadcom.com/products/pcie-switches-bridges/pcie-switches)될 수 있습니다. 이는 [P2 인스턴스](https://aws.amazon.com/ec2/instance-types/p2/)의 경우처럼 많은 수의 GPU를 호스트 프로세서에 연결하기 위해 발생합니다.
+* **NVLink**는 매우 높은 대역폭의 상호 연결에 있어 PCIe의 대안입니다. 링크당 최대 300 Gbit/s의 데이터 전송률을 제공합니다. 서버 GPU(Volta V100)는 6개의 링크를 갖는 반면 소비자용 GPU(RTX 2080 Ti)는 단 하나의 링크만 가지며 100 Gbit/s의 줄어든 속도로 작동합니다. GPU 간의 높은 데이터 전송을 달성하기 위해 [NCCL](https://github.com/NVIDIA/nccl)을 사용할 것을 권장합니다.
 
 
 
-## More Latency Numbers
+## 더 많은 지연 시간 수치 (More Latency Numbers)
 
-The summary in :numref:`table_latency_numbers` and :numref:`table_latency_numbers_tesla` are from [Eliot Eshelman](https://gist.github.com/eshelman) who maintains an updated version of the numbers as a [GitHub gist](https://gist.github.com/eshelman/343a1c46cb3fba142c1afdcdeec17646).
+:numref:`table_latency_numbers` 및 :numref:`table_latency_numbers_tesla`의 요약은 수치들의 업데이트된 버전을 [GitHub gist](https://gist.github.com/eshelman/343a1c46cb3fba142c1afdcdeec17646)로 관리하는 [Eliot Eshelman](https://gist.github.com/eshelman)으로부터 가져온 것입니다.
 
-:Common Latency Numbers.
+:일반적인 지연 시간 수치.
 
-| Action | Time | Notes |
+| 동작 | 시간 | 비고 |
 | :----------------------------------------- | -----: | :---------------------------------------------- |
-| L1 cache reference/hit                     | 1.5 ns | 4 cycles                                        |
-| Floating-point add/mult/FMA                | 1.5 ns | 4 cycles                                        |
-| L2 cache reference/hit                     |   5 ns | 12 ~ 17 cycles                                  |
-| Branch mispredict                          |   6 ns | 15 ~ 20 cycles                                  |
-| L3 cache hit (unshared cache)              |  16 ns | 42 cycles                                       |
-| L3 cache hit (shared in another core)      |  25 ns | 65 cycles                                       |
-| Mutex lock/unlock                          |  25 ns |                                                 |
-| L3 cache hit (modified in another core)    |  29 ns | 75 cycles                                       |
-| L3 cache hit (on a remote CPU socket)      |  40 ns | 100 ~ 300 cycles (40 ~ 116 ns)                  |
-| QPI hop to a another CPU (per hop)         |  40 ns |                                                 |
-| 64MB memory ref. (local CPU)          |  46 ns | TinyMemBench on Broadwell E5-2690v4             |
-| 64MB memory ref. (remote CPU)         |  70 ns | TinyMemBench on Broadwell E5-2690v4             |
-| 256MB memory ref. (local CPU)         |  75 ns | TinyMemBench on Broadwell E5-2690v4             |
-| Intel Optane random write                  |  94 ns | UCSD Non-Volatile Systems Lab                   |
-| 256MB memory ref. (remote CPU)        | 120 ns | TinyMemBench on Broadwell E5-2690v4             |
-| Intel Optane random read                   | 305 ns | UCSD Non-Volatile Systems Lab                   |
-| Send 4KB over 100 Gbps HPC fabric          |   1 μs | MVAPICH2 over Intel Omni-Path                   |
-| Compress 1KB with Google Snappy            |   3 μs |                                                 |
-| Send 4KB over 10 Gbps ethernet             |  10 μs |                                                 |
-| Write 4KB randomly to NVMe SSD             |  30 μs | DC P3608 NVMe SSD (QOS 99% is 500μs)            |
-| Transfer 1MB to/from NVLink GPU            |  30 μs | ~33GB/s on NVIDIA 40GB NVLink                 |
-| Transfer 1MB to/from PCI-E GPU             |  80 μs | ~12GB/s on PCIe 3.0 x16 link                  |
-| Read 4KB randomly from NVMe SSD            | 120 μs | DC P3608 NVMe SSD (QOS 99%)                     |
-| Read 1MB sequentially from NVMe SSD        | 208 μs | ~4.8GB/s DC P3608 NVMe SSD                    |
-| Write 4KB randomly to SATA SSD             | 500 μs | DC S3510 SATA SSD (QOS 99.9%)                   |
-| Read 4KB randomly from SATA SSD            | 500 μs | DC S3510 SATA SSD (QOS 99.9%)                   |
-| Round trip within same data center          | 500 μs | One-way ping is ~250μs                          |
-| Read 1MB sequentially from SATA SSD        |   2 ms | ~550MB/s DC S3510 SATA SSD                    |
-| Read 1MB sequentially from disk            |   5 ms | ~200MB/s server HDD                           |
-| Random Disk Access (seek+rotation)         |  10 ms |                                                 |
-| Send packet CA->Netherlands->CA            | 150 ms |                                                 |
+| L1 캐시 참조/히트 | 1.5 ns | 4 사이클 |
+| 부동 소수점 덧셈/곱셈/FMA | 1.5 ns | 4 사이클 |
+| L2 캐시 참조/히트 | 5 ns | 12 ~ 17 사이클 |
+| 분기 예측 미스 | 6 ns | 15 ~ 20 사이클 |
+| L3 캐시 히트 (공유되지 않은 캐시) | 16 ns | 42 사이클 |
+| L3 캐시 히트 (다른 코어에서 공유) | 25 ns | 65 사이클 |
+| 뮤텍스 락/언락 | 25 ns | |
+| L3 캐시 히트 (다른 코어에서 수정됨) | 29 ns | 75 사이클 |
+| L3 캐시 히트 (원격 CPU 소켓에 있음) | 40 ns | 100 ~ 300 사이클 (40 ~ 116 ns) |
+| 다른 CPU로의 QPI 홉 (홉당) | 40 ns | |
+| 64MB 메모리 참조 (로컬 CPU) | 46 ns | Broadwell E5-2690v4의 TinyMemBench |
+| 64MB 메모리 참조 (원격 CPU) | 70 ns | Broadwell E5-2690v4의 TinyMemBench |
+| 256MB 메모리 참조 (로컬 CPU) | 75 ns | Broadwell E5-2690v4의 TinyMemBench |
+| Intel Optane 랜덤 쓰기 | 94 ns | UCSD Non-Volatile Systems Lab |
+| 256MB 메모리 참조 (원격 CPU) | 120 ns | Broadwell E5-2690v4의 TinyMemBench |
+| Intel Optane 랜덤 읽기 | 305 ns | UCSD Non-Volatile Systems Lab |
+| 100 Gbps HPC 패브릭을 통한 4KB 전송 | 1 μs | Intel Omni-Path 상의 MVAPICH2 |
+| Google Snappy로 1KB 압축 | 3 μs | |
+| 10 Gbps 이더넷을 통한 4KB 전송 | 10 μs | |
+| NVMe SSD에 4KB 무작위 쓰기 | 30 μs | DC P3608 NVMe SSD (QOS 99%는 500μs) |
+| NVLink GPU로/로부터 1MB 전송 | 30 μs | NVIDIA 40GB NVLink에서 ~33GB/s |
+| PCI-E GPU로/로부터 1MB 전송 | 80 μs | PCIe 3.0 x16 링크에서 ~12GB/s |
+| NVMe SSD에서 4KB 무작위 읽기 | 120 μs | DC P3608 NVMe SSD (QOS 99%) |
+| NVMe SSD에서 1MB 순차 읽기 | 208 μs | DC P3608 NVMe SSD에서 ~4.8GB/s |
+| SATA SSD에 4KB 무작위 쓰기 | 500 μs | DC S3510 SATA SSD (QOS 99.9%) |
+| SATA SSD에서 4KB 무작위 읽기 | 500 μs | DC S3510 SATA SSD (QOS 99.9%) |
+| 동일한 데이터 센터 내 라운드 트립 | 500 μs | 단방향 핑은 ~250μs |
+| SATA SSD에서 1MB 순차 읽기 | 2 ms | DC S3510 SATA SSD에서 ~550MB/s |
+| 디스크에서 1MB 순차 읽기 | 5 ms | 서버 HDD에서 ~200MB/s |
+| 랜덤 디스크 액세스 (탐색+회전) | 10 ms | |
+| 캘리포니아->네덜란드->캘리포니아 패킷 전송 | 150 ms | |
 :label:`table_latency_numbers`
 
-:Latency Numbers for NVIDIA Tesla GPUs.
+:NVIDIA Tesla GPU 지연 시간 수치.
 
-| Action | Time | Notes |
+| 동작 | 시간 | 비고 |
 | :------------------------------ | -----: | :---------------------------------------- |
-| GPU Shared Memory access        |  30 ns | 30~90 cycles (bank conflicts add latency) |
-| GPU Global Memory access        | 200 ns | 200~800 cycles                            |
-| Launch CUDA kernel on GPU       |  10 μs | Host CPU instructs GPU to start kernel    |
-| Transfer 1MB to/from NVLink GPU |  30 μs | ~33GB/s on NVIDIA 40GB NVLink           |
-| Transfer 1MB to/from PCI-E GPU  |  80 μs | ~12GB/s on PCI-Express x16 link         |
+| GPU 공유 메모리(Shared Memory) 액세스 | 30 ns | 30~90 사이클 (뱅크 충돌이 지연 추가) |
+| GPU 글로벌 메모리(Global Memory) 액세스 | 200 ns | 200~800 사이클 |
+| GPU에서 CUDA 커널 런칭 | 10 μs | 호스트 CPU가 GPU에 커널 시작 지시 |
+| NVLink GPU로/로부터 1MB 전송 | 30 μs | NVIDIA 40GB NVLink에서 ~33GB/s |
+| PCI-E GPU로/로부터 1MB 전송 | 80 μs | PCI-Express x16 링크에서 ~12GB/s |
 :label:`table_latency_numbers_tesla`
 
-## Summary
+## 요약 (Summary)
 
-* Devices have overheads for operations. Hence it is important to aim for a small number of large transfers rather than many small ones. This applies to RAM, SSDs, networks and GPUs.
-* Vectorization is key for performance. Make sure you are aware of the specific abilities of your accelerator. E.g., some Intel Xeon CPUs are particularly good for INT8 operations, NVIDIA Volta GPUs excel at FP16 matrix-matrix operations and NVIDIA Turing shines at FP16, INT8, and INT4 operations.
-* Numerical overflow due to small data types can be a problem during training (and to a lesser extent during inference).
-* Aliasing can significantly degrade performance. For instance, memory alignment on 64 bit CPUs should be done with respect to 64 bit boundaries. On GPUs it is a good idea to keep convolution sizes aligned, e.g., to tensor cores.
-* Match your algorithms to the hardware (e.g., memory footprint, and bandwidth). Great speedup (orders of magnitude) can be achieved when fitting the parameters into caches.
-* We recommend that you sketch out the performance of a novel algorithm on paper before verifying the experimental results. Discrepancies of an order-of-magnitude or more are reasons for concern.
-* Use profilers to debug performance bottlenecks.
-* Training and inference hardware have different sweet spots in terms of price and performance.
+* 장치는 연산에 대한 오버헤드가 있습니다. 따라서 많은 작은 전송보다는 적은 수의 큰 전송을 목표로 하는 것이 중요합니다. 이는 RAM, SSD, 네트워크 및 GPU에 모두 적용됩니다.
+* 벡터화는 성능의 핵심입니다. 가속기의 구체적인 능력을 숙지하십시오. 예: 일부 Intel Xeon CPU는 INT8 연산에 특히 뛰어나고, NVIDIA Volta GPU는 FP16 행렬-행렬 연산에 탁월하며, NVIDIA Turing은 FP16, INT8, INT4 연산에서 빛을 발합니다.
+* 작은 데이터 타입으로 인한 수치적 오버플로는 훈련 중에 (추론 중에는 덜함) 문제가 될 수 있습니다.
+* 앨리어싱(aliasing)은 성능을 크게 저하시킬 수 있습니다. 예를 들어, 64비트 CPU에서의 메모리 정렬은 64비트 경계에 맞춰 이루어져야 합니다. GPU에서는 합성곱 크기를 텐서 코어 등에 맞춰 정렬하는 것이 좋습니다.
+* 알고리즘을 하드웨어(예: 메모리 사용량 및 대역폭)에 맞추십시오. 파라미터를 캐시에 맞출 때 엄청난 속도 향상(수 자릿수)을 얻을 수 있습니다.
+* 실험 결과를 확인하기 전에 종이에 새로운 알고리즘의 성능을 스케치해 볼 것을 권장합니다. 한 자릿수 이상의 불일치는 우려할 만한 이유가 됩니다.
+* 성능 병목 현상을 디버깅하기 위해 프로파일러를 사용하십시오.
+* 훈련 및 추론 하드웨어는 가격과 성능 측면에서 서로 다른 최적의 지점(sweet spots)을 갖습니다.
 
-## Exercises
+## 연습 문제 (Exercises)
 
-1. Write C code to test whether there is any difference in speed between accessing memory aligned or misaligned relative to the external memory interface. Hint: be careful of caching effects.
-1. Test the difference in speed between accessing memory in sequence or with a given stride.
-1. How could you measure the cache sizes on a CPU?
-1. How would you lay out data across multiple memory channels for maximum bandwidth? How would you lay it out if you had many small threads?
-1. An enterprise-class HDD is spinning at 10,000 rpm. What is the absolutely minimum time an HDD needs to spend worst case before it can read data (you can assume that heads move almost instantaneously)? Why are 2.5" HDDs becoming popular for commercial servers (relative to 3.5" and 5.25" drives)?
-1. Assume that an HDD manufacturer increases the storage density from 1 Tbit per square inch to 5 Tbit per square inch. How much information can you store on a ring on a 2.5" HDD? Is there a difference between the inner and outer tracks?
-1. Going from 8 bit to 16 bit data types increases the amount of silicon approximately by four times. Why? Why might NVIDIA have added INT4 operations to their Turing GPUs?
-1. How much faster is it to read forward through memory vs. reading backwards? Does this number differ between different computers and CPU vendors? Why? Write C code and experiment with it.
-1. Can you measure the cache size of your disk? What is it for a typical HDD? Do SSDs need a cache?
-1. Measure the packet overhead when sending messages across the Ethernet. Look up the difference between UDP and TCP/IP connections.
-1. Direct memory access allows devices other than the CPU to write (and read) directly to (from) memory. Why is this a good idea?
-1. Look at the performance numbers for the Turing T4 GPU. Why does the performance "only" double as you go from FP16 to INT8 and INT4?
-1. What is the shortest time it should take for a packet on a round trip between San Francisco and Amsterdam? Hint: you can assume that the distance is 10,000 km.
+1. 외부 메모리 인터페이스에 대해 정렬된 메모리 액세스와 잘못 정렬된 메모리 액세스 사이의 속도 차이가 있는지 테스트하기 위해 C 코드를 작성하십시오. 힌트: 캐싱 효과에 주의하십시오.
+2. 메모리를 순차적으로 액세스할 때와 특정 스트라이드(stride)로 액세스할 때의 속도 차이를 테스트하십시오.
+3. CPU의 캐시 크기를 어떻게 측정할 수 있을까요?
+4. 최대 대역폭을 얻기 위해 여러 메모리 채널에 데이터를 어떻게 배치하시겠습니까? 많은 작은 스레드가 있다면 어떻게 배치하시겠습니까?
+5. 엔터프라이즈급 HDD가 10,000 rpm으로 회전하고 있습니다. HDD가 데이터를 읽기 전에 최악의 경우 소비해야 하는 절대적인 최소 시간은 얼마입니까(헤드가 거의 즉시 움직인다고 가정할 수 있음)? 왜 2.5인치 HDD가 상업용 서버에서 인기를 얻고 있을까요(3.5인치 및 5.25인치 드라이브에 비해)?
+6. HDD 제조업체가 저장 밀도를 제곱인치당 1Tbit에서 5Tbit로 늘린다고 가정합시다. 2.5인치 HDD의 링 하나에 얼마나 많은 정보를 저장할 수 있습니까? 내부 트랙과 외부 트랙 사이에 차이가 있습니까?
+7. 8비트에서 16비트 데이터 타입으로 이동하면 실리콘 양이 약 4배 증가합니다. 왜 그럴까요? 왜 NVIDIA가 Turing GPU에 INT4 연산을 추가했을까요?
+8. 메모리를 순방향으로 읽는 것이 역방향으로 읽는 것보다 얼마나 더 빠릅니까? 이 수치는 컴퓨터와 CPU 벤더마다 다릅니까? 왜 그럴까요? C 코드를 작성하여 실험해 보십시오.
+9. 디스크의 캐시 크기를 측정할 수 있습니까? 일반적인 HDD의 경우 얼마입니까? SSD에도 캐시가 필요할까요?
+10. 이더넷을 통해 메시지를 보낼 때 패킷 오버헤드를 측정하십시오. UDP와 TCP/IP 연결의 차이점을 찾아보십시오.
+11. 직접 메모리 액세스(DMA)는 CPU 이외의 장치가 메모리에 직접 쓰고 읽을 수 있게 해 줍니다. 이것이 왜 좋은 아이디어일까요?
+12. Turing T4 GPU의 성능 수치를 보십시오. FP16에서 INT8 및 INT4로 이동할 때 왜 성능이 "단지" 두 배만 증가할까요?
+13. 샌프란시스코와 암스테르담 사이를 왕복하는 패킷이 걸리는 최단 시간은 얼마입니까? 힌트: 거리는 10,000km라고 가정할 수 있습니다.
 
 
 [Discussions](https://discuss.d2l.ai/t/363)

@@ -1,43 +1,18 @@
-# Builders' Guide
+# 빌더 가이드 (Builders' Guide)
 :label:`chap_computation`
 
-Alongside giant datasets and powerful hardware,
-great software tools have played an indispensable role
-in the rapid progress of deep learning.
-Starting with the pathbreaking Theano library released in 2007,
-flexible open-source tools have enabled researchers
-to rapidly prototype models, avoiding repetitive work
-when recycling standard components
-while still maintaining the ability to make low-level modifications.
-Over time, deep learning's libraries have evolved
-to offer increasingly coarse abstractions.
-Just as semiconductor designers went from specifying transistors
-to logical circuits to writing code,
-neural networks researchers have moved from thinking about
-the behavior of individual artificial neurons
-to conceiving of networks in terms of whole layers,
-and now often design architectures with far coarser *blocks* in mind.
+거대한 데이터셋 및 강력한 하드웨어와 더불어, 훌륭한 소프트웨어 도구는 딥러닝의 빠른 발전에 없어서는 안 될 역할을 해왔습니다. 
+2007년 출시된 획기적인 Theano 라이브러리를 시작으로, 유연한 오픈 소스 도구들은 연구자들이 표준 구성 요소를 재활용할 때 반복적인 작업을 피하면서도 저수준 수정을 할 수 있는 능력을 유지하여 모델을 신속하게 프로토타이핑할 수 있게 했습니다. 
+시간이 지남에 따라 딥러닝 라이브러리는 점점 더 거친 추상화를 제공하도록 진화했습니다. 
+반도체 설계자가 트랜지스터 지정에서 논리 회로로, 그리고 코드를 작성하는 것으로 나아간 것처럼, 신경망 연구자들은 개별 인공 뉴런의 동작에 대해 생각하는 것에서 전체 레이어 측면에서 네트워크를 구상하는 것으로 이동했으며, 이제는 종종 훨씬 더 거친 *블록*을 염두에 두고 아키텍처를 설계합니다.
 
 
-So far, we have introduced some basic machine learning concepts,
-ramping up to fully-functional deep learning models.
-In the last chapter,
-we implemented each component of an MLP from scratch
-and even showed how to leverage high-level APIs
-to roll out the same models effortlessly.
-To get you that far that fast, we *called upon* the libraries,
-but skipped over more advanced details about *how they work*.
-In this chapter, we will peel back the curtain,
-digging deeper into the key components of deep learning computation,
-namely model construction, parameter access and initialization,
-designing custom layers and blocks, reading and writing models to disk,
-and leveraging GPUs to achieve dramatic speedups.
-These insights will move you from *end user* to *power user*,
-giving you the tools needed to reap the benefits
-of a mature deep learning library while retaining the flexibility
-to implement more complex models, including those you invent yourself!
-While this chapter does not introduce any new models or datasets,
-the advanced modeling chapters that follow rely heavily on these techniques.
+지금까지 우리는 몇 가지 기본적인 머신러닝 개념을 소개하고 완전히 기능하는 딥러닝 모델로 나아갔습니다. 
+지난 장에서는 MLP의 각 구성 요소를 밑바닥부터 구현하고, 고수준 API를 활용하여 동일한 모델을 쉽게 출시하는 방법도 보여주었습니다. 
+그렇게 빨리 도달하기 위해 우리는 라이브러리를 *호출*했지만, *작동 방식*에 대한 고급 세부 사항은 건너뛰었습니다. 
+이 장에서는 커튼을 젖히고 딥러닝 계산의 핵심 구성 요소, 즉 모델 구성, 파라미터 액세스 및 초기화, 사용자 정의 레이어 및 블록 설계, 모델을 디스크에 읽고 쓰기, 극적인 속도 향상을 달성하기 위한 GPU 활용에 대해 더 깊이 파고들 것입니다. 
+이러한 통찰력은 여러분을 *최종 사용자*에서 *파워 유저*로 이동시켜, 성숙한 딥러닝 라이브러리의 이점을 누리면서도 여러분이 직접 발명한 것을 포함하여 더 복잡한 모델을 구현할 수 있는 유연성을 유지하는 데 필요한 도구를 제공할 것입니다. 
+이 장에서는 새로운 모델이나 데이터셋을 소개하지 않지만, 이어지는 고급 모델링 장에서는 이러한 기술에 크게 의존합니다.
 
 ```toc
 :maxdepth: 2
@@ -50,4 +25,3 @@ custom-layer
 read-write
 use-gpu
 ```
-

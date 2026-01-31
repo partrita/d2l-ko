@@ -3,10 +3,10 @@
 tab.interact_select(['mxnet', 'pytorch', 'tensorflow'])
 ```
 
-# Underfitting and Overfitting 
+# 과소적합과 과대적합 (Underfitting and Overfitting)
 :label:`sec_polynomial`
 
-In this section we test out some of the concepts that we saw previously. To keep matters simple, we use polynomial regression as our toy example.
+이 섹션에서는 이전에 보았던 몇 가지 개념을 테스트해 봅니다. 문제를 단순하게 유지하기 위해, 다항식 회귀를 장난감 예제로 사용합니다.
 
 ```{.python .input  n=3}
 %%tab mxnet
@@ -32,21 +32,13 @@ import tensorflow as tf
 import math
 ```
 
-### Generating the Dataset
+### 데이터셋 생성하기 (Generating the Dataset)
 
-First we need data. Given $x$, we will [**use the following cubic polynomial to generate the labels**] on training and test data:
+먼저 데이터가 필요합니다. $x$가 주어졌을 때, 훈련 및 테스트 데이터에 대해 레이블을 생성하기 위해 [**다음과 같은 3차 다항식을 사용합니다**]:
 
-(**$$y = 5 + 1.2x - 3.4\frac{x^2}{2!} + 5.6 \frac{x^3}{3!} + \epsilon \text{ where }
-\epsilon \sim \mathcal{N}(0, 0.1^2).$$**)
+(**$$y = 5 + 1.2x - 3.4\frac{x^2}{2!} + 5.6 \frac{x^3}{3!} + \epsilon \text{ 여기서 }\n\epsilon \sim \mathcal{N}(0, 0.1^2).$$**)
 
-The noise term $\epsilon$ obeys a normal distribution
-with a mean of 0 and a standard deviation of 0.1.
-For optimization, we typically want to avoid
-very large values of gradients or losses.
-This is why the *features*
-are rescaled from $x^i$ to $\frac{x^i}{i!}$.
-It allows us to avoid very large values for large exponents $i$.
-We will synthesize 100 samples each for the training set and test set.
+노이즈 항 $\epsilon$은 평균 0, 표준 편차 0.1인 정규 분포를 따릅니다. 최적화를 위해 일반적으로 기울기나 손실의 값이 매우 커지는 것을 피하고 싶어 합니다. 이것이 *특성(features)*이 $x^i$에서 $\frac{x^i}{i!}$로 재조정된 이유입니다. 이는 큰 지수 $i$에 대해 매우 큰 값을 피할 수 있게 해 줍니다. 훈련 세트와 테스트 세트에 대해 각각 100개의 샘플을 합성할 것입니다.
 
 ```{.python .input  n=6}
 %%tab all
@@ -70,19 +62,11 @@ class Data(d2l.DataModule):
         return self.get_tensorloader([self.X, self.y], train, i)
 ```
 
-Again, monomials stored in `poly_features`
-are rescaled by the gamma function,
-where $\Gamma(n)=(n-1)!$.
-[**Take a look at the first 2 samples**] from the generated dataset.
-The value 1 is technically a feature,
-namely the constant feature corresponding to the bias.
+다시 한번, `poly_features`에 저장된 단항식(monomials)은 감마 함수에 의해 재조정되며, 여기서 $\Gamma(n)=(n-1)!$입니다. 생성된 데이터셋에서 [**처음 2개의 샘플을 살펴봅시다**]. 값 1은 기술적으로 특성, 즉 편향(bias)에 대응하는 상수 특성입니다.
 
-### [**Third-Order Polynomial Function Fitting (Normal)**]
+### [**3차 다항식 함수 피팅 (정상)**]
 
-We will begin by first using a third-order polynomial function, which is the same order as that of the data generation function.
-The results show that this model's training and test losses can be both effectively reduced.
-The learned model parameters are also close
-to the true values $w = [1.2, -3.4, 5.6], b=5$.
+먼저 데이터 생성 함수와 동일한 차수인 3차 다항식 함수를 사용하는 것으로 시작하겠습니다. 결과는 이 모델의 훈련 및 테스트 손실이 모두 효과적으로 줄어들 수 있음을 보여줍니다. 학습된 모델 파라미터 또한 실제 값인 $w = [1.2, -3.4, 5.6], b=5$에 가깝습니다.
 
 ```{.python .input  n=7}
 %%tab all
@@ -100,74 +84,53 @@ def train(p):
 train(p=3)
 ```
 
-### [**Linear Function Fitting (Underfitting)**]
+### [**선형 함수 피팅 (과소적합)**]
 
-Let's take another look at linear function fitting.
-After the decline in early epochs,
-it becomes difficult to further decrease
-this model's training loss.
-After the last epoch iteration has been completed,
-the training loss is still high.
-When used to fit nonlinear patterns
-(like the third-order polynomial function here)
-linear models are liable to underfit.
+선형 함수 피팅을 다시 한번 살펴봅시다. 초기 에포크에서의 하락 이후, 이 모델의 훈련 손실을 더 줄이는 것은 어려워집니다. 마지막 에포크 반복이 완료된 후에도 훈련 손실은 여전히 높습니다. 비선형 패턴(여기서는 3차 다항식 함수)을 피팅하는 데 사용될 때 선형 모델은 과소적합(underfit)되기 쉽습니다.
 
 ```{.python .input  n=8}
 %%tab all
 train(p=1)
 ```
 
-### [**Higher-Order Polynomial Function Fitting  (Overfitting)**]
+### [**고차 다항식 함수 피팅 (과대적합)**]
 
-Now let's try to train the model
-using a polynomial of too high degree.
-Here, there is insufficient data to learn that
-the higher-degree coefficients should have values close to zero.
-As a result, our overly-complex model
-is so susceptible that it is being influenced
-by noise in the training data.
-Though the training loss can be effectively reduced,
-the test loss is still much higher.
-It shows that
-the complex model overfits the data.
+이제 너무 높은 차수의 다항식을 사용하여 모델을 훈련해 봅시다. 여기서는 고차 항의 계수 값이 0에 가까워야 한다는 것을 배우기에 데이터가 충분하지 않습니다. 그 결과, 우리의 과하게 복잡한 모델은 너무 민감해져서 훈련 데이터의 노이즈에 영향을 받게 됩니다. 훈련 손실은 효과적으로 줄어들 수 있지만, 테스트 손실은 여전히 훨씬 더 높습니다. 이는 복잡한 모델이 데이터에 과대적합(overfit)되었음을 보여줍니다.
 
 ```{.python .input  n=9}
 %%tab all
 train(p=10)
 ```
 
-In the subsequent sections, we will continue
-to discuss overfitting problems
-and methods for dealing with them,
-such as weight decay and dropout.
+후속 섹션들에서 우리는 과대적합 문제와 가중치 감쇠(weight decay) 및 드롭아웃(dropout)과 같은 과대적합 처리 방법들에 대해 계속 논의할 것입니다.
 
 
-## Summary
+## 요약 (Summary)
 
-* Since the generalization error cannot be estimated based on the training error, simply minimizing the training error will not necessarily mean a reduction in the generalization error. Machine learning models need to be careful to safeguard against overfitting so as to minimize the generalization error.
-* A validation set can be used for model selection, provided that it is not used too liberally.
-* Underfitting means that a model is not able to reduce the training error. When training error is much lower than validation error, there is overfitting.
-* We should choose an appropriately complex model and avoid using insufficient training samples.
+* 일반화 오차는 훈련 오차를 기반으로 추정될 수 없으므로, 단순히 훈련 오차를 최소화하는 것이 반드시 일반화 오차의 감소를 의미하지는 않습니다. 머신러닝 모델은 일반화 오차를 최소화하기 위해 과대적합을 방지하도록 주의해야 합니다.
+* 검증 세트는 너무 방만하게 사용되지 않는 한 모델 선택을 위해 사용될 수 있습니다.
+* 과소적합은 모델이 훈련 오차를 줄일 수 없음을 의미합니다. 훈련 오차가 검증 오차보다 훨씬 낮을 때 과대적합이 발생합니다.
+* 우리는 적절하게 복잡한 모델을 선택해야 하며 불충분한 훈련 샘플을 사용하는 것을 피해야 합니다.
 
 
-## Exercises
+## 연습 문제 (Exercises)
 
-1. Can you solve the polynomial regression problem exactly? Hint: use linear algebra.
-1. Consider model selection for polynomials:
-    1. Plot the training loss vs. model complexity (degree of the polynomial). What do you observe? What degree of polynomial do you need to reduce the training loss to 0?
-    1. Plot the test loss in this case.
-    1. Generate the same plot as a function of the amount of data.
-1. What happens if you drop the normalization ($1/i!$) of the polynomial features $x^i$? Can you fix this in some other way?
-1. Can you ever expect to see zero generalization error?
+1. 다항식 회귀 문제를 정확하게 풀 수 있습니까? 힌트: 선형 대수를 사용하십시오.
+2. 다항식에 대한 모델 선택을 고려해 보십시오:
+    1. 훈련 손실 대 모델 복잡도(다항식의 차수)를 플롯하십시오. 무엇을 관찰하셨습니까? 훈련 손실을 0으로 줄이려면 몇 차 다항식이 필요합니까?
+    2. 이 경우의 테스트 손실을 플롯하십시오.
+    3. 데이터 양의 함수로서 동일한 플롯을 생성하십시오.
+3. 다항식 특성 $x^i$의 정규화($1/i!$)를 생략하면 어떻게 됩니까? 다른 방법으로 이를 고칠 수 있습니까?
+4. 일반화 오차가 0이 되는 것을 볼 수 있을 것으로 기대할 수 있습니까?
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/96)
+[토론](https://discuss.d2l.ai/t/96)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/97)
+[토론](https://discuss.d2l.ai/t/97)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/234)
+[토론](https://discuss.d2l.ai/t/234)
 :end_tab:

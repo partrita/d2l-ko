@@ -1,197 +1,25 @@
-# The `d2l` API Document
+# d2l 패키지 (The d2l Package)
 :label:`sec_d2l`
 
-This section displays classes and functions (sorted alphabetically) in the `d2l` package, showing where they are defined in the book so you can find more detailed implementations and explanations. 
-See also the source code on the [GitHub repository](https://github.com/d2l-ai/d2l-en/tree/master/d2l).
+이 책에서는 코드의 간결함을 유지하고 핵심 개념에 집중하기 위해, 자주 사용되는 함수와 클래스를 `d2l` 패키지에 모아두었습니다.
+이 패키지는 딥러닝 프레임워크(MXNet, PyTorch, TensorFlow)에 따라 각각 다른 버전을 제공합니다.
 
-:begin_tab:`pytorch`
+## 패키지 설치 (Installing the Package)
 
-```eval_rst
+일반적으로 다음과 같이 pip를 통해 설치할 수 있습니다.
 
-.. currentmodule:: d2l.torch
-
+```bash
+pip install d2l
 ```
 
-:begin_tab:`mxnet`
+## 주요 기능 (Key Functionalities)
 
-```eval_rst
+`d2l` 패키지에는 다음과 같은 유형의 도구들이 포함되어 있습니다.
 
-.. currentmodule:: d2l.mxnet
+* **데이터 로더**: 대표적인 데이터셋을 다운로드하고 읽어오는 함수들.
+* **모델 정의**: 시연에 자주 사용되는 표준 모델 아키텍처.
+* **훈련 루프**: 모델을 훈련하고 성능을 측정하는 유틸리티.
+* **시각화**: 손실 곡선, 정확도, 이미지 등을 그리기 위한 함수.
 
-```
-
-:end_tab:
-
-
-:begin_tab:`tensorflow`
-
-```eval_rst
-
-.. currentmodule:: d2l.torch
-
-```
-
-
-:end_tab:
-
-## Classes
-
-```eval_rst 
-
-.. autoclass:: AdditiveAttention
-   :members:
-   
-.. autoclass:: AddNorm
-   :members:
-
-.. autoclass:: AttentionDecoder
-   :members: 
-
-.. autoclass:: Classifier
-   :members: 
-   
-.. autoclass:: DataModule
-   :members: 
-   
-.. autoclass:: Decoder
-   :members: 
-   
-.. autoclass:: DotProductAttention
-   :members:
-   
-.. autoclass:: Encoder
-   :members:
-   
-.. autoclass:: EncoderDecoder
-   :members:
-   
-.. autoclass:: FashionMNIST
-   :members: 
-   
-.. autoclass:: GRU
-   :members: 
-   
-.. autoclass:: HyperParameters
-   :members: 
-   
-.. autoclass:: LeNet
-   :members: 
-   
-.. autoclass:: LinearRegression
-   :members: 
-   
-.. autoclass:: LinearRegressionScratch
-   :members: 
-   
-.. autoclass:: Module
-   :members: 
-   
-.. autoclass:: MTFraEng
-   :members: 
-   
-.. autoclass:: MultiHeadAttention
-   :members:
-   
-.. autoclass:: PositionalEncoding
-   :members:
-   
-.. autoclass:: PositionWiseFFN
-   :members:
-   
-.. autoclass:: ProgressBoard
-   :members: 
-   
-.. autoclass:: Residual
-   :members: 
-   
-.. autoclass:: ResNeXtBlock
-   :members:
-   
-.. autoclass:: RNN
-   :members: 
-   
-.. autoclass:: RNNLM
-   :members:
-   
-.. autoclass:: RNNLMScratch
-   :members:
-   
-.. autoclass:: RNNScratch
-   :members: 
-   
-.. autoclass:: Seq2Seq
-   :members:  
-   
-.. autoclass:: Seq2SeqEncoder
-   :members:
-   
-.. autoclass:: SGD
-   :members: 
-   
-.. autoclass:: SoftmaxRegression
-   :members: 
-
-.. autoclass:: SyntheticRegressionData
-   :members: 
-
-.. autoclass:: TimeMachine
-   :members: 
-
-.. autoclass:: Trainer
-   :members: 
-
-.. autoclass:: TransformerEncoder 
-   :members:
-
-.. autoclass:: TransformerEncoderBlock
-   :members:
-
-.. autoclass:: Vocab
-   :members: 
-```
-
-
-## Functions
-
-```eval_rst 
-
-.. autofunction:: add_to_class
-
-.. autofunction:: bleu
-
-.. autofunction:: check_len
-
-.. autofunction:: check_shape
-
-.. autofunction:: corr2d
-
-.. autofunction:: cpu
-
-.. autofunction:: gpu
-
-.. autofunction:: init_cnn
-
-.. autofunction:: init_seq2seq
-
-.. autofunction:: masked_softmax
-
-.. autofunction:: num_gpus
-
-.. autofunction:: plot
-
-.. autofunction:: set_axes
-
-.. autofunction:: set_figsize
-
-.. autofunction:: show_heatmaps
-
-.. autofunction:: show_list_len_pair_hist
-
-.. autofunction:: try_all_gpus
-
-.. autofunction:: try_gpu
-
-.. autofunction:: use_svg_display
-
-```
-
+각 장의 코드 예제에서 `#@save` 주석이 달린 함수나 클래스는 자동으로 `d2l` 패키지에 포함되도록 설계되었습니다.
+패키지의 소스 코드는 프로젝트의 GitHub 저장소에서 확인할 수 있습니다.

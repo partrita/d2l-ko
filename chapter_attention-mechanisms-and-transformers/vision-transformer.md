@@ -3,43 +3,23 @@
 tab.interact_select(['pytorch', 'jax'])
 ```
 
-# Transformers for Vision
+# 비전 트랜스포머 (Transformers for Vision)
 :label:`sec_vision-transformer`
 
-The Transformer architecture was initially proposed
-for sequence-to-sequence learning,
-with a focus on machine translation.
-Subsequently, Transformers emerged as the model of choice
-in various natural language processing tasks :cite:`Radford.Narasimhan.Salimans.ea.2018,Radford.Wu.Child.ea.2019,brown2020language,Devlin.Chang.Lee.ea.2018,raffel2020exploring`.
-However, in the field of computer vision
-the dominant architecture has remained
-the CNN (:numref:`chap_modern_cnn`).
-Naturally, researchers started to wonder
-if it might be possible to do better
-by adapting Transformer models to image data.
-This question sparked immense interest
-in the computer vision community.
-Recently, :citet:`ramachandran2019stand` proposed
-a scheme for replacing convolution with self-attention.
-However, its use of specialized patterns in attention
-makes it hard to scale up models on hardware accelerators.
-Then, :citet:`cordonnier2020relationship` theoretically proved
-that self-attention can learn to behave similarly to convolution.
-Empirically, $2 \times 2$ patches were taken from images as inputs,
-but the small patch size makes the model
-only applicable to image data with low resolutions.
+트랜스포머 아키텍처는 처음에 기계 번역에 중점을 둔 시퀀스-투-시퀀스 학습을 위해 제안되었습니다. 
+그 후 트랜스포머는 다양한 자연어 처리 작업에서 선택되는 모델로 부상했습니다 :cite:`Radford.Narasimhan.Salimans.ea.2018,Radford.Wu.Child.ea.2019,brown2020language,Devlin.Chang.Lee.ea.2018,raffel2020exploring`. 
+그러나 컴퓨터 비전 분야에서는 지배적인 아키텍처가 CNN으로 남아 있었습니다 (:numref:`chap_modern_cnn`). 
+자연스럽게 연구자들은 트랜스포머 모델을 이미지 데이터에 적용하여 더 잘할 수 있을지 궁금해하기 시작했습니다. 
+이 질문은 컴퓨터 비전 커뮤니티에서 엄청난 관심을 불러일으켰습니다. 
+최근 :citet:`ramachandran2019stand`는 합성곱을 셀프 어텐션으로 대체하는 방안을 제안했습니다. 
+그러나 어텐션에서 특수한 패턴을 사용하기 때문에 하드웨어 가속기에서 모델을 확장하기 어렵습니다. 
+그 후 :citet:`cordonnier2020relationship`은 이론적으로 셀프 어텐션이 합성곱과 유사하게 동작하도록 학습할 수 있음을 증명했습니다. 
+경험적으로 이미지에서 $2 \times 2$ 패치를 입력으로 가져왔지만, 패치 크기가 작아 모델을 저해상도 이미지 데이터에만 적용할 수 있었습니다.
 
-Without specific constraints on patch size,
-*vision Transformers* (ViTs)
-extract patches from images
-and feed them into a Transformer encoder
-to obtain a global representation,
-which will finally be transformed for classification :cite:`Dosovitskiy.Beyer.Kolesnikov.ea.2021`.
-Notably, Transformers show better scalability than CNNs:
-and when training larger models on larger datasets,
-vision Transformers outperform ResNets by a significant margin.
-Similar to the landscape of network architecture design in natural language processing,
-Transformers have also become a game-changer in computer vision.
+패치 크기에 대한 특정 제약 없이, 
+*비전 트랜스포머(Vision Transformers, ViTs)*는 이미지에서 패치를 추출하고 이를 트랜스포머 인코더에 공급하여 전역 표현을 얻으며, 이는 최종적으로 분류를 위해 변환됩니다 :cite:`Dosovitskiy.Beyer.Kolesnikov.ea.2021`. 
+주목할 점은 트랜스포머가 CNN보다 더 나은 확장성을 보여준다는 것입니다: 더 큰 데이터셋에서 더 큰 모델을 훈련할 때 비전 트랜스포머는 ResNet보다 성능이 월등히 뛰어납니다. 
+자연어 처리에서의 네트워크 아키텍처 설계 환경과 유사하게, 트랜스포머는 컴퓨터 비전에서도 게임 체인저가 되었습니다.
 
 ```{.python .input}
 %%tab pytorch
@@ -56,47 +36,27 @@ import jax
 from jax import numpy as jnp
 ```
 
-## Model
+## 모델
 
-:numref:`fig_vit` depicts
-the model architecture of vision Transformers.
-This architecture consists of a stem
-that patchifies images,
-a body based on the multilayer Transformer encoder,
-and a head that transforms the global representation
-into the output label.
+:numref:`fig_vit`는 비전 트랜스포머의 모델 아키텍처를 묘사합니다. 
+이 아키텍처는 이미지를 패치화하는 줄기(stem), 다층 트랜스포머 인코더에 기반한 몸체(body), 그리고 전역 표현을 출력 레이블로 변환하는 머리(head)로 구성됩니다.
 
-![The vision Transformer architecture. In this example, an image is split into nine patches. A special “&lt;cls&gt;” token and the nine flattened image patches are transformed via patch embedding and $\mathit{n}$ Transformer encoder blocks into ten representations, respectively. The “&lt;cls&gt;” representation is further transformed into the output label.](../img/vit.svg)
+![비전 트랜스포머 아키텍처. 이 예제에서 이미지는 9개의 패치로 분할됩니다. 특수 "&lt;cls&gt;" 토큰과 9개의 평탄화된 이미지 패치는 패치 임베딩과 $\mathit{n}$개의 트랜스포머 인코더 블록을 통해 각각 10개의 표현으로 변환됩니다. "&lt;cls&gt;" 표현은 출력 레이블로 추가 변환됩니다.](../img/vit.svg)
 :label:`fig_vit`
 
-Consider an input image with height $h$, width $w$,
-and $c$ channels.
-Specifying the patch height and width both as $p$,
-the image is split into a sequence of $m = hw/p^2$ patches,
-where each patch is flattened to a vector of length $cp^2$.
-In this way, image patches can be treated similarly to tokens in text sequences by Transformer encoders.
-A special “&lt;cls&gt;” (class) token and
-the $m$ flattened image patches are linearly projected
-into a sequence of $m+1$ vectors,
-summed with learnable positional embeddings.
-The multilayer Transformer encoder
-transforms $m+1$ input vectors
-into the same number of output vector representations of the same length.
-It works exactly the same way as the original Transformer encoder in :numref:`fig_transformer`,
-only differing in the position of normalization.
-Since the “&lt;cls&gt;” token attends to all the image patches
-via self-attention (see :numref:`fig_cnn-rnn-self-attention`),
-its representation from the Transformer encoder output
-will be further transformed into the output label.
+높이 $h$, 너비 $w$, 채널 $c$인 입력 이미지를 고려해 보십시오. 
+패치 높이와 너비를 모두 $p$로 지정하면, 이미지는 $m = hw/p^2$개의 패치 시퀀스로 분할되며, 여기서 각 패치는 길이 $cp^2$의 벡터로 평탄화됩니다. 
+이런 식으로 이미지 패치는 트랜스포머 인코더에서 텍스트 시퀀스의 토큰과 유사하게 처리될 수 있습니다. 
+특수 "&lt;cls&gt;" (클래스) 토큰과 $m$개의 평탄화된 이미지 패치는 $m+1$개 벡터의 시퀀스로 선형 투영되고, 학습 가능한 위치 임베딩과 합산됩니다. 
+다층 트랜스포머 인코더는 $m+1$개의 입력 벡터를 동일한 수의 동일한 길이 출력 벡터 표현으로 변환합니다. 
+정규화 위치만 다를 뿐 :numref:`fig_transformer`의 원래 트랜스포머 인코더와 똑같이 작동합니다. 
+"&lt;cls&gt;" 토큰은 셀프 어텐션을 통해 모든 이미지 패치에 주의를 기울이므로(:numref:`fig_cnn-rnn-self-attention` 참조), 트랜스포머 인코더 출력에서의 그 표현은 출력 레이블로 추가 변환됩니다.
 
-## Patch Embedding
+## 패치 임베딩 (Patch Embedding)
 
-To implement a vision Transformer, let's start
-with patch embedding in :numref:`fig_vit`.
-Splitting an image into patches
-and linearly projecting these flattened patches
-can be simplified as a single convolution operation,
-where both the kernel size and the stride size are set to the patch size.
+비전 트랜스포머를 구현하기 위해 :numref:`fig_vit`의 패치 임베딩부터 시작하겠습니다. 
+이미지를 패치로 분할하고 평탄화된 패치를 선형적으로 투영하는 것은 단일 합성곱 연산으로 단순화할 수 있습니다. 
+여기서 커널 크기와 스트라이드 크기는 모두 패치 크기로 설정됩니다.
 
 ```{.python .input}
 %%tab pytorch
@@ -114,7 +74,7 @@ class PatchEmbedding(nn.Module):
                                   stride=patch_size)
 
     def forward(self, X):
-        # Output shape: (batch size, no. of patches, no. of channels)
+        # 출력 모양: (배치 크기, 패치 수, 채널 수)
         return self.conv(X).flatten(2).transpose(1, 2)
 ```
 
@@ -137,14 +97,12 @@ class PatchEmbedding(nn.Module):
                             strides=patch_size, padding='SAME')
 
     def __call__(self, X):
-        # Output shape: (batch size, no. of patches, no. of channels)
+        # 출력 모양: (배치 크기, 패치 수, 채널 수)
         X = self.conv(X)
         return X.reshape((X.shape[0], -1, X.shape[3]))
 ```
 
-In the following example, taking images with height and width of `img_size` as inputs,
-the patch embedding outputs `(img_size//patch_size)**2` patches
-that are linearly projected to vectors of length `num_hiddens`.
+다음 예제에서는 높이와 너비가 `img_size`인 이미지를 입력으로 받아 패치 임베딩이 `(img_size//patch_size)**2`개의 패치를 출력하며, 이들은 길이 `num_hiddens`의 벡터로 선형 투영됩니다.
 
 ```{.python .input}
 %%tab pytorch
@@ -164,15 +122,12 @@ output, _ = patch_emb.init_with_output(d2l.get_key(), X)
 d2l.check_shape(output, (batch_size, (img_size//patch_size)**2, num_hiddens))
 ```
 
-## Vision Transformer Encoder
+## 비전 트랜스포머 인코더 (Vision Transformer Encoder)
 :label:`subsec_vit-encoder`
 
-The MLP of the vision Transformer encoder is slightly different
-from the positionwise FFN of the original Transformer encoder
-(see :numref:`subsec_positionwise-ffn`).
-First, here the activation function uses the Gaussian error linear unit (GELU),
-which can be considered as a smoother version of the ReLU :cite:`Hendrycks.Gimpel.2016`.
-Second, dropout is applied to the output of each fully connected layer in the MLP for regularization.
+비전 트랜스포머 인코더의 MLP는 원래 트랜스포머 인코더의 포지션와이즈 FFN과 약간 다릅니다(:numref:`subsec_positionwise-ffn` 참조). 
+첫째, 여기서 활성화 함수는 가우시안 오차 선형 유닛(GELU)을 사용합니다. 이는 ReLU의 더 부드러운 버전으로 간주될 수 있습니다 :cite:`Hendrycks.Gimpel.2016`. 
+둘째, 정규화를 위해 MLP의 각 완전 연결 레이어 출력에 드롭아웃이 적용됩니다.
 
 ```{.python .input}
 %%tab pytorch
@@ -207,12 +162,10 @@ class ViTMLP(nn.Module):
         return x
 ```
 
-The vision Transformer encoder block implementation
-just follows the pre-normalization design in :numref:`fig_vit`,
-where normalization is applied right *before* multi-head attention or the MLP.
-In contrast to post-normalization ("add & norm" in :numref:`fig_transformer`),
-where normalization is placed right *after* residual connections,
-pre-normalization leads to more effective or efficient training for Transformers :cite:`baevski2018adaptive,wang2019learning,xiong2020layer`.
+비전 트랜스포머 인코더 블록 구현은 :numref:`fig_vit`의 사전 정규화(pre-normalization) 설계를 따릅니다. 
+여기서 정규화는 멀티 헤드 어텐션 또는 MLP *바로 직전*에 적용됩니다. 
+잔차 연결 *직후*에 정규화가 배치되는 사후 정규화(:numref:`fig_transformer`의 "add & norm")와 달리, 
+사전 정규화는 트랜스포머의 더 효과적이거나 효율적인 훈련으로 이어집니다 :cite:`baevski2018adaptive,wang2019learning,xiong2020layer`.
 
 ```{.python .input}
 %%tab pytorch
@@ -252,8 +205,7 @@ class ViTBlock(nn.Module):
         return X + self.mlp(nn.LayerNorm()(X), training=training)
 ```
 
-Just as in :numref:`subsec_transformer-encoder`,
-no vision Transformer encoder block changes its input shape.
+:numref:`subsec_transformer-encoder`와 마찬가지로, 비전 트랜스포머 인코더 블록은 입력 모양을 변경하지 않습니다.
 
 ```{.python .input}
 %%tab pytorch
@@ -270,19 +222,19 @@ encoder_blk = ViTBlock(24, 48, 8, 0.5)
 d2l.check_shape(encoder_blk.init_with_output(d2l.get_key(), X)[0], X.shape)
 ```
 
-## Putting It All Together
+## 종합하기 (Putting It All Together)
 
-The forward pass of vision Transformers below is straightforward.
-First, input images are fed into an `PatchEmbedding` instance,
-whose output is concatenated with the “&lt;cls&gt;”  token embedding.
-They are summed with learnable positional embeddings before dropout.
-Then the output is fed into the Transformer encoder that stacks `num_blks` instances of the `ViTBlock` class.
-Finally, the representation of the “&lt;cls&gt;”  token is projected by the network head.
+아래 비전 트랜스포머의 순방향 패스는 간단합니다. 
+먼저 입력 이미지가 `PatchEmbedding` 인스턴스에 공급되고, 
+그 출력은 "&lt;cls&gt;" 토큰 임베딩과 연결됩니다. 
+드롭아웃 전에 학습 가능한 위치 임베딩과 합산됩니다. 
+그런 다음 출력은 `ViTBlock` 클래스의 `num_blks` 인스턴스를 쌓는 트랜스포머 인코더에 공급됩니다. 
+마지막으로 "&lt;cls&gt;" 토큰의 표현은 네트워크 헤드에 의해 투영됩니다.
 
 ```{.python .input}
 %%tab pytorch
 class ViT(d2l.Classifier):
-    """Vision Transformer."""
+    """비전 트랜스포머."""
     def __init__(self, img_size, patch_size, num_hiddens, mlp_num_hiddens,
                  num_heads, num_blks, emb_dropout, blk_dropout, lr=0.1,
                  use_bias=False, num_classes=10):
@@ -291,8 +243,8 @@ class ViT(d2l.Classifier):
         self.patch_embedding = PatchEmbedding(
             img_size, patch_size, num_hiddens)
         self.cls_token = nn.Parameter(d2l.zeros(1, 1, num_hiddens))
-        num_steps = self.patch_embedding.num_patches + 1  # Add the cls token
-        # Positional embeddings are learnable
+        num_steps = self.patch_embedding.num_patches + 1  # cls 토큰 추가
+        # 위치 임베딩은 학습 가능합니다
         self.pos_embedding = nn.Parameter(
             torch.randn(1, num_steps, num_hiddens))
         self.dropout = nn.Dropout(emb_dropout)
@@ -316,7 +268,7 @@ class ViT(d2l.Classifier):
 ```{.python .input}
 %%tab jax
 class ViT(d2l.Classifier):
-    """Vision Transformer."""
+    """비전 트랜스포머."""
     img_size: int
     patch_size: int
     num_hiddens: int
@@ -335,8 +287,8 @@ class ViT(d2l.Classifier):
                                               self.num_hiddens)
         self.cls_token = self.param('cls_token', nn.initializers.zeros,
                                     (1, 1, self.num_hiddens))
-        num_steps = self.patch_embedding.num_patches + 1  # Add the cls token
-        # Positional embeddings are learnable
+        num_steps = self.patch_embedding.num_patches + 1  # cls 토큰 추가
+        # 위치 임베딩은 학습 가능합니다
         self.pos_embedding = self.param('pos_embed', nn.initializers.normal(),
                                         (1, num_steps, self.num_hiddens))
         self.blks = [ViTBlock(self.num_hiddens, self.mlp_num_hiddens,
@@ -354,9 +306,9 @@ class ViT(d2l.Classifier):
         return self.head(X[:, 0])
 ```
 
-## Training
+## 훈련 (Training)
 
-Training a vision Transformer on the Fashion-MNIST dataset is just like how CNNs were trained in :numref:`chap_modern_cnn`.
+Fashion-MNIST 데이터셋에서 비전 트랜스포머를 훈련하는 것은 :numref:`chap_modern_cnn`에서 CNN을 훈련하는 것과 같습니다.
 
 ```{.python .input}
 %%tab all
@@ -370,42 +322,29 @@ data = d2l.FashionMNIST(batch_size=128, resize=(img_size, img_size))
 trainer.fit(model, data)
 ```
 
-## Summary and Discussion
+## 요약 및 토론 (Summary and Discussion)
 
-You may have noticed that for small datasets like Fashion-MNIST,
-our implemented vision Transformer
-does not outperform the ResNet in :numref:`sec_resnet`.
-Similar observations can be made even on the ImageNet dataset (1.2 million images).
-This is because Transformers *lack* those useful principles in convolution,
-such as translation invariance and locality (:numref:`sec_why-conv`).
-However, the picture changes when training larger models on larger datasets (e.g., 300 million images),
-where vision Transformers outperform ResNets by a large margin in image classification, demonstrating
-intrinsic superiority of Transformers in scalability :cite:`Dosovitskiy.Beyer.Kolesnikov.ea.2021`.
-The introduction of vision Transformers
-has changed the landscape of network design for modeling image data.
-They were soon shown to be effective on the ImageNet dataset
-with data-efficient training strategies of DeiT :cite:`touvron2021training`.
-However, the quadratic complexity of self-attention
-(:numref:`sec_self-attention-and-positional-encoding`)
-makes the Transformer architecture
-less suitable for higher-resolution images.
-Towards a general-purpose backbone network in computer vision,
-Swin Transformers addressed the quadratic computational complexity
-with respect to image size (:numref:`subsec_cnn-rnn-self-attention`)
-and reinstated convolution-like priors,
-extending the applicability of Transformers to a range of computer vision tasks
-beyond image classification with state-of-the-art results :cite:`liu2021swin`.
+Fashion-MNIST와 같은 작은 데이터셋의 경우 구현된 비전 트랜스포머가 :numref:`sec_resnet`의 ResNet보다 성능이 좋지 않음을 알 수 있습니다. 
+ImageNet 데이터셋(120만 개 이미지)에서도 비슷한 관찰을 할 수 있습니다. 
+이는 트랜스포머가 평행 이동 불변성 및 지역성과 같은 합성곱의 유용한 원칙이 *부족*하기 때문입니다(:numref:`sec_why-conv`). 
+그러나 더 큰 데이터셋(예: 3억 개 이미지)에서 더 큰 모델을 훈련할 때 상황이 바뀌어, 비전 트랜스포머가 이미지 분류에서 ResNet을 크게 능가하여 확장성에서 트랜스포머의 본질적인 우수성을 입증했습니다 :cite:`Dosovitskiy.Beyer.Kolesnikov.ea.2021`. 
+비전 트랜스포머의 도입은 이미지 데이터 모델링을 위한 네트워크 설계 환경을 변화시켰습니다. 
+이들은 곧 DeiT의 데이터 효율적인 훈련 전략을 통해 ImageNet 데이터셋에서도 효과적인 것으로 나타났습니다 :cite:`touvron2021training`. 
+그러나 셀프 어텐션의 이차 복잡도(:numref:`sec_self-attention-and-positional-encoding`)는 트랜스포머 아키텍처를 고해상도 이미지에 덜 적합하게 만듭니다. 
+컴퓨터 비전의 범용 백본 네트워크를 향하여, Swin Transformer는 이미지 크기에 대한 이차 계산 복잡도 문제를 해결하고(:numref:`subsec_cnn-rnn-self-attention`) 합성곱과 유사한 사전 지식(priors)을 복원하여, 트랜스포머의 적용 가능성을 이미지 분류를 넘어 다양한 컴퓨터 비전 작업으로 확장하고 최첨단 결과를 달성했습니다 :cite:`liu2021swin`.
 
-## Exercises
+## 연습 문제 (Exercises)
 
-1. How does the value of `img_size` affect training time?
-1. Instead of projecting the “&lt;cls&gt;” token representation to the output, how would you project the averaged patch representations? Implement this change and see how it affects the accuracy.
-1. Can you modify hyperparameters to improve the accuracy of the vision Transformer?
+1. `img_size` 값은 훈련 시간에 어떤 영향을 줍니까?
+2. "&lt;cls&gt;" 토큰 표현을 출력에 투영하는 대신, 평균화된 패치 표현을 투영하면 어떨까요? 이 변경 사항을 구현하고 정확도에 어떤 영향을 미치는지 확인하십시오.
+3. 비전 트랜스포머의 정확도를 높이기 위해 하이퍼파라미터를 수정할 수 있습니까?
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/8943)
+[토론](https://discuss.d2l.ai/t/8943)
 :end_tab:
 
 :begin_tab:`jax`
-[Discussions](https://discuss.d2l.ai/t/18032)
+[토론](https://discuss.d2l.ai/t/18032)
 :end_tab:
+
+```

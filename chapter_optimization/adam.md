@@ -1,44 +1,45 @@
-# Adam
+# 아담 (Adam)
 :label:`sec_adam`
 
-In the discussions leading up to this section we encountered a number of techniques for efficient optimization. Let's recap them in detail here:
+이 섹션에 앞서 논의한 내용에서 우리는 효율적인 최적화를 위한 여러 기술을 접했습니다. 여기서 그것들을 자세히 요약해 봅시다:
 
-* We saw that :numref:`sec_sgd` is more effective than Gradient Descent when solving optimization problems, e.g., due to its inherent resilience to redundant data. 
-* We saw that :numref:`sec_minibatch_sgd` affords significant additional efficiency arising from vectorization, using larger sets of observations in one minibatch. This is the key to efficient multi-machine, multi-GPU and overall parallel processing. 
-* :numref:`sec_momentum` added a mechanism for aggregating a history of past gradients to accelerate convergence.
-* :numref:`sec_adagrad` used per-coordinate scaling to allow for a computationally efficient preconditioner. 
-* :numref:`sec_rmsprop` decoupled per-coordinate scaling from a learning rate adjustment. 
+* 우리는 :numref:`sec_sgd`가 최적화 문제를 해결할 때 경사 하강법보다 더 효과적임을 보았습니다. 예를 들어 중복 데이터에 대한 고유한 복원력 때문입니다.
+* 우리는 :numref:`sec_minibatch_sgd`가 벡터화를 통해 얻는 상당한 추가 효율성을 제공하며, 한 미니배치에서 더 큰 관찰 집합을 사용함을 보았습니다. 이것이 효율적인 다중 머신, 다중 GPU 및 전반적인 병렬 처리의 핵심입니다.
+* :numref:`sec_momentum`은 수렴을 가속화하기 위해 과거 기울기의 이력을 집계하는 메커니즘을 추가했습니다.
+* :numref:`sec_adagrad`는 계산적으로 효율적인 프리컨디셔너(preconditioner)를 허용하기 위해 좌표별 스케일링을 사용했습니다.
+* :numref:`sec_rmsprop`은 학습률 조정에서 좌표별 스케일링을 분리했습니다.
 
-Adam :cite:`Kingma.Ba.2014` combines all these techniques into one efficient learning algorithm. As expected, this is an algorithm that has become rather popular as one of the more robust and effective optimization algorithms to use in deep learning. It is not without issues, though. In particular, :cite:`Reddi.Kale.Kumar.2019` show that there are situations where Adam can diverge due to poor variance control. In a follow-up work :citet:`Zaheer.Reddi.Sachan.ea.2018` proposed a hotfix to Adam, called Yogi which addresses these issues. More on this later. For now let's review the Adam algorithm. 
+Adam :cite:`Kingma.Ba.2014`은 이 모든 기술을 하나의 효율적인 학습 알고리즘으로 결합합니다. 예상대로, 이것은 딥러닝에서 사용하기에 더 견고하고 효과적인 최적화 알고리즘 중 하나로 상당히 인기를 얻은 알고리즘입니다. 하지만 문제가 없는 것은 아닙니다. 특히 :cite:`Reddi.Kale.Kumar.2019`는 Adam이 열악한 분산 제어로 인해 발산할 수 있는 상황이 있음을 보여줍니다. 후속 연구에서 :citet:`Zaheer.Reddi.Sachan.ea.2018`은 이러한 문제를 해결하는 Yogi라는 Adam의 핫픽스를 제안했습니다. 이에 대해서는 나중에 더 자세히 설명하겠습니다. 지금은 Adam 알고리즘을 검토해 봅시다.
 
-## The Algorithm
+## 알고리즘 (The Algorithm)
 
-One of the key components of Adam is that it uses exponential weighted moving averages (also known as leaky averaging) to obtain an estimate of both the momentum and also the second moment of the gradient. That is, it uses the state variables
+Adam의 핵심 구성 요소 중 하나는 지수 가중 이동 평균(leaky averaging이라고도 함)을 사용하여 기울기의 모멘텀과 2차 모멘트(second moment)를 모두 추정한다는 것입니다. 즉, 다음과 같은 상태 변수를 사용합니다.
 
 $$\begin{aligned}
     \mathbf{v}_t & \leftarrow \beta_1 \mathbf{v}_{t-1} + (1 - \beta_1) \mathbf{g}_t, \\
     \mathbf{s}_t & \leftarrow \beta_2 \mathbf{s}_{t-1} + (1 - \beta_2) \mathbf{g}_t^2.
 \end{aligned}$$
 
-Here $\beta_1$ and $\beta_2$ are nonnegative weighting parameters. Common choices for them are $\beta_1 = 0.9$ and $\beta_2 = 0.999$. That is, the variance estimate moves *much more slowly* than the momentum term. Note that if we initialize $\mathbf{v}_0 = \mathbf{s}_0 = 0$ we have a significant amount of bias initially towards smaller values. This can be addressed by using the fact that $\sum_{i=0}^{t-1} \beta^i = \frac{1 - \beta^t}{1 - \beta}$ to re-normalize terms. Correspondingly the normalized state variables are given by 
+여기서 $\beta_1$과 $\beta_2$는 비음수 가중치 파라미터입니다. 일반적인 선택은 $\beta_1 = 0.9$ 및 $\beta_2 = 0.999$입니다. 즉, 분산 추정치는 모멘텀 항보다 *훨씬 더 천천히* 움직입니다. $\mathbf{v}_0 = \mathbf{s}_0 = 0$으로 초기화하면 초기에 더 작은 값으로 치우친 상당한 양의 편향이 발생한다는 점에 유의하십시오. 이는 $\sum_{i=0}^{t-1} \beta^i = \frac{1 - \beta^t}{1 - \beta}$라는 사실을 사용하여 항을 재정규화함으로써 해결할 수 있습니다. 그에 대응하여 정규화된 상태 변수는 다음과 같이 주어집니다.
 
-$$\hat{\mathbf{v}}_t = \frac{\mathbf{v}_t}{1 - \beta_1^t} \textrm{ and } \hat{\mathbf{s}}_t = \frac{\mathbf{s}_t}{1 - \beta_2^t}.$$
+$$\hat{\mathbf{v}}_t = \frac{\mathbf{v}_t}{1 - \beta_1^t} \textrm{ 및 } \hat{\mathbf{s}}_t = \frac{\mathbf{s}_t}{1 - \beta_2^t}.$$ 
 
-Armed with the proper estimates we can now write out the update equations. First, we rescale the gradient in a manner very much akin to that of RMSProp to obtain
+적절한 추정치가 준비되면 이제 업데이트 방정식을 작성할 수 있습니다. 먼저 RMSProp과 매우 유사한 방식으로 기울기를 재조정하여 다음을 얻습니다.
 
-$$\mathbf{g}_t' = \frac{\eta \hat{\mathbf{v}}_t}{\sqrt{\hat{\mathbf{s}}_t} + \epsilon}.$$
+$$\mathbf{g}_t' = \frac{\eta \hat{\mathbf{v}}_t}{\sqrt{\hat{\mathbf{s}}_t} + \epsilon}.$$ 
 
-Unlike RMSProp our update uses the momentum $\hat{\mathbf{v}}_t$ rather than the gradient itself. Moreover, there is a slight cosmetic difference as the rescaling happens using $\frac{1}{\sqrt{\hat{\mathbf{s}}_t} + \epsilon}$ instead of $\frac{1}{\sqrt{\hat{\mathbf{s}}_t + \epsilon}}$. The former works arguably slightly better in practice, hence the deviation from RMSProp. Typically we pick $\epsilon = 10^{-6}$ for a good trade-off between numerical stability and fidelity. 
+RMSProp과 달리 우리의 업데이트는 기울기 자체가 아니라 모멘텀 $\hat{\mathbf{v}}_t$를 사용합니다. 더욱이, 재조정이 $\frac{1}{\sqrt{\hat{\mathbf{s}}_t + \epsilon}}$ 대신 $\frac{1}{\sqrt{\hat{\mathbf{s}}_t} + \epsilon}$를 사용하여 발생한다는 약간의 외관상 차이가 있습니다. 전자가 실제로 약간 더 잘 작동하므로 RMSProp에서 벗어났습니다. 일반적으로 수치적 안정성과 충실도 사이의 좋은 절충안으로 $\epsilon = 10^{-6}$을 선택합니다.
 
-Now we have all the pieces in place to compute updates. This is slightly anticlimactic and we have a simple update of the form
+이제 업데이트를 계산하기 위한 모든 조각이 준비되었습니다. 이는 다소 실망스러울 정도로 간단하며 다음과 같은 형태의 간단한 업데이트를 가집니다.
 
-$$\mathbf{x}_t \leftarrow \mathbf{x}_{t-1} - \mathbf{g}_t'.$$
+$$\mathbf{x}_t \leftarrow \mathbf{x}_{t-1} - \mathbf{g}_t'.$$ 
 
-Reviewing the design of Adam its inspiration is clear. Momentum and scale are clearly visible in the state variables. Their rather peculiar definition forces us to debias terms (this could be fixed by a slightly different initialization and update condition). Second, the combination of both terms is pretty straightforward, given RMSProp. Last, the explicit learning rate $\eta$ allows us to control the step length to address issues of convergence. 
+Adam의 설계를 검토하면 그 영감이 명확해집니다. 모멘텀과 스케일은 상태 변수에서 명확하게 보입니다. 그들의 다소 독특한 정의는 우리가 항의 편향을 제거하도록 강제합니다(이는 약간 다른 초기화 및 업데이트 조건으로 수정될 수 있습니다). 둘째, 두 항의 조합은 RMSProp이 주어지면 꽤 간단합니다. 마지막으로, 명시적인 학습률 $\eta$를 통해 수렴 문제를 해결하기 위해 단계 길이를 제어할 수 있습니다.
 
-## Implementation 
 
-Implementing Adam from scratch is not very daunting. For convenience we store the time step counter $t$ in the `hyperparams` dictionary. Beyond that all is straightforward.
+## 구현 (Implementation)
+
+Adam을 처음부터 구현하는 것은 그리 어렵지 않습니다. 편의를 위해 타임스텝 카운터 $t$를 `hyperparams` 딕셔너리에 저장합니다. 그 외에는 모두 간단합니다.
 
 ```{.python .input}
 #@tab mxnet
@@ -61,6 +62,7 @@ def adam(params, states, hyperparams):
         s_bias_corr = s / (1 - beta2 ** hyperparams['t'])
         p[:] -= hyperparams['lr'] * v_bias_corr / (np.sqrt(s_bias_corr) + eps)
     hyperparams['t'] += 1
+
 ```
 
 ```{.python .input}
@@ -86,6 +88,7 @@ def adam(params, states, hyperparams):
                                                        + eps)
         p.grad.data.zero_()
     hyperparams['t'] += 1
+
 ```
 
 ```{.python .input}
@@ -110,47 +113,52 @@ def adam(params, grads, states, hyperparams):
         s_bias_corr = s / (1 - beta2 ** hyperparams['t'])
         p[:].assign(p - hyperparams['lr'] * v_bias_corr  
                     / tf.math.sqrt(s_bias_corr) + eps)
+
 ```
 
-We are ready to use Adam to train the model. We use a learning rate of $\eta = 0.01$.
+이제 모델을 훈련하기 위해 Adam을 사용할 준비가 되었습니다. $\eta = 0.01$의 학습률을 사용합니다.
 
 ```{.python .input}
 #@tab all
 data_iter, feature_dim = d2l.get_data_ch11(batch_size=10)
 d2l.train_ch11(adam, init_adam_states(feature_dim),
                {'lr': 0.01, 't': 1}, data_iter, feature_dim);
+
 ```
 
-A more concise implementation is straightforward since `adam` is one of the algorithms provided as part of the Gluon `trainer` optimization library. Hence we only need to pass configuration parameters for an implementation in Gluon.
+`adam`은 Gluon `trainer` 최적화 라이브러리의 일부로 제공되는 알고리즘 중 하나이므로 더 간결한 구현이 가능합니다. 따라서 Gluon에서의 구현을 위해 구성 파라미터만 전달하면 됩니다.
 
 ```{.python .input}
 #@tab mxnet
 d2l.train_concise_ch11('adam', {'learning_rate': 0.01}, data_iter)
+
 ```
 
 ```{.python .input}
 #@tab pytorch
 trainer = torch.optim.Adam
 d2l.train_concise_ch11(trainer, {'lr': 0.01}, data_iter)
+
 ```
 
 ```{.python .input}
 #@tab tensorflow
 trainer = tf.keras.optimizers.Adam
 d2l.train_concise_ch11(trainer, {'learning_rate': 0.01}, data_iter)
+
 ```
 
 ## Yogi
 
-One of the problems of Adam is that it can fail to converge even in convex settings when the second moment estimate in $\mathbf{s}_t$ blows up. As a fix :citet:`Zaheer.Reddi.Sachan.ea.2018` proposed a refined update (and initialization) for $\mathbf{s}_t$. To understand what's going on, let's rewrite the Adam update as follows:
+Adam의 문제 중 하나는 $\mathbf{s}_t$의 2차 모멘트 추정치가 급증할 때 볼록(convex) 설정에서도 수렴하지 못할 수 있다는 것입니다. 해결책으로 :citet:`Zaheer.Reddi.Sachan.ea.2018`은 $\mathbf{s}_t$에 대해 정제된 업데이트(및 초기화)를 제안했습니다. 무슨 일이 일어나고 있는지 이해하기 위해 Adam 업데이트를 다음과 같이 다시 써 봅시다.
 
-$$\mathbf{s}_t \leftarrow \mathbf{s}_{t-1} + (1 - \beta_2) \left(\mathbf{g}_t^2 - \mathbf{s}_{t-1}\right).$$
+$$\mathbf{s}_t \leftarrow \mathbf{s}_{t-1} + (1 - \beta_2) \left(\mathbf{g}_t^2 - \mathbf{s}_{t-1}\right).$$ 
 
-Whenever $\mathbf{g}_t^2$ has high variance or updates are sparse, $\mathbf{s}_t$ might forget past values too quickly. A possible fix for this is to replace $\mathbf{g}_t^2 - \mathbf{s}_{t-1}$ by $\mathbf{g}_t^2 \odot \mathop{\textrm{sgn}}(\mathbf{g}_t^2 - \mathbf{s}_{t-1})$. Now the magnitude of the update no longer depends on the amount of deviation. This yields the Yogi updates
+$\mathbf{g}_t^2$의 분산이 크거나 업데이트가 희소할 때마다, $\mathbf{s}_t$는 과거 값을 너무 빨리 잊어버릴 수 있습니다. 이에 대한 가능한 해결책은 $\mathbf{g}_t^2 - \mathbf{s}_{t-1}$을 $\mathbf{g}_t^2 \odot \mathop{\textrm{sgn}}(\mathbf{g}_t^2 - \mathbf{s}_{t-1})}$으로 바꾸는 것입니다. 이제 업데이트의 크기는 더 이상 편차의 양에 의존하지 않습니다. 이것은 Yogi 업데이트를 산출합니다.
 
-$$\mathbf{s}_t \leftarrow \mathbf{s}_{t-1} + (1 - \beta_2) \mathbf{g}_t^2 \odot \mathop{\textrm{sgn}}(\mathbf{g}_t^2 - \mathbf{s}_{t-1}).$$
+$$\mathbf{s}_t \leftarrow \mathbf{s}_{t-1} + (1 - \beta_2) \mathbf{g}_t^2 \odot \mathop{\textrm{sgn}}(\mathbf{g}_t^2 - \mathbf{s}_{t-1}).$$ 
 
-The authors furthermore advise to initialize the momentum on a larger initial batch rather than just initial pointwise estimate. We omit the details since they are not material to the discussion and since even without this convergence remains pretty good.
+저자들은 또한 단순히 초기 포인트별 추정치가 아니라 더 큰 초기 배치에서 모멘텀을 초기화할 것을 권장합니다. 논의에 필수적이지 않고 이것이 없어도 수렴이 꽤 잘 유지되므로 자세한 내용은 생략합니다.
 
 ```{.python .input}
 #@tab mxnet
@@ -168,6 +176,7 @@ def yogi(params, states, hyperparams):
 data_iter, feature_dim = d2l.get_data_ch11(batch_size=10)
 d2l.train_ch11(yogi, init_adam_states(feature_dim),
                {'lr': 0.01, 't': 1}, data_iter, feature_dim);
+
 ```
 
 ```{.python .input}
@@ -189,6 +198,7 @@ def yogi(params, states, hyperparams):
 data_iter, feature_dim = d2l.get_data_ch11(batch_size=10)
 d2l.train_ch11(yogi, init_adam_states(feature_dim),
                {'lr': 0.01, 't': 1}, data_iter, feature_dim);
+
 ```
 
 ```{.python .input}
@@ -208,31 +218,32 @@ def yogi(params, grads, states, hyperparams):
 data_iter, feature_dim = d2l.get_data_ch11(batch_size=10)
 d2l.train_ch11(yogi, init_adam_states(feature_dim),
                {'lr': 0.01, 't': 1}, data_iter, feature_dim);
+
 ```
 
-## Summary
+## 요약 (Summary)
 
-* Adam combines features of many optimization algorithms into a fairly robust update rule. 
-* Created on the basis of RMSProp, Adam also uses EWMA on the minibatch stochastic gradient.
-* Adam uses bias correction to adjust for a slow startup when estimating momentum and a second moment. 
-* For gradients with significant variance we may encounter issues with convergence. They can be amended by using larger minibatches or by switching to an improved estimate for $\mathbf{s}_t$. Yogi offers such an alternative. 
+* Adam은 많은 최적화 알고리즘의 기능을 상당히 견고한 업데이트 규칙으로 결합합니다.
+* RMSProp을 기반으로 만들어진 Adam은 미니배치 확률적 기울기에서 EWMA를 사용합니다.
+* Adam은 모멘텀과 2차 모멘트를 추정할 때 느린 시작을 조정하기 위해 편향 수정을 사용합니다.
+* 분산이 큰 기울기의 경우 수렴에 문제가 발생할 수 있습니다. 이는 더 큰 미니배치를 사용하거나 $\mathbf{s}_t$에 대해 개선된 추정치를 사용하도록 전환함으로써 수정될 수 있습니다. Yogi는 그러한 대안을 제공합니다.
 
-## Exercises
 
-1. Adjust the learning rate and observe and analyze the experimental results.
-1. Can you rewrite momentum and second moment updates such that it does not require bias correction?
-1. Why do you need to reduce the learning rate $\eta$ as we converge?
-1. Try to construct a case for which Adam diverges and Yogi converges?
+## 연습 문제 (Exercises)
+
+1. 학습률을 조정하고 실험 결과를 관찰하고 분석하십시오.
+2. 편향 수정이 필요하지 않도록 모멘텀 및 2차 모멘트 업데이트를 다시 작성할 수 있습니까?
+3. 수렴할 때 학습률 $\eta$를 줄여야 하는 이유는 무엇입니까?
+4. Adam은 발산하고 Yogi는 수렴하는 사례를 구성해 보십시오.
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/358)
+[토론](https://discuss.d2l.ai/t/358)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1078)
+[토론](https://discuss.d2l.ai/t/1078)
 :end_tab:
 
-
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/1079)
+[토론](https://discuss.d2l.ai/t/1079)
 :end_tab:

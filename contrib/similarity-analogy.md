@@ -1,13 +1,7 @@
-# Finding Synonyms and Analogies
+# 단어 유사성과 유추 찾기 (Finding Synonyms and Analogies)
 :label:`sec_synonyms`
 
-In :numref:`sec_word2vec_gluon` we trained a word2vec word embedding model
-on a small-scale dataset and searched for synonyms using the cosine similarity
-of word vectors. In practice, word vectors pretrained on a large-scale corpus
-can often be applied to downstream natural language processing tasks. This
-section will demonstrate how to use these pretrained word vectors to find
-synonyms and analogies. We will continue to apply pretrained word vectors in
-subsequent sections.
+:numref:`sec_word2vec_gluon`에서 우리는 소규모 데이터셋에서 word2vec 단어 임베딩 모델을 훈련하고 단어 벡터의 코사인 유사도를 사용하여 유의어를 검색했습니다. 실제로 대규모 코퍼스에서 사전 훈련된 단어 벡터는 다운스트림 자연어 처리 작업에 종종 적용될 수 있습니다. 이 섹션에서는 이러한 사전 훈련된 단어 벡터를 사용하여 유의어와 유추를 찾는 방법을 보여줄 것입니다. 우리는 후속 섹션에서 사전 훈련된 단어 벡터를 계속해서 적용할 것입니다.
 
 ```{.python .input  n=1}
 #@tab mxnet
@@ -21,13 +15,9 @@ from sklearn.decomposition import PCA
 npx.set_np()
 ```
 
-## Using Pretrained Word Vectors
+## 사전 훈련된 단어 벡터 사용하기 (Using Pretrained Word Vectors)
 
-Below lists pretrained GloVe embeddings of dimensions 50, 100, and 300,
-which can be downloaded from the [GloVe website](https://nlp.stanford.edu/projects/glove/).
-The pretrained fastText embeddings are available in multiple languages.
-Here we consider one English version (300-dimensional "wiki.en") that can be downloaded from the
-[fastText website](https://fasttext.cc/).
+아래에는 [GloVe 웹사이트](https://nlp.stanford.edu/projects/glove/)에서 다운로드할 수 있는 50, 100, 300차원의 사전 훈련된 GloVe 임베딩이 나열되어 있습니다. 사전 훈련된 fastText 임베딩은 여러 언어로 제공됩니다. 여기서는 [fastText 웹사이트](https://fasttext.cc/)에서 다운로드할 수 있는 한 가지 영어 버전(300차원 "wiki.en")을 고려합니다.
 
 ```{.python .input  n=2}
 #@tab mxnet
@@ -48,7 +38,7 @@ d2l.DATA_HUB['wiki.en'] = (d2l.DATA_URL + 'wiki.en.zip',
                            'c1816da3821ae9f43899be655002f6c723e91b88')
 ```
 
-We define the following `TokenEmbedding` class to load the above pretrained Glove and fastText embeddings.
+위의 사전 훈련된 GloVe 및 fastText 임베딩을 로드하기 위해 다음 `TokenEmbedding` 클래스를 정의합니다.
 
 ```{.python .input  n=3}
 #@tab mxnet
@@ -65,13 +55,13 @@ class TokenEmbedding:
     def _load_embedding(self, embedding_name):
         idx_to_token, idx_to_vec = ['<unk>'], []
         data_dir = d2l.download_extract(embedding_name)
-        # GloVe website: https://nlp.stanford.edu/projects/glove/
-        # fastText website: https://fasttext.cc/
+        # GloVe 웹사이트: https://nlp.stanford.edu/projects/glove/
+        # fastText 웹사이트: https://fasttext.cc/
         with open(os.path.join(data_dir, 'vec.txt'), 'r') as f:
             for line in f:
                 elems = line.rstrip().split(' ')
                 token, elems = elems[0], [float(elem) for elem in elems[1:]]
-                # Skip header information, such as the top row in fastText
+                # fastText의 상단 행과 같은 헤더 정보 건너뛰기
                 if len(elems) > 1:
                     idx_to_token.append(token)
                     idx_to_vec.append(elems)
@@ -88,68 +78,65 @@ class TokenEmbedding:
         return len(self.idx_to_token)
 ```
 
-Next, we use 50-dimensional GloVe embeddings pretrained on a subset of the Wikipedia. The corresponding word embedding is automatically downloaded the first time we create a pretrained word embedding instance.
+다음으로, 위키피디아의 하위 집합에서 사전 훈련된 50차원 GloVe 임베딩을 사용합니다. 해당 단어 임베딩은 사전 훈련된 단어 임베딩 인스턴스를 처음 생성할 때 자동으로 다운로드됩니다.
 
 ```{.python .input  n=4}
 #@tab mxnet
 glove_6b50d = TokenEmbedding('glove.6b.50d')
 ```
 
-Output the dictionary size. The dictionary contains $400,000$ words and a special unknown token.
+사전 크기를 출력합니다. 사전에는 400,000개의 단어와 특수한 알 수 없는 토큰이 포함되어 있습니다.
 
 ```{.python .input  n=5}
 #@tab mxnet
 len(glove_6b50d)
 ```
 
-We can use a word to get its index in the dictionary, or we can get the word from its index.
+단어를 사용하여 사전에서의 인덱스를 얻거나, 인덱스로부터 단어를 얻을 수 있습니다.
 
 ```{.python .input  n=6}
 #@tab mxnet
 glove_6b50d.token_to_idx['beautiful'], glove_6b50d.idx_to_token[3367]
 ```
 
-## Applying Pretrained Word Vectors
+## 사전 훈련된 단어 벡터 적용하기 (Applying Pretrained Word Vectors)
 
-Below, we demonstrate the application of pretrained word vectors, using GloVe as an example.
+아래에서는 GloVe를 예로 들어 사전 훈련된 단어 벡터의 응용을 보여줍니다.
 
-### Finding Synonyms
+### 유의어 찾기 (Finding Synonyms)
 
-Here, we re-implement the algorithm used to search for synonyms by cosine
-similarity introduced in :numref:`sec_word2vec`
+여기서는 :numref:`sec_word2vec`에서 소개된 코사인 유사도에 의한 유의어 검색 알고리즘을 다시 구현합니다.
 
-In order to reuse the logic for seeking the $k$ nearest neighbors when
-seeking analogies, we encapsulate this part of the logic separately in the `knn`
-($k$-nearest neighbors) function.
+유추를 찾을 때 $k$-최근접 이웃을 찾는 로직을 재사용하기 위해, 이 로직의 일부를 `knn` ($k$-최근접 이웃) 함수에 별도로 캡슐화합니다.
 
 ```{.python .input  n=7}
 #@tab mxnet
 def knn(W, x, k):
-    # The added 1e-9 is for numerical stability
+    # 수치 안정성을 위해 1e-9를 더합니다
     cos = np.dot(W, x.reshape(-1,)) / (
         np.sqrt(np.sum(W * W, axis=1) + 1e-9) * np.sqrt((x * x).sum()))
     topk = npx.topk(cos, k=k, ret_typ='indices')
     return topk, [cos[int(i)] for i in topk]
 ```
 
-Then, we search for synonyms by pre-training the word vector instance `embed`.
+그런 다음, 사전 훈련된 단어 벡터 인스턴스 `embed`를 통해 유의어를 검색합니다.
 
 ```{.python .input  n=8}
 #@tab mxnet
 def get_similar_tokens(query_token, k, embed):
     topk, cos = knn(embed.idx_to_vec, embed[[query_token]], k + 1)
-    for i, c in zip(topk[1:], cos[1:]):  # Remove input words
+    for i, c in zip(topk[1:], cos[1:]):  # 입력 단어 제거
         print(f'cosine sim={float(c):.3f}: {embed.idx_to_token[int(i)]}')
 ```
 
-The dictionary of pretrained word vector instance `glove_6b50d` already created contains 400,000 words and a special unknown token. Excluding input words and unknown words, we search for the three words that are the most similar in meaning to "chip".
+이미 생성된 사전 훈련된 단어 벡터 인스턴스 `glove_6b50d`의 사전에는 400,000개의 단어와 특수한 알 수 없는 토큰이 포함되어 있습니다. 입력 단어와 알 수 없는 단어를 제외하고, "chip"과 의미가 가장 유사한 세 단어를 검색합니다.
 
 ```{.python .input  n=9}
 #@tab mxnet
 get_similar_tokens('chip', 3, glove_6b50d)
 ```
 
-Next, we search for the synonyms of "baby" and "beautiful".
+다음으로, "baby"와 "beautiful"의 유의어를 검색합니다.
 
 ```{.python .input  n=10}
 #@tab mxnet
@@ -161,9 +148,9 @@ get_similar_tokens('baby', 3, glove_6b50d)
 get_similar_tokens('beautiful', 3, glove_6b50d)
 ```
 
-### Finding Analogies
+### 유추 찾기 (Finding Analogies)
 
-In addition to seeking synonyms, we can also use the pretrained word vector to seek the analogies between words. For example, “man”:“woman”::“son”:“daughter” is an example of analogy, “man” is to “woman” as “son” is to “daughter”. The problem of seeking analogies can be defined as follows: for four words in the analogical relationship $a : b :: c : d$, given the first three words, $a$, $b$ and $c$, we want to find $d$. Assume the word vector for the word $w$ is $\text{vec}(w)$. To solve the analogy problem, we need to find the word vector that is most similar to the result vector of $\text{vec}(c)+\text{vec}(b)-\text{vec}(a)$.
+유의어를 찾는 것 외에도, 사전 훈련된 단어 벡터를 사용하여 단어 간의 유추를 찾을 수도 있습니다. 예를 들어, “man”:“woman”::“son”:“daughter”는 유추의 한 예로, “man”에 대한 “woman”의 관계는 “son”에 대한 “daughter”의 관계와 같습니다. 유추를 찾는 문제는 다음과 같이 정의될 수 있습니다: 유추 관계 $a : b :: c : d$에 있는 네 단어에 대해, 처음 세 단어 $a$, $b$, $c$가 주어졌을 때 $d$를 찾고자 합니다. 단어 $w$에 대한 단어 벡터를 $	ext{vec}(w)$라고 가정합시다. 유추 문제를 해결하기 위해, $	ext{vec}(c)+	ext{vec}(b)-	ext{vec}(a)$의 결과 벡터와 가장 유사한 단어 벡터를 찾아야 합니다.
 
 ```{.python .input  n=12}
 #@tab mxnet
@@ -171,31 +158,31 @@ def get_analogy(token_a, token_b, token_c, embed):
     vecs = embed[[token_a, token_b, token_c]]
     x = vecs[1] - vecs[0] + vecs[2]
     topk, cos = knn(embed.idx_to_vec, x, 1)
-    return embed.idx_to_token[int(topk[0])]  # Remove unknown words
+    return embed.idx_to_token[int(topk[0])]  # 알 수 없는 단어 제거
 ```
 
-Verify the "male-female" analogy.
+"male-female" 유추를 확인합니다.
 
 ```{.python .input  n=13}
 #@tab mxnet
 get_analogy('man', 'woman', 'son', glove_6b50d)
 ```
 
-“Capital-country” analogy: "beijing" is to "china" as "tokyo" is to what? The answer should be "japan".
+“수도-국가” 유추: "beijing"과 "china"의 관계는 "tokyo"와 무엇의 관계와 같을까요? 답은 "japan"이어야 합니다.
 
 ```{.python .input  n=14}
 #@tab mxnet
 get_analogy('beijing', 'china', 'tokyo', glove_6b50d)
 ```
 
-"Adjective-superlative adjective" analogy: "bad" is to "worst" as "big" is to what? The answer should be "biggest".
+"형용사-최상급 형용사" 유추: "bad"와 "worst"의 관계는 "big"과 무엇의 관계와 같을까요? 답은 "biggest"여야 합니다.
 
 ```{.python .input  n=15}
 #@tab mxnet
 get_analogy('bad', 'worst', 'big', glove_6b50d)
 ```
 
-"Present tense verb-past tense verb" analogy: "do" is to "did" as "go" is to what? The answer should be "went".
+"현재 시제 동사-과거 시제 동사" 유추: "do"와 "did"의 관계는 "go"와 무엇의 관계와 같을까요? 답은 "went"여야 합니다.
 
 ```{.python .input  n=16}
 #@tab mxnet
@@ -226,18 +213,18 @@ token_pairs = [['man', 'woman'], ['son', 'daughter'], ['king', 'queen'],
 visualization(token_pairs, glove_6b50d)
 ```
 
-## Summary
+## 요약 (Summary)
 
-* Word vectors pre-trained on a large-scale corpus can often be applied to downstream natural language processing tasks.
-* We can use pre-trained word vectors to seek synonyms and analogies.
-
-
-## Exercises
-
-1. Test the fastText results using `TokenEmbedding('wiki.en')`.
-1. If the dictionary is extremely large, how can we accelerate finding synonyms and analogies?
+* 대규모 코퍼스에서 사전 훈련된 단어 벡터는 종종 다운스트림 자연어 처리 작업에 적용될 수 있습니다.
+* 사전 훈련된 단어 벡터를 사용하여 유의어와 유추를 찾을 수 있습니다.
 
 
-## [Discussions](https://discuss.mxnet.io/t/2390)
+## 연습 문제 (Exercises)
+
+1. `TokenEmbedding('wiki.en')`을 사용하여 fastText 결과를 테스트하십시오.
+2. 사전이 매우 클 때, 유의어와 유추를 찾는 것을 어떻게 가속화할 수 있을까요?
+
+
+## [토론](https://discuss.mxnet.io/t/2390)
 
 ![](../img/qr_similarity-analogy.svg)

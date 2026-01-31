@@ -1,54 +1,48 @@
-# Introduction to Gaussian Processes
+```{.python .input}
+%load_ext d2lbook.tab
+tab.interact_select(['pytorch'])
+```
 
-In many cases, machine learning amounts to estimating parameters from data. These parameters are often numerous and relatively uninterpretable --- such as the weights of a neural network. Gaussian processes, by contrast, provide a mechanism for directly reasoning about the high-level properties of functions that could fit our data. For example, we may have a sense of whether these functions are quickly varying, periodic, involve conditional independencies, or translation invariance. Gaussian processes enable us to easily incorporate these properties into our model, by directly specifying a Gaussian distribution over the function values that could fit our data. 
+# 가우시안 프로세스 소개 (Introduction to Gaussian Processes)
 
-Let's get a feel for how Gaussian processes operate, by starting with some examples.
+많은 경우, 머신러닝은 데이터에서 파라미터를 추정하는 것과 같습니다. 이러한 파라미터는 종종 수많은 신경망의 가중치와 같이 비교적 해석하기 어렵습니다. 대조적으로, 가우시안 프로세스는 데이터에 적합할 수 있는 함수의 고수준 속성을 직접 추론하는 메커니즘을 제공합니다. 예를 들어, 우리는 이러한 함수가 빠르게 변하는지, 주기적인지, 조건부 독립성을 포함하는지, 또는 평행 이동 불변성을 갖는지에 대한 감각을 가질 수 있습니다. 가우시안 프로세스를 사용하면 데이터에 적합할 수 있는 함수 값에 대한 가우시안 분포를 직접 지정하여 이러한 속성을 모델에 쉽게 통합할 수 있습니다.
 
-Suppose we observe the following dataset, of regression targets (outputs), $y$, indexed by inputs, $x$. As an example, the targets could be changes in carbon dioxide concentrations, and the inputs could be the times at which these targets have been recorded. What are some features of the data? How quickly does it seem to varying? Do we have data points collected at regular intervals, or are there missing inputs? How would you imagine filling in the missing regions, or forecasting up until $x=25$?
+가우시안 프로세스가 어떻게 작동하는지 몇 가지 예제로 시작하여 감을 잡아봅시다.
 
-![Observed data.](../img/gp-observed-data.svg)
+입력 $x$에 의해 인덱싱된 회귀 타겟(출력) $y$의 다음 데이터셋을 관찰한다고 가정해 봅시다. 예를 들어, 타겟은 이산화탄소 농도의 변화일 수 있고, 입력은 이러한 타겟이 기록된 시간일 수 있습니다. 데이터의 특징은 무엇입니까? 얼마나 빨리 변하는 것 같습니까? 정기적인 간격으로 수집된 데이터 포인트가 있습니까, 아니면 누락된 입력이 있습니까? 누락된 영역을 채우거나 $x=25$까지 예측하는 것을 어떻게 상상하십니까?
 
-In order to fit the data with a Gaussian process, we start by specifying a prior distribution over what types of functions we might believe to be reasonable. Here we show several sample functions from a Gaussian process. Does this prior look reasonable? Note here we are not looking for functions that fit our dataset, but instead for specifying reasonable high-level properties of the solutions, such as how quickly they vary with inputs. Note that we will see code for reproducing all of the plots in this notebook, in the next notebooks on priors and inference.
+![관찰된 데이터.](../img/gp-observed-data.svg)
 
-![Sample prior functions that we may want to represent with our model.](../img/gp-sample-prior-functions.svg)
+가우시안 프로세스로 데이터를 피팅하기 위해, 우리는 어떤 유형의 함수가 합리적이라고 믿을 수 있는지에 대한 사전 분포를 지정하는 것으로 시작합니다. 여기에서는 가우시안 프로세스의 몇 가지 샘플 함수를 보여줍니다. 이 사전 분포가 합리적으로 보입니까? 여기서 우리는 데이터셋에 맞는 함수를 찾는 것이 아니라, 입력에 따라 얼마나 빨리 변하는지와 같은 솔루션의 합리적인 고수준 속성을 지정하는 것을 찾고 있습니다. 다음 노트북에서 사전 분포 및 추론에 대한 모든 플롯을 재현하기 위한 코드를 볼 것입니다.
 
-Once we condition on data, we can use this prior to infer a posterior distribution over functions that could fit the data. Here we show sample posterior functions.
+![우리 모델로 표현하고 싶은 샘플 사전 함수.](../img/gp-sample-prior-functions.svg)
 
-![Sample posterior functions, once we have observed the data.](../img/gp-sample-posterior-functions.svg)
+데이터에 대한 조건을 설정하면, 이 사전 분포를 사용하여 데이터에 적합할 수 있는 함수에 대한 사후 분포를 추론할 수 있습니다. 여기서는 샘플 사후 함수를 보여줍니다.
 
-We see that each of these functions are entirely consistent with our data, perfectly running through each observation. In order to use these posterior samples to make predictions, we can average the values of every possible sample function from the posterior, to create the curve below, in thick blue. Note that we do not actually have to take an infinite number of samples to compute this expectation; as we will see later, we can compute the expectation in closed form. 
+![데이터를 관찰한 후의 샘플 사후 함수.](../img/gp-sample-posterior-functions.svg)
 
-![Posterior samples, alongside posterior mean, which can be used for point predictions, in blue.](../img/gp-posterior-samples.svg)
+우리는 이러한 각 함수가 데이터와 완전히 일치하며 각 관찰을 완벽하게 통과함을 알 수 있습니다. 이러한 사후 샘플을 사용하여 예측을 하려면, 사후 분포에서 가능한 모든 샘플 함수의 값을 평균하여 아래의 굵은 파란색 곡선을 만들 수 있습니다. 이 기댓값을 계산하기 위해 실제로 무한한 수의 샘플을 취할 필요는 없습니다. 나중에 보게 되겠지만, 닫힌 형식으로 기댓값을 계산할 수 있습니다.
 
-We may also want a representation of uncertainty, so we know how confident we should be in our predictions. Intuitively, we should have more uncertainty where there is more variability in the sample posterior functions, as this tells us there are many more possible values the true function could take. This type of uncertainty is called _epistemic uncertainty_, which is the _reducible uncertainty_ associated with lack of information. As we acquire more data, this type of uncertainty disappears, as there will be increasingly fewer solutions consistent with what we observe. Like with the posterior mean, we can compute the posterior variance (the variability of these functions in the posterior) in closed form. With shade, we show two times the posterior standard deviation on either side of the mean, creating a _credible interval_ that has a 95% probability of containing the true value of the function for any input $x$.
+![사후 샘플과 점 예측에 사용할 수 있는 사후 평균(파란색).](../img/gp-posterior-samples.svg)
 
-![Posterior samples, including 95% credible set.](../img/gp-posterior-samples-95.svg)
+우리는 예측에 대해 얼마나 확신해야 하는지 알기 위해 불확실성의 표현을 원할 수도 있습니다. 직관적으로, 샘플 사후 함수의 변동성이 더 큰 곳에서 더 많은 불확실성을 가져야 합니다. 이는 실제 함수가 취할 수 있는 가능한 값이 훨씬 더 많다는 것을 알려주기 때문입니다. 이러한 유형의 불확실성을 *인식적 불확실성(epistemic uncertainty)*이라고 하며, 이는 정보 부족과 관련된 *줄일 수 있는 불확실성*입니다. 더 많은 데이터를 획득함에 따라 관찰한 것과 일치하는 솔루션이 점점 줄어들 것이므로 이러한 유형의 불확실성은 사라집니다. 사후 평균과 마찬가지로 사후 분산(사후 분포에서 이러한 함수의 변동성)을 닫힌 형식으로 계산할 수 있습니다. 음영으로 평균의 양쪽에 사후 표준 편차의 두 배를 표시하여 모든 입력 $x$에 대해 함수의 실제 값을 포함할 확률이 95%인 *신용 구간(credible interval)*을 만듭니다.
 
-The plot looks somewhat cleaner if we remove the posterior samples, simply visualizing the data, posterior mean, and 95% credible set. Notice how the uncertainty grows away from the data, a property of epistemic uncertainty. 
+![95% 신용 집합을 포함한 사후 샘플.](../img/gp-posterior-samples-95.svg)
 
-![Point predictions, and credible set.](../img/gp-point-predictions.svg)
+사후 샘플을 제거하고 데이터, 사후 평균, 95% 신용 집합만 시각화하면 플롯이 좀 더 깔끔해 보입니다. 불확실성이 데이터에서 멀어질수록 어떻게 커지는지 주목하십시오. 이는 인식적 불확실성의 속성입니다.
 
-The properties of the Gaussian process that we used to fit the data are strongly controlled by what's called a _covariance function_, also known as a _kernel_. The covariance function we used is called the _RBF (Radial Basis Function) kernel_, which has the form
+![점 예측 및 신용 집합.](../img/gp-point-predictions.svg)
+
+데이터를 피팅하는 데 사용한 가우시안 프로세스의 속성은 *커널(kernel)*이라고도 하는 *공분산 함수*에 의해 강력하게 제어됩니다. 우리가 사용한 공분산 함수는 *RBF(Radial Basis Function) 커널*이라고 하며 다음과 같은 형태를 갖습니다.
 $$ k_{\textrm{RBF}}(x,x') = \textrm{Cov}(f(x),f(x')) = a^2 \exp\left(-\frac{1}{2\ell^2}||x-x'||^2\right) $$
 
-The _hyperparameters_ of this kernel are interpretable. The _amplitude_ parameter $a$ controls the vertical scale over which the function is varying, and the _length-scale_ parameter
-$\ell$
-controls the rate of variation (the wiggliness) of the function. Larger $a$ means larger function values, and larger 
-$\ell$ 
-means more slowly varying functions. Let's see what happens to our sample prior and posterior functions as we vary $a$ and 
-$\ell$. 
+이 커널의 *하이퍼파라미터*는 해석 가능합니다. *진폭(amplitude)* 파라미터 $a$는 함수가 변하는 수직 스케일을 제어하고, *길이 척도(length-scale)* 파라미터 $\ell$은 함수의 변화율(구불구불함)을 제어합니다. $a$가 클수록 함수 값이 커지고, $\ell$이 클수록 더 천천히 변하는 함수를 의미합니다. $a$와 $\ell$을 변경할 때 샘플 사전 및 사후 함수에 어떤 일이 발생하는지 봅시다.
 
-The _length-scale_ has a particularly pronounced effect on the predictions and uncertainty of a GP. At 
-$||x-x'|| = \ell$
-, the covariance between a pair of function values is $a^2\exp(-0.5)$. At larger distances than 
-$\ell$
-, the values of the function values becomes nearly uncorrelated. This means that if we want to make a prediction at a point $x_*$, then function values with inputs $x$ such that 
-$||x-x'||>\ell$
-will not have a strong effect on our predictions. 
+*길이 척도*는 GP의 예측과 불확실성에 특히 두드러진 영향을 미칩니다.
+$||x-x'|| = \ell$에서, 함수 값 쌍 간의 공분산은 $a^2\exp(-0.5)$입니다.
+$\ell$보다 먼 거리에서는 함수 값의 상관관계가 거의 없어집니다. 이는 $x_*$ 지점에서 예측을 하려는 경우 $||x-x'||>\ell$인 입력 $x$를 가진 함수 값은 예측에 큰 영향을 미치지 않음을 의미합니다.
 
-Let's see how changing the lengthscale affects sample prior and posterior functions, and credible sets. The above fits use a length-scale of $2$. Let's now consider 
-$\ell = 0.1, 0.5, 2, 5, 10$
-. A length-scale of $0.1$ is very small relative to the range of the input domain we are considering, $25$. For example, the values of the function at $x=5$ and $x=10$ will have essentially no correlation at such a length-scale. On the other hand, for a length-scale of $10$, the function values at these inputs will be highly correlated. Note that the vertical scale changes in the following figures.
+길이 척도를 변경하면 샘플 사전 및 사후 함수와 신용 집합에 어떤 영향을 미치는지 봅시다. 위의 피팅은 길이 척도 $2$를 사용합니다. 이제 $\ell = 0.1, 0.5, 2, 5, 10$을 고려해 봅시다. 길이 척도 $0.1$은 우리가 고려하는 입력 도메인 범위인 $25$에 비해 매우 작습니다. 예를 들어 $x=5$와 $x=10$에서의 함수 값은 그러한 길이 척도에서 본질적으로 상관관계가 없습니다. 반면, 길이 척도 $10$의 경우 이러한 입력에서의 함수 값은 높은 상관관계를 갖습니다. 다음 그림에서 수직 스케일이 변경됨에 유의하십시오.
 
 
 ![priorpoint1](../img/gp-priorpoint1.svg)
@@ -63,9 +57,9 @@ $\ell = 0.1, 0.5, 2, 5, 10$
 ![prior5](../img/gp-prior5.svg)
 ![post5](../img/gp-post5.svg)
 
-Notice as the length-scale increases the 'wiggliness' of the functions decrease, and our uncertainty decreases. If the length-scale is small, the uncertainty will quickly increase as we move away from the data, as the datapoints become less informative about the function values. 
+길이 척도가 증가함에 따라 함수의 '구불구불함'이 감소하고 불확실성이 감소하는 것을 알 수 있습니다. 길이 척도가 작으면 데이터 포인트가 함수 값에 대해 덜 유익해지기 때문에 데이터에서 멀어질수록 불확실성이 빠르게 증가합니다.
 
-Now, let's vary the amplitude parameter, holding the length-scale fixed at $2$. Note the vertical scale is held fixed for the prior samples, and varies for the posterior samples, so you can clearly see both the increasing scale of the function, and the fits to the data.
+이제 진폭 파라미터를 변경하고 길이 척도를 $2$로 고정해 봅시다. 수직 스케일은 사전 샘플에 대해 고정되어 있고 사후 샘플에 대해 변하므로 함수의 증가하는 스케일과 데이터에 대한 피팅을 명확하게 볼 수 있습니다.
 
 
 ![priorap1](../img/gp-priorap1.svg)
@@ -77,36 +71,28 @@ Now, let's vary the amplitude parameter, holding the length-scale fixed at $2$. 
 ![priora8](../img/gp-priora8.svg)
 ![posta8](../img/gp-posta8.svg)
 
-We see the amplitude parameter affects the scale of the function, but not the rate of variation. At this point, we also have the sense that the generalization performance of our procedure will depend on having reasonable values for these hyperparameters. Values of $\ell=2$ and $a=1$ appeared to provide reasonable fits, while some of the other values did not. Fortunately, there is a robust and automatic way to specify these hyperparameters, using what is called the _marginal likelihood_, which we will return to in the notebook on inference. 
+진폭 파라미터는 함수의 스케일에 영향을 미치지만 변화율에는 영향을 미치지 않음을 알 수 있습니다. 이 시점에서 우리는 또한 절차의 일반화 성능이 이러한 하이퍼파라미터에 대한 합리적인 값을 갖는 데 달려 있다는 느낌을 받습니다. $\ell=2$ 및 $a=1$의 값은 합리적인 피팅을 제공하는 것처럼 보였지만 다른 값 중 일부는 그렇지 않았습니다. 다행히도 *주변 우도(marginal likelihood)*라고 하는 것을 사용하여 이러한 하이퍼파라미터를 지정하는 강력하고 자동화된 방법이 있으며, 이는 추론에 대한 노트북에서 다시 다룰 것입니다.
 
-So what is a GP, really? As we started, a GP simply says that any collection of function values 
-$f(x_1),\dots,f(x_n)$, 
-indexed by any collection of inputs 
-$x_1,\dots,x_n$ 
-has a joint multivariate Gaussian distribution. The mean vector $\mu$ of this distribution is given by a _mean function_, which is typically taken to be a constant or zero. The covariance matrix of this distribution is given by the _kernel_ evaluated at all pairs of the inputs $x$. 
+그렇다면 GP란 실제로 무엇입니까? 시작하면서 말했듯이, GP는 단순히 입력 $x_1,\dots,x_n$에 의해 인덱싱된 함수 값 모음 $f(x_1),\dots,f(x_n)$이 결합 다변량 가우시안 분포를 갖는다고 말합니다. 이 분포의 평균 벡터 $\mu$는 일반적으로 상수 또는 0으로 간주되는 *평균 함수*에 의해 주어집니다. 이 분포의 공분산 행렬은 입력 $x$의 모든 쌍에서 평가된 *커널*에 의해 주어집니다.
 
 $$\begin{bmatrix}f(x) \\f(x_1) \\ \vdots \\ f(x_n) \end{bmatrix}\sim \mathcal{N}\left(\mu, \begin{bmatrix}k(x,x) & k(x, x_1) & \dots & k(x,x_n) \\ k(x_1,x) & k(x_1,x_1) & \dots & k(x_1,x_n) \\ \vdots & \vdots & \ddots & \vdots \\ k(x_n, x) & k(x_n, x_1) & \dots & k(x_n,x_n) \end{bmatrix}\right)$$
 :eqlabel:`eq_gp_prior`
 
-Equation :eqref:`eq_gp_prior` specifies a GP prior. We can compute the conditional distribution of $f(x)$ for any $x$ given $f(x_1), \dots, f(x_n)$, the function values we have observed. This conditional distribution is called the _posterior_, and it is what we use to make predictions.
+방정식 :eqref:`eq_gp_prior`는 GP 사전 분포를 지정합니다. 우리가 관찰한 함수 값인 $f(x_1), \dots, f(x_n)$이 주어졌을 때 임의의 $x$에 대한 $f(x)$의 조건부 분포를 계산할 수 있습니다. 이 조건부 분포를 *사후 분포(posterior)*라고 하며 예측에 사용하는 것입니다.
 
-In particular, 
+특히,
 
 $$f(x) | f(x_1), \dots, f(x_n) \sim \mathcal{N}(m,s^2)$$ 
 
-where
+여기서
 
 $$m = k(x,x_{1:n}) k(x_{1:n},x_{1:n})^{-1} f(x_{1:n})$$ 
 
 $$s^2 = k(x,x) - k(x,x_{1:n})k(x_{1:n},x_{1:n})^{-1}k(x,x_{1:n})$$ 
 
-where $k(x,x_{1:n})$ is a $1 \times n$ vector formed by evaluating $k(x,x_{i})$ for $i=1,\dots,n$ and $k(x_{1:n},x_{1:n})$ is an $n \times n$ matrix formed by evaluating $k(x_i,x_j)$ for $i,j = 1,\dots,n$. $m$ is what we can use as a point predictor for any $x$, and $s^2$ is what we use for uncertainty: if we want to create an interval with a 95% probability that $f(x)$ is in the interval, we would use $m \pm 2s$. The predictive means and uncertainties for all the above figures were created using these equations. The observed data points were given by 
-$f(x_1), \dots, f(x_n)$
-and chose a fine grained set of $x$ points to make predictions.
+여기서 $k(x,x_{1:n})$은 $i=1,\dots,n$에 대해 $k(x,x_{i})$를 평가하여 형성된 $1 \times n$ 벡터이고 $k(x_{1:n},x_{1:n})$은 $i,j = 1,\dots,n$에 대해 $k(x_i,x_j)$를 평가하여 형성된 $n \times n$ 행렬입니다. $m$은 임의의 $x$에 대해 점 예측기로 사용할 수 있는 것이고, $s^2$는 불확실성에 사용하는 것입니다. $f(x)$가 구간에 있을 확률이 95%인 구간을 만들려면 $m \pm 2s$를 사용합니다. 위의 모든 그림에 대한 예측 평균과 불확실성은 이 방정식을 사용하여 생성되었습니다. 관찰된 데이터 포인트는 $f(x_1), \dots, f(x_n)$으로 주어졌고 예측을 위해 세분화된 $x$ 포인트 세트를 선택했습니다.
 
-Let's suppose we observe a single datapoint, $f(x_1)$, and we want to determine the value of $f(x)$ at some $x$. Because $f(x)$ is described by a Gaussian process, we know the joint distribution over 
-$(f(x), f(x_1))$ 
-is Gaussian: 
+단일 데이터 포인트 $f(x_1)$을 관찰하고 어떤 $x$에서 $f(x)$의 값을 결정하고 싶다고 가정해 봅시다. $f(x)$가 가우시안 프로세스로 설명되므로 $(f(x), f(x_1))$에 대한 결합 분포가 가우시안임을 알 수 있습니다.
 
 $$
 \begin{bmatrix}
@@ -122,66 +108,51 @@ k(x_1,x) & k(x_1,x_1)
 \right)
 $$
 
-The off-diagonal expression $k(x,x_1) = k(x_1,x)$ 
-tells us how correlated the function values will be --- how strongly determined $f(x)$
-will be from $f(x_1)$. 
-We have seen already that if we use a large length-scale, relative to the distance between $x$ and $x_1$, 
-$||x-x_1||$, then the function values will be highly correlated. We can visualize the process of determining $f(x)$ from $f(x_1)$ both in the space of functions, and in the joint distribution over $f(x_1), f(x)$. Let's initially consider an $x$ such that $k(x,x_1) = 0.9$, and $k(x,x)=1$, meaning that the value of $f(x)$ is moderately correlated with the value of $f(x_1)$. In the joint distribution, the contours of constant probability will be relatively narrow ellipses.
+대각선이 아닌 표현식 $k(x,x_1) = k(x_1,x)$는 함수 값이 얼마나 상관관계가 있는지, 즉 $f(x_1)$에서 $f(x)$가 얼마나 강력하게 결정되는지 알려줍니다. $x$와 $x_1$ 사이의 거리 $||x-x_1||$에 비해 큰 길이 척도를 사용하면 함수 값이 높은 상관관계를 갖는다는 것을 이미 보았습니다. 함수 공간과 $f(x_1), f(x)$에 대한 결합 분포 모두에서 $f(x_1)$로부터 $f(x)$를 결정하는 과정을 시각화할 수 있습니다. 먼저 $k(x,x_1) = 0.9$이고 $k(x,x)=1$인 $x$를 고려해 봅시다. 이는 $f(x)$의 값이 $f(x_1)$의 값과 적당히 상관관계가 있음을 의미합니다. 결합 분포에서 등확률 등고선은 비교적 좁은 타원이 될 것입니다.
 
-Suppose we observe $f(x_1) = 1.2$. 
-To condition on this value of $f(x_1)$, 
-we can draw a horizontal line at $1.2$ on our plot of the density, and see that the value of $f(x)$ 
-is mostly constrained to $[0.64,1.52]$. We have also drawn this plot in function space, showing the observed
-point $f(x_1)$ in orange, and 1 standard deviation of the Gaussian process predictive distribution for $f(x)$ 
-in blue, about the mean value of $1.08$.
+$f(x_1) = 1.2$를 관찰한다고 가정해 봅시다.
+이 $f(x_1)$ 값에 대한 조건을 설정하기 위해, 밀도 플롯에서 $1.2$에 수평선을 그릴 수 있으며, $f(x)$의 값이 대부분 $[0.64,1.52]$로 제한됨을 볼 수 있습니다. 우리는 또한 이 플롯을 함수 공간에 그려서 관찰된 포인트 $f(x_1)$을 주황색으로, 평균 값 $1.08$에 대한 $f(x)$의 가우시안 프로세스 예측 분포의 1 표준 편차를 파란색으로 표시했습니다.
 
-![Contours of constant probability of a bivariate Gaussian density over $f(x_1)$ and $f(x)$ with $k(x,x_1) = 0.9$.](https://user-images.githubusercontent.com/6753639/206867364-b4707db5-0c2e-4ae4-a412-8292bca4d08d.svg)
-![Gaussian process predictive distribution in function space at $f(x)$, with $k(x,x_1) = 0.9$.](https://user-images.githubusercontent.com/6753639/206867367-3815720c-93c8-4b4b-80e7-296db1d3553b.svg)
+![k(x,x_1) = 0.9인 f(x_1)과 f(x)에 대한 이변량 가우시안 밀도의 등확률 등고선.](https://user-images.githubusercontent.com/6753639/206867364-b4707db5-0c2e-4ae4-a412-8292bca4d08d.svg)
+![k(x,x_1) = 0.9인 f(x)에서의 가우시안 프로세스 예측 분포(함수 공간).](https://user-images.githubusercontent.com/6753639/206867367-3815720c-93c8-4b4b-80e7-296db1d3553b.svg)
 
-Now suppose we have a stronger correlation, $k(x,x_1) = 0.95$. 
-Now the ellipses have narrowed further, and the value of $f(x)$ 
-is even more strongly determined by $f(x_1)$. Drawing a horizontal line at $1.2$, we see the contours for $f(x)$
-support values mostly within $[0.83, 1.45]$. Again, we also show the plot in function space, with one standard 
-deviation about the mean predictive value of $1.14$.
+이제 더 강한 상관관계 $k(x,x_1) = 0.95$가 있다고 가정해 봅시다.
+이제 타원이 더 좁아졌고 $f(x)$의 값은 $f(x_1)$에 의해 더 강력하게 결정됩니다. $1.2$에 수평선을 그리면 $f(x)$의 등고선이 대부분 $[0.83, 1.45]$ 내의 값을 지원함을 알 수 있습니다. 다시 함수 공간에 플롯을 표시하며, 평균 예측 값 $1.14$에 대한 1 표준 편차를 보여줍니다.
 
-![Contours of constant probability of a bivariate Gaussian density over $f(x_1)$ and $f(x)$ with $k(x,x_1) = 0.95$.](https://user-images.githubusercontent.com/6753639/206867797-20e42783-31de-4c50-8103-e9441ba6d0a9.svg)
-![Gaussian process predictive distribution in function space at $f(x)$, with $k(x,x_1)$ = 0.95.](https://user-images.githubusercontent.com/6753639/206867800-d9fc7add-649d-492c-8848-cab07c8fb83e.svg)
+![k(x,x_1) = 0.95인 f(x_1)과 f(x)에 대한 이변량 가우시안 밀도의 등확률 등고선.](https://user-images.githubusercontent.com/6753639/206867797-20e42783-31de-4c50-8103-e9441ba6d0a9.svg)
+![k(x,x_1) = 0.95인 f(x)에서의 가우시안 프로세스 예측 분포(함수 공간).](https://user-images.githubusercontent.com/6753639/206867800-d9fc7add-649d-492c-8848-cab07c8fb83e.svg)
 
-We see that the posterior mean predictor of our Gaussian process is closer to $1.2$, because there is now a stronger correlation. We also see that our uncertainty (the error bars) have somewhat decreased. Despite the strong correlation between these function values, our uncertainty is still righly quite large, because we have only observed a single data point! 
+이제 상관관계가 더 강하기 때문에 가우시안 프로세스의 사후 평균 예측자가 $1.2$에 더 가깝다는 것을 알 수 있습니다. 또한 불확실성(오차 막대)이 다소 감소했음을 알 수 있습니다. 이러한 함수 값 간의 강한 상관관계에도 불구하고 단일 데이터 포인트만 관찰했기 때문에 불확실성은 여전히 꽤 큽니다!
 
-This procedure can give us a posterior on $f(x)$ for any $x$, for any number of points we have observed. Suppose we observe $f(x_1), f(x_2)$. We now visualize the posterior for $f(x)$ at a particular $x=x'$ in function space. The exact distribution for $f(x)$ is given by the above equations. $f(x)$ is Gaussian distributed, with mean 
+이 절차는 우리가 관찰한 포인트 수에 관계없이 모든 $x$에 대해 $f(x)$에 대한 사후 분포를 제공할 수 있습니다. $f(x_1), f(x_2)$를 관찰한다고 가정해 봅시다. 이제 함수 공간에서 특정 $x=x'$에 대한 $f(x)$의 사후 분포를 시각화합니다. $f(x)$에 대한 정확한 분포는 위 방정식에 의해 주어집니다. $f(x)$는 가우시안 분포이며, 평균은
 
 $$m = k(x,x_{1:3}) k(x_{1:3},x_{1:3})^{-1} f(x_{1:3})$$
 
-and variance 
+분산은
 
 $$s^2 = k(x,x) - k(x,x_{1:3})k(x_{1:3},x_{1:3})^{-1}k(x,x_{1:3})$$
 
-In this introductory notebook, we have been considering _noise free_ observations. As we will see, it is easy to include observation noise. If we assume that the data are generated from a latent noise free function $f(x)$ plus iid Gaussian noise 
-$\epsilon(x) \sim \mathcal{N}(0,\sigma^2)$
-with variance $\sigma^2$, then our covariance function simply becomes 
-$k(x_i,x_j) \to k(x_i,x_j) + \delta_{ij}\sigma^2$,
-where $\delta_{ij} = 1$ if $i=j$ and $0$ otherwise.
+이 소개 노트북에서는 *노이즈 없는* 관찰을 고려했습니다. 보게 되겠지만 관찰 노이즈를 포함하는 것은 쉽습니다. 데이터가 잠재적인 노이즈 없는 함수 $f(x)$에 분산 $\sigma^2$을 갖는 iid 가우시안 노이즈 $\epsilon(x) \sim \mathcal{N}(0,\sigma^2)$를 더한 것으로 생성된다고 가정하면, 공분산 함수는 단순히 $k(x_i,x_j) \to k(x_i,x_j) + \delta_{ij}\sigma^2$가 됩니다. 여기서 $\delta_{ij}$는 $i=j$이면 1이고 그렇지 않으면 0입니다.
 
-We have already started getting some intuition about how we can use a Gaussian process to specify a prior and posterior over solutions, and how the kernel function affects the properties of these solutions. In the following notebooks, we will precisely show how to specify a Gaussian process prior, introduce and derive various kernel functions, and then go through the mechanics of how to automatically learn kernel hyperparameters, and form a Gaussian process posterior to make predictions. While it takes time and practice to get used to concepts such as a "distributions over functions", the actual mechanics of finding the GP predictive equations is actually quite simple --- making it easy to get practice to form an intuitive understanding of these concepts.
+우리는 가우시안 프로세스를 사용하여 솔루션에 대한 사전 및 사후 분포를 지정하는 방법과 커널 함수가 이러한 솔루션의 속성에 미치는 영향에 대한 직관을 얻기 시작했습니다. 다음 노트북에서는 가우시안 프로세스 사전 분포를 지정하는 방법을 정확하게 보여주고, 다양한 커널 함수를 소개 및 유도한 다음, 커널 하이퍼파라미터를 자동으로 학습하고 예측을 위해 가우시안 프로세스 사후 분포를 형성하는 메커니즘을 살펴볼 것입니다. "함수에 대한 분포"와 같은 개념에 익숙해지는 데는 시간과 연습이 필요하지만, GP 예측 방정식을 찾는 실제 메커니즘은 실제로 매우 간단하여 이러한 개념에 대한 직관적인 이해를 형성하기 위해 연습하기 쉽습니다.
 
-## Summary
+## 요약 (Summary)
 
-In typical machine learning, we specify a function with some free parameters (such as a neural network and its weights), and we focus on estimating those parameters, which may not be interpretable. With a Gaussian process, we instead reason about distributions over functions directly, which enables us to reason about the high-level properties of the solutions. These properties are controlled by a covariance function (kernel), which often has a few highly interpretable hyperparameters. These hyperparameters include the _length-scale_, which controls how rapidly (how wiggily) the functions are. Another hyperparameter is the amplitude, which controls the vertical scale over which our functions are varying. 
-Representing many different functions that can fit the data, and combining them all together into a predictive distribution, is a distinctive feature of Bayesian methods. Because there is a greater amount of variability between possible solutions far away from the data, our uncertainty intuitively grows as we move from the data. 
+일반적인 머신러닝에서는 일부 자유 파라미터(신경망 및 가중치 등)를 사용하여 함수를 지정하고 해석 가능하지 않을 수 있는 이러한 파라미터를 추정하는 데 중점을 둡니다. 가우시안 프로세스를 사용하면 대신 함수에 대한 분포를 직접 추론하여 솔루션의 고수준 속성을 추론할 수 있습니다. 이러한 속성은 종종 몇 가지 고도로 해석 가능한 하이퍼파라미터를 갖는 공분산 함수(커널)에 의해 제어됩니다. 이러한 하이퍼파라미터에는 함수가 얼마나 빠르게(얼마나 구불구불하게) 변하는지 제어하는 *길이 척도*가 포함됩니다. 또 다른 하이퍼파라미터는 함수가 변하는 수직 스케일을 제어하는 진폭입니다.
+데이터에 적합할 수 있는 많은 다른 함수를 나타내고 이를 모두 예측 분포로 결합하는 것은 베이지안 방법의 독특한 특징입니다. 데이터에서 멀리 떨어진 가능한 솔루션 간에 더 많은 변동성이 있기 때문에 불확실성은 직관적으로 데이터에서 멀어질수록 커집니다.
 
 
-A Gaussian process represents a distribution over functions by specifying a multivariate normal (Gaussian) distribution over all possible function values. It is possible to easily manipulate Gaussian distributions to find the distribution of one function value based on the values of any set of other values. In other words, if we observe a set of points, then we can condition on these points and infer a distribution over what the value of the function might look like at any other input. How we model the correlations between these points is determined by the covariance function and is what defines the generalization properties of the Gaussian process. While it takes time to get used to Gaussian processes, they are easy to work with, have many applications, and help us understand and develop other model classes, like neural networks.
+가우시안 프로세스는 가능한 모든 함수 값에 대해 다변량 정규(가우시안) 분포를 지정하여 함수에 대한 분포를 나타냅니다. 가우시안 분포를 쉽게 조작하여 다른 값들의 집합 값을 기반으로 한 함수 값의 분포를 찾을 수 있습니다. 즉, 포인트 세트를 관찰하면 이러한 포인트에 대한 조건을 설정하고 다른 입력에서 함수 값이 어떤 모습일지에 대한 분포를 추론할 수 있습니다. 이러한 포인트 간의 상관관계를 모델링하는 방법은 공분산 함수에 의해 결정되며 가우시안 프로세스의 일반화 속성을 정의하는 것입니다. 가우시안 프로세스에 익숙해지는 데는 시간이 걸리지만 작업하기 쉽고 많은 응용 분야가 있으며 신경망과 같은 다른 모델 클래스를 이해하고 개발하는 데 도움이 됩니다.
 
-## Exercises
+## 연습 문제 (Exercises)
 
-1. What is the difference between epistemic uncertainty versus observation uncertainty?
-2. Besides rate of variation and amplitude, what other properties of functions might we want to consider, and what would be real-world examples of functions that have those properties?
-3. The RBF covariance function we considered says that covariances (and correlations) between observations decrease with their distance in the input space (times, spatial locations, etc.). Is this a reasonable assumption? Why or why not?
-4. Is a sum of two Gaussian variables Gaussian? Is a product of two Gaussian variables Gaussian? If (a,b) have a joint Gaussian distribution, is a|b (a given b) Gaussian? Is a Gaussian?
-5. Repeat the exercise where we observe a data point at $f(x_1) = 1.2$, but now suppose we additionally observe $f(x_2) = 1.4$. Let $k(x,x_1) = 0.9$, and $k(x,x_2) = 0.8$. Will we be more or less certain about the value of $f(x)$, than when we had only observed $f(x_1)$? What is the mean and 95\% credible set for our value of $f(x)$ now? 
-6. Do you think increasing our estimate of observation noise would increase or decrease our estimate of the length-scale of the ground truth function?
-7. As we move away from the data, suppose the uncertainty in our predictive distribution increases to a point, then stops increasing. Why might that happen?
+1. 인식적 불확실성과 관찰 불확실성의 차이점은 무엇입니까?
+2. 변화율과 진폭 외에 함수의 어떤 다른 속성을 고려하고 싶을 수 있으며, 그러한 속성을 가진 함수의 실제 예는 무엇입니까?
+3. 우리가 고려한 RBF 공분산 함수는 관찰 간의 공분산(및 상관관계)이 입력 공간(시간, 공간 위치 등)에서의 거리에 따라 감소한다고 말합니다. 이것이 합리적인 가정입니까? 그 이유는 무엇입니까?
+4. 두 가우시안 변수의 합은 가우시안입니까? 두 가우시안 변수의 곱은 가우시안입니까? (a,b)가 결합 가우시안 분포를 갖는 경우, a|b (b가 주어졌을 때 a)는 가우시안입니까? 가우시안입니까?
+5. $f(x_1) = 1.2$에서 데이터 포인트를 관찰하는 연습을 반복하되, 이제 추가로 $f(x_2) = 1.4$를 관찰한다고 가정해 봅시다. $k(x,x_1) = 0.9$ 및 $k(x,x_2) = 0.8$이라고 합시다. $f(x_1)$만 관찰했을 때보다 $f(x)$의 값에 대해 더 확신하게 됩니까, 덜 확신하게 됩니까? 지금 $f(x)$ 값에 대한 평균과 95% 신용 집합은 무엇입니까?
+6. 관찰 노이즈 추정치를 늘리면 실제 함수의 길이 척도 추정치가 증가할 것이라고 생각하십니까, 아니면 감소할 것이라고 생각하십니까?
+7. 데이터에서 멀어짐에 따라 예측 분포의 불확실성이 어느 지점까지 증가했다가 증가를 멈춘다고 가정해 봅시다. 왜 그런 일이 발생할 수 있습니까?
 
 :begin_tab:`pytorch`
 [Discussions](https://discuss.d2l.ai/t/12115)

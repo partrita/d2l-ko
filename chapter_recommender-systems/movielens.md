@@ -1,14 +1,14 @@
-#  The MovieLens Dataset
+#  MovieLens 데이터셋 (The MovieLens Dataset)
 
-There are a number of datasets that are available for recommendation research. Amongst them, the [MovieLens](https://movielens.org/) dataset is probably one of the more popular ones. MovieLens is a non-commercial web-based movie recommender system. It is created in 1997 and run by GroupLens, a research lab at the University of Minnesota, in order to gather movie rating data for research purposes.  MovieLens data has been critical for several research studies including personalized recommendation and social psychology.
-
-
-## Getting the Data
+추천 연구에 사용할 수 있는 데이터셋은 많이 있습니다. 그중에서도 [MovieLens](https://movielens.org/) 데이터셋은 아마도 가장 인기 있는 데이터셋 중 하나일 것입니다. MovieLens는 비상업적 웹 기반 영화 추천 시스템입니다. 1997년에 만들어졌으며 연구 목적으로 영화 평점 데이터를 수집하기 위해 미네소타 대학교의 연구실인 GroupLens에서 운영합니다. MovieLens 데이터는 개인화된 추천 및 사회 심리학을 포함한 여러 연구 연구에 매우 중요했습니다.
 
 
-The MovieLens dataset is hosted by the [GroupLens](https://grouplens.org/datasets/movielens/) website. Several versions are available. We will use the MovieLens 100K dataset :cite:`Herlocker.Konstan.Borchers.ea.1999`.  This dataset is comprised of $100,000$ ratings, ranging from 1 to 5 stars, from 943 users on 1682 movies. It has been cleaned up so that each user has rated at least 20 movies. Some simple demographic information such as age, gender, genres for the users and items are also available.  We can download the [ml-100k.zip](http://files.grouplens.org/datasets/movielens/ml-100k.zip) and extract the `u.data` file, which contains all the $100,000$ ratings in the csv format. There are many other files in the folder, a detailed description for each file can be found in the [README](http://files.grouplens.org/datasets/movielens/ml-100k-README.txt) file of the dataset.
+## 데이터 얻기 (Getting the Data) 
 
-To begin with, let's import the packages required to run this section's experiments.
+
+MovieLens 데이터셋은 [GroupLens](https://grouplens.org/datasets/movielens/) 웹사이트에서 호스팅됩니다. 여러 버전을 사용할 수 있습니다. 우리는 MovieLens 100K 데이터셋을 사용할 것입니다 :cite:`Herlocker.Konstan.Borchers.ea.1999`. 이 데이터셋은 1682개의 영화에 대해 943명의 사용자로부터 받은 1에서 5까지의 별점으로 구성된 100,000개의 평점으로 이루어져 있습니다. 각 사용자가 적어도 20개의 영화를 평가하도록 정리되었습니다. 사용자와 항목에 대한 나이, 성별, 장르와 같은 간단한 인구 통계 정보도 사용할 수 있습니다. [ml-100k.zip](http://files.grouplens.org/datasets/movielens/ml-100k.zip)을 다운로드하고 csv 형식의 100,000개 평점을 모두 포함하는 `u.data` 파일을 추출할 수 있습니다. 폴더에는 다른 많은 파일이 있으며, 각 파일에 대한 자세한 설명은 데이터셋의 [README](http://files.grouplens.org/datasets/movielens/ml-100k-README.txt) 파일에서 찾을 수 있습니다.
+
+우선, 이 섹션의 실험을 실행하는 데 필요한 패키지를 가져옵니다.
 
 ```{.python .input  n=1}
 #@tab mxnet
@@ -18,7 +18,7 @@ import os
 import pandas as pd
 ```
 
-Then, we download the MovieLens 100k dataset and load the interactions as `DataFrame`.
+그런 다음 MovieLens 100k 데이터셋을 다운로드하고 상호 작용을 `DataFrame`으로 로드합니다.
 
 ```{.python .input  n=2}
 #@tab mxnet
@@ -38,9 +38,9 @@ def read_data_ml100k():
     return data, num_users, num_items
 ```
 
-## Statistics of the Dataset
+## 데이터셋 통계 (Statistics of the Dataset)
 
-Let's load up the data and inspect the first five records manually. It is an effective way to learn the data structure and verify that they have been loaded properly.
+데이터를 로드하고 처음 5개 레코드를 수동으로 검사해 보겠습니다. 데이터 구조를 배우고 제대로 로드되었는지 확인하는 효과적인 방법입니다.
 
 ```{.python .input  n=3}
 #@tab mxnet
@@ -51,9 +51,9 @@ print(f'matrix sparsity: {sparsity:f}')
 print(data.head(5))
 ```
 
-We can see that each line consists of four columns, including "user id" 1-943, "item id" 1-1682, "rating" 1-5 and "timestamp". We can construct an interaction matrix of size $n \times m$, where $n$ and $m$ are the number of users and the number of items respectively. This dataset only records the existing ratings, so we can also call it rating matrix and we will use interaction matrix and rating matrix interchangeably in case that the values of this matrix represent exact ratings. Most of the values in the rating matrix are unknown as users have not rated the majority of movies. We also show the sparsity of this dataset. The sparsity is defined as `1 - number of nonzero entries / ( number of users * number of items)`. Clearly, the interaction matrix is extremely sparse (i.e., sparsity = 93.695%). Real world datasets may suffer from a greater extent of sparsity and has been a long-standing challenge in building recommender systems. A viable solution is to use additional side information such as user/item features to alleviate the sparsity.
+각 줄은 "user id" 1-943, "item id" 1-1682, "rating" 1-5 및 "timestamp"를 포함한 4개의 열로 구성되어 있음을 알 수 있습니다. $n 	imes m$ 크기의 상호 작용 행렬을 구성할 수 있습니다. 여기서 $n$과 $m$은 각각 사용자와 항목의 수입니다. 이 데이터셋은 기존 평점만 기록하므로 평점 행렬이라고도 할 수 있으며, 이 행렬의 값이 정확한 평점을 나타내는 경우 상호 작용 행렬과 평점 행렬을 혼용해서 사용할 것입니다. 사용자가 대다수의 영화를 평가하지 않았기 때문에 평점 행렬의 대부분의 값은 알 수 없습니다. 또한 이 데이터셋의 희소성을 보여줍니다. 희소성은 `1 - 0이 아닌 항목 수 / (사용자 수 * 항목 수)`로 정의됩니다. 분명히 상호 작용 행렬은 매우 희소합니다(즉, 희소성 = 93.695%). 실제 데이터셋은 더 큰 범위의 희소성을 겪을 수 있으며 이는 추천 시스템을 구축하는 데 있어 오랜 과제였습니다. 실행 가능한 솔루션은 희소성을 완화하기 위해 사용자/항목 특성과 같은 추가 부가 정보를 사용하는 것입니다.
 
-We then plot the distribution of the count of different ratings. As expected, it appears to be a normal distribution, with most ratings centered at 3-4.
+그런 다음 서로 다른 평점 수의 분포를 그립니다. 예상대로 대부분의 평점이 3-4에 집중된 정규 분포로 보입니다.
 
 ```{.python .input  n=4}
 #@tab mxnet
@@ -64,16 +64,16 @@ d2l.plt.title('Distribution of Ratings in MovieLens 100K')
 d2l.plt.show()
 ```
 
-## Splitting the dataset
+## 데이터셋 분할 (Splitting the dataset)
 
-We split the dataset into training and test sets. The following function provides two split modes including `random` and `seq-aware`. In the `random` mode, the function splits the 100k interactions randomly without considering timestamp and uses the 90% of the data as training samples and the rest 10% as test samples by default. In the `seq-aware` mode, we leave out the item that a user rated most recently for test, and users' historical interactions as training set.  User historical interactions are sorted from oldest to newest based on timestamp. This mode will be used in the sequence-aware recommendation section.
+데이터셋을 훈련 세트와 테스트 세트로 분할합니다. 다음 함수는 `random` 및 `seq-aware`를 포함한 두 가지 분할 모드를 제공합니다. `random` 모드에서 함수는 타임스탬프를 고려하지 않고 100k 상호 작용을 무작위로 분할하고 기본적으로 데이터의 90%를 훈련 샘플로 사용하고 나머지 10%를 테스트 샘플로 사용합니다. `seq-aware` 모드에서는 사용자가 가장 최근에 평가한 항목을 테스트용으로 남겨두고 사용자의 과거 상호 작용을 훈련 세트로 사용합니다. 사용자 과거 상호 작용은 타임스탬프를 기준으로 오래된 것부터 최신 순으로 정렬됩니다. 이 모드는 시퀀스 인식 추천 섹션에서 사용됩니다.
 
 ```{.python .input  n=5}
 #@tab mxnet
 #@save
 def split_data_ml100k(data, num_users, num_items,
                       split_mode='random', test_ratio=0.1):
-    """Split the dataset in random mode or seq-aware mode."""
+    """데이터셋을 무작위 모드 또는 시퀀스 인식 모드로 분할합니다."""
     if split_mode == 'seq-aware':
         train_items, test_items, train_list = {}, {}, []
         for line in data.itertuples():
@@ -95,11 +95,11 @@ def split_data_ml100k(data, num_users, num_items,
     return train_data, test_data
 ```
 
-Note that it is good practice to use a validation set in practice, apart from only a test set. However, we omit that for the sake of brevity. In this case, our test set can be regarded as our held-out validation set.
+테스트 세트 외에도 검증 세트를 사용하는 것이 실제로는 좋은 관행이라는 점에 유의하십시오. 그러나 간결함을 위해 생략합니다. 이 경우 테스트 세트는 보류된 검증 세트로 간주될 수 있습니다.
 
-## Loading the data
+## 데이터 로드 (Loading the data)
 
-After dataset splitting, we will convert the training set and test set into lists and dictionaries/matrix for the sake of convenience. The following function reads the dataframe line by line and enumerates the index of users/items start from zero. The function then returns lists of users, items, ratings and a dictionary/matrix that records the interactions. We can specify the type of feedback to either `explicit` or `implicit`.
+데이터셋 분할 후 편의를 위해 훈련 세트와 테스트 세트를 리스트와 딕셔너리/행렬로 변환합니다. 다음 함수는 데이터프레임을 한 줄씩 읽고 사용자/항목의 인덱스를 0부터 열거합니다. 그런 다음 함수는 사용자, 항목, 평점 리스트와 상호 작용을 기록하는 딕셔너리/행렬을 반환합니다. 피드백 유형을 `explicit` 또는 `implicit`으로 지정할 수 있습니다.
 
 ```{.python .input  n=6}
 #@tab mxnet
@@ -120,7 +120,7 @@ def load_data_ml100k(data, num_users, num_items, feedback='explicit'):
     return users, items, scores, inter
 ```
 
-Afterwards, we put the above steps together and it will be used in the next section. The results are wrapped with `Dataset` and `DataLoader`. Note that the `last_batch` of `DataLoader` for training data is set to the `rollover` mode (The remaining samples are rolled over to the next epoch.) and orders are shuffled.
+그 후 위의 단계들을 합치면 다음 섹션에서 사용될 것입니다. 결과는 `Dataset` 및 `DataLoader`로 래핑됩니다. 훈련 데이터에 대한 `DataLoader`의 `last_batch`는 `rollover` 모드(나머지 샘플은 다음 에포크로 롤오버됨)로 설정되고 순서는 섞입니다.
 
 ```{.python .input  n=7}
 #@tab mxnet
@@ -146,16 +146,16 @@ def split_and_load_ml100k(split_mode='seq-aware', feedback='explicit',
     return num_users, num_items, train_iter, test_iter
 ```
 
-## Summary
+## 요약 (Summary)
 
-* MovieLens datasets are widely used for recommendation research. It is public available and free to use.
-* We define functions to download and preprocess the MovieLens 100k dataset for further use in later sections.
+* MovieLens 데이터셋은 추천 연구에 널리 사용됩니다. 공개적으로 사용 가능하며 무료로 사용할 수 있습니다.
+* 이후 섹션에서 추가로 사용할 수 있도록 MovieLens 100k 데이터셋을 다운로드하고 전처리하는 함수를 정의합니다.
 
 
-## Exercises
+## 연습 문제 (Exercises)
 
-* What other similar recommendation datasets can you find?
-* Go through the [https://movielens.org/](https://movielens.org/) site for more information about MovieLens.
+* 찾을 수 있는 다른 유사한 추천 데이터셋은 무엇입니까?
+* MovieLens에 대한 자세한 내용은 [https://movielens.org/](https://movielens.org/) 사이트를 살펴보십시오.
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/399)

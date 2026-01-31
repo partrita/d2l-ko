@@ -3,29 +3,12 @@
 tab.interact_select('mxnet', 'pytorch', 'tensorflow', 'jax')
 ```
 
-# The Transformer Architecture
+# 트랜스포머 아키텍처 (The Transformer Architecture)
 :label:`sec_transformer`
 
+우리는 :numref:`subsec_cnn-rnn-self-attention`에서 CNN, RNN, 셀프 어텐션을 비교했습니다. 특히 셀프 어텐션은 병렬 계산과 가장 짧은 최대 경로 길이(maximum path length)라는 장점을 모두 가지고 있습니다. 따라서 셀프 어텐션을 사용하여 깊은 아키텍처를 설계하는 것은 매우 매력적입니다.
 
-We have compared CNNs, RNNs, and self-attention in
-:numref:`subsec_cnn-rnn-self-attention`.
-Notably, self-attention
-enjoys both parallel computation and
-the shortest maximum path length.
-Therefore,
-it is appealing to design deep architectures
-by using self-attention.
-Unlike earlier self-attention models
-that still rely on RNNs for input representations :cite:`Cheng.Dong.Lapata.2016,Lin.Feng.Santos.ea.2017,Paulus.Xiong.Socher.2017`,
-the Transformer model
-is solely based on attention mechanisms
-without any convolutional or recurrent layer :cite:`Vaswani.Shazeer.Parmar.ea.2017`.
-Though originally proposed
-for sequence-to-sequence learning on text data,
-Transformers have been
-pervasive in a wide range of
-modern deep learning applications,
-such as in areas to do with language, vision, speech, and reinforcement learning.
+입력 표현을 위해 여전히 RNN에 의존했던 초기 셀프 어텐션 모델(:cite:`Cheng.Dong.Lapata.2016,Lin.Feng.Santos.ea.2017,Paulus.Xiong.Socher.2017`)과 달리, 트랜스포머(Transformer) 모델은 합성곱이나 순환 레이어 없이 오로지 어텐션 메커니즘에만 기반합니다(:cite:`Vaswani.Shazeer.Parmar.ea.2017`). 원래는 텍스트 데이터의 시퀀스 투 시퀀스(sequence-to-sequence) 학습을 위해 제안되었지만, 트랜스포머는 언어, 비전, 음성, 강화 학습 등 현대 딥러닝 응용 분야 전반에 걸쳐 널리 사용되고 있습니다.
 
 ```{.python .input}
 %%tab mxnet
@@ -64,106 +47,30 @@ import math
 import pandas as pd
 ```
 
-## Model
+## 모델 (Model)
 
-As an instance of the encoder--decoder
-architecture,
-the overall architecture of
-the Transformer
-is presented in :numref:`fig_transformer`.
-As we can see,
-the Transformer is composed of an encoder and a decoder.
-In contrast to
-Bahdanau attention
-for sequence-to-sequence learning
-in :numref:`fig_s2s_attention_details`,
-the input (source) and output (target)
-sequence embeddings
-are added with positional encoding
-before being fed into
-the encoder and the decoder
-that stack modules based on self-attention.
+인코더-디코더 아키텍처의 한 사례로서, 트랜스포머의 전체 아키텍처는 :numref:`fig_transformer`에 나와 있습니다. 보시는 바와 같이 트랜스포머는 인코더와 디코더로 구성됩니다. :numref:`fig_s2s_attention_details`의 시퀀스 투 시퀀스 학습을 위한 바다나우(Bahdanau) 어텐션과 대조적으로, 입력(소스) 및 출력(타겟) 시퀀스 임베딩은 셀프 어텐션 기반의 모듈을 쌓아 올린 인코더와 디코더에 공급되기 전에 포지셔널 인코딩(positional encoding)과 더해집니다.
 
-![The Transformer architecture.](../img/transformer.svg)
+![트랜스포머 아키텍처.](../img/transformer.svg)
 :width:`320px`
-:label:`fig_transformer`
+:label:`fig_transformer` 
+
+이제 :numref:`fig_transformer`에 있는 트랜스포머 아키텍처의 개요를 제공합니다. 높은 수준에서 볼 때, 트랜스포머 인코더는 여러 개의 동일한 레이어가 쌓인 형태이며, 각 레이어에는 두 개의 서브레이어($\textrm{sublayer}$라고 함)가 있습니다. 첫 번째는 멀티 헤드 셀프 어텐션 풀링이고, 두 번째는 포지션 와이즈(positionwise) 피드포워드 네트워크입니다. 구체적으로 인코더 셀프 어텐션에서 쿼리, 키, 값은 모두 이전 인코더 레이어의 출력에서 옵니다. :numref:`sec_resnet`의 ResNet 설계에서 영감을 받아, 두 서브레이어 주위에는 잔차 연결(residual connection)이 사용됩니다. 트랜스포머에서는 시퀀스의 모든 위치에 있는 임의의 입력 $\mathbf{x} \in \mathbb{R}^d$에 대해 $\textrm{sublayer}(\mathbf{x}) \in \mathbb{R}^d$여야 잔차 연결 $\mathbf{x} + \textrm{sublayer}(\mathbf{x}) \in \mathbb{R}^d$가 가능합니다. 잔차 연결을 통한 이 덧셈 직후에는 레이어 정규화(layer normalization)가 수행됩니다(:cite:`Ba.Kiros.Hinton.2016`). 결과적으로 트랜스포머 인코더는 입력 시퀀스의 각 위치에 대해 $d$차원 벡터 표현을 출력합니다.
+
+트랜스포머 디코더 또한 잔차 연결과 레이어 정규화가 포함된 여러 개의 동일한 레이어 스택입니다. 인코더에서 설명한 두 서브레이어 외에도, 디코더는 이 두 레이어 사이에 인코더-디코더 어텐션이라고 알려진 세 번째 서브레이어를 삽입합니다. 인코더-디코더 어텐션에서 쿼리는 디코더의 셀프 어텐션 서브레이어 출력에서 오고, 키와 값은 트랜스포머 인코더의 출력에서 옵니다. 디코더 셀프 어텐션에서 쿼리, 키, 값은 모두 이전 디코더 레이어의 출력에서 옵니다. 그러나 디코더의 각 위치는 해당 위치까지의 디코더 내 모든 위치에만 어텐션을 수행할 수 있습니다. 이 *마스크된(masked)* 어텐션은 자기 회귀(autoregressive) 속성을 유지하여, 예측이 이미 생성된 출력 토큰에만 의존하도록 보장합니다.
+
+우리는 이미 :numref:`sec_multihead-attention`에서 스케일드 닷 프로덕트(scaled dot product) 기반의 멀티 헤드 어텐션을, :numref:`subsec_positional-encoding`에서 포지셔널 인코딩을 설명하고 구현했습니다. 다음에서는 트랜스포머 모델의 나머지 부분을 구현할 것입니다.
 
 
-Now we provide an overview of the
-Transformer architecture in :numref:`fig_transformer`.
-At a high level,
-the Transformer encoder is a stack of multiple identical layers,
-where each layer
-has two sublayers (either is denoted as $\textrm{sublayer}$).
-The first
-is a multi-head self-attention pooling
-and the second is a positionwise feed-forward network.
-Specifically,
-in the encoder self-attention,
-queries, keys, and values are all from the
-outputs of the previous encoder layer.
-Inspired by the ResNet design of :numref:`sec_resnet`,
-a residual connection is employed
-around both sublayers.
-In the Transformer,
-for any input $\mathbf{x} \in \mathbb{R}^d$ at any position of the sequence,
-we require that $\textrm{sublayer}(\mathbf{x}) \in \mathbb{R}^d$ so that
-the residual connection $\mathbf{x} + \textrm{sublayer}(\mathbf{x}) \in \mathbb{R}^d$ is feasible.
-This addition from the residual connection is immediately
-followed by layer normalization :cite:`Ba.Kiros.Hinton.2016`.
-As a result, the Transformer encoder outputs a $d$-dimensional vector representation
-for each position of the input sequence.
-
-The Transformer decoder is also a stack of multiple identical layers
-with residual connections and layer normalizations.
-As well as the two sublayers described in
-the encoder, the decoder inserts
-a third sublayer, known as
-the encoder--decoder attention,
-between these two.
-In the encoder--decoder attention,
-queries are from the
-outputs of the decoder's self-attention sublayer,
-and the keys and values are
-from the Transformer encoder outputs.
-In the decoder self-attention,
-queries, keys, and values are all from the
-outputs of the previous decoder layer.
-However, each position in the decoder is
-allowed only to attend to all positions in the decoder
-up to that position.
-This *masked* attention
-preserves the autoregressive property,
-ensuring that the prediction only depends
-on those output tokens that have been generated.
-
-
-We have already described and implemented
-multi-head attention based on scaled dot products
-in :numref:`sec_multihead-attention`
-and positional encoding in :numref:`subsec_positional-encoding`.
-In the following, we will implement
-the rest of the Transformer model.
-
-## [**Positionwise Feed-Forward Networks**]
+## 포지션 와이즈 피드포워드 네트워크 (Positionwise Feed-Forward Networks)
 :label:`subsec_positionwise-ffn`
 
-The positionwise feed-forward network transforms
-the representation at all the sequence positions
-using the same MLP.
-This is why we call it *positionwise*.
-In the implementation below,
-the input `X` with shape
-(batch size, number of time steps or sequence length in tokens,
-number of hidden units or feature dimension)
-will be transformed by a two-layer MLP into
-an output tensor of shape
-(batch size, number of time steps, `ffn_num_outputs`).
+포지션 와이즈 피드포워드 네트워크는 동일한 MLP를 사용하여 모든 시퀀스 위치에서의 표현을 변환합니다. 이것이 우리가 이를 *포지션 와이즈*라고 부르는 이유입니다. 아래 구현에서 (배치 크기, 타임스텝 수 또는 토큰 단위 시퀀스 길이, 은닉 유닛 수 또는 특성 차원) 형태의 입력 `X`는 2개 레이어의 MLP에 의해 (배치 크리, 타임스텝 수, `ffn_num_outputs`) 형태의 출력 텐서로 변환됩니다.
 
 ```{.python .input}
 %%tab mxnet
 class PositionWiseFFN(nn.Block):  #@save
-    """The positionwise feed-forward network."""
+    """포지션 와이즈 피드포워드 네트워크."""
     def __init__(self, ffn_num_hiddens, ffn_num_outputs):
         super().__init__()
         self.dense1 = nn.Dense(ffn_num_hiddens, flatten=False,
@@ -177,7 +84,7 @@ class PositionWiseFFN(nn.Block):  #@save
 ```{.python .input}
 %%tab pytorch
 class PositionWiseFFN(nn.Module):  #@save
-    """The positionwise feed-forward network."""
+    """포지션 와이즈 피드포워드 네트워크."""
     def __init__(self, ffn_num_hiddens, ffn_num_outputs):
         super().__init__()
         self.dense1 = nn.LazyLinear(ffn_num_hiddens)
@@ -191,7 +98,7 @@ class PositionWiseFFN(nn.Module):  #@save
 ```{.python .input}
 %%tab tensorflow
 class PositionWiseFFN(tf.keras.layers.Layer):  #@save
-    """The positionwise feed-forward network."""
+    """포지션 와이즈 피드포워드 네트워크."""
     def __init__(self, ffn_num_hiddens, ffn_num_outputs):
         super().__init__()
         self.dense1 = tf.keras.layers.Dense(ffn_num_hiddens)
@@ -205,7 +112,7 @@ class PositionWiseFFN(tf.keras.layers.Layer):  #@save
 ```{.python .input}
 %%tab jax
 class PositionWiseFFN(nn.Module):  #@save
-    """The positionwise feed-forward network."""
+    """포지션 와이즈 피드포워드 네트워크."""
     ffn_num_hiddens: int
     ffn_num_outputs: int
 
@@ -217,15 +124,7 @@ class PositionWiseFFN(nn.Module):  #@save
         return self.dense2(nn.relu(self.dense1(X)))
 ```
 
-The following example
-shows that [**the innermost dimension
-of a tensor changes**] to
-the number of outputs in
-the positionwise feed-forward network.
-Since the same MLP transforms
-at all the positions,
-when the inputs at all these positions are the same,
-their outputs are also identical.
+다음 예제는 [**텐서의 가장 안쪽 차원이**] 포지션 와이즈 피드포워드 네트워크의 출력 수로 변경됨을 보여줍니다. 동일한 MLP가 모든 위치에서 변환을 수행하므로, 이러한 모든 위치에서의 입력이 같으면 출력 또한 동일합니다.
 
 ```{.python .input}
 %%tab mxnet
@@ -253,35 +152,13 @@ ffn = PositionWiseFFN(4, 8)
 ffn.init_with_output(d2l.get_key(), jnp.ones((2, 3, 4)))[0][0]
 ```
 
-## Residual Connection and Layer Normalization
+## 잔차 연결 및 레이어 정규화 (Residual Connection and Layer Normalization)
 
-Now let's focus on the "add & norm" component in :numref:`fig_transformer`.
-As we described at the beginning of this section,
-this is a residual connection immediately
-followed by layer normalization.
-Both are key to effective deep architectures.
+이제 :numref:`fig_transformer`의 "add & norm" 구성 요소에 집중해 봅시다. 이 섹션의 시작 부분에서 설명했듯이, 이는 잔차 연결 직후에 레이어 정규화가 뒤따르는 구조입니다. 두 가지 모두 효과적인 깊은 아키텍처의 핵심입니다.
 
-In :numref:`sec_batch_norm`,
-we explained how batch normalization
-recenters and rescales across the examples within
-a minibatch.
-As discussed in :numref:`subsec_layer-normalization-in-bn`,
-layer normalization is the same as batch normalization
-except that the former
-normalizes across the feature dimension,
-thus enjoying benefits of scale independence and batch size independence.
-Despite its pervasive applications
-in computer vision,
-batch normalization
-is usually empirically
-less effective than layer normalization
-in natural language processing
-tasks, where the inputs are often
-variable-length sequences.
+:numref:`sec_batch_norm`에서 우리는 배치 정규화(batch normalization)가 미니배치 내의 예제들에 걸쳐 어떻게 중심을 재조정하고 스케일을 조정하는지 설명했습니다. :numref:`subsec_layer-normalization-in-bn`에서 논의했듯이, 레이어 정규화는 특성 차원에 걸쳐 정규화한다는 점을 제외하면 배치 정규화와 동일하며, 따라서 스케일 독립성과 배치 크기 독립성의 이점을 누릴 수 있습니다. 컴퓨터 비전에서의 널리 퍼진 응용에도 불구하고, 배치 정규화는 입력이 종종 가변 길이 시퀀스인 자연어 처리 작업에서 레이어 정규화보다 실무적으로 덜 효과적인 경우가 많습니다.
 
-The following code snippet
-[**compares the normalization across different dimensions
-by layer normalization and batch normalization**].
+다음 코드 스니펫은 [**레이어 정규화와 배치 정규화에 의한 서로 다른 차원에 걸친 정규화를 비교합니다.**]
 
 ```{.python .input}
 %%tab mxnet
@@ -290,7 +167,7 @@ ln.initialize()
 bn = nn.BatchNorm()
 bn.initialize()
 X = d2l.tensor([[1, 2], [2, 3]])
-# Compute mean and variance from X in the training mode
+# 훈련 모드에서 X로부터 평균과 분산을 계산합니다.
 with autograd.record():
     print('layer norm:', ln(X), '\nbatch norm:', bn(X))
 ```
@@ -300,7 +177,7 @@ with autograd.record():
 ln = nn.LayerNorm(2)
 bn = nn.LazyBatchNorm1d()
 X = d2l.tensor([[1, 2], [2, 3]], dtype=torch.float32)
-# Compute mean and variance from X in the training mode
+# 훈련 모드에서 X로부터 평균과 분산을 계산합니다.
 print('layer norm:', ln(X), '\nbatch norm:', bn(X))
 ```
 
@@ -317,20 +194,18 @@ print('layer norm:', ln(X), '\nbatch norm:', bn(X, training=True))
 ln = nn.LayerNorm()
 bn = nn.BatchNorm()
 X = d2l.tensor([[1, 2], [2, 3]], dtype=d2l.float32)
-# Compute mean and variance from X in the training mode
+# 훈련 모드에서 X로부터 평균과 분산을 계산합니다.
 print('layer norm:', ln.init_with_output(d2l.get_key(), X)[0],
       '\nbatch norm:', bn.init_with_output(d2l.get_key(), X,
                                            use_running_average=False)[0])
 ```
 
-Now we can implement the `AddNorm` class
-[**using a residual connection followed by layer normalization**].
-Dropout is also applied for regularization.
+이제 [**잔차 연결과 그 뒤를 잇는 레이어 정규화를 사용하여**] `AddNorm` 클래스를 구현할 수 있습니다. 정규화를 위해 드롭아웃(dropout)도 적용됩니다.
 
 ```{.python .input}
 %%tab mxnet
 class AddNorm(nn.Block):  #@save
-    """The residual connection followed by layer normalization."""
+    """잔차 연결과 그 뒤를 잇는 레이어 정규화."""
     def __init__(self, dropout):
         super().__init__()
         self.dropout = nn.Dropout(dropout)
@@ -343,7 +218,7 @@ class AddNorm(nn.Block):  #@save
 ```{.python .input}
 %%tab pytorch
 class AddNorm(nn.Module):  #@save
-    """The residual connection followed by layer normalization."""
+    """잔차 연결과 그 뒤를 잇는 레이어 정규화."""
     def __init__(self, norm_shape, dropout):
         super().__init__()
         self.dropout = nn.Dropout(dropout)
@@ -356,7 +231,7 @@ class AddNorm(nn.Module):  #@save
 ```{.python .input}
 %%tab tensorflow
 class AddNorm(tf.keras.layers.Layer):  #@save
-    """The residual connection followed by layer normalization."""
+    """잔차 연결과 그 뒤를 잇는 레이어 정규화."""
     def __init__(self, norm_shape, dropout):
         super().__init__()
         self.dropout = tf.keras.layers.Dropout(dropout)
@@ -369,7 +244,7 @@ class AddNorm(tf.keras.layers.Layer):  #@save
 ```{.python .input}
 %%tab jax
 class AddNorm(nn.Module):  #@save
-    """The residual connection followed by layer normalization."""
+    """잔차 연결과 그 뒤를 잇는 레이어 정규화."""
     dropout: int
 
     @nn.compact
@@ -378,9 +253,7 @@ class AddNorm(nn.Module):  #@save
             nn.Dropout(self.dropout)(Y, deterministic=not training) + X)
 ```
 
-The residual connection requires that
-the two inputs are of the same shape
-so that [**the output tensor also has the same shape after the addition operation**].
+잔차 연결은 두 입력의 모양이 같아야 하므로, [**덧셈 연산 후의 출력 텐서도 같은 모양을 가집니다.**]
 
 ```{.python .input}
 %%tab mxnet
@@ -399,7 +272,7 @@ d2l.check_shape(add_norm(d2l.ones(shape), d2l.ones(shape)), shape)
 
 ```{.python .input}
 %%tab tensorflow
-# Normalized_shape is: [i for i in range(len(input.shape))][1:]
+# Normalized_shape은: [i for i in range(len(input.shape))][1:] 입니다.
 add_norm = AddNorm([1, 2], 0.5)
 shape = (2, 3, 4)
 d2l.check_shape(add_norm(tf.ones(shape), tf.ones(shape), training=False),
@@ -415,22 +288,15 @@ output, _ = add_norm.init_with_output(d2l.get_key(), d2l.ones(shape),
 d2l.check_shape(output, shape)
 ```
 
-## Encoder
+## 인코더 (Encoder)
 :label:`subsec_transformer-encoder`
 
-With all the essential components to assemble
-the Transformer encoder,
-let's start by
-implementing [**a single layer within the encoder**].
-The following `TransformerEncoderBlock` class
-contains two sublayers: multi-head self-attention and positionwise feed-forward networks,
-where a residual connection followed by layer normalization is employed
-around both sublayers.
+트랜스포머 인코더를 조립하기 위한 모든 필수 구성 요소가 준비되었으므로, [**인코더 내의 단일 레이어**]를 구현하는 것부터 시작하겠습니다. 다음 `TransformerEncoderBlock` 클래스는 두 개의 서브레이어, 즉 멀티 헤드 셀프 어텐션과 포지션 와이즈 피드포워드 네트워크를 포함하며, 두 서브레이어 주위에는 잔차 연결과 그 뒤를 잇는 레이어 정규화가 사용됩니다.
 
 ```{.python .input}
 %%tab mxnet
 class TransformerEncoderBlock(nn.Block):  #@save
-    """The Transformer encoder block."""
+    """트랜스포머 인코더 블록."""
     def __init__(self, num_hiddens, ffn_num_hiddens, num_heads, dropout,
                  use_bias=False):
         super().__init__()
@@ -448,7 +314,7 @@ class TransformerEncoderBlock(nn.Block):  #@save
 ```{.python .input}
 %%tab pytorch
 class TransformerEncoderBlock(nn.Module):  #@save
-    """The Transformer encoder block."""
+    """트랜스포머 인코더 블록."""
     def __init__(self, num_hiddens, ffn_num_hiddens, num_heads, dropout,
                  use_bias=False):
         super().__init__()
@@ -466,7 +332,7 @@ class TransformerEncoderBlock(nn.Module):  #@save
 ```{.python .input}
 %%tab tensorflow
 class TransformerEncoderBlock(tf.keras.layers.Layer):  #@save
-    """The Transformer encoder block."""
+    """트랜스포머 인코더 블록."""
     def __init__(self, key_size, query_size, value_size, num_hiddens,
                  norm_shape, ffn_num_hiddens, num_heads, dropout, bias=False):
         super().__init__()
@@ -486,7 +352,7 @@ class TransformerEncoderBlock(tf.keras.layers.Layer):  #@save
 ```{.python .input}
 %%tab jax
 class TransformerEncoderBlock(nn.Module):  #@save
-    """The Transformer encoder block."""
+    """트랜스포머 인코더 블록."""
     num_hiddens: int
     ffn_num_hiddens: int
     num_heads: int
@@ -507,9 +373,7 @@ class TransformerEncoderBlock(nn.Module):  #@save
         return self.addnorm2(Y, self.ffn(Y), training=training), attention_weights
 ```
 
-As we can see,
-[**no layer in the Transformer encoder
-changes the shape of its input.**]
+보시는 바와 같이, [**트랜스포머 인코더의 어떤 레이어도 입력의 모양을 변경하지 않습니다.**]
 
 ```{.python .input}
 %%tab mxnet
@@ -548,18 +412,12 @@ encoder_blk = TransformerEncoderBlock(24, 48, 8, 0.5)
 d2l.check_shape(output, X.shape)
 ```
 
-In the following [**Transformer encoder**] implementation,
-we stack `num_blks` instances of the above `TransformerEncoderBlock` classes.
-Since we use the fixed positional encoding
-whose values are always between $-1$ and $1$,
-we multiply values of the learnable input embeddings
-by the square root of the embedding dimension
-to rescale before summing up the input embedding and the positional encoding.
+다음 [**트랜스포머 인코더**] 구현에서, 우리는 위에서 만든 `TransformerEncoderBlock` 클래스의 인스턴스를 `num_blks`개만큼 쌓습니다. 값이 항상 -1과 1 사이인 고정된 포지셔널 인코딩을 사용하므로, 입력 임베딩과 포지셔널 인코딩을 합치기 전에 스케일을 맞추기 위해 학습 가능한 입력 임베딩 값에 임베딩 차원의 제곱근을 곱합니다.
 
 ```{.python .input}
 %%tab mxnet
 class TransformerEncoder(d2l.Encoder):  #@save
-    """The Transformer encoder."""
+    """트랜스포머 인코더."""
     def __init__(self, vocab_size, num_hiddens, ffn_num_hiddens,
                  num_heads, num_blks, dropout, use_bias=False):
         super().__init__()
@@ -573,9 +431,8 @@ class TransformerEncoder(d2l.Encoder):  #@save
         self.initialize()
 
     def forward(self, X, valid_lens):
-        # Since positional encoding values are between -1 and 1, the embedding
-        # values are multiplied by the square root of the embedding dimension
-        # to rescale before they are summed up
+        # 포지셔널 인코딩 값이 -1과 1 사이이므로, 임베딩 값들을 합치기 전에
+        # 스케일을 맞추기 위해 임베딩 차원의 제곱근을 곱합니다.
         X = self.pos_encoding(self.embedding(X) * math.sqrt(self.num_hiddens))
         self.attention_weights = [None] * len(self.blks)
         for i, blk in enumerate(self.blks):
@@ -588,7 +445,7 @@ class TransformerEncoder(d2l.Encoder):  #@save
 ```{.python .input}
 %%tab pytorch
 class TransformerEncoder(d2l.Encoder):  #@save
-    """The Transformer encoder."""
+    """트랜스포머 인코더."""
     def __init__(self, vocab_size, num_hiddens, ffn_num_hiddens,
                  num_heads, num_blks, dropout, use_bias=False):
         super().__init__()
@@ -601,9 +458,8 @@ class TransformerEncoder(d2l.Encoder):  #@save
                 num_hiddens, ffn_num_hiddens, num_heads, dropout, use_bias))
 
     def forward(self, X, valid_lens):
-        # Since positional encoding values are between -1 and 1, the embedding
-        # values are multiplied by the square root of the embedding dimension
-        # to rescale before they are summed up
+        # 포지셔널 인코딩 값이 -1과 1 사이이므로, 임베딩 값들을 합치기 전에
+        # 스케일을 맞추기 위해 임베딩 차원의 제곱근을 곱합니다.
         X = self.pos_encoding(self.embedding(X) * math.sqrt(self.num_hiddens))
         self.attention_weights = [None] * len(self.blks)
         for i, blk in enumerate(self.blks):
@@ -616,7 +472,7 @@ class TransformerEncoder(d2l.Encoder):  #@save
 ```{.python .input}
 %%tab tensorflow
 class TransformerEncoder(d2l.Encoder):  #@save
-    """The Transformer encoder."""
+    """트랜스포머 인코더."""
     def __init__(self, vocab_size, key_size, query_size, value_size,
                  num_hiddens, norm_shape, ffn_num_hiddens, num_heads,
                  num_blks, dropout, bias=False):
@@ -630,9 +486,8 @@ class TransformerEncoder(d2l.Encoder):  #@save
             num_blks)]
 
     def call(self, X, valid_lens, **kwargs):
-        # Since positional encoding values are between -1 and 1, the embedding
-        # values are multiplied by the square root of the embedding dimension
-        # to rescale before they are summed up
+        # 포지셔널 인코딩 값이 -1과 1 사이이므로, 임베딩 값들을 합치기 전에
+        # 스케일을 맞추기 위해 임베딩 차원의 제곱근을 곱합니다.
         X = self.pos_encoding(self.embedding(X) * tf.math.sqrt(
             tf.cast(self.num_hiddens, dtype=tf.float32)), **kwargs)
         self.attention_weights = [None] * len(self.blks)
@@ -646,7 +501,7 @@ class TransformerEncoder(d2l.Encoder):  #@save
 ```{.python .input}
 %%tab jax
 class TransformerEncoder(d2l.Encoder):  #@save
-    """The Transformer encoder."""
+    """트랜스포머 인코더."""
     vocab_size: int
     num_hiddens:int
     ffn_num_hiddens: int
@@ -657,7 +512,8 @@ class TransformerEncoder(d2l.Encoder):  #@save
 
     def setup(self):
         self.embedding = nn.Embed(self.vocab_size, self.num_hiddens)
-        self.pos_encoding = d2l.PositionalEncoding(self.num_hiddens, self.dropout)
+        self.pos_encoding = d2l.PositionalEncoding(self.num_hiddens,
+                                                   self.dropout)
         self.blks = [TransformerEncoderBlock(self.num_hiddens,
                                              self.ffn_num_hiddens,
                                              self.num_heads,
@@ -665,23 +521,20 @@ class TransformerEncoder(d2l.Encoder):  #@save
                      for _ in range(self.num_blks)]
 
     def __call__(self, X, valid_lens, training=False):
-        # Since positional encoding values are between -1 and 1, the embedding
-        # values are multiplied by the square root of the embedding dimension
-        # to rescale before they are summed up
+        # 포지셔널 인코딩 값이 -1과 1 사이이므로, 임베딩 값들을 합치기 전에
+        # 스케일을 맞추기 위해 임베딩 차원의 제곱근을 곱합니다.
         X = self.embedding(X) * math.sqrt(self.num_hiddens)
         X = self.pos_encoding(X, training=training)
         attention_weights = [None] * len(self.blks)
         for i, blk in enumerate(self.blks):
             X, attention_w = blk(X, valid_lens, training=training)
             attention_weights[i] = attention_w
-        # Flax sow API is used to capture intermediate variables
+        # 중간 변수를 캡처하기 위해 Flax sow API가 사용됩니다.
         self.sow('intermediates', 'enc_attention_weights', attention_weights)
         return X
 ```
 
-Below we specify hyperparameters to [**create a two-layer Transformer encoder**].
-The shape of the Transformer encoder output
-is (batch size, number of time steps, `num_hiddens`).
+아래에서 [**2개 레이어의 트랜스포머 인코더를 생성하기 위해**] 하이퍼파라미터를 지정합니다. 트랜스포머 인코더 출력의 모양은 (배치 크기, 타임스텝 수, `num_hiddens`)입니다.
 
 ```{.python .input}
 %%tab mxnet
@@ -712,50 +565,16 @@ d2l.check_shape(encoder.init_with_output(d2l.get_key(),
                 (2, 100, 24))
 ```
 
-## Decoder
+## 디코더 (Decoder)
 
-As shown in :numref:`fig_transformer`,
-[**the Transformer decoder
-is composed of multiple identical layers**].
-Each layer is implemented in the following
-`TransformerDecoderBlock` class,
-which contains three sublayers:
-decoder self-attention,
-encoder--decoder attention,
-and positionwise feed-forward networks.
-These sublayers employ
-a residual connection around them
-followed by layer normalization.
+:numref:`fig_transformer`에 표시된 것처럼, [**트랜스포머 디코더는 여러 개의 동일한 레이어로 구성됩니다.**] 각 레이어는 아래의 `TransformerDecoderBlock` 클래스에서 구현되며, 세 개의 서브레이어(디코더 셀프 어텐션, 인코더-디코더 어텐션, 포지션 와이즈 피드포워드 네트워크)를 포함합니다. 이러한 서브레이어들은 주위에 잔차 연결과 그 뒤를 잇는 레이어 정규화를 사용합니다.
 
-
-As we described earlier in this section,
-in the masked multi-head decoder self-attention
-(the first sublayer),
-queries, keys, and values
-all come from the outputs of the previous decoder layer.
-When training sequence-to-sequence models,
-tokens at all the positions (time steps)
-of the output sequence
-are known.
-However,
-during prediction
-the output sequence is generated token by token;
-thus,
-at any decoder time step
-only the generated tokens
-can be used in the decoder self-attention.
-To preserve autoregression in the decoder,
-its masked self-attention
-specifies  `dec_valid_lens` so that
-any query
-only attends to
-all positions in the decoder
-up to the query position.
+이 섹션의 앞부분에서 설명했듯이, 마스크된 멀티 헤드 디코더 셀프 어텐션(첫 번째 서브레이어)에서 쿼리, 키, 값은 모두 이전 디코더 레이어의 출력에서 옵니다. 시퀀스 투 시퀀스 모델을 훈련할 때 출력 시퀀스의 모든 위치(타임스텝)에 있는 토큰은 알려져 있습니다. 그러나 예측 중에는 출력 시퀀스가 토큰 단위로 생성되므로, 임의의 디코더 타임스텝에서 생성된 토큰들만 디코더 셀프 어텐션에서 사용될 수 있습니다. 디코더에서 자기 회귀를 유지하기 위해, 마스크된 셀프 어텐션은 임의의 쿼리가 해당 쿼리 위치까지의 디코더 내 위치들에만 어텐션을 수행하도록 `dec_valid_lens`를 지정합니다.
 
 ```{.python .input}
 %%tab mxnet
 class TransformerDecoderBlock(nn.Block):
-    # The i-th block in the Transformer decoder
+    # 트랜스포머 디코더의 i번째 블록
     def __init__(self, num_hiddens, ffn_num_hiddens, num_heads, dropout, i):
         super().__init__()
         self.i = i
@@ -770,11 +589,10 @@ class TransformerDecoderBlock(nn.Block):
 
     def forward(self, X, state):
         enc_outputs, enc_valid_lens = state[0], state[1]
-        # During training, all the tokens of any output sequence are processed
-        # at the same time, so state[2][self.i] is None as initialized. When
-        # decoding any output sequence token by token during prediction,
-        # state[2][self.i] contains representations of the decoded output at
-        # the i-th block up to the current time step
+        # 훈련 중에는 임의의 출력 시퀀스의 모든 토큰이 동시에 처리되므로,
+        # 초기화된 대로 state[2][self.i]는 None입니다. 예측 중에 토큰 단위로
+        # 출력 시퀀스를 디코딩할 때, state[2][self.i]는 현재 타임스텝까지
+        # i번째 블록에서 디코딩된 출력의 표현을 포함합니다.
         if state[2][self.i] is None:
             key_values = X
         else:
@@ -783,16 +601,16 @@ class TransformerDecoderBlock(nn.Block):
 
         if autograd.is_training():
             batch_size, num_steps, _ = X.shape
-            # Shape of dec_valid_lens: (batch_size, num_steps), where every
-            # row is [1, 2, ..., num_steps]
+            # dec_valid_lens의 모양: (batch_size, num_steps), 여기서 모든
+            # 행은 [1, 2, ..., num_steps] 입니다.
             dec_valid_lens = np.tile(np.arange(1, num_steps + 1, ctx=X.ctx),
                                      (batch_size, 1))
         else:
             dec_valid_lens = None
-        # Self-attention
+        # 셀프 어텐션
         X2 = self.attention1(X, key_values, key_values, dec_valid_lens)
         Y = self.addnorm1(X, X2)
-        # Encoder-decoder attention. Shape of enc_outputs:
+        # 인코더-디코더 어텐션. enc_outputs의 모양:
         # (batch_size, num_steps, num_hiddens)
         Y2 = self.attention2(Y, enc_outputs, enc_outputs, enc_valid_lens)
         Z = self.addnorm2(Y, Y2)
@@ -802,7 +620,7 @@ class TransformerDecoderBlock(nn.Block):
 ```{.python .input}
 %%tab pytorch
 class TransformerDecoderBlock(nn.Module):
-    # The i-th block in the Transformer decoder
+    # 트랜스포머 디코더의 i번째 블록
     def __init__(self, num_hiddens, ffn_num_hiddens, num_heads, dropout, i):
         super().__init__()
         self.i = i
@@ -817,11 +635,10 @@ class TransformerDecoderBlock(nn.Module):
 
     def forward(self, X, state):
         enc_outputs, enc_valid_lens = state[0], state[1]
-        # During training, all the tokens of any output sequence are processed
-        # at the same time, so state[2][self.i] is None as initialized. When
-        # decoding any output sequence token by token during prediction,
-        # state[2][self.i] contains representations of the decoded output at
-        # the i-th block up to the current time step
+        # 훈련 중에는 임의의 출력 시퀀스의 모든 토큰이 동시에 처리되므로,
+        # 초기화된 대로 state[2][self.i]는 None입니다. 예측 중에 토큰 단위로
+        # 출력 시퀀스를 디코딩할 때, state[2][self.i]는 현재 타임스텝까지
+        # i번째 블록에서 디코딩된 출력의 표현을 포함합니다.
         if state[2][self.i] is None:
             key_values = X
         else:
@@ -829,16 +646,16 @@ class TransformerDecoderBlock(nn.Module):
         state[2][self.i] = key_values
         if self.training:
             batch_size, num_steps, _ = X.shape
-            # Shape of dec_valid_lens: (batch_size, num_steps), where every
-            # row is [1, 2, ..., num_steps]
+            # dec_valid_lens의 모양: (batch_size, num_steps), 여기서 모든
+            # 행은 [1, 2, ..., num_steps] 입니다.
             dec_valid_lens = torch.arange(
                 1, num_steps + 1, device=X.device).repeat(batch_size, 1)
         else:
             dec_valid_lens = None
-        # Self-attention
+        # 셀프 어텐션
         X2 = self.attention1(X, key_values, key_values, dec_valid_lens)
         Y = self.addnorm1(X, X2)
-        # Encoder-decoder attention. Shape of enc_outputs:
+        # 인코더-디코더 어텐션. enc_outputs의 모양:
         # (batch_size, num_steps, num_hiddens)
         Y2 = self.attention2(Y, enc_outputs, enc_outputs, enc_valid_lens)
         Z = self.addnorm2(Y, Y2)
@@ -848,7 +665,7 @@ class TransformerDecoderBlock(nn.Module):
 ```{.python .input}
 %%tab tensorflow
 class TransformerDecoderBlock(tf.keras.layers.Layer):
-    # The i-th block in the Transformer decoder
+    # 트랜스포머 디코더의 i번째 블록
     def __init__(self, key_size, query_size, value_size, num_hiddens,
                  norm_shape, ffn_num_hiddens, num_heads, dropout, i):
         super().__init__()
@@ -864,11 +681,10 @@ class TransformerDecoderBlock(tf.keras.layers.Layer):
 
     def call(self, X, state, **kwargs):
         enc_outputs, enc_valid_lens = state[0], state[1]
-        # During training, all the tokens of any output sequence are processed
-        # at the same time, so state[2][self.i] is None as initialized. When
-        # decoding any output sequence token by token during prediction,
-        # state[2][self.i] contains representations of the decoded output at
-        # the i-th block up to the current time step
+        # 훈련 중에는 임의의 출력 시퀀스의 모든 토큰이 동시에 처리되므로,
+        # 초기화된 대로 state[2][self.i]는 None입니다. 예측 중에 토큰 단위로
+        # 출력 시퀀스를 디코딩할 때, state[2][self.i]는 현재 타임스텝까지
+        # i번째 블록에서 디코딩된 출력의 표현을 포함합니다.
         if state[2][self.i] is None:
             key_values = X
         else:
@@ -876,18 +692,18 @@ class TransformerDecoderBlock(tf.keras.layers.Layer):
         state[2][self.i] = key_values
         if kwargs["training"]:
             batch_size, num_steps, _ = X.shape
-            # Shape of dec_valid_lens: (batch_size, num_steps), where every
-            # row is [1, 2, ..., num_steps]
+            # dec_valid_lens의 모양: (batch_size, num_steps), 여기서 모든
+            # 행은 [1, 2, ..., num_steps] 입니다.
             dec_valid_lens = tf.repeat(
-                tf.reshape(tf.range(1, num_steps + 1),
+                tf.reshape(tf.range(1, num_steps + 1), 
                            shape=(-1, num_steps)), repeats=batch_size, axis=0)
         else:
             dec_valid_lens = None
-        # Self-attention
-        X2 = self.attention1(X, key_values, key_values, dec_valid_lens,
+        # 셀프 어텐션
+        X2 = self.attention1(X, key_values, key_values, dec_valid_lens, 
                              **kwargs)
         Y = self.addnorm1(X, X2, **kwargs)
-        # Encoder-decoder attention. Shape of enc_outputs:
+        # 인코더-디코더 어텐션. enc_outputs의 모양:
         # (batch_size, num_steps, num_hiddens)
         Y2 = self.attention2(Y, enc_outputs, enc_outputs, enc_valid_lens,
                              **kwargs)
@@ -898,7 +714,7 @@ class TransformerDecoderBlock(tf.keras.layers.Layer):
 ```{.python .input}
 %%tab jax
 class TransformerDecoderBlock(nn.Module):
-    # The i-th block in the Transformer decoder
+    # 트랜스포머 디코더의 i번째 블록
     num_hiddens: int
     ffn_num_hiddens: int
     num_heads: int
@@ -919,11 +735,10 @@ class TransformerDecoderBlock(nn.Module):
 
     def __call__(self, X, state, training=False):
         enc_outputs, enc_valid_lens = state[0], state[1]
-        # During training, all the tokens of any output sequence are processed
-        # at the same time, so state[2][self.i] is None as initialized. When
-        # decoding any output sequence token by token during prediction,
-        # state[2][self.i] contains representations of the decoded output at
-        # the i-th block up to the current time step
+        # 훈련 중에는 임의의 출력 시퀀스의 모든 토큰이 동시에 처리되므로,
+        # 초기화된 대로 state[2][self.i]는 None입니다. 예측 중에 토큰 단위로
+        # 출력 시퀀스를 디코딩할 때, state[2][self.i]는 현재 타임스텝까지
+        # i번째 블록에서 디코딩된 출력의 표현을 포함합니다.
         if state[2][self.i] is None:
             key_values = X
         else:
@@ -931,17 +746,17 @@ class TransformerDecoderBlock(nn.Module):
         state[2][self.i] = key_values
         if training:
             batch_size, num_steps, _ = X.shape
-            # Shape of dec_valid_lens: (batch_size, num_steps), where every
-            # row is [1, 2, ..., num_steps]
+            # dec_valid_lens의 모양: (batch_size, num_steps), 여기서 모든
+            # 행은 [1, 2, ..., num_steps] 입니다.
             dec_valid_lens = jnp.tile(jnp.arange(1, num_steps + 1),
                                       (batch_size, 1))
         else:
             dec_valid_lens = None
-        # Self-attention
+        # 셀프 어텐션
         X2, attention_w1 = self.attention1(X, key_values, key_values,
                                            dec_valid_lens, training=training)
         Y = self.addnorm1(X, X2, training=training)
-        # Encoder-decoder attention. Shape of enc_outputs:
+        # 인코더-디코더 어텐션. enc_outputs의 모양:
         # (batch_size, num_steps, num_hiddens)
         Y2, attention_w2 = self.attention2(Y, enc_outputs, enc_outputs,
                                            enc_valid_lens, training=training)
@@ -949,11 +764,7 @@ class TransformerDecoderBlock(nn.Module):
         return self.addnorm3(Z, self.ffn(Z), training=training), state, attention_w1, attention_w2
 ```
 
-To facilitate scaled dot product operations
-in the encoder--decoder attention
-and addition operations in the residual connections,
-[**the feature dimension (`num_hiddens`) of the decoder is
-the same as that of the encoder.**]
+인코더-디코더 어텐션에서의 스케일드 닷 프로덕트 연산과 잔차 연결에서의 덧셈 연산을 용이하게 하기 위해, [**디코더의 특성 차원(`num_hiddens`)은 인코더의 특성 차원과 동일합니다.**]
 
 ```{.python .input}
 %%tab mxnet
@@ -990,14 +801,7 @@ d2l.check_shape(decoder_blk.init_with_output(d2l.get_key(), X, state)[0][0],
                 X.shape)
 ```
 
-Now we [**construct the entire Transformer decoder**]
-composed of `num_blks` instances of `TransformerDecoderBlock`.
-In the end,
-a fully connected layer computes the prediction
-for all the `vocab_size` possible output tokens.
-Both of the decoder self-attention weights
-and the encoder--decoder attention weights
-are stored for later visualization.
+이제 `TransformerDecoderBlock`의 `num_blks`개 인스턴스로 구성된 [**전체 트랜스포머 디코더를 구축합니다.**] 마지막에 완전 연결 레이어는 `vocab_size`개의 가능한 모든 출력 토큰에 대한 예측을 계산합니다. 디코더 셀프 어텐션 가중치와 인코더-디코더 어텐션 가중치는 나중에 시각화하기 위해 저장됩니다.
 
 ```{.python .input}
 %%tab mxnet
@@ -1024,10 +828,10 @@ class TransformerDecoder(d2l.AttentionDecoder):
         self._attention_weights = [[None] * len(self.blks) for _ in range (2)]
         for i, blk in enumerate(self.blks):
             X, state = blk(X, state)
-            # Decoder self-attention weights
+            # 디코더 셀프 어텐션 가중치
             self._attention_weights[0][
                 i] = blk.attention1.attention.attention_weights
-            # Encoder-decoder attention weights
+            # 인코더-디코더 어텐션 가중치
             self._attention_weights[1][
                 i] = blk.attention2.attention.attention_weights
         return self.dense(X), state
@@ -1061,10 +865,10 @@ class TransformerDecoder(d2l.AttentionDecoder):
         self._attention_weights = [[None] * len(self.blks) for _ in range (2)]
         for i, blk in enumerate(self.blks):
             X, state = blk(X, state)
-            # Decoder self-attention weights
+            # 디코더 셀프 어텐션 가중치
             self._attention_weights[0][
                 i] = blk.attention1.attention.attention_weights
-            # Encoder-decoder attention weights
+            # 인코더-디코더 어텐션 가중치
             self._attention_weights[1][
                 i] = blk.attention2.attention.attention_weights
         return self.dense(X), state
@@ -1097,14 +901,14 @@ class TransformerDecoder(d2l.AttentionDecoder):
     def call(self, X, state, **kwargs):
         X = self.pos_encoding(self.embedding(X) * tf.math.sqrt(
             tf.cast(self.num_hiddens, dtype=tf.float32)), **kwargs)
-        # 2 attention layers in decoder
+        # 디코더에 2개의 어텐션 레이어
         self._attention_weights = [[None] * len(self.blks) for _ in range(2)]
         for i, blk in enumerate(self.blks):
             X, state = blk(X, state, **kwargs)
-            # Decoder self-attention weights
+            # 디코더 셀프 어텐션 가중치
             self._attention_weights[0][i] = (
                 blk.attention1.attention.attention_weights)
-            # Encoder-decoder attention weights
+            # 인코더-디코더 어텐션 가중치
             self._attention_weights[1][i] = (
                 blk.attention2.attention.attention_weights)
         return self.dense(X), state
@@ -1144,25 +948,18 @@ class TransformerDecoder(nn.Module):
         for i, blk in enumerate(self.blks):
             X, state, attention_w1, attention_w2 = blk(X, state,
                                                        training=training)
-            # Decoder self-attention weights
+            # 디코더 셀프 어텐션 가중치
             attention_weights[0][i] = attention_w1
-            # Encoder-decoder attention weights
+            # 인코더-디코더 어텐션 가중치
             attention_weights[1][i] = attention_w2
-        # Flax sow API is used to capture intermediate variables
+        # 중간 변수를 캡처하기 위해 Flax sow API가 사용됩니다.
         self.sow('intermediates', 'dec_attention_weights', attention_weights)
         return self.dense(X), state
 ```
 
-## [**Training**]
+## 훈련 (Training)
 
-Let's instantiate an encoder--decoder model
-by following the Transformer architecture.
-Here we specify that
-both the Transformer encoder and the Transformer decoder
-have two layers using 4-head attention.
-As in :numref:`sec_seq2seq_training`,
-we train the Transformer model
-for sequence-to-sequence learning on the English--French machine translation dataset.
+트랜스포머 아키텍처를 따라 인코더-디코더 모델을 인스턴스화해 봅시다. 여기서는 트랜스포머 인코더와 트랜스포머 디코더 모두 4-헤드 어텐션을 사용하는 2개 레이어를 갖도록 지정합니다. :numref:`sec_seq2seq_training`에서와 같이, 영어-프랑스어 기계 번역 데이터셋에서 시퀀스 투 시퀀스 학습을 위해 트랜스포머 모델을 훈련합니다.
 
 ```{.python .input}
 %%tab all
@@ -1201,9 +998,7 @@ if tab.selected('tensorflow'):
 trainer.fit(model, data)
 ```
 
-After training,
-we use the Transformer model
-to [**translate a few English sentences**] into French and compute their BLEU scores.
+훈련 후에는 트랜스포머 모델을 사용하여 [**몇 가지 영어 문장을**] 프랑스어로 번역하고 BLEU 점수를 계산합니다.
 
 ```{.python .input}
 %%tab all
@@ -1225,9 +1020,7 @@ for en, fr, p in zip(engs, fras, preds):
           f'{d2l.bleu(" ".join(translation), fr, k=2):.3f}')
 ```
 
-Let's [**visualize the Transformer attention weights**] when translating the final English sentence into French.
-The shape of the encoder self-attention weights
-is (number of encoder layers, number of attention heads, `num_steps` or number of queries, `num_steps` or number of key-value pairs).
+마지막 영어 문장을 프랑스어로 번역할 때 [**트랜스포머 어텐션 가중치를 시각화해 봅시다.**] 인코더 셀프 어텐션 가중치의 모양은 (인코더 레이어 수, 어텐션 헤드 수, `num_steps` 또는 쿼리 수, `num_steps` 또는 키-값 쌍의 수)입니다.
 
 ```{.python .input}
 %%tab pytorch, mxnet, tensorflow
@@ -1252,43 +1045,24 @@ d2l.check_shape(enc_attention_weights,
                 (num_blks, num_heads, data.num_steps, data.num_steps))
 ```
 
-In the encoder self-attention,
-both queries and keys come from the same input sequence.
-Since padding tokens do not carry meaning,
-with specified valid length of the input sequence
-no query attends to positions of padding tokens.
-In the following,
-two layers of multi-head attention weights
-are presented row by row.
-Each head independently attends
-based on a separate representation subspace of queries, keys, and values.
+인코더 셀프 어텐션에서 쿼리와 키는 모두 동일한 입력 시퀀스에서 옵니다. 패딩 토큰은 의미를 갖지 않으므로, 입력 시퀀스의 유효 길이가 지정되면 어떤 쿼리도 패딩 토큰의 위치에 어텐션을 수행하지 않습니다. 다음에서는 멀티 헤드 어텐션 가중치의 두 레이어가 행별로 표시됩니다. 각 헤드는 쿼리, 키, 값의 별도 표현 서브스페이스에 기반하여 독립적으로 어텐션을 수행합니다.
 
 ```{.python .input}
 %%tab mxnet, tensorflow, jax
 d2l.show_heatmaps(
-    enc_attention_weights, xlabel='Key positions', ylabel='Query positions',
+    enc_attention_weights, xlabel='키 위치', ylabel='쿼리 위치',
     titles=['Head %d' % i for i in range(1, 5)], figsize=(7, 3.5))
 ```
 
 ```{.python .input}
 %%tab pytorch
 d2l.show_heatmaps(
-    enc_attention_weights.cpu(), xlabel='Key positions',
-    ylabel='Query positions', titles=['Head %d' % i for i in range(1, 5)],
+    enc_attention_weights.cpu(), xlabel='키 위치',
+    ylabel='쿼리 위치', titles=['Head %d' % i for i in range(1, 5)],
     figsize=(7, 3.5))
 ```
 
-[**To visualize the decoder self-attention weights and the encoder--decoder attention weights,
-we need more data manipulations.**]
-For example,
-we fill the masked attention weights with zero.
-Note that
-the decoder self-attention weights
-and the encoder--decoder attention weights
-both have the same queries:
-the beginning-of-sequence token followed by
-the output tokens and possibly
-end-of-sequence tokens.
+[**디코더 셀프 어텐션 가중치와 인코더-디코더 어텐션 가중치를 시각화하려면 더 많은 데이터 조작이 필요합니다.**] 예를 들어, 마스크된 어텐션 가중치를 0으로 채웁니다. 디코더 셀프 어텐션 가중치와 인코더-디코더 어텐션 가중치 모두 동일한 쿼리(시퀀스 시작 토큰 뒤에 출력 토큰들이 오고 필요한 경우 시퀀스 종료 토큰이 따름)를 갖는다는 점에 유의하십시오.
 
 ```{.python .input}
 %%tab mxnet
@@ -1351,72 +1125,59 @@ d2l.check_shape(dec_inter_attention_weights,
                 (num_blks, num_heads, data.num_steps, data.num_steps))
 ```
 
-Because of the autoregressive property of the decoder self-attention,
-no query attends to key--value pairs after the query position.
+디코더 셀프 어텐션의 자기 회귀 속성 때문에, 어떤 쿼리도 쿼리 위치 이후의 키-값 쌍에 어텐션을 수행하지 않습니다.
 
 ```{.python .input}
 %%tab all
 d2l.show_heatmaps(
     dec_self_attention_weights[:, :, :, :],
-    xlabel='Key positions', ylabel='Query positions',
+    xlabel='키 위치', ylabel='쿼리 위치',
     titles=['Head %d' % i for i in range(1, 5)], figsize=(7, 3.5))
 ```
 
-Similar to the case in the encoder self-attention,
-via the specified valid length of the input sequence,
-[**no query from the output sequence
-attends to those padding tokens from the input sequence.**]
+인코더 셀프 어텐션의 경우와 유사하게, 입력 시퀀스의 지정된 유효 길이를 통해 [**출력 시퀀스의 어떤 쿼리도 입력 시퀀스의 패딩 토큰에 어텐션을 수행하지 않습니다.**]
 
 ```{.python .input}
 %%tab all
 d2l.show_heatmaps(
-    dec_inter_attention_weights, xlabel='Key positions',
-    ylabel='Query positions', titles=['Head %d' % i for i in range(1, 5)],
+    dec_inter_attention_weights, xlabel='키 위치',
+    ylabel='쿼리 위치', titles=['Head %d' % i for i in range(1, 5)],
     figsize=(7, 3.5))
 ```
 
-Although the Transformer architecture
-was originally proposed for sequence-to-sequence learning,
-as we will discover later in the book,
-either the Transformer encoder
-or the Transformer decoder
-is often individually used
-for different deep learning tasks.
-
-## Summary
-
-The Transformer is an instance of the encoder--decoder architecture,
-though either the encoder or the decoder can be used individually in practice.
-In the Transformer architecture, multi-head self-attention is used
-for representing the input sequence and the output sequence,
-though the decoder has to preserve the autoregressive property via a masked version.
-Both the residual connections and the layer normalization in the Transformer
-are important for training a very deep model.
-The positionwise feed-forward network in the Transformer model
-transforms the representation at all the sequence positions using the same MLP.
+트랜스포머 아키텍처는 원래 시퀀스 투 시퀀스 학습을 위해 제안되었지만, 나중에 책에서 보게 되듯이 트랜스포머 인코더나 트랜스포머 디코더는 각각 개별적으로 서로 다른 딥러닝 작업에 자주 사용됩니다.
 
 
-## Exercises
+## 요약 (Summary)
 
-1. Train a deeper Transformer in the experiments. How does it affect the training speed and the translation performance?
-1. Is it a good idea to replace scaled dot product attention with additive attention in the Transformer? Why?
-1. For language modeling, should we use the Transformer encoder, decoder, or both? How would you design this method?
-1. What challenges can Transformers face if input sequences are very long? Why?
-1. How would you improve the computational and memory efficiency of Transformers? Hint: you may refer to the survey paper by :citet:`Tay.Dehghani.Bahri.ea.2020`.
+* 트랜스포머는 인코더-디코더 아키텍처의 한 사례이지만, 실제로는 인코더나 디코더 중 하나만 개별적으로 사용될 수도 있습니다.
+* 트랜스포머 아키텍처에서 멀티 헤드 셀프 어텐션은 입력 시퀀스와 출력 시퀀스를 표현하는 데 사용되지만, 디코더는 마스크된 버전을 통해 자기 회귀 속성을 유지해야 합니다.
+* 트랜스포머의 잔차 연결과 레이어 정규화는 매우 깊은 모델을 훈련하는 데 중요합니다.
+* 트랜스포머 모델의 포지션 와이즈 피드포워드 네트워크는 동일한 MLP를 사용하여 모든 시퀀스 위치의 표현을 변환합니다.
+
+
+## 연습 문제 (Exercises)
+
+1. 실험에서 더 깊은 트랜스포머를 훈련해 보십시오. 훈련 속도와 번역 성능에 어떤 영향을 미칩니까?
+2. 트랜스포머에서 스케일드 닷 프로덕트 어텐션을 가산(additive) 어텐션으로 바꾸는 것이 좋은 생각일까요? 왜 그렇습니까?
+3. 언어 모델링의 경우 트랜스포머 인코더, 디코더 중 무엇을 사용해야 할까요, 아니면 둘 다 사용해야 할까요? 이 방법을 어떻게 설계하시겠습니까?
+4. 입력 시퀀스가 매우 길면 트랜스포머가 어떤 어려움에 직면할 수 있습니까? 왜 그렇습니까?
+5. 트랜스포머의 계산 및 메모리 효율성을 어떻게 개선하시겠습니까? 힌트: :citet:`Tay.Dehghani.Bahri.ea.2020`의 서베이 논문을 참조할 수 있습니다.
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/348)
+[토론](https://discuss.d2l.ai/t/348)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/1066)
+[토론](https://discuss.d2l.ai/t/1066)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/3871)
+[토론](https://discuss.d2l.ai/t/3871)
 :end_tab:
 
 :begin_tab:`jax`
-[Discussions](https://discuss.d2l.ai/t/18031)
+[토론](https://discuss.d2l.ai/t/18031)
 :end_tab:
 
+```

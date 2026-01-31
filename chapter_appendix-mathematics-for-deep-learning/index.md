@@ -1,26 +1,26 @@
-# Appendix: Mathematics for Deep Learning
+# 부록: 딥러닝을 위한 수학 (Appendix: Mathematics for Deep Learning)
 :label:`chap_appendix_math`
 
-**Brent Werness** (*Amazon*), **Rachel Hu** (*Amazon*), and authors of this book
+**Brent Werness** (*Amazon*), **Rachel Hu** (*Amazon*), 및 이 책의 저자들
 
 
-One of the wonderful parts of modern deep learning is the fact that much of it can be understood and used without a full understanding of the mathematics below it.  This is a sign that the field is maturing.  Just as most software developers no longer need to worry about the theory of computable functions, neither should deep learning practitioners need to worry about the theoretical foundations of maximum likelihood learning.
+현대 딥러닝의 멋진 부분 중 하나는 그 아래에 있는 수학에 대한 완전한 이해 없이도 많은 부분을 이해하고 사용할 수 있다는 사실입니다. 이는 분야가 성숙하고 있다는 신호입니다. 대부분의 소프트웨어 개발자가 더 이상 계산 가능한 함수 이론에 대해 걱정할 필요가 없는 것처럼, 딥러닝 실무자도 최대 우도 학습의 이론적 기초에 대해 걱정할 필요가 없어야 합니다.
 
-But, we are not quite there yet.
+하지만 우리는 아직 거기에 도달하지 못했습니다.
 
-In practice, you will sometimes need to understand how architectural choices influence gradient flow, or the implicit assumptions you make by training with a certain loss function.  You might need to know what in the world entropy measures, and how it can help you understand exactly what bits-per-character means in your model.  These all require deeper mathematical understanding.
+실제로, 때로는 아키텍처 선택이 기울기 흐름에 어떤 영향을 미치는지, 또는 특정 손실 함수로 훈련함으로써 만드는 암시적 가정을 이해해야 할 수도 있습니다. 엔트로피가 도대체 무엇을 측정하는지, 그리고 모델에서 문자당 비트(bits-per-character)가 정확히 무엇을 의미하는지 이해하는 데 어떻게 도움이 되는지 알아야 할 수도 있습니다. 이 모든 것은 더 깊은 수학적 이해를 필요로 합니다.
 
-This appendix aims to provide you the mathematical background you need to understand the core theory of modern deep learning, but it is not exhaustive.  We will begin with examining linear algebra in greater depth.  We develop a geometric understanding of all the common linear algebraic objects and operations that will enable us to visualize the effects of various transformations on our data.  A key element is the development of the basics of eigen-decompositions.
+이 부록은 현대 딥러닝의 핵심 이론을 이해하는 데 필요한 수학적 배경을 제공하는 것을 목표로 하지만, 철저하지는 않습니다. 우리는 선형 대수를 더 깊이 있게 검토하는 것으로 시작할 것입니다. 우리는 데이터에 대한 다양한 변환의 효과를 시각화할 수 있게 해주는 모든 일반적인 선형 대수 객체와 연산에 대한 기하학적 이해를 개발합니다. 핵심 요소는 고유 분해(eigen-decompositions)의 기초를 개발하는 것입니다.
 
-We next develop the theory of differential calculus to the point that we can fully understand why the gradient is the direction of steepest descent, and why back-propagation takes the form it does.  Integral calculus is then discussed to the degree needed to support our next topic, probability theory.
+다음으로 우리는 기울기가 왜 가장 가파른 하강 방향인지, 그리고 왜 역전파가 그러한 형태를 취하는지 완전히 이해할 수 있는 수준까지 미분학 이론을 개발합니다. 그런 다음 다음 주제인 확률론을 지원하는 데 필요한 정도로 적분학을 논의합니다.
 
-Problems encountered in practice frequently are not certain, and thus we need a language to speak about uncertain things.  We review the theory of random variables and the most commonly encountered distributions so we may discuss models probabilistically.  This provides the foundation for the naive Bayes classifier, a probabilistic classification technique.
+실제로 마주치는 문제는 종종 확실하지 않으므로 불확실한 것에 대해 말할 언어가 필요합니다. 우리는 확률 변수 이론과 가장 일반적으로 마주치는 분포를 검토하여 모델을 확률적으로 논의할 수 있도록 합니다. 이는 확률적 분류 기술인 나이브 베이즈 분류기의 기초를 제공합니다.
 
-Closely related to probability theory is the study of statistics.  While statistics is far too large a field to do justice in a short section, we will introduce fundamental concepts that all machine learning practitioners should be aware of, in particular: evaluating and comparing estimators, conducting hypothesis tests, and constructing confidence intervals.
+확률론과 밀접한 관련이 있는 것은 통계학 연구입니다. 통계학은 짧은 섹션에서 다루기에는 너무 방대한 분야이지만, 우리는 모든 머신러닝 실무자가 알아야 할 기본 개념, 특히 추정량 평가 및 비교, 가설 검정 수행, 신뢰 구간 구성을 소개할 것입니다.
 
-Last, we turn to the topic of information theory, which is the mathematical study of information storage and transmission.  This provides the core language by which we may discuss quantitatively how much information a model holds on a domain of discourse.
+마지막으로 정보 이론이라는 주제로 넘어갑니다. 정보 이론은 정보 저장 및 전송에 대한 수학적 연구입니다. 이는 모델이 담론 영역에 대해 얼마나 많은 정보를 보유하고 있는지 정량적으로 논의할 수 있는 핵심 언어를 제공합니다.
 
-Taken together, these form the core of the mathematical concepts needed to begin down the path towards a deep understanding of deep learning.
+이들을 종합하면 딥러닝에 대한 깊은 이해를 향한 길을 시작하는 데 필요한 수학적 개념의 핵심을 형성합니다.
 
 ```toc
 :maxdepth: 2
@@ -37,4 +37,3 @@ naive-bayes
 statistics
 information-theory
 ```
-

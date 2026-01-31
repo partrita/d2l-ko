@@ -1,136 +1,77 @@
-# Region-based CNNs (R-CNNs)
+# 지역 기반 CNN (R-CNNs)
 :label:`sec_rcnn`
 
-Besides single shot multibox detection
-described in :numref:`sec_ssd`,
-region-based CNNs or regions with CNN features (R-CNNs)
-are also among many pioneering
-approaches of
-applying
-deep learning to object detection
+:numref:`sec_ssd`에서 설명한 단일 샷 멀티박스 감지 외에도,
+지역 기반 CNN 또는 CNN 특징을 가진 지역(R-CNN) 또한
+딥러닝을 객체 감지에 적용하는 많은 선구적인 접근 방식 중 하나입니다
 :cite:`Girshick.Donahue.Darrell.ea.2014`.
-In this section, we will introduce
-the R-CNN and its series of improvements: the fast R-CNN
-:cite:`Girshick.2015`, the faster R-CNN :cite:`Ren.He.Girshick.ea.2015`, and the mask R-CNN
-:cite:`He.Gkioxari.Dollar.ea.2017`.
-Due to limited space, we will only
-focus on the design of these models.
+이 섹션에서는 R-CNN과 그 일련의 개선 사항인 고속 R-CNN(Fast R-CNN) :cite:`Girshick.2015`, 더 빠른 R-CNN(Faster R-CNN) :cite:`Ren.He.Girshick.ea.2015`, 마스크 R-CNN(Mask R-CNN) :cite:`He.Gkioxari.Dollar.ea.2017`을 소개합니다.
+제한된 공간으로 인해, 우리는 이러한 모델의 설계에만 초점을 맞출 것입니다.
 
 
 
 ## R-CNNs
 
 
-The *R-CNN* first extracts
-many (e.g., 2000) *region proposals*
-from the input image
-(e.g., anchor boxes can also be considered
-as region proposals),
-labeling their classes and bounding boxes (e.g., offsets).
-:cite:`Girshick.Donahue.Darrell.ea.2014`
-Then a CNN is used to
-perform forward propagation on each region proposal
-to extract its features.
-Next, features of each region proposal
-are used for
-predicting the class and bounding box
-of this region proposal.
+*R-CNN*은 먼저 입력 이미지에서 많은(예: 2000개) *지역 제안(region proposals)*을 추출합니다(예: 앵커 박스도 지역 제안으로 간주될 수 있음). 그리고 클래스와 바운딩 박스(예: 오프셋)를 라벨링합니다 :cite:`Girshick.Donahue.Darrell.ea.2014`.
+그런 다음 CNN을 사용하여 각 지역 제안에 대해 순방향 전파를 수행하여 특징을 추출합니다.
+다음으로, 각 지역 제안의 특징을 사용하여 이 지역 제안의 클래스와 바운딩 박스를 예측합니다.
 
 
-![The R-CNN model.](../img/r-cnn.svg)
+![R-CNN 모델.](../img/r-cnn.svg)
 :label:`fig_r-cnn`
 
-:numref:`fig_r-cnn` shows the R-CNN model. More concretely, the R-CNN consists of the following four steps:
+:numref:`fig_r-cnn`은 R-CNN 모델을 보여줍니다. 더 구체적으로 R-CNN은 다음 네 단계로 구성됩니다:
 
-1. Perform *selective search* to extract multiple high-quality region proposals on the input image :cite:`Uijlings.Van-De-Sande.Gevers.ea.2013`. These proposed regions are usually selected at multiple scales with different shapes and sizes. Each region proposal will be labeled with a class and a ground-truth bounding box.
-1. Choose a pretrained CNN and truncate it before the output layer. Resize each region proposal to the input size required by the network, and output the extracted features for the region proposal through forward propagation.
-1. Take the extracted features and labeled class of each region proposal as an example. Train multiple support vector machines to classify objects, where each support vector machine individually determines whether the example contains a specific class.
-1. Take the extracted features and labeled bounding box of each region proposal as an example. Train a linear regression model to predict the ground-truth bounding box.
+1. *선택적 검색(selective search)*을 수행하여 입력 이미지에서 여러 고품질 지역 제안을 추출합니다 :cite:`Uijlings.Van-De-Sande.Gevers.ea.2013`. 이러한 제안된 지역은 일반적으로 다양한 모양과 크기의 다중 스케일로 선택됩니다. 각 지역 제안은 클래스와 실제 바운딩 박스로 라벨링됩니다.
+2. 사전 훈련된 CNN을 선택하고 출력 레이어 이전에 자릅니다. 각 지역 제안을 네트워크에 필요한 입력 크기로 조정하고 순방향 전파를 통해 지역 제안에 대한 추출된 특징을 출력합니다.
+3. 각 지역 제안의 추출된 특징과 라벨링된 클래스를 예제로 사용합니다. 객체를 분류하기 위해 여러 서포트 벡터 머신(SVM)을 훈련합니다. 여기서 각 서포트 벡터 머신은 예제에 특정 클래스가 포함되어 있는지 여부를 개별적으로 결정합니다.
+4. 각 지역 제안의 추출된 특징과 라벨링된 바운딩 박스를 예제로 사용합니다. 선형 회귀 모델을 훈련하여 실제 바운딩 박스를 예측합니다.
 
 
-Although the R-CNN model uses pretrained CNNs to effectively extract image features,
-it is slow.
-Imagine that we select
-thousands of region proposals from a single input image:
-this requires thousands of
-CNN forward propagations to perform object detection.
-This massive
-computing load makes it infeasible to
-widely use R-CNNs in real-world applications.
+R-CNN 모델은 사전 훈련된 CNN을 사용하여 이미지 특징을 효과적으로 추출하지만 속도가 느립니다.
+단일 입력 이미지에서 수천 개의 지역 제안을 선택한다고 상상해 보십시오:
+객체 감지를 수행하려면 수천 번의 CNN 순방향 전파가 필요합니다.
+이 막대한 컴퓨팅 부하로 인해 실제 응용 프로그램에서 R-CNN을 널리 사용하는 것은 불가능합니다.
 
-## Fast R-CNN
+## 고속 R-CNN (Fast R-CNN)
 
-The main performance bottleneck of
-an R-CNN lies in
-the independent CNN forward propagation
-for each region proposal,
-without sharing computation.
-Since these regions usually have
-overlaps,
-independent feature extractions lead to
-much repeated computation.
-One of the major improvements of
-the *fast R-CNN* from the
-R-CNN is that
-the CNN forward propagation
-is only performed on
-the entire image :cite:`Girshick.2015`.
+R-CNN의 주요 성능 병목 현상은 계산 공유 없이 각 지역 제안에 대해 독립적인 CNN 순방향 전파가 있다는 것입니다.
+이러한 지역은 일반적으로 겹치기 때문에 독립적인 특징 추출은 많은 반복 계산으로 이어집니다.
+R-CNN에서 *고속 R-CNN(Fast R-CNN)*으로의 주요 개선 사항 중 하나는 CNN 순방향 전파가 전체 이미지에 대해서만 수행된다는 것입니다 :cite:`Girshick.2015`.
 
-![The fast R-CNN model.](../img/fast-rcnn.svg)
+![고속 R-CNN 모델.](../img/fast-rcnn.svg)
 :label:`fig_fast_r-cnn`
 
-:numref:`fig_fast_r-cnn` describes the fast R-CNN model. Its major computations are as follows:
+:numref:`fig_fast_r-cnn`은 고속 R-CNN 모델을 설명합니다. 주요 계산은 다음과 같습니다:
 
 
-1. Compared with the R-CNN, in the fast R-CNN the input of the CNN for feature extraction is the entire image, rather than individual region proposals. Moreover, this CNN is trainable. Given an input image, let the shape of the CNN output be $1 \times c \times h_1  \times w_1$.
-1. Suppose that selective search generates $n$ region proposals. These region proposals (of different shapes) mark regions of interest (of different shapes) on the CNN output. Then these regions of interest further extract features of the same shape (say height $h_2$ and width $w_2$ are specified) in order to be easily concatenated. To achieve this, the fast R-CNN introduces the *region of interest (RoI) pooling* layer: the CNN output and region proposals are input into this layer, outputting concatenated features of shape $n \times c \times h_2 \times w_2$ that are further extracted for all the region proposals.
-1. Using a fully connected layer, transform the concatenated features into an output of shape $n \times d$, where $d$ depends on the model design.
-1. Predict the class and bounding box for each of the $n$ region proposals. More concretely, in class and bounding box prediction, transform the fully connected layer output into an output of shape $n \times q$ ($q$ is the number of classes) and an output of shape $n \times 4$, respectively. The class prediction uses softmax regression.
+1. R-CNN과 비교하여 고속 R-CNN에서 특징 추출을 위한 CNN의 입력은 개별 지역 제안이 아닌 전체 이미지입니다. 또한 이 CNN은 훈련 가능합니다. 입력 이미지가 주어졌을 때 CNN 출력의 모양을 $1 \times c \times h_1 \times w_1$이라고 합시다.
+2. 선택적 검색이 $n$개의 지역 제안을 생성한다고 가정합니다. 이러한 지역 제안(서로 다른 모양)은 CNN 출력에 관심 영역(서로 다른 모양)을 표시합니다. 그런 다음 이러한 관심 영역은 쉽게 연결될 수 있도록 동일한 모양(높이 $h_2$와 너비 $w_2$가 지정됨)의 특징을 추가로 추출합니다. 이를 달성하기 위해 고속 R-CNN은 *관심 영역(RoI) 풀링* 레이어를 도입합니다: CNN 출력과 지역 제안이 이 레이어에 입력되어 모든 지역 제안에 대해 추가로 추출되는 $n \times c \times h_2 \times w_2$ 모양의 연결된 특징을 출력합니다.
+3. 완전 연결 레이어를 사용하여 연결된 특징을 $n \times d$ 모양의 출력으로 변환합니다. 여기서 $d$는 모델 설계에 따라 다릅니다.
+4. $n$개의 각 지역 제안에 대한 클래스와 바운딩 박스를 예측합니다. 더 구체적으로 클래스 및 바운딩 박스 예측에서 완전 연결 레이어 출력을 각각 $n \times q$ ($q$는 클래스 수) 모양의 출력과 $n \times 4$ 모양의 출력으로 변환합니다. 클래스 예측은 소프트맥스 회귀를 사용합니다.
 
 
-The region of interest pooling layer proposed in the fast R-CNN is different from the pooling layer introduced in :numref:`sec_pooling`.
-In the pooling layer,
-we indirectly control the output shape
-by specifying sizes of
-the pooling window, padding, and stride.
-In contrast,
-we can directly specify the output shape
-in the region of interest pooling layer.
+고속 R-CNN에서 제안된 관심 영역 풀링 레이어는 :numref:`sec_pooling`에서 소개한 풀링 레이어와 다릅니다.
+풀링 레이어에서는 풀링 윈도우, 패딩, 스트라이드의 크기를 지정하여 출력 모양을 간접적으로 제어합니다.
+반면, 관심 영역 풀링 레이어에서는 출력 모양을 직접 지정할 수 있습니다.
 
-For example, let's specify
-the output height and width
-for each region as $h_2$ and $w_2$, respectively.
-For any region of interest window
-of shape $h \times w$,
-this window is divided into a $h_2 \times w_2$ grid
-of subwindows,
-where the shape of each subwindow is approximately
-$(h/h_2) \times (w/w_2)$.
-In practice,
-the height and width of any subwindow shall be rounded up, and the largest element shall be used as output of the subwindow.
-Therefore, the region of interest pooling layer can extract features of the same shape
-even when regions of interest have different shapes.
+예를 들어, 각 영역의 출력 높이와 너비를 각각 $h_2$와 $w_2$로 지정해 보겠습니다.
+모양이 $h \times w$인 관심 영역 윈도우의 경우,
+이 윈도우는 $h_2 \times w_2$ 그리드의 하위 윈도우로 나뉩니다.
+여기서 각 하위 윈도우의 모양은 대략 $(h/h_2) \times (w/w_2)$입니다.
+실제로 모든 하위 윈도우의 높이와 너비는 올림 처리되어야 하며, 가장 큰 요소가 하위 윈도우의 출력으로 사용되어야 합니다.
+따라서 관심 영역 풀링 레이어는 관심 영역의 모양이 다르더라도 동일한 모양의 특징을 추출할 수 있습니다.
 
 
-As an illustrative example,
-in :numref:`fig_roi`,
-the upper-left $3\times 3$ region of interest
-is selected on a $4 \times 4$ input.
-For this region of interest,
-we use a $2\times 2$ region of interest pooling layer to obtain
-a $2\times 2$ output.
-Note that
-each of the four divided subwindows
-contains elements
-0, 1, 4, and 5 (5 is the maximum);
-2 and 6 (6 is the maximum);
-8 and 9 (9 is the maximum);
-and 10.
+예를 들어, :numref:`fig_roi`에서 $4 \times 4$ 입력에서 왼쪽 상단 $3\times 3$ 관심 영역이 선택됩니다.
+이 관심 영역에 대해 $2\times 2$ 관심 영역 풀링 레이어를 사용하여 $2\times 2$ 출력을 얻습니다.
+네 개의 나뉜 하위 윈도우 각각에는 0, 1, 4, 5 (5가 최대); 2와 6 (6이 최대); 8과 9 (9가 최대); 그리고 10이 포함됩니다.
 
-![A $2\times 2$ region of interest pooling layer.](../img/roi.svg)
+![$2\times 2$ 관심 영역 풀링 레이어.](../img/roi.svg)
 :label:`fig_roi`
 
-Below we demonstrate the computation of the region of interest pooling layer. Suppose that the height and width of the CNN-extracted features `X` are both 4, and there is only a single channel.
+아래에서 관심 영역 풀링 레이어의 계산을 보여줍니다. CNN 추출 특징 `X`의 높이와 너비가 모두 4이고 채널이 하나뿐이라고 가정합니다.
 
 ```{.python .input}
 #@tab mxnet
@@ -151,11 +92,8 @@ X = torch.arange(16.).reshape(1, 1, 4, 4)
 X
 ```
 
-Let's further suppose
-that  the height and width of the input image are both 40 pixels and that selective search generates two region proposals on this image.
-Each region proposal
-is expressed as five elements:
-its object class followed by the $(x, y)$-coordinates of its upper-left and lower-right corners.
+입력 이미지의 높이와 너비가 모두 40 픽셀이고 선택적 검색이 이 이미지에서 두 개의 지역 제안을 생성한다고 가정해 보겠습니다.
+각 지역 제안은 5개의 요소로 표현됩니다: 객체 클래스와 그 뒤를 따르는 왼쪽 상단 및 오른쪽 하단 모서리의 $(x, y)$-좌표입니다.
 
 ```{.python .input}
 #@tab mxnet
@@ -167,14 +105,10 @@ rois = np.array([[0, 0, 0, 20, 20], [0, 0, 10, 30, 30]])
 rois = torch.Tensor([[0, 0, 0, 20, 20], [0, 0, 10, 30, 30]])
 ```
 
-Because the height and width of `X` are $1/10$ of the height and width of the input image,
-the coordinates of the two region proposals
-are multiplied by 0.1 according to the specified `spatial_scale` argument.
-Then the two regions of interest are marked on `X` as `X[:, :, 0:3, 0:3]` and `X[:, :, 1:4, 0:4]`, respectively.
-Finally in the $2\times 2$ region of interest pooling,
-each region of interest is divided
-into a grid of sub-windows to
-further extract features of the same shape $2\times 2$.
+`X`의 높이와 너비가 입력 이미지의 높이와 너비의 $1/10$이기 때문에,
+두 지역 제안의 좌표에는 지정된 `spatial_scale` 인수에 따라 0.1이 곱해집니다.
+그런 다음 두 관심 영역은 `X`에 각각 `X[:, :, 0:3, 0:3]` 및 `X[:, :, 1:4, 0:4]`로 표시됩니다.
+마지막으로 $2\times 2$ 관심 영역 풀링에서 각 관심 영역은 하위 윈도우 그리드로 나뉘어 동일한 모양 $2\times 2$의 특징을 추가로 추출합니다.
 
 ```{.python .input}
 #@tab mxnet
@@ -186,110 +120,68 @@ npx.roi_pooling(X, rois, pooled_size=(2, 2), spatial_scale=0.1)
 torchvision.ops.roi_pool(X, rois, output_size=(2, 2), spatial_scale=0.1)
 ```
 
-## Faster R-CNN
+## 더 빠른 R-CNN (Faster R-CNN)
 
-To be more accurate in object detection,
-the fast R-CNN model
-usually has to generate
-a lot of region proposals in selective search.
-To reduce region proposals
-without loss of accuracy,
-the *faster R-CNN*
-proposes to replace selective search with a *region proposal network* :cite:`Ren.He.Girshick.ea.2015`.
+객체 감지에서 더 정확해지기 위해, 고속 R-CNN 모델은 일반적으로 선택적 검색에서 많은 지역 제안을 생성해야 합니다.
+정확도 손실 없이 지역 제안을 줄이기 위해, *더 빠른 R-CNN(Faster R-CNN)*은 선택적 검색을 *지역 제안 네트워크(region proposal network)*로 대체할 것을 제안합니다 :cite:`Ren.He.Girshick.ea.2015`.
 
 
 
-![The faster R-CNN model.](../img/faster-rcnn.svg)
+![더 빠른 R-CNN 모델.](../img/faster-rcnn.svg)
 :label:`fig_faster_r-cnn`
 
 
-:numref:`fig_faster_r-cnn` shows the faster R-CNN model. Compared with the fast R-CNN,
-the faster R-CNN only changes
-the region proposal method
-from selective search to a region proposal network.
-The rest of the model remain
-unchanged.
-The region proposal network
-works in the following steps:
+:numref:`fig_faster_r-cnn`은 더 빠른 R-CNN 모델을 보여줍니다. 고속 R-CNN과 비교하여,
+더 빠른 R-CNN은 지역 제안 방법만 선택적 검색에서 지역 제안 네트워크로 변경합니다.
+모델의 나머지는 변경되지 않습니다.
+지역 제안 네트워크는 다음 단계로 작동합니다:
 
-1. Use a $3\times 3$ convolutional layer with padding of 1 to transform the CNN output to a new output with $c$ channels. In this way, each unit along the spatial dimensions of the CNN-extracted feature maps gets a new feature vector of length $c$.
-1. Centered on each pixel of the feature maps, generate multiple anchor boxes of different scales and aspect ratios and label them.
-1. Using the length-$c$ feature vector at the center of each anchor box, predict the binary class (background or objects) and bounding box for this anchor box.
-1. Consider those predicted bounding boxes whose  predicted classes are objects. Remove overlapped results using non-maximum suppression. The remaining  predicted bounding boxes for objects are the region proposals required by the region of interest pooling layer.
+1. 패딩이 1인 $3\times 3$ 합성곱 레이어를 사용하여 CNN 출력을 $c$ 채널을 가진 새로운 출력으로 변환합니다. 이런 식으로 CNN 추출 특징 맵의 공간 차원을 따른 각 단위는 길이 $c$의 새로운 특징 벡터를 얻습니다.
+2. 특징 맵의 각 픽셀을 중심으로 다양한 스케일과 가로세로 비율의 여러 앵커 박스를 생성하고 라벨링합니다.
+3. 각 앵커 박스 중심의 길이 $c$ 특징 벡터를 사용하여 이 앵커 박스에 대한 이진 클래스(배경 또는 객체)와 바운딩 박스를 예측합니다.
+4. 예측된 클래스가 객체인 예측된 바운딩 박스를 고려합니다. 비최대 억제를 사용하여 중복된 결과를 제거합니다. 객체에 대한 나머지 예측된 바운딩 박스가 관심 영역 풀링 레이어에 필요한 지역 제안입니다.
 
 
 
-It is worth noting that,
-as part of the faster R-CNN model,
-the region
-proposal network is jointly trained
-with the rest of the model.
-In other words, the objective function of
-the faster R-CNN includes
-not only the class and bounding box prediction
-in object detection,
-but also the binary class and bounding box prediction
-of anchor boxes in the region proposal network.
-As a result of the end-to-end training,
-the region proposal network learns
-how to generate high-quality region proposals,
-so as to stay accurate in object detection
-with a reduced number of region proposals
-that are learned from data.
+주목할 점은 더 빠른 R-CNN 모델의 일부로서 지역 제안 네트워크가 모델의 나머지 부분과 함께 공동으로 훈련된다는 것입니다.
+즉, 더 빠른 R-CNN의 목적 함수에는 객체 감지에서의 클래스 및 바운딩 박스 예측뿐만 아니라 지역 제안 네트워크에서의 앵커 박스의 이진 클래스 및 바운딩 박스 예측도 포함됩니다.
+종단간 훈련의 결과로, 지역 제안 네트워크는 고품질 지역 제안을 생성하는 방법을 학습하여 데이터에서 학습된 감소된 수의 지역 제안으로 객체 감지에서 정확도를 유지할 수 있습니다.
 
 
 
 
-## Mask R-CNN
+## 마스크 R-CNN (Mask R-CNN)
 
-In the training dataset,
-if pixel-level positions of object
-are also labeled on images,
-the *mask R-CNN* can effectively leverage
-such detailed labels
-to further improve the accuracy of object detection :cite:`He.Gkioxari.Dollar.ea.2017`.
+훈련 데이터셋에서 이미지에 객체의 픽셀 수준 위치도 라벨링되어 있다면,
+*마스크 R-CNN(Mask R-CNN)*은 이러한 상세한 라벨을 효과적으로 활용하여 객체 감지의 정확도를 더욱 향상시킬 수 있습니다 :cite:`He.Gkioxari.Dollar.ea.2017`.
 
 
-![The mask R-CNN model.](../img/mask-rcnn.svg)
+![마스크 R-CNN 모델.](../img/mask-rcnn.svg)
 :label:`fig_mask_r-cnn`
 
-As shown in :numref:`fig_mask_r-cnn`,
-the mask R-CNN
-is modified based on the faster R-CNN.
-Specifically,
-the mask R-CNN replaces the
-region of interest pooling layer with the
-*region of interest (RoI) alignment* layer.
-This region of interest alignment layer
-uses bilinear interpolation
-to preserve the spatial information on the feature maps, which is more suitable for pixel-level prediction.
-The output of this layer
-contains feature maps of the same shape
-for all the regions of interest.
-They are used
-to predict
-not only the class and bounding box for each region of interest,
-but also the pixel-level position of the object through an additional fully convolutional network.
-More details on using a fully convolutional network to predict pixel-level semantics of an image
-will be provided
-in subsequent sections of this chapter.
+:numref:`fig_mask_r-cnn`에 표시된 것처럼, 마스크 R-CNN은 더 빠른 R-CNN을 기반으로 수정되었습니다.
+구체적으로, 마스크 R-CNN은 관심 영역 풀링 레이어를 *관심 영역(RoI) 정렬* 레이어로 대체합니다.
+이 관심 영역 정렬 레이어는 이중 선형 보간법(bilinear interpolation)을 사용하여 특징 맵의 공간 정보를 보존하는데, 이는 픽셀 수준 예측에 더 적합합니다.
+이 레이어의 출력에는 모든 관심 영역에 대해 동일한 모양의 특징 맵이 포함됩니다.
+이들은 각 관심 영역에 대한 클래스와 바운딩 박스뿐만 아니라 추가적인 완전 합성곱 네트워크를 통해 객체의 픽셀 수준 위치를 예측하는 데 사용됩니다.
+이미지의 픽셀 수준 의미를 예측하기 위해 완전 합성곱 네트워크를 사용하는 것에 대한 자세한 내용은 이 장의 후속 섹션에서 제공됩니다.
 
 
 
 
-## Summary
+## 요약 (Summary)
 
 
-* The R-CNN extracts many region proposals from the input image, uses a CNN to perform forward propagation on each region proposal to extract its features, then uses these features to predict the class and bounding box of this region proposal.
-* One of the major improvements of  the fast R-CNN from the R-CNN is that the CNN forward propagation is only performed on  the entire image. It also introduces the region of interest pooling layer, so that features of the same shape can be further extracted for regions of interest that have different shapes.
-* The faster R-CNN replaces the selective search used in the fast R-CNN with a jointly trained region proposal network, so that the former can stay accurate in object detection with a reduced number of region proposals.
-* Based on the faster R-CNN, the mask R-CNN additionally introduces a fully convolutional network, so as to leverage pixel-level labels to further improve the accuracy of object detection.
+* R-CNN은 입력 이미지에서 많은 지역 제안을 추출하고, CNN을 사용하여 각 지역 제안에 대해 순방향 전파를 수행하여 특징을 추출한 다음, 이 특징을 사용하여 이 지역 제안의 클래스와 바운딩 박스를 예측합니다.
+* R-CNN에서 고속 R-CNN으로의 주요 개선 사항 중 하나는 CNN 순방향 전파가 전체 이미지에 대해서만 수행된다는 것입니다. 또한 관심 영역 풀링 레이어를 도입하여 모양이 다른 관심 영역에 대해 동일한 모양의 특징을 추가로 추출할 수 있습니다.
+* 더 빠른 R-CNN은 고속 R-CNN에서 사용되는 선택적 검색을 공동으로 훈련된 지역 제안 네트워크로 대체하여, 감소된 수의 지역 제안으로 객체 감지에서 정확도를 유지할 수 있습니다.
+* 더 빠른 R-CNN을 기반으로 하는 마스크 R-CNN은 추가적으로 완전 합성곱 네트워크를 도입하여 픽셀 수준 라벨을 활용하여 객체 감지의 정확도를 더욱 향상시킵니다.
 
 
-## Exercises
+## 연습 문제 (Exercises)
 
-1. Can we frame object detection as a single regression problem, such as predicting bounding boxes and class probabilities? You may refer to the design of the YOLO model :cite:`Redmon.Divvala.Girshick.ea.2016`.
-1. Compare single shot multibox detection with the methods introduced in this section. What are their major differences? You may refer to Figure 2 of :citet:`Zhao.Zheng.Xu.ea.2019`.
+1. 객체 감지를 바운딩 박스 및 클래스 확률 예측과 같은 단일 회귀 문제로 구성할 수 있습니까? YOLO 모델 :cite:`Redmon.Divvala.Girshick.ea.2016`의 설계를 참조할 수 있습니다.
+2. 단일 샷 멀티박스 감지를 이 섹션에서 소개한 방법과 비교하십시오. 주요 차이점은 무엇입니까? :citet:`Zhao.Zheng.Xu.ea.2019`의 그림 2를 참조할 수 있습니다.
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/374)

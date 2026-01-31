@@ -1,30 +1,23 @@
-# Fully Convolutional Networks
+# 완전 합성곱 네트워크 (Fully Convolutional Networks)
 :label:`sec_fcn`
 
-As discussed in :numref:`sec_semantic_segmentation`,
-semantic segmentation
-classifies images in pixel level.
-A fully convolutional network (FCN)
-uses a convolutional neural network to
-transform image pixels to pixel classes :cite:`Long.Shelhamer.Darrell.2015`.
-Unlike the CNNs that we encountered earlier
-for image classification 
-or object detection,
-a fully convolutional network
-transforms 
-the height and width of intermediate feature maps
-back to those of the input image:
-this is achieved by
-the transposed convolutional layer
-introduced in :numref:`sec_transposed_conv`.
-As a result,
-the classification output
-and the input image 
-have a one-to-one correspondence 
-in pixel level:
-the channel dimension at any output pixel 
-holds the classification results
-for the input pixel at the same spatial position.
+:numref:`sec_semantic_segmentation`에서 논의한 바와 같이,
+시맨틱 분할은
+이미지를 픽셀 수준에서 분류합니다.
+완전 합성곱 네트워크(FCN)는
+이미지 픽셀을 픽셀 클래스로 변환하기 위해 합성곱 신경망을 사용합니다 :cite:`Long.Shelhamer.Darrell.2015`.
+이미지 분류 또는 객체 감지를 위해
+이전에 접했던 CNN과 달리,
+완전 합성곱 네트워크는
+중간 특징 맵의 높이와 너비를
+입력 이미지의 높이와 너비로 다시 변환합니다.
+이것은 :numref:`sec_transposed_conv`에서 소개한
+전치 합성곱 레이어에 의해 달성됩니다.
+결과적으로,
+분류 출력과 입력 이미지는
+픽셀 수준에서 일대일 대응을 가집니다.
+어떤 출력 픽셀의 채널 차원은
+동일한 공간 위치에 있는 입력 픽셀에 대한 분류 결과를 보유합니다.
 
 ```{.python .input}
 #@tab mxnet
@@ -46,35 +39,28 @@ from torch import nn
 from torch.nn import functional as F
 ```
 
-## The Model
+## 모델 (The Model)
 
-Here we describe the basic design of the fully convolutional network model. 
-As shown in :numref:`fig_fcn`,
-this model first uses a CNN to extract image features,
-then transforms the number of channels into
-the number of classes
-via a $1\times 1$ convolutional layer,
-and finally transforms the height and width of
-the feature maps
-to those
-of the input image via
-the transposed convolution introduced in :numref:`sec_transposed_conv`. 
-As a result,
-the model output has the same height and width as the input image,
-where the output channel contains the predicted classes
-for the input pixel at the same spatial position.
+여기서는 완전 합성곱 네트워크 모델의 기본 설계를 설명합니다.
+:numref:`fig_fcn`에 표시된 것처럼,
+이 모델은 먼저 CNN을 사용하여 이미지 특징을 추출하고,
+그 다음 $1\times 1$ 합성곱 레이어를 통해 채널 수를 클래스 수로 변환하며,
+마지막으로 :numref:`sec_transposed_conv`에서 소개한 전치 합성곱을 통해
+특징 맵의 높이와 너비를
+입력 이미지의 높이와 너비로 변환합니다.
+결과적으로,
+모델 출력은 입력 이미지와 동일한 높이와 너비를 가지며,
+출력 채널에는 동일한 공간 위치에 있는 입력 픽셀에 대한 예측 클래스가 포함됩니다.
 
 
-![Fully convolutional network.](../img/fcn.svg)
+![완전 합성곱 네트워크.](../img/fcn.svg)
 :label:`fig_fcn`
 
-Below, we [**use a ResNet-18 model pretrained on the ImageNet dataset to extract image features**]
-and denote the model instance as `pretrained_net`.
-The last few layers of this model
-include a global average pooling layer
-and a fully connected layer:
-they are not needed
-in the fully convolutional network.
+아래에서, 우리는 [**ImageNet 데이터셋에서 사전 훈련된 ResNet-18 모델을 사용하여 이미지 특징을 추출**]하고
+모델 인스턴스를 `pretrained_net`으로 표시합니다.
+이 모델의 마지막 몇 개 레이어에는
+글로벌 평균 풀링 레이어와 완전 연결 레이어가 포함되어 있습니다.
+이들은 완전 합성곱 네트워크에서 필요하지 않습니다.
 
 ```{.python .input}
 #@tab mxnet
@@ -88,11 +74,9 @@ pretrained_net = torchvision.models.resnet18(pretrained=True)
 list(pretrained_net.children())[-3:]
 ```
 
-Next, we [**create the fully convolutional network instance `net`**].
-It copies all the pretrained layers in the ResNet-18
-except for the final global average pooling layer
-and the fully connected layer that are closest
-to the output.
+다음으로, 우리는 [**완전 합성곱 네트워크 인스턴스 `net`을 생성**]합니다.
+이것은 ResNet-18의 모든 사전 훈련된 레이어를 복사합니다.
+단, 출력에 가장 가까운 최종 글로벌 평균 풀링 레이어와 완전 연결 레이어는 제외합니다.
 
 ```{.python .input}
 #@tab mxnet
@@ -106,9 +90,9 @@ for layer in pretrained_net.features[:-2]:
 net = nn.Sequential(*list(pretrained_net.children())[:-2])
 ```
 
-Given an input with height and width of 320 and 480 respectively,
-the forward propagation of `net`
-reduces the input height and width to 1/32 of the original, namely 10 and 15.
+높이와 너비가 각각 320과 480인 입력이 주어지면,
+`net`의 순방향 전파는
+입력 높이와 너비를 원래의 1/32, 즉 10과 15로 줄입니다.
 
 ```{.python .input}
 #@tab mxnet
@@ -122,21 +106,16 @@ X = torch.rand(size=(1, 3, 320, 480))
 net(X).shape
 ```
 
-Next, we [**use a $1\times 1$ convolutional layer to transform the number of output channels into the number of classes (21) of the Pascal VOC2012 dataset.**]
-Finally, we need to (**increase the height and width of the feature maps by 32 times**) to change them back to the height and width of the input image. 
-Recall how to calculate 
-the output shape of a convolutional layer in :numref:`sec_padding`. 
-Since $(320-64+16\times2+32)/32=10$ and $(480-64+16\times2+32)/32=15$, we construct a transposed convolutional layer with stride of $32$, 
-setting
-the height and width of the kernel
-to $64$, the padding to $16$.
-In general,
-we can see that
-for stride $s$,
-padding $s/2$ (assuming $s/2$ is an integer),
-and the height and width of the kernel $2s$, 
-the transposed convolution will increase
-the height and width of the input by $s$ times.
+다음으로, 우리는 [**$1\times 1$ 합성곱 레이어를 사용하여 출력 채널 수를 Pascal VOC2012 데이터셋의 클래스 수(21)로 변환합니다.**]
+마지막으로, 특징 맵을 입력 이미지의 높이와 너비로 다시 변경하기 위해 (**특징 맵의 높이와 너비를 32배로 늘려야 합니다**).
+:numref:`sec_padding`에서 합성곱 레이어의 출력 모양을 계산하는 방법을 상기하십시오.
+$(320-64+16\times2+32)/32=10$이고 $(480-64+16\times2+32)/32=15$이므로, 우리는 스트라이드 $32$인 전치 합성곱 레이어를 구성하고,
+커널의 높이와 너비를 $64$로, 패딩을 $16$으로 설정합니다. 
+일반적으로,
+스트라이드 $s$,
+패딩 $s/2$($s/2$가 정수라고 가정),
+커널의 높이와 너비 $2s$에 대해,
+전치 합성곱은 입력의 높이와 너비를 $s$배로 늘립니다.
 
 ```{.python .input}
 #@tab mxnet
@@ -154,39 +133,30 @@ net.add_module('transpose_conv', nn.ConvTranspose2d(num_classes, num_classes,
                                     kernel_size=64, padding=16, stride=32))
 ```
 
-## [**Initializing Transposed Convolutional Layers**]
+## [**전치 합성곱 레이어 초기화 (Initializing Transposed Convolutional Layers)**]
 
 
-We already know that
-transposed convolutional layers can increase
-the height and width of
-feature maps.
-In image processing, we may need to scale up
-an image, i.e., *upsampling*.
-*Bilinear interpolation*
-is one of the commonly used upsampling techniques.
-It is also often used for initializing transposed convolutional layers.
+우리는 이미 전치 합성곱 레이어가
+특징 맵의 높이와 너비를 늘릴 수 있다는 것을 알고 있습니다.
+이미지 처리에서, 우리는 이미지를 확대해야 할 수도 있습니다. 즉, *업샘플링(upsampling)*입니다.
+*이중 선형 보간법(Bilinear interpolation)*은
+일반적으로 사용되는 업샘플링 기술 중 하나입니다.
+이것은 또한 전치 합성곱 레이어를 초기화하는 데 자주 사용됩니다.
 
-To explain bilinear interpolation,
-say that 
-given an input image
-we want to 
-calculate each pixel 
-of the upsampled output image.
-In order to calculate the pixel of the output image
-at coordinate $(x, y)$, 
-first map $(x, y)$ to coordinate $(x', y')$ on the input image, for example, according to the ratio of the input size to the output size. 
-Note that the mapped $x'$ and $y'$ are real numbers. 
-Then, find the four pixels closest to coordinate
-$(x', y')$ on the input image. 
-Finally, the pixel of the output image at coordinate $(x, y)$ is calculated based on these four closest pixels
-on the input image and their relative distance from $(x', y')$. 
+이중 선형 보간법을 설명하기 위해, 
+입력 이미지가 주어졌을 때
+업샘플링된 출력 이미지의 각 픽셀을
+계산하고 싶다고 가정해 봅시다.
+좌표 $(x, y)$에 있는 출력 이미지의 픽셀을 계산하기 위해,
+먼저 입력 크기 대 출력 크기의 비율에 따라 $(x, y)$를 입력 이미지의 좌표 $(x', y')$로 매핑합니다.
+매핑된 $x'$와 $y'$는 실수입니다.
+그런 다음, 입력 이미지에서 좌표 $(x', y')$에 가장 가까운 4개의 픽셀을 찾습니다.
+마지막으로, 좌표 $(x, y)$에 있는 출력 이미지의 픽셀은 입력 이미지의 이 4개의 가장 가까운 픽셀과
+$(x', y')$로부터의 상대적 거리를 기반으로 계산됩니다.
 
-Upsampling of bilinear interpolation
-can be implemented by the transposed convolutional layer 
-with the kernel constructed by the following `bilinear_kernel` function. 
-Due to space limitations, we only provide the implementation of the `bilinear_kernel` function below
-without discussions on its algorithm design.
+이중 선형 보간법의 업샘플링은
+다음 `bilinear_kernel` 함수에 의해 구성된 커널을 가진 전치 합성곱 레이어로 구현될 수 있습니다.
+공간 제한으로 인해, 알고리즘 설계에 대한 논의 없이 아래에 `bilinear_kernel` 함수의 구현만 제공합니다.
 
 ```{.python .input}
 #@tab mxnet
@@ -223,11 +193,9 @@ def bilinear_kernel(in_channels, out_channels, kernel_size):
     return weight
 ```
 
-Let's [**experiment with upsampling of bilinear interpolation**] 
-that is implemented by a transposed convolutional layer. 
-We construct a transposed convolutional layer that 
-doubles the height and weight,
-and initialize its kernel with the `bilinear_kernel` function.
+전치 합성곱 레이어에 의해 구현된 [**이중 선형 보간법의 업샘플링을 실험**]해 봅시다.
+우리는 높이와 너비를 두 배로 늘리는 전치 합성곱 레이어를 구성하고,
+`bilinear_kernel` 함수로 커널을 초기화합니다.
 
 ```{.python .input}
 #@tab mxnet
@@ -242,7 +210,7 @@ conv_trans = nn.ConvTranspose2d(3, 3, kernel_size=4, padding=1, stride=2,
 conv_trans.weight.data.copy_(bilinear_kernel(3, 3, 4));
 ```
 
-Read the image `X` and assign the upsampling output to `Y`. In order to print the image, we need to adjust the position of the channel dimension.
+이미지 `X`를 읽고 업샘플링 출력을 `Y`에 할당합니다. 이미지를 인쇄하려면 채널 차원의 위치를 조정해야 합니다.
 
 ```{.python .input}
 #@tab mxnet
@@ -260,9 +228,9 @@ Y = conv_trans(X)
 out_img = Y[0].permute(1, 2, 0).detach()
 ```
 
-As we can see, the transposed convolutional layer increases both the height and width of the image by a factor of two.
-Except for the different scales in coordinates,
-the image scaled up by bilinear interpolation and the original image printed in :numref:`sec_bbox` look the same.
+보시다시피, 전치 합성곱 레이어는 이미지의 높이와 너비를 모두 2배로 늘립니다.
+좌표의 스케일이 다른 것을 제외하고,
+이중 선형 보간법으로 확대된 이미지와 :numref:`sec_bbox`에서 인쇄된 원본 이미지는 동일하게 보입니다.
 
 ```{.python .input}
 #@tab mxnet
@@ -282,7 +250,7 @@ print('output image shape:', out_img.shape)
 d2l.plt.imshow(out_img);
 ```
 
-In a fully convolutional network, we [**initialize the transposed convolutional layer with upsampling of bilinear interpolation. For the $1\times 1$ convolutional layer, we use Xavier initialization.**]
+완전 합성곱 네트워크에서, 우리는 [**이중 선형 보간법의 업샘플링으로 전치 합성곱 레이어를 초기화합니다. $1\times 1$ 합성곱 레이어의 경우 Xavier 초기화를 사용합니다.**]
 
 ```{.python .input}
 #@tab mxnet
@@ -297,13 +265,11 @@ W = bilinear_kernel(num_classes, num_classes, 64)
 net.transpose_conv.weight.data.copy_(W);
 ```
 
-## [**Reading the Dataset**]
+## [**데이터셋 읽기 (Reading the Dataset)**]
 
-We read
-the semantic segmentation dataset
-as introduced in :numref:`sec_semantic_segmentation`. 
-The output image shape of random cropping is
-specified as $320\times 480$: both the height and width are divisible by $32$.
+우리는 :numref:`sec_semantic_segmentation`에서 소개한
+시맨틱 분할 데이터셋을 읽습니다.
+무작위 자르기의 출력 이미지 모양은 $320\times 480$으로 지정됩니다. 높이와 너비 모두 32로 나누어떨어집니다.
 
 ```{.python .input}
 #@tab all
@@ -311,20 +277,17 @@ batch_size, crop_size = 32, (320, 480)
 train_iter, test_iter = d2l.load_data_voc(batch_size, crop_size)
 ```
 
-## [**Training**]
+## [**훈련 (Training)**]
 
 
-Now we can train our constructed
-fully convolutional network. 
-The loss function and accuracy calculation here
-are not essentially different from those in image classification of earlier chapters. 
-Because we use the output channel of the
-transposed convolutional layer to
-predict the class for each pixel,
-the channel dimension is specified in the loss calculation.
-In addition, the accuracy is calculated
-based on correctness
-of the predicted class for all the pixels.
+이제 우리가 구성한
+완전 합성곱 네트워크를 훈련할 수 있습니다. 
+여기서의 손실 함수와 정확도 계산은
+이전 장의 이미지 분류와 본질적으로 다르지 않습니다. 
+우리는 전치 합성곱 레이어의 출력 채널을 사용하여
+각 픽셀에 대한 클래스를 예측하기 때문에,
+손실 계산에서 채널 차원이 지정됩니다. 
+또한, 정확도는 모든 픽셀에 대해 예측된 클래스의 정확성을 기반으로 계산됩니다.
 
 ```{.python .input}
 #@tab mxnet
@@ -346,11 +309,11 @@ trainer = torch.optim.SGD(net.parameters(), lr=lr, weight_decay=wd)
 d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, devices)
 ```
 
-## [**Prediction**]
+## [**예측 (Prediction)**]
 
 
-When predicting, we need to standardize the input image
-in each channel and transform the image into the four-dimensional input format required by the CNN.
+예측할 때, 우리는 각 채널에서 입력 이미지를 표준화하고
+이미지를 CNN에 필요한 4차원 입력 형식으로 변환해야 합니다.
 
 ```{.python .input}
 #@tab mxnet
@@ -369,7 +332,7 @@ def predict(img):
     return pred.reshape(pred.shape[1], pred.shape[2])
 ```
 
-To [**visualize the predicted class**] of each pixel, we map the predicted class back to its label color in the dataset.
+각 픽셀의 [**예측된 클래스를 시각화**]하기 위해, 예측된 클래스를 데이터셋의 라벨 색상으로 다시 매핑합니다.
 
 ```{.python .input}
 #@tab mxnet
@@ -387,31 +350,25 @@ def label2image(pred):
     return colormap[X, :]
 ```
 
-Images in the test dataset vary in size and shape.
-Since the model uses a transposed convolutional layer with stride of 32,
-when the height or width of an input image is indivisible by 32,
-the output height or width of the
-transposed convolutional layer will deviate from the shape of the input image.
-In order to address this issue,
-we can crop multiple rectangular areas with height and width that are integer multiples of 32 in the image,
-and perform forward propagation
-on the pixels in these areas separately.
-Note that
-the union of these rectangular areas needs to completely cover the input image.
-When a pixel is covered by multiple rectangular areas,
-the average of the transposed convolution outputs
-in separate areas for this same pixel
-can be input to
-the softmax operation
-to predict the class.
+테스트 데이터셋의 이미지는 크기와 모양이 다양합니다.
+모델은 스트라이드가 32인 전치 합성곱 레이어를 사용하므로,
+입력 이미지의 높이나 너비가 32로 나누어떨어지지 않으면
+전치 합성곱 레이어의 출력 높이나 너비가 입력 이미지의 모양에서 벗어날 것입니다.
+이 문제를 해결하기 위해,
+우리는 이미지에서 높이와 너비가 32의 정수 배수인 여러 직사각형 영역을 자르고,
+이 영역의 픽셀에 대해 개별적으로 순방향 전파를 수행할 수 있습니다. 
+이러한 직사각형 영역의 합집합은 입력 이미지를 완전히 덮어야 합니다. 
+픽셀이 여러 직사각형 영역에 의해 덮일 때, 
+이 동일한 픽셀에 대한 별도 영역의 전치 합성곱 출력 평균을
+소프트맥스 연산에 입력하여 클래스를 예측할 수 있습니다.
 
 
-For simplicity, we only read a few larger test images,
-and crop a $320\times480$ area for prediction starting from the upper-left corner of an image.
-For these test images, we
-print their cropped areas,
-prediction results,
-and ground-truth row by row.
+간단하게 하기 위해, 우리는 몇 개의 더 큰 테스트 이미지만 읽고, 
+이미지의 왼쪽 상단 모서리에서 시작하여 예측을 위해 $320\times 480$ 영역을 자릅니다. 
+이 테스트 이미지들에 대해, 우리는
+자른 영역,
+예측 결과,
+그리고 실제(ground-truth)를 줄별로 인쇄합니다.
 
 ```{.python .input}
 #@tab mxnet
@@ -441,18 +398,18 @@ for i in range(n):
 d2l.show_images(imgs[::3] + imgs[1::3] + imgs[2::3], 3, n, scale=2);
 ```
 
-## Summary
+## 요약 (Summary)
 
-* The fully convolutional network first uses a CNN to extract image features, then transforms the number of channels into the number of classes via a $1\times 1$ convolutional layer, and finally transforms the height and width of the feature maps to those of the input image via the transposed convolution.
-* In a fully convolutional network, we can use upsampling of bilinear interpolation to initialize the transposed convolutional layer.
+* 완전 합성곱 네트워크는 먼저 CNN을 사용하여 이미지 특징을 추출하고, 그 다음 $1\times 1$ 합성곱 레이어를 통해 채널 수를 클래스 수로 변환하며, 마지막으로 전치 합성곱을 통해 특징 맵의 높이와 너비를 입력 이미지의 높이와 너비로 변환합니다.
+* 완전 합성곱 네트워크에서, 우리는 전치 합성곱 레이어를 초기화하기 위해 이중 선형 보간법의 업샘플링을 사용할 수 있습니다.
 
 
-## Exercises
+## 연습 문제 (Exercises)
 
-1. If we use Xavier initialization for the transposed convolutional layer in the experiment, how does the result change?
-1. Can you further improve the accuracy of the model by tuning the hyperparameters?
-1. Predict the classes of all pixels in test images.
-1. The original fully convolutional network paper also uses outputs of some intermediate CNN layers :cite:`Long.Shelhamer.Darrell.2015`. Try to implement this idea.
+1. 실험에서 전치 합성곱 레이어에 Xavier 초기화를 사용하면 결과가 어떻게 변합니까?
+1. 하이퍼파라미터를 조정하여 모델의 정확도를 더 향상시킬 수 있습니까?
+1. 테스트 이미지의 모든 픽셀 클래스를 예측하십시오.
+1. 원래의 완전 합성곱 네트워크 논문은 또한 일부 중간 CNN 레이어의 출력을 사용합니다 :cite:`Long.Shelhamer.Darrell.2015`. 이 아이디어를 구현해 보십시오.
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/377)

@@ -3,84 +3,52 @@
 tab.interact_select(['mxnet', 'pytorch', 'tensorflow', 'jax'])
 ```
 
-# GPUs
+# GPU (GPUs)
 :label:`sec_use_gpu`
 
-In :numref:`tab_intro_decade`, we illustrated the rapid growth
-of computation over the past two decades.
-In a nutshell, GPU performance has increased
-by a factor of 1000 every decade since 2000.
-This offers great opportunities but it also suggests
-that there was significant demand for such performance.
+:numref:`tab_intro_decade`에서 우리는 지난 20년 동안의 급격한 계산 성장을 설명했습니다. 
+간단히 말해서 GPU 성능은 2000년 이후 매 10년마다 1000배씩 증가했습니다. 
+이것은 엄청난 기회를 제공하지만 동시에 그러한 성능에 대한 상당한 수요가 있었음을 시사합니다.
 
 
-In this section, we begin to discuss how to harness
-this computational performance for your research.
-First by using a single GPU and at a later point,
-how to use multiple GPUs and multiple servers (with multiple GPUs).
+이 섹션에서는 연구를 위해 이러한 계산 성능을 활용하는 방법에 대해 논의하기 시작합니다. 
+먼저 단일 GPU를 사용하는 방법을 다루고, 나중에 다중 GPU와 다중 서버(다중 GPU 포함)를 사용하는 방법을 다룹니다.
 
-Specifically, we will discuss how
-to use a single NVIDIA GPU for calculations.
-First, make sure you have at least one NVIDIA GPU installed.
-Then, download the [NVIDIA driver and CUDA](https://developer.nvidia.com/cuda-downloads)
-and follow the prompts to set the appropriate path.
-Once these preparations are complete,
-the `nvidia-smi` command can be used
-to (**view the graphics card information**).
+구체적으로 단일 NVIDIA GPU를 계산에 사용하는 방법을 논의합니다. 
+먼저 NVIDIA GPU가 하나 이상 설치되어 있는지 확인하십시오. 
+그런 다음 [NVIDIA 드라이버 및 CUDA](https://developer.nvidia.com/cuda-downloads)를 다운로드하고 프롬프트에 따라 적절한 경로를 설정하십시오. 
+이러한 준비가 완료되면 `nvidia-smi` 명령을 사용하여 (**그래픽 카드 정보를 볼 수 있습니다**).
 
 :begin_tab:`mxnet`
-You might have noticed that a MXNet tensor
-looks almost identical to a NumPy `ndarray`.
-But there are a few crucial differences.
-One of the key features that distinguishes MXNet
-from NumPy is its support for diverse hardware devices.
+MXNet 텐서가 NumPy `ndarray`와 거의 똑같아 보인다는 것을 눈치챘을 것입니다. 
+하지만 몇 가지 중요한 차이점이 있습니다. 
+NumPy와 MXNet을 구별하는 주요 특징 중 하나는 다양한 하드웨어 장치 지원입니다.
 
-In MXNet, every array has a context.
-So far, by default, all variables
-and associated computation
-have been assigned to the CPU.
-Typically, other contexts might be various GPUs.
-Things can get even hairier when
-we deploy jobs across multiple servers.
-By assigning arrays to contexts intelligently,
-we can minimize the time spent
-transferring data between devices.
-For example, when training neural networks on a server with a GPU,
-we typically prefer for the model's parameters to live on the GPU.
+MXNet에서 모든 배열에는 컨텍스트(context)가 있습니다. 
+지금까지는 기본적으로 모든 변수와 관련 계산이 CPU에 할당되었습니다. 
+일반적으로 다른 컨텍스트는 다양한 GPU일 수 있습니다. 
+여러 서버에 작업을 배포할 때 상황은 더욱 복잡해질 수 있습니다. 
+배열을 컨텍스트에 지능적으로 할당함으로써 장치 간 데이터 전송에 소요되는 시간을 최소화할 수 있습니다. 
+예를 들어 GPU가 있는 서버에서 신경망을 훈련할 때 일반적으로 모델의 파라미터가 GPU에 상주하는 것을 선호합니다.
 
-Next, we need to confirm that
-the GPU version of MXNet is installed.
-If a CPU version of MXNet is already installed,
-we need to uninstall it first.
-For example, use the `pip uninstall mxnet` command,
-then install the corresponding MXNet version
-according to your CUDA version.
-Assuming you have CUDA 10.0 installed,
-you can install the MXNet version
-that supports CUDA 10.0 via `pip install mxnet-cu100`.
+다음으로 MXNet의 GPU 버전이 설치되어 있는지 확인해야 합니다. 
+CPU 버전의 MXNet이 이미 설치되어 있는 경우 먼저 제거해야 합니다. 
+예를 들어 `pip uninstall mxnet` 명령을 사용한 다음 CUDA 버전에 따라 해당 MXNet 버전을 설치하십시오. 
+CUDA 10.0이 설치되어 있다고 가정하면 `pip install mxnet-cu100`을 통해 CUDA 10.0을 지원하는 MXNet 버전을 설치할 수 있습니다.
 :end_tab:
 
 :begin_tab:`pytorch`
-In PyTorch, every array has a device; we often refer it as a *context*.
-So far, by default, all variables
-and associated computation
-have been assigned to the CPU.
-Typically, other contexts might be various GPUs.
-Things can get even hairier when
-we deploy jobs across multiple servers.
-By assigning arrays to contexts intelligently,
-we can minimize the time spent
-transferring data between devices.
-For example, when training neural networks on a server with a GPU,
-we typically prefer for the model's parameters to live on the GPU.
+PyTorch에서 모든 배열에는 장치(device)가 있습니다. 우리는 종종 이를 *컨텍스트(context)*라고 부릅니다. 
+지금까지는 기본적으로 모든 변수와 관련 계산이 CPU에 할당되었습니다. 
+일반적으로 다른 컨텍스트는 다양한 GPU일 수 있습니다. 
+여러 서버에 작업을 배포할 때 상황은 더욱 복잡해질 수 있습니다. 
+배열을 컨텍스트에 지능적으로 할당함으로써 장치 간 데이터 전송에 소요되는 시간을 최소화할 수 있습니다. 
+예를 들어 GPU가 있는 서버에서 신경망을 훈련할 때 일반적으로 모델의 파라미터가 GPU에 상주하는 것을 선호합니다.
 :end_tab:
 
-To run the programs in this section,
-you need at least two GPUs.
-Note that this might be extravagant for most desktop computers
-but it is easily available in the cloud, e.g.,
-by using the AWS EC2 multi-GPU instances.
-Almost all other sections do *not* require multiple GPUs, but here we simply wish to illustrate data flow between different devices.
+이 섹션의 프로그램을 실행하려면 최소 두 개의 GPU가 필요합니다. 
+대부분의 데스크톱 컴퓨터에는 과도할 수 있지만 클라우드(예: AWS EC2 멀티 GPU 인스턴스 사용)에서는 쉽게 사용할 수 있습니다. 
+거의 모든 다른 섹션은 다중 GPU를 *요구하지 않지만*, 여기서는 단순히 장치 간 데이터 흐름을 설명하고자 합니다.
 
 ```{.python .input}
 %%tab mxnet
@@ -111,48 +79,37 @@ import jax
 from jax import numpy as jnp
 ```
 
-## [**Computing Devices**]
+## [**컴퓨팅 장치 (Computing Devices)**]
 
-We can specify devices, such as CPUs and GPUs,
-for storage and calculation.
-By default, tensors are created in the main memory
-and then the CPU is used for calculations.
+저장 및 계산을 위해 CPU 및 GPU와 같은 장치를 지정할 수 있습니다. 
+기본적으로 텐서는 메인 메모리에 생성된 다음 계산에 CPU를 사용합니다.
 
 :begin_tab:`mxnet`
-In MXNet, the CPU and GPU can be indicated by `cpu()` and `gpu()`.
-It should be noted that `cpu()`
-(or any integer in the parentheses)
-means all physical CPUs and memory.
-This means that MXNet's calculations
-will try to use all CPU cores.
-However, `gpu()` only represents one card
-and the corresponding memory.
-If there are multiple GPUs, we use `gpu(i)`
-to represent the $i^\textrm{th}$ GPU ($i$ starts from 0).
-Also, `gpu(0)` and `gpu()` are equivalent.
+MXNet에서 CPU와 GPU는 `cpu()`와 `gpu()`로 나타낼 수 있습니다. 
+`cpu()`(또는 괄호 안의 정수)는 모든 물리적 CPU와 메모리를 의미한다는 점에 유의해야 합니다. 
+이는 MXNet의 계산이 모든 CPU 코어를 사용하려고 시도한다는 것을 의미합니다. 
+그러나 `gpu()`는 하나의 카드와 해당 메모리만 나타냅니다. 
+GPU가 여러 개 있는 경우 `gpu(i)`를 사용하여 $i$번째 GPU를 나타냅니다($i$는 0부터 시작). 
+또한 `gpu(0)`과 `gpu()`는 동일합니다.
 :end_tab:
 
 :begin_tab:`pytorch`
-In PyTorch, the CPU and GPU can be indicated by `torch.device('cpu')` and `torch.device('cuda')`.
-It should be noted that the `cpu` device
-means all physical CPUs and memory.
-This means that PyTorch's calculations
-will try to use all CPU cores.
-However, a `gpu` device only represents one card
-and the corresponding memory.
-If there are multiple GPUs, we use `torch.device(f'cuda:{i}')`
-to represent the $i^\textrm{th}$ GPU ($i$ starts at 0).
-Also, `gpu:0` and `gpu` are equivalent.
+PyTorch에서 CPU와 GPU는 `torch.device('cpu')`와 `torch.device('cuda')`로 나타낼 수 있습니다. 
+`cpu` 장치는 모든 물리적 CPU와 메모리를 의미한다는 점에 유의해야 합니다. 
+이는 PyTorch의 계산이 모든 CPU 코어를 사용하려고 시도한다는 것을 의미합니다. 
+그러나 `gpu` 장치는 하나의 카드와 해당 메모리만 나타냅니다. 
+GPU가 여러 개 있는 경우 `torch.device(f'cuda:{i}')`를 사용하여 $i$번째 GPU를 나타냅니다($i$는 0부터 시작). 
+또한 `gpu:0`과 `gpu`는 동일합니다.
 :end_tab:
 
 ```{.python .input}
 %%tab pytorch
 def cpu():  #@save
-    """Get the CPU device."""
+    """CPU 장치를 가져옵니다."""
     return torch.device('cpu')
 
 def gpu(i=0):  #@save
-    """Get a GPU device."""
+    """GPU 장치를 가져옵니다."""
     return torch.device(f'cuda:{i}')
 
 cpu(), gpu(), gpu(1)
@@ -161,7 +118,7 @@ cpu(), gpu(), gpu(1)
 ```{.python .input}
 %%tab mxnet, tensorflow, jax
 def cpu():  #@save
-    """Get the CPU device."""
+    """CPU 장치를 가져옵니다."""
     if tab.selected('mxnet'):
         return npx.cpu()
     if tab.selected('tensorflow'):
@@ -170,7 +127,7 @@ def cpu():  #@save
         return jax.devices('cpu')[0]
 
 def gpu(i=0):  #@save
-    """Get a GPU device."""
+    """GPU 장치를 가져옵니다."""
     if tab.selected('mxnet'):
         return npx.gpu(i)
     if tab.selected('tensorflow'):
@@ -181,12 +138,12 @@ def gpu(i=0):  #@save
 cpu(), gpu(), gpu(1)
 ```
 
-We can (**query the number of available GPUs.**)
+우리는 (**사용 가능한 GPU 수를 쿼리**)할 수 있습니다.
 
 ```{.python .input}
 %%tab pytorch
 def num_gpus():  #@save
-    """Get the number of available GPUs."""
+    """사용 가능한 GPU 수를 가져옵니다."""
     return torch.cuda.device_count()
 
 num_gpus()
@@ -195,7 +152,7 @@ num_gpus()
 ```{.python .input}
 %%tab mxnet, tensorflow, jax
 def num_gpus():  #@save
-    """Get the number of available GPUs."""
+    """사용 가능한 GPU 수를 가져옵니다."""
     if tab.selected('mxnet'):
         return npx.num_gpus()
     if tab.selected('tensorflow'):
@@ -204,45 +161,43 @@ def num_gpus():  #@save
         try:
             return jax.device_count('gpu')
         except:
-            return 0  # No GPU backend found
+            return 0  # GPU 백엔드를 찾을 수 없음
 
 num_gpus()
 ```
 
-Now we [**define two convenient functions that allow us
-to run code even if the requested GPUs do not exist.**]
+이제 [**요청한 GPU가 존재하지 않더라도 코드를 실행할 수 있게 해주는 두 가지 편리한 함수를 정의합니다.**]
 
 ```{.python .input}
 %%tab all
 def try_gpu(i=0):  #@save
-    """Return gpu(i) if exists, otherwise return cpu()."""
+    """존재하면 gpu(i)를, 그렇지 않으면 cpu()를 반환합니다."""
     if num_gpus() >= i + 1:
         return gpu(i)
     return cpu()
 
 def try_all_gpus():  #@save
-    """Return all available GPUs, or [cpu(),] if no GPU exists."""
+    """모든 사용 가능한 GPU를 반환하거나, GPU가 없으면 [cpu(),]를 반환합니다."""
     return [gpu(i) for i in range(num_gpus())]
 
 try_gpu(), try_gpu(10), try_all_gpus()
 ```
 
-## Tensors and GPUs
+## 텐서와 GPU (Tensors and GPUs)
 
 :begin_tab:`pytorch`
-By default, tensors are created on the CPU.
-We can [**query the device where the tensor is located.**]
+기본적으로 텐서는 CPU에 생성됩니다. 
+우리는 [**텐서가 위치한 장치를 쿼리**]할 수 있습니다.
 :end_tab:
 
 :begin_tab:`mxnet`
-By default, tensors are created on the CPU.
-We can [**query the device where the tensor is located.**]
+기본적으로 텐서는 CPU에 생성됩니다. 
+우리는 [**텐서가 위치한 장치를 쿼리**]할 수 있습니다.
 :end_tab:
 
 :begin_tab:`tensorflow, jax`
-By default, tensors are created on the GPU/TPU if they are available,
-else CPU is used if not available.
-We can [**query the device where the tensor is located.**]
+기본적으로 텐서는 GPU/TPU를 사용할 수 있으면 생성되고, 그렇지 않으면 CPU가 사용됩니다. 
+우리는 [**텐서가 위치한 장치를 쿼리**]할 수 있습니다.
 :end_tab:
 
 ```{.python .input}
@@ -269,23 +224,17 @@ x = jnp.array([1, 2, 3])
 x.device()
 ```
 
-It is important to note that whenever we want
-to operate on multiple terms,
-they need to be on the same device.
-For instance, if we sum two tensors,
-we need to make sure that both arguments
-live on the same device---otherwise the framework
-would not know where to store the result
-or even how to decide where to perform the computation.
+여러 항에 대해 연산하고자 할 때마다, 그것들이 동일한 장치에 있어야 한다는 점을 기억하는 것이 중요합니다. 
+예를 들어 두 텐서를 더하는 경우, 두 인수가 동일한 장치에 있는지 확인해야 합니다. 그렇지 않으면 프레임워크는 결과를 어디에 저장해야 할지, 심지어 어디서 계산을 수행해야 할지 결정할 수 없습니다.
 
-### Storage on the GPU
+### GPU에 저장하기 (Storage on the GPU)
 
-There are several ways to [**store a tensor on the GPU.**]
-For example, we can specify a storage device when creating a tensor.
-Next, we create the tensor variable `X` on the first `gpu`.
-The tensor created on a GPU only consumes the memory of this GPU.
-We can use the `nvidia-smi` command to view GPU memory usage.
-In general, we need to make sure that we do not create data that exceeds the GPU memory limit.
+[**텐서를 GPU에 저장**]하는 방법에는 여러 가지가 있습니다. 
+예를 들어 텐서를 생성할 때 저장 장치를 지정할 수 있습니다. 
+다음으로 첫 번째 `gpu`에 텐서 변수 `X`를 생성합니다. 
+GPU에 생성된 텐서는 해당 GPU의 메모리만 소비합니다. 
+`nvidia-smi` 명령을 사용하여 GPU 메모리 사용량을 볼 수 있습니다. 
+일반적으로 GPU 메모리 한도를 초과하는 데이터를 생성하지 않도록 해야 합니다.
 
 ```{.python .input}
 %%tab mxnet
@@ -308,12 +257,12 @@ X
 
 ```{.python .input}
 %%tab jax
-# By default JAX puts arrays to GPUs or TPUs if available
+# 기본적으로 JAX는 사용 가능한 경우 배열을 GPU 또는 TPU에 넣습니다
 X = jax.device_put(jnp.ones((2, 3)), try_gpu())
 X
 ```
 
-Assuming that you have at least two GPUs, the following code will (**create a random tensor, `Y`, on the second GPU.**)
+최소 두 개의 GPU가 있다고 가정하면, 다음 코드는 (**두 번째 GPU에 무작위 텐서 `Y`를 생성합니다.**)
 
 ```{.python .input}
 %%tab mxnet
@@ -341,21 +290,15 @@ Y = jax.device_put(jax.random.uniform(jax.random.PRNGKey(0), (2, 3)),
 Y
 ```
 
-### Copying
+### 복사하기 (Copying)
 
-[**If we want to compute `X + Y`,
-we need to decide where to perform this operation.**]
-For instance, as shown in :numref:`fig_copyto`,
-we can transfer `X` to the second GPU
-and perform the operation there.
-*Do not* simply add `X` and `Y`,
-since this will result in an exception.
-The runtime engine would not know what to do:
-it cannot find data on the same device and it fails.
-Since `Y` lives on the second GPU,
-we need to move `X` there before we can add the two.
+[**`X + Y`를 계산하려면, 이 연산을 어디서 수행할지 결정해야 합니다.**] 
+예를 들어 :numref:`fig_copyto`에 표시된 것처럼 `X`를 두 번째 GPU로 전송하여 거기서 연산을 수행할 수 있습니다. 
+단순히 `X`와 `Y`를 더하지 *마십시오*. 예외가 발생할 것입니다. 
+런타임 엔진은 무엇을 해야 할지 모릅니다: 동일한 장치에서 데이터를 찾을 수 없어 실패합니다. 
+`Y`가 두 번째 GPU에 있으므로 두 개를 더하기 전에 `X`를 거기로 옮겨야 합니다.
 
-![Copy data to perform an operation on the same device.](../img/copyto.svg)
+![데이터를 복사하여 동일한 장치에서 연산을 수행합니다.](../img/copyto.svg)
 :label:`fig_copyto`
 
 ```{.python .input}
@@ -387,7 +330,7 @@ print(X)
 print(Z)
 ```
 
-Now that [**the data (both `Z` and `Y`) are on the same GPU), we can add them up.**]
+이제 [**데이터(`Z`와 `Y` 모두)가 동일한 GPU에 있으므로, 더할 수 있습니다.**]
 
 ```{.python .input}
 %%tab all
@@ -395,37 +338,32 @@ Y + Z
 ```
 
 :begin_tab:`mxnet`
-Imagine that your variable `Z` already lives on your second GPU.
-What happens if we still call  `Z.copyto(gpu(1))`?
-It will make a copy and allocate new memory,
-even though that variable already lives on the desired device.
-There are times where, depending on the environment our code is running in,
-two variables may already live on the same device.
-So we want to make a copy only if the variables
-currently live in different devices.
-In these cases, we can call `as_in_ctx`.
-If the variable already live in the specified device
-then this is a no-op.
-Unless you specifically want to make a copy,
-`as_in_ctx` is the method of choice.
+변수 `Z`가 이미 두 번째 GPU에 있다고 상상해 보십시오. 
+여전히 `Z.copyto(gpu(1))`을 호출하면 어떻게 될까요? 
+변수가 이미 원하는 장치에 있음에도 불구하고 복사본을 만들고 새 메모리를 할당할 것입니다. 
+코드가 실행되는 환경에 따라 두 변수가 이미 동일한 장치에 있을 수 있는 경우가 있습니다. 
+따라서 변수가 현재 다른 장치에 있는 경우에만 복사본을 만들고 싶습니다. 
+이러한 경우 `as_in_ctx`를 호출할 수 있습니다. 
+변수가 이미 지정된 장치에 있다면 아무 작업도 수행하지 않습니다. 
+특별히 복사본을 만들고 싶지 않다면 `as_in_ctx`가 선택할 수 있는 방법입니다.
 :end_tab:
 
 :begin_tab:`pytorch`
-But what if your variable `Z` already lived on your second GPU?
-What happens if we still call `Z.cuda(1)`?
-It will return `Z` instead of making a copy and allocating new memory.
+하지만 변수 `Z`가 이미 두 번째 GPU에 있었다면 어떨까요? 
+여전히 `Z.cuda(1)`을 호출하면 어떻게 될까요? 
+복사본을 만들고 새 메모리를 할당하는 대신 `Z`를 반환할 것입니다.
 :end_tab:
 
 :begin_tab:`tensorflow`
-Imagine that your variable `Z` already lives on your second GPU.
-What happens if we still call `Z2 = Z` under the same device scope?
-It will return `Z` instead of making a copy and allocating new memory.
+변수 `Z`가 이미 두 번째 GPU에 있다고 상상해 보십시오. 
+동일한 장치 범위에서 `Z2 = Z`를 호출하면 어떻게 될까요? 
+복사본을 만들고 새 메모리를 할당하는 대신 `Z`를 반환할 것입니다.
 :end_tab:
 
 :begin_tab:`jax`
-Imagine that your variable `Z` already lives on your second GPU.
-What happens if we still call `Z2 = Z` under the same device scope?
-It will return `Z` instead of making a copy and allocating new memory.
+변수 `Z`가 이미 두 번째 GPU에 있다고 상상해 보십시오. 
+동일한 장치 범위에서 `Z2 = Z`를 호출하면 어떻게 될까요? 
+복사본을 만들고 새 메모리를 할당하는 대신 `Z`를 반환할 것입니다.
 :end_tab:
 
 ```{.python .input}
@@ -451,44 +389,28 @@ Z2 = jax.device_put(Z, try_gpu(1))
 Z2 is Z
 ```
 
-### Side Notes
+### 부가적인 참고 사항 (Side Notes)
 
-People use GPUs to do machine learning
-because they expect them to be fast.
-But transferring variables between devices is slow: much slower than computation.
-So we want you to be 100% certain
-that you want to do something slow before we let you do it.
-If the deep learning framework just did the copy automatically
-without crashing then you might not realize
-that you had written some slow code.
+사람들은 빠를 것이라고 기대하기 때문에 GPU를 사용하여 머신러닝을 수행합니다. 
+하지만 장치 간에 변수를 전송하는 것은 느립니다: 계산보다 훨씬 느립니다. 
+따라서 우리는 여러분이 느린 작업을 수행하기를 원한다는 것을 100% 확신하기를 바랍니다. 
+딥러닝 프레임워크가 충돌 없이 자동으로 복사를 수행했다면 여러분은 느린 코드를 작성했다는 것을 깨닫지 못했을 수 있습니다.
 
-Transferring data is not only slow, it also makes parallelization a lot more difficult,
-since we have to wait for data to be sent (or rather to be received)
-before we can proceed with more operations.
-This is why copy operations should be taken with great care.
-As a rule of thumb, many small operations
-are much worse than one big operation.
-Moreover, several operations at a time
-are much better than many single operations interspersed in the code
-unless you know what you are doing.
-This is the case since such operations can block if one device
-has to wait for the other before it can do something else.
-It is a bit like ordering your coffee in a queue
-rather than pre-ordering it by phone
-and finding out that it is ready when you are.
+데이터 전송은 느릴 뿐만 아니라 병렬화도 훨씬 어렵게 만듭니다. 더 많은 작업을 진행하기 전에 데이터가 전송될 때까지(또는 수신될 때까지) 기다려야 하기 때문입니다. 
+이것이 복사 작업에 각별한 주의를 기울여야 하는 이유입니다. 
+경험 법칙에 따르면, 작은 작업 여러 개는 하나의 큰 작업보다 훨씬 나쁩니다. 
+또한 여러분이 무엇을 하고 있는지 알지 못한다면, 코드에 흩어져 있는 많은 단일 작업보다 한 번에 여러 작업을 수행하는 것이 훨씬 낫습니다. 
+한 장치가 다른 장치를 기다려야 다른 작업을 수행할 수 있는 경우 이러한 작업이 차단될 수 있기 때문입니다. 
+마치 줄을 서서 커피를 주문하는 것보다 전화로 미리 주문하고 갔을 때 준비되어 있는 것을 확인하는 것과 비슷합니다.
 
-Last, when we print tensors or convert tensors to the NumPy format,
-if the data is not in the main memory,
-the framework will copy it to the main memory first,
-resulting in additional transmission overhead.
-Even worse, it is now subject to the dreaded global interpreter lock
-that makes everything wait for Python to complete.
+마지막으로, 텐서를 인쇄하거나 텐서를 NumPy 형식으로 변환할 때 데이터가 메인 메모리에 없으면 프레임워크는 먼저 메인 메모리로 복사하여 추가적인 전송 오버헤드를 발생시킵니다. 
+설상가상으로 이제 Python이 완료될 때까지 모든 것을 기다리게 만드는 무시무시한 전역 인터프리터 록(Global Interpreter Lock)의 적용을 받습니다.
 
 
-## [**Neural Networks and GPUs**]
+## [**신경망과 GPU (Neural Networks and GPUs)**]
 
-Similarly, a neural network model can specify devices.
-The following code puts the model parameters on the GPU.
+마찬가지로 신경망 모델도 장치를 지정할 수 있습니다. 
+다음 코드는 모델 파라미터를 GPU에 넣습니다.
 
 ```{.python .input}
 %%tab mxnet
@@ -516,15 +438,13 @@ with strategy.scope():
 net = nn.Sequential([nn.Dense(1)])
 
 key1, key2 = jax.random.split(jax.random.PRNGKey(0))
-x = jax.random.normal(key1, (10,))  # Dummy input
-params = net.init(key2, x)  # Initialization call
+x = jax.random.normal(key1, (10,))  # 더미 입력
+params = net.init(key2, x)  # 초기화 호출
 ```
 
-We will see many more examples of
-how to run models on GPUs in the following chapters,
-simply because the models will become somewhat more computationally intensive.
+다음 장에서 GPU에서 모델을 실행하는 더 많은 예를 볼 수 있을 것입니다. 단순히 모델이 계산적으로 좀 더 집약적이 될 것이기 때문입니다.
 
-For example, when the input is a tensor on the GPU, the model will calculate the result on the same GPU.
+예를 들어 입력이 GPU에 있는 텐서인 경우, 모델은 동일한 GPU에서 결과를 계산합니다.
 
 ```{.python .input}
 %%tab mxnet, pytorch, tensorflow
@@ -536,7 +456,7 @@ net(X)
 net.apply(params, x)
 ```
 
-Let's (**confirm that the model parameters are stored on the same GPU.**)
+(**모델 파라미터가 동일한 GPU에 저장되어 있는지 확인**)해 봅시다.
 
 ```{.python .input}
 %%tab mxnet
@@ -558,7 +478,7 @@ net.layers[0].weights[0].device, net.layers[0].weights[1].device
 print(jax.tree_util.tree_map(lambda x: x.device(), params))
 ```
 
-Let the trainer support GPU.
+트레이너가 GPU를 지원하도록 합니다.
 
 ```{.python .input}
 %%tab mxnet
@@ -617,49 +537,38 @@ def prepare_batch(self, batch):
     return batch
 ```
 
-In short, as long as all data and parameters are on the same device, we can learn models efficiently. In the following chapters we will see several such examples.
+간단히 말해서 모든 데이터와 파라미터가 동일한 장치에 있는 한 모델을 효율적으로 학습할 수 있습니다. 다음 장에서 몇 가지 그러한 예를 볼 것입니다.
 
-## Summary
+## 요약 (Summary)
 
-We can specify devices for storage and calculation, such as the CPU or GPU.
-  By default, data is created in the main memory
-  and then uses the CPU for calculations.
-The deep learning framework requires all input data for calculation
-  to be on the same device,
-  be it CPU or the same GPU.
-You can lose significant performance by moving data without care.
-  A typical mistake is as follows: computing the loss
-  for every minibatch on the GPU and reporting it back
-  to the user on the command line (or logging it in a NumPy `ndarray`)
-  will trigger a global interpreter lock which stalls all GPUs.
-  It is much better to allocate memory
-  for logging inside the GPU and only move larger logs.
+CPU 또는 GPU와 같은 저장 및 계산용 장치를 지정할 수 있습니다.
+  기본적으로 데이터는 메인 메모리에 생성된 다음 계산을 위해 CPU를 사용합니다.
+딥러닝 프레임워크는 계산을 위한 모든 입력 데이터가 CPU이든 동일한 GPU이든 동일한 장치에 있어야 합니다.
+주의 없이 데이터를 이동하면 상당한 성능 저하가 발생할 수 있습니다.
+  전형적인 실수는 다음과 같습니다: GPU에서 모든 미니배치에 대한 손실을 계산하고 명령줄에서 사용자에게 다시 보고(또는 NumPy `ndarray`에 기록)하면 모든 GPU를 멈추게 하는 전역 인터프리터 록이 트리거됩니다.
+  GPU 내부에 로깅을 위한 메모리를 할당하고 더 큰 로그만 이동하는 것이 훨씬 낫습니다.
 
-## Exercises
+## 연습 문제 (Exercises)
 
-1. Try a larger computation task, such as the multiplication of large matrices,
-   and see the difference in speed between the CPU and GPU.
-   What about a task with a small number of calculations?
-1. How should we read and write model parameters on the GPU?
-1. Measure the time it takes to compute 1000
-   matrix--matrix multiplications of $100 \times 100$ matrices
-   and log the Frobenius norm of the output matrix one result at a time. Compare it with keeping a log on the GPU and transferring only the final result.
-1. Measure how much time it takes to perform two matrix--matrix multiplications
-   on two GPUs at the same time. Compare it with computing in in sequence
-   on one GPU. Hint: you should see almost linear scaling.
+1. 큰 행렬의 곱셈과 같은 더 큰 계산 작업을 시도해보고 CPU와 GPU 사이의 속도 차이를 확인하십시오. 계산 횟수가 적은 작업은 어떻습니까?
+2. GPU에서 모델 파라미터를 어떻게 읽고 써야 합니까?
+3. $100 	imes 100$ 행렬의 행렬-행렬 곱셈 1000개를 계산하는 데 걸리는 시간을 측정하고, 한 번에 하나씩 결과 출력 행렬의 프로베니우스 노름을 기록하십시오. GPU에 로그를 유지하고 최종 결과만 전송하는 것과 비교하십시오.
+4. 동시에 두 개의 GPU에서 두 개의 행렬-행렬 곱셈을 수행하는 데 걸리는 시간을 측정하십시오. 하나의 GPU에서 순차적으로 계산하는 것과 비교하십시오. 힌트: 거의 선형적인 확장을 볼 수 있어야 합니다.
 
 :begin_tab:`mxnet`
-[Discussions](https://discuss.d2l.ai/t/62)
+[토론](https://discuss.d2l.ai/t/62)
 :end_tab:
 
 :begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/63)
+[토론](https://discuss.d2l.ai/t/63)
 :end_tab:
 
 :begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/270)
+[토론](https://discuss.d2l.ai/t/270)
 :end_tab:
 
 :begin_tab:`jax`
 [Discussions](https://discuss.d2l.ai/t/17995)
 :end_tab:
+
+```
